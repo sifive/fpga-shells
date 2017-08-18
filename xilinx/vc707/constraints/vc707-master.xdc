@@ -29,10 +29,9 @@ set_property PACKAGE_PIN AR34 [get_ports uart_rtsn]
 set_property IOSTANDARD LVCMOS18 [get_ports uart_rtsn]
 set_property IOB TRUE [get_ports uart_rtsn]
 
-# FIXME: shreesha: I need to see if these matter and add them back
-# currently everything works without it....
-#set_property IOB TRUE [get_cells "top/RocketChipTop/uarts_0/txm/out_reg"]
-#set_property IOB TRUE [get_cells "uart_rx_sync_reg[0]"]
+# Platform specific constraints
+set_property IOB TRUE [get_cells "U500VC707System/uarts_0/txm/out_reg"]
+set_property IOB TRUE [get_cells "uart_rx_sync_0"]
 
 # PCI Express
 #FMC 1 refclk

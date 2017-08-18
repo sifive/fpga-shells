@@ -11,6 +11,7 @@ import freechips.rocketchip.devices.debug._
 import sifive.blocks.devices.gpio._
 import sifive.blocks.devices.spi._
 import sifive.blocks.devices.uart._
+import sifive.blocks.util.{ShiftRegister}
 
 import sifive.fpgashells.devices.xilinx.xilinxvc707mig._
 import sifive.fpgashells.devices.xilinx.xilinxvc707pciex1._
@@ -201,14 +202,10 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
     val uartParams = p(PeripheryUARTKey)
     if (!uartParams.isEmpty) {
       // synchronize uart_rx
-      val uart_rx_sync_reg0 = RegInit(true.B)
-      uart_rx_sync_reg0 := uart_rx
-
-      val uart_rx_sync_reg1 = RegInit(true.B)
-      uart_rx_sync_reg1 := uart_rx_sync_reg0
+      val uart_rx_sync = ShiftRegister(uart_rx, 2, true.B, ~dut.reset, name=Some("uart_rx"))
 
       // uart connections
-      dut.uart(0).rxd := uart_rx_sync_reg1
+      dut.uart(0).rxd := uart_rx_sync
       uart_tx         := dut.uart(0).txd
     }
   }
