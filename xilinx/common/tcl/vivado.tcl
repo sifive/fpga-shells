@@ -4,7 +4,9 @@
 source [file join $scriptdir "synth.tcl"]
 
 # Pre-implementation debug
-source [file join $scriptdir "pre-impl-debug.tcl"]
+if {[info exists ::env(PRE_IMPL_DEBUG_TCL)]} {
+  source [file join $scriptdir ::env(PRE_IMPL_DEBUG_TCL)]
+}
 
 # Post synthesis optimization
 source [file join $scriptdir "opt.tcl"]
@@ -19,7 +21,9 @@ source [file join $scriptdir "route.tcl"]
 source [file join $scriptdir "bitstream.tcl"]
 
 # Post-implementation debug
-source [file join $scriptdir "post-impl-debug.tcl"]
+if {[info exists ::env(POST_IMPL_DEBUG_TCL)]} {
+  source [file join $scriptdir ::env(POST_IMPL_DEBUG_TCL)]
+}
 
 # Create reports for the current implementation
 source [file join $scriptdir "report.tcl"]
