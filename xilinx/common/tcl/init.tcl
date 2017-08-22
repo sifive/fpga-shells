@@ -9,8 +9,15 @@ file mkdir $ipdir
 # Update the IP catalog
 update_ip_catalog -rebuild
 
-# Board specific IP implementation
-source [file join $boarddir tcl ip.tcl]
+# Generate IP implementations. Vivado TCL emitted from Chisel Blackboxes
+foreach ipvivadotcl $ipvivadotcls {
+  source $ipvivadotcl
+}
+# Optional board-specific ip script
+set boardiptcl [file join $boarddir tcl ip.tcl]
+if {[file exists boardiptcl]} {
+  source [file join $boarddir tcl ip.tcl]
+}
 
 # AR 58526 <http://www.xilinx.com/support/answers/58526.html>
 set_property GENERATE_SYNTH_CHECKPOINT {false} [get_files -all {*.xci}]
