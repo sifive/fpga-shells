@@ -4,6 +4,7 @@ package sifive.fpgashells.ip.xilinx
 import Chisel._
 import chisel3.core.{Input, Output, attach}
 import chisel3.experimental.{Analog}
+import freechips.rocketchip.util.{ElaborationArtefacts}
 
 import sifive.blocks.devices.pinctrl.{BasePin}
 
@@ -204,6 +205,55 @@ class vc707clk_wiz_sync extends BlackBox {
     val reset     = Bool(INPUT)
     val locked    = Bool(OUTPUT)
   }
+  
+  ElaborationArtefacts.add(
+    "vc707clk_wiz_sync.vivado.tcl",
+    """create_ip -name clk_wiz -vendor xilinx.com -library ip -version 5.3 -module_name vc707clk_wiz_sync -dir $ipdir -force
+    set_property -dict [list \
+    CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \
+    CONFIG.PRIM_SOURCE {No_buffer} \
+    CONFIG.CLKOUT2_USED {true} \
+    CONFIG.CLKOUT3_USED {true} \
+    CONFIG.CLKOUT4_USED {true} \
+    CONFIG.CLKOUT5_USED {true} \
+    CONFIG.CLKOUT6_USED {true} \
+    CONFIG.CLKOUT7_USED {true} \
+    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {12.5} \
+    CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {25} \
+    CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {37.5} \
+    CONFIG.CLKOUT4_REQUESTED_OUT_FREQ {50} \
+    CONFIG.CLKOUT5_REQUESTED_OUT_FREQ {100} \
+    CONFIG.CLKOUT6_REQUESTED_OUT_FREQ {150.000} \
+    CONFIG.CLKOUT7_REQUESTED_OUT_FREQ {75} \
+    CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \
+    CONFIG.PRIM_IN_FREQ {200.000} \
+    CONFIG.CLKIN1_JITTER_PS {50.0} \
+    CONFIG.MMCM_DIVCLK_DIVIDE {1} \
+    CONFIG.MMCM_CLKFBOUT_MULT_F {4.500} \
+    CONFIG.MMCM_CLKIN1_PERIOD {5.0} \
+    CONFIG.MMCM_CLKOUT0_DIVIDE_F {72.000} \
+    CONFIG.MMCM_CLKOUT1_DIVIDE {36} \
+    CONFIG.MMCM_CLKOUT2_DIVIDE {24} \
+    CONFIG.MMCM_CLKOUT3_DIVIDE {18} \
+    CONFIG.MMCM_CLKOUT4_DIVIDE {9} \
+    CONFIG.MMCM_CLKOUT5_DIVIDE {6} \
+    CONFIG.MMCM_CLKOUT6_DIVIDE {12} \
+    CONFIG.NUM_OUT_CLKS {7} \
+    CONFIG.CLKOUT1_JITTER {168.247} \
+    CONFIG.CLKOUT1_PHASE_ERROR {91.235} \
+    CONFIG.CLKOUT2_JITTER {146.624} \
+    CONFIG.CLKOUT2_PHASE_ERROR {91.235} \
+    CONFIG.CLKOUT3_JITTER {135.178} \
+    CONFIG.CLKOUT3_PHASE_ERROR {91.235} \
+    CONFIG.CLKOUT4_JITTER {127.364} \
+    CONFIG.CLKOUT4_PHASE_ERROR {91.235} \
+    CONFIG.CLKOUT5_JITTER {110.629} \
+    CONFIG.CLKOUT5_PHASE_ERROR {91.235} \
+    CONFIG.CLKOUT6_JITTER {102.207} \
+    CONFIG.CLKOUT6_PHASE_ERROR {91.235} \
+    CONFIG.CLKOUT7_JITTER {117.249} \
+    CONFIG.CLKOUT7_PHASE_ERROR {91.235}] [get_ips vc707clk_wiz_sync] """
+  )
 }
 
 //-------------------------------------------------------------------------

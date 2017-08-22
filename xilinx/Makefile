@@ -14,7 +14,7 @@ init = $(FPGA_BUILD_DIR)/.init
 $(init): $(fpga_common_script_dir)/init.tcl
 	mkdir -p $(FPGA_BUILD_DIR) && \
 	cd $(FPGA_BUILD_DIR) && \
-	VSRCS="$(VSRCS)" $(VIVADO) $(VIVADOFLAGS) -source $<
+	VSRCS="$(VSRCS)" IPVIVADOTCLS="$(IPVIVADOTCLS)" $(VIVADO) $(VIVADOFLAGS) -source $<
 
 .PHONY: init
 init: $(init)

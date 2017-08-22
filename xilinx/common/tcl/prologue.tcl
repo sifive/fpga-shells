@@ -51,6 +51,13 @@ if {[info exists ::env(VSRCS)]} {
   }
 }
 
+# Add IP Vivado TCL from IPVIVADOTCL environment variable
+if {[info exists ::env(IPVIVADOTCLS)]} {
+  # Split string into words even with multiple consecutive spaces
+  # http://wiki.tcl.tk/989
+  set ipvivadotcls [regexp -inline -all -- {\S+} $::env(IPVIVADOTCLS)]
+}
+
 if {[get_filesets -quiet sim_1] eq ""} {
 	create_fileset -simset sim_1
 }
