@@ -7,11 +7,11 @@ import chisel3.experimental.{RawModule, Analog, withClockAndReset}
 
 import freechips.rocketchip.config._
 import freechips.rocketchip.devices.debug._
+import freechips.rocketchip.util.{SyncResetSynchronizerShiftReg}
 
 import sifive.blocks.devices.gpio._
 import sifive.blocks.devices.spi._
 import sifive.blocks.devices.uart._
-import sifive.blocks.util.{ShiftRegister}
 
 import sifive.fpgashells.devices.xilinx.xilinxvc707mig._
 import sifive.fpgashells.devices.xilinx.xilinxvc707pciex1._
@@ -201,11 +201,8 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
   def connectUART(dut: HasPeripheryUARTModuleImp): Unit = {
     val uartParams = p(PeripheryUARTKey)
     if (!uartParams.isEmpty) {
-      // synchronize uart_rx
-      val uart_rx_sync = ShiftRegister(uart_rx, 2, true.B, ~dut.reset, name=Some("uart_rx"))
-
       // uart connections
-      dut.uart(0).rxd := uart_rx_sync
+      dut.uart(0).rxd := SyncResetSynchronizerShiftReg(uart_rx, 2, init = Bool(true), name=Some("uart_rxd_sync"))
       uart_tx         := dut.uart(0).txd
     }
   }
