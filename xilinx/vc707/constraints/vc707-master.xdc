@@ -31,7 +31,7 @@ set_property IOB TRUE [get_ports uart_rtsn]
 
 # Platform specific constraints
 set_property IOB TRUE [get_cells "U500VC707System/uarts_0/txm/out_reg"]
-set_property IOB TRUE [get_cells "uart_rxd_sync/sync_0"]
+set_property IOB TRUE [get_cells "uart_rxd_sync/sync_1"]
 
 # PCI Express
 #FMC 1 refclk
