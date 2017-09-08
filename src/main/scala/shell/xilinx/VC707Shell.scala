@@ -35,7 +35,7 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
   val reset                = IO(Input(Bool()))
 
   // DDR SDRAM
-  val ddr3_addr            = IO(Output(UInt(14.W)))
+  val ddr3_addr            = IO(Output(UInt(16.W)))
   val ddr3_ba              = IO(Output(UInt(3.W)))
   val ddr3_cas_n           = IO(Output(Bool()))
   val ddr3_ck_p            = IO(Output(Bool()))
