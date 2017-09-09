@@ -15,8 +15,8 @@ foreach ipvivadotcl $ipvivadotcls {
 }
 # Optional board-specific ip script
 set boardiptcl [file join $boarddir tcl ip.tcl]
-if {[file exists boardiptcl]} {
-  source [file join $boarddir tcl ip.tcl]
+if {[file exists $boardiptcl]} {
+  source $boardiptcl
 }
 
 # AR 58526 <http://www.xilinx.com/support/answers/58526.html>
