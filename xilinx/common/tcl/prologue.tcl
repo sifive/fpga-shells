@@ -41,14 +41,9 @@ if {[get_filesets -quiet sources_1] eq ""} {
 }
 set obj [current_fileset]
 
-# Add verilog files from VSRCS environment variable
-if {[info exists ::env(VSRCS)]} {
-  # Split string into words even with multiple consecutive spaces
-  # http://wiki.tcl.tk/989
-  set vsrcs [regexp -inline -all -- {\S+} $::env(VSRCS)]
-  foreach vsrc $vsrcs {
-    add_files -norecurse -fileset $obj $vsrc
-  }
+# Add verilog files TCL from VSRCSVIVADOTCL environment variable
+if {[info exists ::env(VSRCSVIVADOTCL)]} {
+  source $::env(VSRCSVIVADOTCL)
 }
 
 # Add IP Vivado TCL from IPVIVADOTCL environment variable
