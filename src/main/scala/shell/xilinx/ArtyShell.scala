@@ -166,7 +166,7 @@ abstract class ArtyShell(implicit val p: Parameters) extends RawModule {
       val qspi_params = qspiParams(0)
       val qspi_pins = Wire(new SPIPins(() => {new BasePin()}, qspi_params))
 
-      qspi_pins.fromPort(
+      SPIPinsFromPort(qspi_pins,
         dut.qspi(0),
         dut.clock,
         dut.reset,
