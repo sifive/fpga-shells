@@ -4,7 +4,7 @@ package sifive.fpgashells.devices.xilinx.xilinxvc707mig
 import Chisel._
 import freechips.rocketchip.config._
 import freechips.rocketchip.coreplex.HasMemoryBus
-import freechips.rocketchip.diplomacy.{LazyModule, LazyMultiIOModuleImp, AddressRange}
+import freechips.rocketchip.diplomacy.{LazyModule, LazyModuleImp, AddressRange}
 
 case object MemoryXilinxDDRKey extends Field[XilinxVC707MIGParams]
 
@@ -24,7 +24,7 @@ trait HasMemoryXilinxVC707MIGBundle {
   }
 }
 
-trait HasMemoryXilinxVC707MIGModuleImp extends LazyMultiIOModuleImp
+trait HasMemoryXilinxVC707MIGModuleImp extends LazyModuleImp
     with HasMemoryXilinxVC707MIGBundle {
   val outer: HasMemoryXilinxVC707MIG
   val ranges = AddressRange.fromSets(p(MemoryXilinxDDRKey).address)
