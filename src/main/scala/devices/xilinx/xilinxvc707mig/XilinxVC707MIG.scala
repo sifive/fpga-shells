@@ -30,8 +30,7 @@ class XilinxVC707MIG(c : XilinxVC707MIGParams)(implicit p: Parameters) extends L
   require((depth<=0x100000000L),"vc707mig supports upto 4GB depth configuraton")
   
   val device = new MemoryDevice
-  val node = TLInputNode()
-  val axi4 = AXI4InternalOutputNode(Seq(AXI4SlavePortParameters(
+  val axi4 = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
       slaves = Seq(AXI4SlaveParameters(
       address       = c.address,
       resources     = device.reg,
@@ -48,8 +47,8 @@ class XilinxVC707MIG(c : XilinxVC707MIGParams)(implicit p: Parameters) extends L
   val yank    = LazyModule(new AXI4UserYanker)
   val buffer  = LazyModule(new AXI4Buffer)
 
-  xing.node := node
-  val monitor = (toaxi4.node := xing.node)
+  val node: TLInwardNode = xing.node
+  toaxi4.node := xing.node
   axi4 := buffer.node
   buffer.node := yank.node
   yank.node := deint.node
@@ -57,10 +56,9 @@ class XilinxVC707MIG(c : XilinxVC707MIGParams)(implicit p: Parameters) extends L
   indexer.node := toaxi4.node
 
   lazy val module = new LazyModuleImp(this) {
-    val io = new Bundle {
+    val io = IO(new Bundle {
       val port = new XilinxVC707MIGIO(depth)
-      val tl = node.bundleIn
-    }
+    })
 
     //MIG black box instantiation
     val blackbox = Module(new vc707mig(depth))
@@ -91,12 +89,12 @@ class XilinxVC707MIG(c : XilinxVC707MIGParams)(implicit p: Parameters) extends L
     blackbox.io.sys_clk_i     := io.port.sys_clk_i
 
     //user interface signals
-    val axi_async = axi4.bundleIn(0)
+    val (axi_async, _) = axi4.in(0)
     xing.module.io.in_clock := clock
     xing.module.io.in_reset := reset
     xing.module.io.out_clock := blackbox.io.ui_clk
     xing.module.io.out_reset := blackbox.io.ui_clk_sync_rst
-    (Seq(toaxi4, indexer, deint, yank, buffer) ++ monitor) foreach { lm =>
+    Seq(toaxi4, indexer, deint, yank, buffer) foreach { lm =>
       lm.module.clock := blackbox.io.ui_clk
       lm.module.reset := blackbox.io.ui_clk_sync_rst
     }

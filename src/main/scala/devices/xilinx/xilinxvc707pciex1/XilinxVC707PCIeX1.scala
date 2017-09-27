@@ -21,10 +21,10 @@ class XilinxVC707PCIeX1IO extends Bundle
 }
 
 class XilinxVC707PCIeX1(implicit p: Parameters) extends LazyModule {
-  val slave = TLAsyncInputNode()
-  val control = TLAsyncInputNode()
-  val master = TLAsyncOutputNode()
-  val intnode = IntOutputNode()
+  val slave   = TLAsyncIdentityNode()
+  val control = TLAsyncIdentityNode()
+  val master  = TLAsyncIdentityNode()
+  val intnode = IntIdentityNode()
 
   val axi_to_pcie_x1 = LazyModule(new VC707AXIToPCIeX1)
 
@@ -56,13 +56,9 @@ class XilinxVC707PCIeX1(implicit p: Parameters) extends LazyModule {
   intnode := axi_to_pcie_x1.intnode
 
   lazy val module = new LazyModuleImp(this) {
-    val io = new Bundle {
+    val io = IO(new Bundle {
       val port = new XilinxVC707PCIeX1IO
-      val slave_in = slave.bundleIn
-      val control_in = control.bundleIn
-      val master_out = master.bundleOut
-      val interrupt = intnode.bundleOut
-    }
+    })
 
     io.port <> axi_to_pcie_x1.module.io.port
 

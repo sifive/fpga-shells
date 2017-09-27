@@ -219,27 +219,24 @@ class VC707AXIToPCIeX1(implicit p:Parameters) extends LazyModule
 
   lazy val module = new LazyModuleImp(this) {
     // The master on the control port must be AXI-lite
-    require (control.edgesIn(0).master.endId == 1)
+    require (control.edges.in(0).master.endId == 1)
     // Must have exactly the right number of idBits
-    require (slave.edgesIn(0).bundle.idBits == 4)
+    require (slave.edges.in(0).bundle.idBits == 4)
 
     class VC707AXIToPCIeX1IOBundle extends Bundle with VC707AXIToPCIeX1IOSerial
                                                   with VC707AXIToPCIeX1IOClocksReset;
 
-    val io = new Bundle {
+    val io = IO(new Bundle {
       val port = new VC707AXIToPCIeX1IOBundle
-      val slave_in = slave.bundleIn
-      val control_in = control.bundleIn
-      val master_out = master.bundleOut
       val REFCLK = Bool(INPUT)
-      val interrupt_out = intnode.bundleOut
-    }
+    })
 
     val blackbox = Module(new vc707axi_to_pcie_x1)
 
-    val s = io.slave_in(0)
-    val c = io.control_in(0)
-    val m = io.master_out(0)
+    val (s, _) = slave.in(0)
+    val (c, _) = control.in(0)
+    val (m, _) = master.out(0)
+    val (i, _) = intnode.out(0)
 
     //to top level
     blackbox.io.axi_aresetn         := io.port.axi_aresetn
@@ -250,7 +247,7 @@ class VC707AXIToPCIeX1(implicit p:Parameters) extends LazyModule
     io.port.pci_exp_txn             := blackbox.io.pci_exp_txn
     blackbox.io.pci_exp_rxp         := io.port.pci_exp_rxp
     blackbox.io.pci_exp_rxn         := io.port.pci_exp_rxn
-    io.interrupt_out(0)(0)          := blackbox.io.interrupt_out
+    i(0)                            := blackbox.io.interrupt_out
     blackbox.io.REFCLK              := io.REFCLK
 
     //s

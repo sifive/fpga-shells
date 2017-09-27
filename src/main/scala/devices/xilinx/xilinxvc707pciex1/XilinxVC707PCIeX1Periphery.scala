@@ -3,7 +3,7 @@ package sifive.fpgashells.devices.xilinx.xilinxvc707pciex1
 
 import Chisel._
 import freechips.rocketchip.coreplex.{HasInterruptBus, HasSystemBus}
-import freechips.rocketchip.diplomacy.{LazyModule, LazyMultiIOModuleImp}
+import freechips.rocketchip.diplomacy.{LazyModule, LazyModuleImp}
 
 trait HasSystemXilinxVC707PCIeX1 extends HasSystemBus with HasInterruptBus {
   val xilinxvc707pcie = LazyModule(new XilinxVC707PCIeX1)
@@ -21,7 +21,7 @@ trait HasSystemXilinxVC707PCIeX1Bundle {
   }
 }
 
-trait HasSystemXilinxVC707PCIeX1ModuleImp extends LazyMultiIOModuleImp
+trait HasSystemXilinxVC707PCIeX1ModuleImp extends LazyModuleImp
     with HasSystemXilinxVC707PCIeX1Bundle {
   val outer: HasSystemXilinxVC707PCIeX1
   val xilinxvc707pcie = IO(new XilinxVC707PCIeX1IO)
