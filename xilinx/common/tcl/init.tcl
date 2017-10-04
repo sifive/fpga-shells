@@ -10,8 +10,8 @@ file mkdir $ipdir
 update_ip_catalog -rebuild
 
 # Generate IP implementations. Vivado TCL emitted from Chisel Blackboxes
-foreach ipvivadotcl $ipvivadotcls {
-  source $ipvivadotcl
+foreach ip_vivado_tcl $ip_vivado_tcls {
+  source $ip_vivado_tcl
 }
 # Optional board-specific ip script
 set boardiptcl [file join $boarddir tcl ip.tcl]
