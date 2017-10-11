@@ -1,0 +1,3 @@
+[submodule "amazon/common/aws-fpga"]
+	path = amazon/common/aws-fpga
+	url = git@github.com:aws/aws-fpga
