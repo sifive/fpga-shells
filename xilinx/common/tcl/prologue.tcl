@@ -55,7 +55,7 @@ set boarddir [file join [file dirname $commondir] $board]
 source [file join $boarddir tcl board.tcl]
 
 # Set the variable that points to board constraint files
-set constraintsdir [file join $boarddir constraints]
+set constraintsdirs [list [file join $boarddir constraints]]
 
 # Set the variable that points to common verilog sources
 set srcdir [file join $commondir vsrc]
@@ -117,10 +117,11 @@ if {[get_filesets -quiet constrs_1] eq ""} {
 	create_fileset -constrset constrs_1
 }
 
-set obj [current_fileset -constrset]
-add_files -norecurse -fileset $obj [glob -directory $constraintsdir {*.xdc}]
-
 if {[info exists addl_constraint_dir]} {
-    set obj [current_fileset -constrset]
-    add_files -norecurse -fileset $obj [glob -directory $addl_constraint_dir {*.xdc}]
+    set constraintsdirs [concat $constraintsdirs $addl_constraint_dir]
+}
+
+foreach constraintsdir $constraintsdirs {
+  set obj [current_fileset -constrset]
+  add_files -norecurse -fileset $obj [glob -directory $constraintsdir {*.xdc}]
 }
