@@ -20,8 +20,8 @@ while {[llength $argv]} {
     -ip-vivado-tcls {
       set argv [lassign $argv[set argv {}] ip_vivado_tcls]
     }
-    -addl_constraint_dir {
-      set argv [lassign $argv[set argv {}] addl_constrant_dir]
+    -addl-constraint-dir {
+      set argv [lassign $argv[set argv {}] addl_constraint_dir]
     }
     -pre-impl-debug-tcl {
       set argv [lassign $argv[set argv {}] pre_impl_debug_tcl]
@@ -121,5 +121,6 @@ set obj [current_fileset -constrset]
 add_files -norecurse -fileset $obj [glob -directory $constraintsdir {*.xdc}]
 
 if {[info exists addl_constraint_dir]} {
+    set obj [current_fileset -constrset]
     add_files -norecurse -fileset $obj [glob -directory $addl_constraint_dir {*.xdc}]
 }
