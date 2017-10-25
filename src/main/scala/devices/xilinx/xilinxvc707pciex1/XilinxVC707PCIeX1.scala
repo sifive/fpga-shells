@@ -10,14 +10,20 @@ import freechips.rocketchip.tilelink._
 import sifive.fpgashells.ip.xilinx.vc707axi_to_pcie_x1.{VC707AXIToPCIeX1, VC707AXIToPCIeX1IOClocksReset, VC707AXIToPCIeX1IOSerial}
 import sifive.fpgashells.ip.xilinx.ibufds_gte2.IBUFDS_GTE2
 
-class XilinxVC707PCIeX1Pads extends Bundle with VC707AXIToPCIeX1IOSerial
+trait VC707AXIToPCIeRefClk extends Bundle{
+  val REFCLK_rxp = Bool(INPUT)
+  val REFCLK_rxn = Bool(INPUT)
+}
+
+class XilinxVC707PCIeX1Pads extends Bundle 
+  with VC707AXIToPCIeX1IOSerial
+  with VC707AXIToPCIeRefClk
 
 class XilinxVC707PCIeX1IO extends Bundle
+    with VC707AXIToPCIeRefClk
     with VC707AXIToPCIeX1IOSerial
     with VC707AXIToPCIeX1IOClocksReset {
   val axi_ctl_aresetn = Bool(INPUT)
-  val REFCLK_rxp = Bool(INPUT)
-  val REFCLK_rxn = Bool(INPUT)
 }
 
 class XilinxVC707PCIeX1(implicit p: Parameters) extends LazyModule {

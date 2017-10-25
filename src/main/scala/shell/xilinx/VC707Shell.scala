@@ -35,21 +35,7 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
   val reset                = IO(Input(Bool()))
 
   // DDR SDRAM
-  val ddr3_addr            = IO(Output(UInt(16.W)))
-  val ddr3_ba              = IO(Output(UInt(3.W)))
-  val ddr3_cas_n           = IO(Output(Bool()))
-  val ddr3_ck_p            = IO(Output(Bool()))
-  val ddr3_ck_n            = IO(Output(Bool()))
-  val ddr3_cke             = IO(Output(Bool()))
-  val ddr3_cs_n            = IO(Output(Bool()))
-  val ddr3_dm              = IO(Output(UInt(8.W)))
-  val ddr3_dq              = IO(Analog(64.W))
-  val ddr3_dqs_n           = IO(Analog(8.W))
-  val ddr3_dqs_p           = IO(Analog(8.W))
-  val ddr3_odt             = IO(Output(Bool()))
-  val ddr3_ras_n           = IO(Output(Bool()))
-  val ddr3_reset_n         = IO(Output(Bool()))
-  val ddr3_we_n            = IO(Output(Bool()))
+  val ddr                  = IO(new XilinxVC707MIGPads(p(MemoryXilinxDDRKey)))
 
   // LED
   val led                  = IO(Vec(8, Output(Bool())))
@@ -72,12 +58,7 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
   val jtag_TDO             = IO(Output(Bool()))
 
   // PCIe
-  val pci_exp_txp          = IO(Output(Bool()))
-  val pci_exp_txn          = IO(Output(Bool()))
-  val pci_exp_rxp          = IO(Input(Bool()))
-  val pci_exp_rxn          = IO(Input(Bool()))
-  val pci_exp_refclk_rxp   = IO(Input(Bool()))
-  val pci_exp_refclk_rxn   = IO(Input(Bool()))
+  val pcie                 = IO(new XilinxVC707PCIeX1Pads)
 
   //-----------------------------------------------------------------------
   // Wire declrations
@@ -257,23 +238,7 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
     dut.xilinxvc707mig.aresetn   := mig_resetn
     dut.xilinxvc707mig.sys_rst   := sys_reset
 
-    // Outputs
-    ddr3_addr    := dut.xilinxvc707mig.ddr3_addr
-    ddr3_ba      := dut.xilinxvc707mig.ddr3_ba
-    ddr3_ras_n   := dut.xilinxvc707mig.ddr3_ras_n
-    ddr3_cas_n   := dut.xilinxvc707mig.ddr3_cas_n
-    ddr3_we_n    := dut.xilinxvc707mig.ddr3_we_n
-    ddr3_reset_n := dut.xilinxvc707mig.ddr3_reset_n
-    ddr3_ck_p    := dut.xilinxvc707mig.ddr3_ck_p
-    ddr3_ck_n    := dut.xilinxvc707mig.ddr3_ck_n
-    ddr3_cke     := dut.xilinxvc707mig.ddr3_cke
-    ddr3_cs_n    := dut.xilinxvc707mig.ddr3_cs_n
-    ddr3_dm      := dut.xilinxvc707mig.ddr3_dm
-    ddr3_odt     := dut.xilinxvc707mig.ddr3_odt
-
-    attach(ddr3_dq,    dut.xilinxvc707mig.ddr3_dq)
-    attach(ddr3_dqs_n, dut.xilinxvc707mig.ddr3_dqs_n)
-    attach(ddr3_dqs_p, dut.xilinxvc707mig.ddr3_dqs_p)
+    ddr <> dut.xilinxvc707mig
   }
 
   //---------------------------------------------------------------------
@@ -287,14 +252,8 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
     pcie_cfg_clock                      := dut.xilinxvc707pcie.axi_ctl_aclk_out
     mmcm_lock_pcie                      := dut.xilinxvc707pcie.mmcm_lock
     dut.xilinxvc707pcie.axi_ctl_aresetn := pcie_dat_resetn
-    dut.xilinxvc707pcie.REFCLK_rxp      := pci_exp_refclk_rxp
-    dut.xilinxvc707pcie.REFCLK_rxn      := pci_exp_refclk_rxn
 
-    // PCIeX1 connections
-    pci_exp_txp                         := dut.xilinxvc707pcie.pci_exp_txp
-    pci_exp_txn                         := dut.xilinxvc707pcie.pci_exp_txn
-    dut.xilinxvc707pcie.pci_exp_rxp     := pci_exp_rxp
-    dut.xilinxvc707pcie.pci_exp_rxn     := pci_exp_rxn
+    pcie <> dut.xilinxvc707pcie
   }
 
 }
