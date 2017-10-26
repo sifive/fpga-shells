@@ -5,7 +5,7 @@ import Chisel._
 import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.amba.axi4._
-import freechips.rocketchip.tilelink.{IntSourceNode, IntSourcePortSimple}
+import freechips.rocketchip.interrupts._
 import freechips.rocketchip.util.{ElaborationArtefacts}
 
 // IP VLNV: xilinx.com:customize_ip:vc707pcietoaxi:1.0

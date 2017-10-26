@@ -8,6 +8,7 @@ import freechips.rocketchip.config.Parameters
 import freechips.rocketchip.coreplex._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
+import freechips.rocketchip.interrupts._
 import sifive.fpgashells.ip.xilinx.vc707mig.{VC707MIGIOClocksReset, VC707MIGIODDR, vc707mig}
 
 case class XilinxVC707MIGParams(
@@ -22,15 +23,16 @@ class XilinxVC707MIGPads(depth : BigInt) extends VC707MIGIODDR(depth) {
 
 class XilinxVC707MIGIO(depth : BigInt) extends VC707MIGIODDR(depth) with VC707MIGIOClocksReset
 
-class XilinxVC707MIG(c : XilinxVC707MIGParams)(implicit p: Parameters) extends LazyModule {
+class XilinxVC707MIGIsland(c : XilinxVC707MIGParams)(implicit p: Parameters) extends LazyModule with HasCrossing {
   val ranges = AddressRange.fromSets(c.address)
   require (ranges.size == 1, "DDR range must be contiguous")
   val offset = ranges.head.base
   val depth = ranges.head.size
+  val crossing = AsynchronousCrossing(8)
   require((depth<=0x100000000L),"vc707mig supports upto 4GB depth configuraton")
   
   val device = new MemoryDevice
-  val axi4 = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
+  val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
       slaves = Seq(AXI4SlaveParameters(
       address       = c.address,
       resources     = device.reg,
@@ -40,21 +42,6 @@ class XilinxVC707MIG(c : XilinxVC707MIGParams)(implicit p: Parameters) extends L
       supportsRead  = TransferSizes(1, 256*8))),
     beatBytes = 8)))
 
-  val xing    = LazyModule(new TLAsyncCrossing)
-  val toaxi4  = LazyModule(new TLToAXI4(adapterName = Some("mem"), stripBits = 1))
-  val indexer = LazyModule(new AXI4IdIndexer(idBits = 4))
-  val deint   = LazyModule(new AXI4Deinterleaver(p(CacheBlockBytes)))
-  val yank    = LazyModule(new AXI4UserYanker)
-  val buffer  = LazyModule(new AXI4Buffer)
-
-  val node: TLInwardNode = xing.node
-  toaxi4.node := xing.node
-  axi4 := buffer.node
-  buffer.node := yank.node
-  yank.node := deint.node
-  deint.node := indexer.node
-  indexer.node := toaxi4.node
-
   lazy val module = new LazyModuleImp(this) {
     val io = IO(new Bundle {
       val port = new XilinxVC707MIGIO(depth)
@@ -62,6 +49,7 @@ class XilinxVC707MIG(c : XilinxVC707MIGParams)(implicit p: Parameters) extends L
 
     //MIG black box instantiation
     val blackbox = Module(new vc707mig(depth))
+    val (axi_async, _) = node.in(0)
 
     //pins to top level
 
@@ -87,17 +75,6 @@ class XilinxVC707MIG(c : XilinxVC707MIGParams)(implicit p: Parameters) extends L
     //inputs
     //NO_BUFFER clock
     blackbox.io.sys_clk_i     := io.port.sys_clk_i
-
-    //user interface signals
-    val (axi_async, _) = axi4.in(0)
-    xing.module.io.in_clock := clock
-    xing.module.io.in_reset := reset
-    xing.module.io.out_clock := blackbox.io.ui_clk
-    xing.module.io.out_reset := blackbox.io.ui_clk_sync_rst
-    Seq(toaxi4, indexer, deint, yank, buffer) foreach { lm =>
-      lm.module.clock := blackbox.io.ui_clk
-      lm.module.reset := blackbox.io.ui_clk_sync_rst
-    }
 
     io.port.ui_clk            := blackbox.io.ui_clk
     io.port.ui_clk_sync_rst   := blackbox.io.ui_clk_sync_rst
@@ -164,5 +141,32 @@ class XilinxVC707MIG(c : XilinxVC707MIGParams)(implicit p: Parameters) extends L
     io.port.init_calib_complete := blackbox.io.init_calib_complete
     blackbox.io.sys_rst       :=io.port.sys_rst
     //mig.device_temp         :- unconnceted
+  }
+}
+
+class XilinxVC707MIG(c : XilinxVC707MIGParams)(implicit p: Parameters) extends LazyModule {
+  val ranges = AddressRange.fromSets(c.address)
+  val depth = ranges.head.size
+
+  val buffer  = LazyModule(new TLBuffer)
+  val toaxi4  = LazyModule(new TLToAXI4(adapterName = Some("mem"), stripBits = 1))
+  val indexer = LazyModule(new AXI4IdIndexer(idBits = 4))
+  val deint   = LazyModule(new AXI4Deinterleaver(p(CacheBlockBytes)))
+  val yank    = LazyModule(new AXI4UserYanker)
+  val island  = LazyModule(new XilinxVC707MIGIsland(c))
+
+  val node: TLInwardNode =
+    island.node := island.crossAXI4In := yank.node := deint.node := indexer.node := toaxi4.node := buffer.node
+
+  lazy val module = new LazyModuleImp(this) {
+    val io = IO(new Bundle {
+      val port = new XilinxVC707MIGIO(depth)
+    })
+
+    io.port <> island.module.io.port
+
+    // Shove the island
+    island.module.clock := io.port.ui_clk
+    island.module.reset := io.port.ui_clk_sync_rst
   }
 }
