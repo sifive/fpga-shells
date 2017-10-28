@@ -8,6 +8,7 @@ import freechips.rocketchip.config.Parameters
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
 import freechips.rocketchip.interrupts._
+import freechips.rocketchip.coreplex.{HasCrossing,AsynchronousCrossing}
 import sifive.fpgashells.ip.xilinx.vc707axi_to_pcie_x1.{VC707AXIToPCIeX1, VC707AXIToPCIeX1IOClocksReset, VC707AXIToPCIeX1IOSerial}
 import sifive.fpgashells.ip.xilinx.ibufds_gte2.IBUFDS_GTE2
 
@@ -27,40 +28,33 @@ class XilinxVC707PCIeX1IO extends Bundle
   val axi_ctl_aresetn = Bool(INPUT)
 }
 
-class XilinxVC707PCIeX1(implicit p: Parameters) extends LazyModule {
-  val slave   = TLAsyncIdentityNode()
-  val control = TLAsyncIdentityNode()
-  val master  = TLAsyncIdentityNode()
-  val intnode = IntIdentityNode()
-
+class XilinxVC707PCIeX1(implicit p: Parameters) extends LazyModule with HasCrossing {
+  val crossing = AsynchronousCrossing(8)
   val axi_to_pcie_x1 = LazyModule(new VC707AXIToPCIeX1)
 
-  axi_to_pcie_x1.slave :=
-    AXI4Buffer()(
-    AXI4UserYanker()(
-    AXI4Deinterleaver(p(CacheBlockBytes))(
-    AXI4IdIndexer(idBits=4)(
-    TLToAXI4(adapterName = Some("pcie-slave"))(
-    TLAsyncCrossingSink()(
-    slave))))))
+  val slave: TLInwardNode =
+    (axi_to_pcie_x1.slave
+      := AXI4Buffer()
+      := AXI4UserYanker()
+      := AXI4Deinterleaver(p(CacheBlockBytes))
+      := AXI4IdIndexer(idBits=4)
+      := TLToAXI4(adapterName = Some("pcie-slave")))
 
-  axi_to_pcie_x1.control :=
-    AXI4Buffer()(
-    AXI4UserYanker(capMaxFlight = Some(2))(
-    TLToAXI4()(
-    TLFragmenter(4, p(CacheBlockBytes))(
-    TLAsyncCrossingSink()(
-    control)))))
+  val control: TLInwardNode =
+    (axi_to_pcie_x1.control
+      := AXI4Buffer()
+      := AXI4UserYanker(capMaxFlight = Some(2))
+      := TLToAXI4()
+      := TLFragmenter(4, p(CacheBlockBytes)))
 
-  master :=
-    TLAsyncCrossingSource()(
-    TLWidthWidget(8)(
-    AXI4ToTL()(
-    AXI4UserYanker(capMaxFlight=Some(8))(
-    AXI4Fragmenter()(
-    axi_to_pcie_x1.master)))))
+  val master: TLOutwardNode =
+    (TLWidthWidget(8)
+      := AXI4ToTL()
+      := AXI4UserYanker(capMaxFlight=Some(8))
+      := AXI4Fragmenter()
+      := axi_to_pcie_x1.master)
 
-  intnode := axi_to_pcie_x1.intnode
+  val intnode: IntOutwardNode = axi_to_pcie_x1.intnode
 
   lazy val module = new LazyModuleImp(this) {
     val io = IO(new Bundle {
