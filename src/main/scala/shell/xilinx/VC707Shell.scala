@@ -15,27 +15,58 @@ import sifive.blocks.devices.uart._
 
 import sifive.fpgashells.devices.xilinx.xilinxvc707mig._
 import sifive.fpgashells.devices.xilinx.xilinxvc707pciex1._
-import sifive.fpgashells.ip.xilinx.{IBUFDS, PowerOnResetFPGAOnly, sdio_spi_bridge, vc707clk_wiz_sync, vc707reset}
+import sifive.fpgashells.ip.xilinx.{IBUFDS, PowerOnResetFPGAOnly, sdio_spi_bridge, vc707_sys_clock_mmcm0, 
+                                    vc707_sys_clock_mmcm1, vc707reset}
 
 //-------------------------------------------------------------------------
 // VC707Shell
 //-------------------------------------------------------------------------
+
+trait HasDDR3 { this: VC707Shell =>
+  
+  require(!p.lift(MemoryXilinxDDRKey).isEmpty)
+  val ddr = IO(new XilinxVC707MIGPads(p(MemoryXilinxDDRKey)))
+  
+  def connectMIG(dut: HasMemoryXilinxVC707MIGModuleImp): Unit = {
+    // Clock & Reset
+    dut.xilinxvc707mig.sys_clk_i := sys_clock.asUInt
+    mig_clock                    := dut.xilinxvc707mig.ui_clk
+    mig_sys_reset                := dut.xilinxvc707mig.ui_clk_sync_rst
+    mig_mmcm_locked              := dut.xilinxvc707mig.mmcm_locked
+    dut.xilinxvc707mig.aresetn   := mig_resetn
+    dut.xilinxvc707mig.sys_rst   := sys_reset
+
+    ddr <> dut.xilinxvc707mig
+  }
+}
+
+trait HasPCIe { this: VC707Shell =>
+  val pcie = IO(new XilinxVC707PCIeX1Pads)
+
+  def connectPCIe(dut: HasSystemXilinxVC707PCIeX1ModuleImp): Unit = {
+    // Clock & Reset
+    dut.xilinxvc707pcie.axi_aresetn     := pcie_dat_resetn
+    pcie_dat_clock                      := dut.xilinxvc707pcie.axi_aclk_out
+    pcie_cfg_clock                      := dut.xilinxvc707pcie.axi_ctl_aclk_out
+    mmcm_lock_pcie                      := dut.xilinxvc707pcie.mmcm_lock
+    dut.xilinxvc707pcie.axi_ctl_aresetn := pcie_dat_resetn
+
+    pcie <> dut.xilinxvc707pcie
+  }
+}
 
 abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
 
   //-----------------------------------------------------------------------
   // Interface
   //-----------------------------------------------------------------------
-
+  
   // 200Mhz differential sysclk
   val sys_diff_clock_clk_n = IO(Input(Bool()))
   val sys_diff_clock_clk_p = IO(Input(Bool()))
 
   // active high reset
   val reset                = IO(Input(Bool()))
-
-  // DDR SDRAM
-  val ddr                  = IO(new XilinxVC707MIGPads(p(MemoryXilinxDDRKey)))
 
   // LED
   val led                  = IO(Vec(8, Output(Bool())))
@@ -57,8 +88,22 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
   val jtag_TDI             = IO(Input(Bool()))
   val jtag_TDO             = IO(Output(Bool()))
 
-  // PCIe
-  val pcie                 = IO(new XilinxVC707PCIeX1Pads)
+  //Buttons
+  val btn_0                = IO(Analog(1.W))
+  val btn_1                = IO(Analog(1.W))
+  val btn_2                = IO(Analog(1.W))
+  val btn_3                = IO(Analog(1.W))
+
+  //Sliding switches
+  val sw_0                 = IO(Analog(1.W))
+  val sw_1                 = IO(Analog(1.W))
+  val sw_2                 = IO(Analog(1.W))
+  val sw_3                 = IO(Analog(1.W))
+  val sw_4                 = IO(Analog(1.W))
+  val sw_5                 = IO(Analog(1.W))
+  val sw_6                 = IO(Analog(1.W))
+  val sw_7                 = IO(Analog(1.W))
+
 
   //-----------------------------------------------------------------------
   // Wire declrations
@@ -117,18 +162,26 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
   // Clock Generator
   //-----------------------------------------------------------------------
 
-  val coreplex_mmcm = Module(new vc707clk_wiz_sync)
-  coreplex_mmcm.io.clk_in1 := sys_clock.asUInt
-  coreplex_mmcm.io.reset   := mig_sys_reset
+  //25MHz and multiples
+  val vc707_sys_clock_mmcm0 = Module(new vc707_sys_clock_mmcm0)
+  vc707_sys_clock_mmcm0.io.clk_in1 := sys_clock.asUInt
+  vc707_sys_clock_mmcm0.io.reset   := reset
+  val clk12_5              = vc707_sys_clock_mmcm0.io.clk_out1
+  val clk25                = vc707_sys_clock_mmcm0.io.clk_out2
+  val clk37_5              = vc707_sys_clock_mmcm0.io.clk_out3
+  val clk50                = vc707_sys_clock_mmcm0.io.clk_out4
+  val clk100               = vc707_sys_clock_mmcm0.io.clk_out5
+  val clk150               = vc707_sys_clock_mmcm0.io.clk_out6
+  val clk75                = vc707_sys_clock_mmcm0.io.clk_out7
+  val vc707_sys_clock_mmcm0_locked = vc707_sys_clock_mmcm0.io.locked
 
-  val clk12_5              = coreplex_mmcm.io.clk_out1
-  val clk25                = coreplex_mmcm.io.clk_out2
-  val clk37_5              = coreplex_mmcm.io.clk_out3
-  val clk50                = coreplex_mmcm.io.clk_out4
-  val clk100               = coreplex_mmcm.io.clk_out5
-  val clk150               = coreplex_mmcm.io.clk_out6
-  val clk75                = coreplex_mmcm.io.clk_out7
-  val coreplex_mmcm_locked = coreplex_mmcm.io.locked
+  //65MHz and multiples
+  val vc707_sys_clock_mmcm1 = Module(new vc707_sys_clock_mmcm1)
+  vc707_sys_clock_mmcm1.io.clk_in1 := sys_clock.asUInt
+  vc707_sys_clock_mmcm1.io.reset   := reset
+  val clk32_5              = vc707_sys_clock_mmcm1.io.clk_out1
+  val clk65                = vc707_sys_clock_mmcm1.io.clk_out2
+  val vc707_sys_clock_mmcm1_locked = vc707_sys_clock_mmcm1.io.locked
 
   // DUT clock
   dut_clock := clk37_5
@@ -137,11 +190,13 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
   // System reset
   //-----------------------------------------------------------------------
 
-  do_reset             := !mig_mmcm_locked || !mmcm_lock_pcie || mig_sys_reset || !coreplex_mmcm_locked
+  do_reset             := !mig_mmcm_locked || !mmcm_lock_pcie || mig_sys_reset || !vc707_sys_clock_mmcm0_locked ||
+                          !vc707_sys_clock_mmcm1_locked
   mig_resetn           := !mig_reset
   dut_resetn           := !dut_reset
   pcie_dat_resetn      := !pcie_dat_reset
   pcie_cfg_resetn      := !pcie_cfg_reset
+
 
   val safe_reset = Module(new vc707reset)
 
@@ -155,11 +210,19 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
   safe_reset.io.clock4 := dut_clock
   dut_reset            := safe_reset.io.reset4
 
+  //overrided in connectMIG and connect PCIe
+  //provide defaults to allow above reset sequencing logic to work without both
+  mig_clock            := dut_clock
+  pcie_dat_clock       := dut_clock
+  pcie_cfg_clock       := dut_clock
+  mig_mmcm_locked      := UInt("b1")
+  mmcm_lock_pcie       := UInt("b1")
+ 
   //---------------------------------------------------------------------
   // Debug JTAG
   //---------------------------------------------------------------------
 
-  def connectDebugJTAG(dut: HasPeripheryDebugModuleImp): Unit = {
+  def connectDebugJTAG(dut: HasPeripheryDebugModuleImp): SystemJTAGIO = {
     val djtag     = dut.debug.systemjtag.get
 
     djtag.jtag.TCK := jtag_TCK
@@ -171,6 +234,7 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
 
     djtag.reset    := PowerOnResetFPGAOnly(dut_clock)
     dut_ndreset    := dut.debug.ndreset
+    djtag
   }
 
   //-----------------------------------------------------------------------
@@ -222,38 +286,6 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
     ip_sdio_spi.io.spi_cs   := sd_spi_cs
     sd_spi_dq_i             := ip_sdio_spi.io.spi_dq_i.toBools
     ip_sdio_spi.io.spi_dq_o := sd_spi_dq_o.asUInt
-  }
-
-  //---------------------------------------------------------------------
-  // MIG
-  //---------------------------------------------------------------------
-
-  def connectMIG(dut: HasMemoryXilinxVC707MIGModuleImp): Unit = {
-
-    // Clock & Reset
-    dut.xilinxvc707mig.sys_clk_i := sys_clock.asUInt
-    mig_clock                    := dut.xilinxvc707mig.ui_clk
-    mig_sys_reset                := dut.xilinxvc707mig.ui_clk_sync_rst
-    mig_mmcm_locked              := dut.xilinxvc707mig.mmcm_locked
-    dut.xilinxvc707mig.aresetn   := mig_resetn
-    dut.xilinxvc707mig.sys_rst   := sys_reset
-
-    ddr <> dut.xilinxvc707mig
-  }
-
-  //---------------------------------------------------------------------
-  // PCIE
-  //---------------------------------------------------------------------
-
-  def connectPCIe(dut: HasSystemXilinxVC707PCIeX1ModuleImp): Unit = {
-    // Clock & Reset
-    dut.xilinxvc707pcie.axi_aresetn     := pcie_dat_resetn
-    pcie_dat_clock                      := dut.xilinxvc707pcie.axi_aclk_out
-    pcie_cfg_clock                      := dut.xilinxvc707pcie.axi_ctl_aclk_out
-    mmcm_lock_pcie                      := dut.xilinxvc707pcie.mmcm_lock
-    dut.xilinxvc707pcie.axi_ctl_aresetn := pcie_dat_resetn
-
-    pcie <> dut.xilinxvc707pcie
   }
 
 }

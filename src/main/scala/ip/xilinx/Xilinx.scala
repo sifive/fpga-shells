@@ -188,11 +188,11 @@ object PowerOnResetFPGAOnly {
 }
 
 //-------------------------------------------------------------------------
-// vc707clk_wiz_sync
+// vc707_sys_clock_mmcm
 //-------------------------------------------------------------------------
 //IP : xilinx mmcm with "NO_BUFFER" input clock
 
-class vc707clk_wiz_sync extends BlackBox {
+class vc707_sys_clock_mmcm0 extends BlackBox {
   val io = new Bundle {
     val clk_in1   = Bool(INPUT)
     val clk_out1  = Clock(OUTPUT)
@@ -207,8 +207,8 @@ class vc707clk_wiz_sync extends BlackBox {
   }
   
   ElaborationArtefacts.add(
-    "vc707clk_wiz_sync.vivado.tcl",
-    """create_ip -name clk_wiz -vendor xilinx.com -library ip -version 5.3 -module_name vc707clk_wiz_sync -dir $ipdir -force
+    "vc707_sys_clock_mmcm0.vivado.tcl",
+    """create_ip -name clk_wiz -vendor xilinx.com -library ip -module_name vc707_sys_clock_mmcm0 -dir $ipdir -force
     set_property -dict [list \
     CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \
     CONFIG.PRIM_SOURCE {No_buffer} \
@@ -252,7 +252,54 @@ class vc707clk_wiz_sync extends BlackBox {
     CONFIG.CLKOUT6_JITTER {102.207} \
     CONFIG.CLKOUT6_PHASE_ERROR {91.235} \
     CONFIG.CLKOUT7_JITTER {117.249} \
-    CONFIG.CLKOUT7_PHASE_ERROR {91.235}] [get_ips vc707clk_wiz_sync] """
+    CONFIG.CLKOUT7_PHASE_ERROR {91.235}] [get_ips vc707_sys_clock_mmcm0] """
+  )
+}
+
+class vc707_sys_clock_mmcm1 extends BlackBox {
+  val io = new Bundle {
+    val clk_in1   = Bool(INPUT)
+    val clk_out1  = Clock(OUTPUT)
+    val clk_out2  = Clock(OUTPUT)
+    val reset     = Bool(INPUT)
+    val locked    = Bool(OUTPUT)
+  }
+  
+  ElaborationArtefacts.add(
+    "vc707_sys_clock_mmcm1.vivado.tcl",
+    """create_ip -name clk_wiz -vendor xilinx.com -library ip -module_name vc707_sys_clock_mmcm1 -dir $ipdir -force
+    set_property -dict [list \
+    CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \
+    CONFIG.PRIM_SOURCE {No_buffer} \
+    CONFIG.CLKOUT2_USED {true} \
+    CONFIG.CLKOUT3_USED {false} \
+    CONFIG.CLKOUT4_USED {false} \
+    CONFIG.CLKOUT5_USED {false} \
+    CONFIG.CLKOUT6_USED {false} \
+    CONFIG.CLKOUT7_USED {false} \
+    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {32.5} \
+    CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {65} \
+    CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \
+    CONFIG.PRIM_IN_FREQ {200.000} \
+    CONFIG.CLKIN1_JITTER_PS {50.0} \
+    CONFIG.MMCM_DIVCLK_DIVIDE {1} \
+    CONFIG.MMCM_CLKFBOUT_MULT_F {4.875} \
+    CONFIG.MMCM_CLKIN1_PERIOD {5.0} \
+    CONFIG.MMCM_CLKOUT0_DIVIDE_F {30.000} \
+    CONFIG.MMCM_CLKOUT1_DIVIDE {15} \
+    CONFIG.MMCM_CLKOUT2_DIVIDE {1} \
+    CONFIG.MMCM_CLKOUT3_DIVIDE {1} \
+    CONFIG.MMCM_CLKOUT4_DIVIDE {1} \
+    CONFIG.MMCM_CLKOUT5_DIVIDE {1} \
+    CONFIG.MMCM_CLKOUT6_DIVIDE {1} \
+    CONFIG.NUM_OUT_CLKS {2} \
+    CONFIG.CLKOUT1_JITTER {135.973} \
+    CONFIG.CLKOUT1_PHASE_ERROR {87.159} \
+    CONFIG.CLKOUT2_JITTER {117.878} \
+    CONFIG.CLKOUT2_PHASE_ERROR {87.159} \
+    CONFIG.CLKOUT3_JITTER {131.973} \
+    CONFIG.CLKOUT3_PHASE_ERROR {87.159}] \
+    [get_ips vc707_sys_clock_mmcm1] """
   )
 }
 
