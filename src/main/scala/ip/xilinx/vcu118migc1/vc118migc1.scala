@@ -1,5 +1,5 @@
 // See LICENSE for license details.
-package sifive.fpgashells.ip.xilinx.vcu118ddr4c1
+package sifive.fpgashells.ip.xilinx.vcu118mig
 
 import Chisel._
 import chisel3.experimental.{Analog,attach}
@@ -8,7 +8,7 @@ import freechips.rocketchip.util.GenericParameterizedBundle
 import freechips.rocketchip.config._
 
 // Black Box
-class VCU118MIGIODDR(depth : BigInt) extends GenericParameterizedBundle(depth) {
+class VCU118MIGIODDR extends Bundle {
   val c0_ddr4_act_n            = Bool(OUTPUT)
   val c0_ddr4_adr              = Bits(OUTPUT,17)
   val c0_ddr4_ba               = Bits(OUTPUT,3)
@@ -19,7 +19,7 @@ class VCU118MIGIODDR(depth : BigInt) extends GenericParameterizedBundle(depth) {
   val c0_ddr4_ck_t             = Bits(OUTPUT,1)
   val c0_ddr4_ck_c             = Bits(OUTPUT,1)
   val c0_ddr4_reset_n          = Bool(OUTPUT)
-  val c0_ddr4_dm_dbi_n          = Analog(1.W)
+  val c0_ddr4_dm_dbi_n         = Analog(1.W)
   val c0_ddr4_dq               = Analog(64.W)
   val c0_ddr4_dqs_c            = Analog(8.W)
   val c0_ddr4_dqs_t            = Analog(8.W)
@@ -28,19 +28,19 @@ class VCU118MIGIODDR(depth : BigInt) extends GenericParameterizedBundle(depth) {
 trait VCU118MIGIOClocksReset extends Bundle {
   val sys_rst                   = Bool(INPUT)
   // "NO_BUFFER" clock source (must be connected to IBUF outside of IP)
-  val sys_clk_i             = Bool(INPUT)
+  val sys_clk_i                 = Bool(INPUT)
 
   val c0_init_calib_complete    = Bool(OUTPUT)
   val c0_ddr4_ui_clk            = Clock(OUTPUT)
   val c0_ddr4_ui_clk_sync_rst   = Bool(OUTPUT)
-  val dby_clk                   = Clock(OUTPUT)
+  val dbg_clk                   = Clock(OUTPUT)
  
   val c0_ddr4_s_axi_aresetn     = Bool(INPUT) 
 }
 
 //scalastyle:off
 //turn off linter: blackbox name must match verilog module
-class vc118ddr4c1(implicit val p:Parameters) extends BlackBox
+class vcu118migc1(implicit val p:Parameters) extends BlackBox
 {
   val io = new VCU118MIGIODDR with VCU118MIGIOClocksReset {
 
@@ -92,8 +92,8 @@ class vc118ddr4c1(implicit val p:Parameters) extends BlackBox
   }
 
  ElaborationArtefacts.add(
-  modulename++".vivado.tcl",
-   """create_ip -name ddr4 -vendor xilinx.com -library ip -version 2.2 -module_name vcu118ddr4c1 """ ++
+   """vcu118migc1.vivado.tcl""",
+   """create_ip -name ddr4 -vendor xilinx.com -library ip -version 2.2 -module_name vcu118migc1 """ ++
    """set_property -dict [list CONFIG.C0_CLOCK_BOARD_INTERFACE {default_250mhz_clk1} """ ++
                             """CONFIG.Example_TG {ADVANCED_TG} """ ++
                             """CONFIG.C0.AxiSelection {true} """ ++
@@ -107,7 +107,7 @@ class vc118ddr4c1(implicit val p:Parameters) extends BlackBox
                             """CONFIG.Component_Name {vcu118ddr4c1} """ ++
                             """CONFIG.Debug_Signal {Disable} """ ++
                             """CONFIG.System_Clock {No_Buffer} """ ++
-                            """CONFIG.C0.BANK_GROUP_WIDTH {1}] [get_ips vcu118ddr4c1]"""
+                            """CONFIG.C0.BANK_GROUP_WIDTH {1}] [get_ips vcu118migc1]"""
   )
 
    

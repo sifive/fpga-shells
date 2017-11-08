@@ -14,7 +14,9 @@ import sifive.blocks.devices.spi._
 import sifive.blocks.devices.uart._
 
 import sifive.fpgashells.devices.xilinx.xilinxvc707mig._
+import sifive.fpgashells.devices.xilinx.xilinxvcu118mig._
 import sifive.fpgashells.devices.xilinx.xilinxvc707pciex1._
+import sifive.fpgashells.devices.xilinx.xilinxvcu118pciex4._
 import sifive.fpgashells.ip.xilinx.{IBUFDS, PowerOnResetFPGAOnly, sdio_spi_bridge, vc707_sys_clock_mmcm0, 
                                     vc707_sys_clock_mmcm1, vc707reset}
 
@@ -55,13 +57,46 @@ trait HasPCIe { this: VC707Shell =>
   }
 }
 
+trait HasVCU118DDR4 { this : VC707Shell =>
+  require(!p.lift(MemoryXilinxDDRKey).isEmpty)
+  val ddr = IO(new XilinxVCU118MIGPads)
+
+  def connectMIG(dut: HasMemoryXilinxVCU118MIGModuleImp): Unit = {
+    // Clock & Reset
+    dut.xilinxvcu118mig.sys_clk_i               := sys_clock.asUInt
+    mig_clock                                   := dut.xilinxvcu118mig.c0_ddr4_ui_clk
+    mig_sys_reset                               := dut.xilinxvcu118mig.c0_ddr4_ui_clk_sync_rst
+    dut.xilinxvcu118mig.c0_ddr4_s_axi_aresetn   := mig_resetn
+    dut.xilinxvcu118mig.sys_rst                 := sys_reset
+
+    ddr <> dut.xilinxvcu118mig
+  }
+}
+
+trait HasVCU118PCIe { this : VC707Shell =>
+
+ val pcie = IO(new XilinxVCU118PCIeX4Pads)
+
+ def connectPCIe(dut: HasSystemXilinxVCU118PCIeX4ModuleImp): Unit = {
+    // Clock & Reset
+    dut.xilinxvcu118pcie.axi_aresetn    := pcie_dat_resetn
+    pcie_dat_clock                      := dut.xilinxvcu118pcie.axi_aclk
+    dut.xilinxvcu118pcie.axi_ctl_aresetn := pcie_dat_resetn
+
+    pcie <> dut.xilinxvcu118pcie
+  }
+}
+ 
+
+
+
 abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
 
   //-----------------------------------------------------------------------
   // Interface
   //-----------------------------------------------------------------------
   
-  // 200Mhz differential sysclk
+  // differential sysclk
   val sys_diff_clock_clk_n = IO(Input(Bool()))
   val sys_diff_clock_clk_p = IO(Input(Bool()))
 
