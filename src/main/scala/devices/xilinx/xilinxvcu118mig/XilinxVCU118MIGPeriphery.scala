@@ -19,9 +19,6 @@ trait HasMemoryXilinxVCU118MIG extends HasMemoryBus {
 
 trait HasMemoryXilinxVCU118MIGBundle {
   val xilinxvcu118mig: XilinxVCU118MIGIO
-  def connectXilinxVCU118MIGToPads(pads: XilinxVCU118MIGPads) {
-    pads <> xilinxvcu118mig
-  }
 }
 
 trait HasMemoryXilinxVCU118MIGModuleImp extends LazyModuleImp

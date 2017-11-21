@@ -79,9 +79,9 @@ trait HasVCU118PCIe { this : VC707Shell =>
 
  def connectPCIe(dut: HasSystemXilinxVCU118PCIeX4ModuleImp): Unit = {
     // Clock & Reset
-    dut.xilinxvcu118pcie.axi_aresetn    := pcie_dat_resetn
+    //dut.xilinxvcu118pcie.axi_aresetn    := pcie_dat_resetn
     pcie_dat_clock                      := dut.xilinxvcu118pcie.axi_aclk
-    dut.xilinxvcu118pcie.axi_ctl_aresetn := pcie_dat_resetn
+    //dut.xilinxvcu118pcie.axi_ctl_aresetn := pcie_dat_resetn
 
     pcie <> dut.xilinxvcu118pcie
   }

@@ -9,12 +9,11 @@ import freechips.rocketchip.coreplex._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
 import freechips.rocketchip.interrupts._
-import sifive.fpgashells.ip.xilinx.vcu118mig.{VCU118MIGIOClocksReset, VCU118MIGIODDR, vcu118migc1}
+import sifive.fpgashells.ip.xilinx.vcu118mig.{VCU118MIGIO, VCU118MIGIODDR, vcu118migc1}
 import sifive.fpgashells.devices.xilinx.xilinxvc707mig.{XilinxVC707MIGParams}
 
 class XilinxVCU118MIGPads extends VCU118MIGIODDR
-
-class XilinxVCU118MIGIO extends VCU118MIGIODDR with VCU118MIGIOClocksReset
+class XilinxVCU118MIGIO extends VCU118MIGIO
 
 class XilinxVCU118MIGIsland(c : XilinxVC707MIGParams)(implicit p: Parameters) extends LazyModule with HasCrossing {
   val ranges = AddressRange.fromSets(c.address)
@@ -34,29 +33,44 @@ class XilinxVCU118MIGIsland(c : XilinxVC707MIGParams)(implicit p: Parameters) ex
       supportsWrite = TransferSizes(1, 256*8),
       supportsRead  = TransferSizes(1, 256*8))),
     beatBytes = 8)))
-
+  
   lazy val module = new LazyModuleImp(this) {
     val io = IO(new Bundle {
-      val port = new XilinxVCU118MIGIO
+      val port = new VCU118MIGIO
     })
 
     //MIG black box instantiation
     val blackbox = Module(new vcu118migc1)
     val (axi_async, _) = node.in(0)
 
-    //ClocksReset
+    //pins to top level
+    //io.port <> blackbox.io does not work erroring out in FIRRTL due to analogs in bundles
+    //VCU118MIGIODDR 
+    io.port.c0_ddr4_act_n               := blackbox.io.c0_ddr4_act_n
+    io.port.c0_ddr4_adr                 := blackbox.io.c0_ddr4_adr
+    io.port.c0_ddr4_ba                  := blackbox.io.c0_ddr4_ba  
+    io.port.c0_ddr4_bg                  := blackbox.io.c0_ddr4_bg
+    io.port.c0_ddr4_cke                 := blackbox.io.c0_ddr4_cke
+    io.port.c0_ddr4_odt                 := blackbox.io.c0_ddr4_odt 
+    io.port.c0_ddr4_cs_n                := blackbox.io.c0_ddr4_cs_n 
+    io.port.c0_ddr4_ck_t                := blackbox.io.c0_ddr4_ck_t 
+    io.port.c0_ddr4_ck_c                := blackbox.io.c0_ddr4_ck_c  
+    io.port.c0_ddr4_reset_n             := blackbox.io.c0_ddr4_reset_n 
+    //inouts
+    attach(io.port.c0_ddr4_dm_dbi_n,blackbox.io.c0_ddr4_dm_dbi_n)
+    attach(io.port.c0_ddr4_dq,blackbox.io.c0_ddr4_dq)
+    attach(io.port.c0_ddr4_dqs_c,blackbox.io.c0_ddr4_dqs_c)
+    attach(io.port.c0_ddr4_dqs_t,blackbox.io.c0_ddr4_dqs_t)
+    //VCU118MIGIOCLocksReset
     blackbox.io.sys_rst                 := io.port.sys_rst
     blackbox.io.sys_clk_i               := io.port.sys_clk_i
     io.port.c0_init_calib_complete      := blackbox.io.c0_init_calib_complete
     io.port.c0_ddr4_ui_clk              := blackbox.io.c0_ddr4_ui_clk
     io.port.c0_ddr4_ui_clk_sync_rst     := blackbox.io.c0_ddr4_ui_clk_sync_rst
     io.port.dbg_clk                     := blackbox.io.dbg_clk
-
-    blackbox.io.c0_ddr4_s_axi_aresetn  := io.port.c0_ddr4_s_axi_aresetn
-
-    //pins to top level
-    io.port <> blackbox.io
-
+    blackbox.io.c0_ddr4_s_axi_aresetn   := io.port.c0_ddr4_s_axi_aresetn
+ 
+    //VCU118MIGAXISlave 
     val awaddr = axi_async.aw.bits.addr - UInt(offset)
     val araddr = axi_async.ar.bits.addr - UInt(offset)
 
@@ -107,6 +121,8 @@ class XilinxVCU118MIGIsland(c : XilinxVC707MIGParams)(implicit p: Parameters) ex
     axi_async.r.bits.last     := blackbox.io.c0_ddr4_s_axi_rlast
     axi_async.r.valid         := blackbox.io.c0_ddr4_s_axi_rvalid
 
+    //VCU118MIGDebugBus
+    //dbg_bus todo
   }
 }
 
@@ -126,11 +142,11 @@ class XilinxVCU118MIG(c : XilinxVC707MIGParams)(implicit p: Parameters) extends 
 
   lazy val module = new LazyModuleImp(this) {
     val io = IO(new Bundle {
-      val port = new XilinxVCU118MIGIO
+      val port = new VCU118MIGIO
     })
-
+    
     io.port <> island.module.io.port
-
+    
     island.module.clock := io.port.c0_ddr4_ui_clk
     island.module.reset := io.port.c0_ddr4_ui_clk_sync_rst
   }
