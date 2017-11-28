@@ -34,8 +34,8 @@ trait VCU118MIGIOClocksReset extends Bundle {
   val c0_ddr4_ui_clk            = Clock(OUTPUT)
   val c0_ddr4_ui_clk_sync_rst   = Bool(OUTPUT)
   val dbg_clk                   = Clock(OUTPUT)
- 
-  val c0_ddr4_s_axi_aresetn     = Bool(INPUT) 
+
+  val c0_ddr4_s_axi_aresetn     = Bool(INPUT)
 }
 
 class VCU118MIGIO extends Bundle with VCU118MIGIODDR with VCU118MIGIOClocksReset
@@ -88,7 +88,7 @@ trait VCU118MIGAXISlave extends Bundle {
 
 trait VCU118MIGDebugBus extends Bundle {
   //dbg
-  val dbg_bus                       = Bits(OUTPUT,512) 
+  val dbg_bus                       = Bits(OUTPUT,512)
 }
 
 //scalastyle:off
@@ -99,23 +99,22 @@ class vcu118migc1(implicit val p:Parameters) extends BlackBox
 
   ElaborationArtefacts.add(
    """vcu118migc1.vivado.tcl""",
-   """create_ip -name ddr4 -vendor xilinx.com -library ip -version 2.2 -module_name vcu118migc1 """ ++
-   """set_property -dict [list CONFIG.C0_CLOCK_BOARD_INTERFACE {default_250mhz_clk1} """ ++
-                            """CONFIG.Example_TG {ADVANCED_TG} """ ++
-                            """CONFIG.C0.AxiSelection {true} """ ++
-                            """CONFIG.C0.DDR4_AxiAddressWidth {28} """ ++
-                            """CONFIG.C0.DDR4_TimePeriod {833} """ ++
-                            """CONFIG.C0.DDR4_InputClockPeriod {4000} """ ++
-                            """CONFIG.C0.DDR4_CLKOUT0_DIVIDE {5} """ ++
-                            """CONFIG.C0.DDR4_MemoryPart {EDY4016AABG-DR-F} """ ++
-                            """CONFIG.C0.DDR4_DataWidth {80} """ ++
-                            """CONFIG.C0.DDR4_CasWriteLatency {12} """ ++
-                            """CONFIG.Component_Name {vcu118ddr4c1} """ ++
-                            """CONFIG.Debug_Signal {Disable} """ ++
-                            """CONFIG.System_Clock {No_Buffer} """ ++
-                            """CONFIG.C0.BANK_GROUP_WIDTH {1}] [get_ips vcu118migc1]"""
+   """create_ip -name ddr4 -vendor xilinx.com -library ip -version 2.2 -module_name vcu118migc1
+      set_property -dict [list CONFIG.C0_CLOCK_BOARD_INTERFACE {default_250mhz_clk1} \
+                               CONFIG.Example_TG {ADVANCED_TG} \
+                               CONFIG.C0.DDR4_AxiSelection {true} \
+                               CONFIG.C0.DDR4_AxiAddressWidth {28} \
+                               CONFIG.C0.DDR4_TimePeriod {833} \
+                               CONFIG.C0.DDR4_InputClockPeriod {4000} \
+                               CONFIG.C0.DDR4_CLKOUT0_DIVIDE {5} \
+                               CONFIG.C0.DDR4_MemoryPart {EDY4016AABG-DR-F} \
+                               CONFIG.C0.DDR4_DataWidth {80} \
+                               CONFIG.C0.DDR4_CasWriteLatency {12} \
+                               CONFIG.Component_Name {vcu118ddr4c1} \
+                               CONFIG.Debug_Signal {Disable} \
+                               CONFIG.System_Clock {No_Buffer} \
+                               CONFIG.C0.BANK_GROUP_WIDTH {1}] [get_ips vcu118migc1]"""
   )
 
-   
 }
 //scalastyle:on

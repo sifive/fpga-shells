@@ -9,7 +9,7 @@ import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
 import freechips.rocketchip.interrupts._
 import freechips.rocketchip.coreplex.{HasCrossing,AsynchronousCrossing}
-import sifive.fpgashells.ip.xilinx.vcu118pcie_axi_bridge_x4.{VCU118PCIeAXIBridgeX4, VCU118PCIeAXIBridgeX4IOClocksReset, VCU118PCIeAXIBridgeX4IOSerial}
+import sifive.fpgashells.ip.xilinx.vcu118pcie_axi_bridge_x4.{VCU118PCIeAXIBridgeX4, VCU118PCIeAXIBridgeX4IOClocksReset, VCU118PCIeAXIBridgeX4IOSerial,EDGE,FMCP}
 import sifive.fpgashells.ip.xilinx.ibufds_gte2.IBUFDS_GTE2
 
 trait VC707AXIToPCIeRefClk extends Bundle{
@@ -29,7 +29,7 @@ class XilinxVCU118PCIeX4IO extends Bundle
 
 class XilinxVCU118PCIeX4(implicit p: Parameters) extends LazyModule with HasCrossing {
   val crossing = AsynchronousCrossing(8)
-  val vcu118pcie_axi_bridge_x4 = LazyModule(new VCU118PCIeAXIBridgeX4)
+  val vcu118pcie_axi_bridge_x4 = LazyModule(new VCU118PCIeAXIBridgeX4(FMCP))
 
   val slave: TLInwardNode =
     (vcu118pcie_axi_bridge_x4.slave

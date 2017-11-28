@@ -9,6 +9,11 @@ import freechips.rocketchip.amba.axi4._
 import freechips.rocketchip.interrupts._
 import freechips.rocketchip.util.{ElaborationArtefacts}
 
+sealed trait PCIeConnector
+case object EDGE extends PCIeConnector   // PCIe Edge Connector
+case object FMCP extends PCIeConnector   // FMC +
+  
+
 // Device : XCVU9P-FLGA2104-2L-e
 // IP VLNV: xilinx.com:ip:xdma:4.0
 
@@ -45,7 +50,7 @@ class vcu118pcie_axi_bridge_x4() extends BlackBox
 
     val sys_clk_gt            = Input(Bool())   //REFCLK
     val sys_clk               = Input(Bool())   //DRP Clock. Same frequency as sys_clk_gt if <250Mhz
-    
+
     //interrupt
     val interrupt_out         = Bool(OUTPUT)
 
@@ -167,7 +172,7 @@ class vcu118pcie_axi_bridge_x4() extends BlackBox
 
 //wrap vc707_axi_to_pcie_x1 black box in Nasti Bundles
 
-class VCU118PCIeAXIBridgeX4(implicit p:Parameters) extends LazyModule
+class VCU118PCIeAXIBridgeX4(pcieConnector : PCIeConnector)(implicit p:Parameters) extends LazyModule
 {
   val device = new SimpleDevice("pci", Seq("xlnx,axi-pcie-host-1.00.a")) {
     override def describe(resources: ResourceBindings): Description = {
@@ -254,12 +259,12 @@ class VCU118PCIeAXIBridgeX4(implicit p:Parameters) extends LazyModule
     //unused
     // := blackbox.io.cfg_ltssm_state
     // := user_lnk_up
- 
+
     //REFCLK
     blackbox.io.sys_clk_gt          := io.REFCLK
     blackbox.io.sys_clk             := io.REFCLK
-   
-    //i    
+
+    //i
     i(0)                            := blackbox.io.interrupt_out
 
     //s
@@ -408,61 +413,136 @@ class VCU118PCIeAXIBridgeX4(implicit p:Parameters) extends LazyModule
     blackbox.io.m_axi_rvalid     := m.r.valid
     m.r.ready                    := blackbox.io.m_axi_rready
   }
-  
+
+  val (pcie_blk_locn,select_quad) = pcieConnector match {
+    case EDGE => ("""X1Y2""","""GTY_Quad_227""") 
+    case FMCP => ("""X0Y3""","""GTY_Quad_126""")
+  }
+
+/*
+  val xdc_package_pins = pcieConnector match {
+    case EDGE =>
+      """
+      # PCI Express
+      # Edge connector
+      set_property PACKAGE_PIN P42 [get_ports {pcie_pci_exp_txp[0]}]
+      set_property PACKAGE_PIN P43 [get_ports {pcie_pci_exp_txn[0]}]
+      set_property PACKAGE_PIN U45 [get_ports {pcie_pci_exp_rxp[0]}]
+      set_property PACKAGE_PIN P46 [get_ports {pcie_pci_exp_rxn[0]}]
+
+      set_property PACKAGE_PIN M42 [get_ports {pcie_pci_exp_txp[1]}]
+      set_property PACKAGE_PIN M43 [get_ports {pcie_pci_exp_txn[1]}]
+      set_property PACKAGE_PIN R45 [get_ports {pcie_pci_exp_rxp[1]}]
+      set_property PACKAGE_PIN R46 [get_ports {pcie_pci_exp_rxn[1]}]
+
+      set_property PACKAGE_PIN T42 [get_ports {pcie_pci_exp_txp[2]}]
+      set_property PACKAGE_PIN T43 [get_ports {pcie_pci_exp_txn[2]}]
+      set_property PACKAGE_PIN W45 [get_ports {pcie_pci_exp_rxp[2]}]
+      set_property PACKAGE_PIN W46 [get_ports {pcie_pci_exp_rxn[2]}]
+
+      set_property PACKAGE_PIN K42 [get_ports {pcie_pci_exp_txp[3]}]
+      set_property PACKAGE_PIN K43 [get_ports {pcie_pci_exp_txn[3]}]
+      set_property PACKAGE_PIN N45 [get_ports {pcie_pci_exp_rxp[3]}]
+      set_property PACKAGE_PIN N46 [get_ports {pcie_pci_exp_rxn[3]}]
+
+      #refclk
+      set_property PACKAGE_PIN V38 [get_ports {pcie_REFCLK_rxp}]
+      set_property PACKAGE_PIN V39 [get_ports {pcie_REFCLK_rxn}]
+      create_clock -name pcie_ref_clk -period 10 [get_ports pcie_REFCLK_rxp]
+      set_input_jitter [get_clocks -of_objects [get_ports pcie_REFCLK_rxp]] 0.5
+      """
+    case FMCP =>
+      """
+      # PCI Express
+      # J22 FMCP_HSPC (FMC + HSPC)
+      set_property PACKAGE_PIN P42 [get_ports {pcie_pci_exp_txp[0]}]
+      set_property PACKAGE_PIN P43 [get_ports {pcie_pci_exp_txn[0]}]
+      set_property PACKAGE_PIN U45 [get_ports {pcie_pci_exp_rxp[0]}]
+      set_property PACKAGE_PIN P46 [get_ports {pcie_pci_exp_rxn[0]}]
+
+      set_property PACKAGE_PIN M42 [get_ports {pcie_pci_exp_txp[1]}]
+      set_property PACKAGE_PIN M43 [get_ports {pcie_pci_exp_txn[1]}]
+      set_property PACKAGE_PIN R45 [get_ports {pcie_pci_exp_rxp[1]}]
+      set_property PACKAGE_PIN R46 [get_ports {pcie_pci_exp_rxn[1]}]
+
+      set_property PACKAGE_PIN T42 [get_ports {pcie_pci_exp_txp[2]}]
+      set_property PACKAGE_PIN T43 [get_ports {pcie_pci_exp_txn[2]}]
+      set_property PACKAGE_PIN W45 [get_ports {pcie_pci_exp_rxp[2]}]
+      set_property PACKAGE_PIN W46 [get_ports {pcie_pci_exp_rxn[2]}]
+
+      set_property PACKAGE_PIN K42 [get_ports {pcie_pci_exp_txp[3]}]
+      set_property PACKAGE_PIN K43 [get_ports {pcie_pci_exp_txn[3]}]
+      set_property PACKAGE_PIN N45 [get_ports {pcie_pci_exp_rxp[3]}]
+      set_property PACKAGE_PIN N46 [get_ports {pcie_pci_exp_rxn[3]}]
+
+      #refclk
+      set_property PACKAGE_PIN V38 [get_ports {pcie_REFCLK_rxp}]
+      set_property PACKAGE_PIN V39 [get_ports {pcie_REFCLK_rxn}]
+      create_clock -name pcie_ref_clk -period 10 [get_ports pcie_REFCLK_rxp]
+      set_input_jitter [get_clocks -of_objects [get_ports pcie_REFCLK_rxp]] 0.5
+      """
+  }
+*/
+
   ElaborationArtefacts.add(
     "vcu118pcie_axi_bridge_x4.vivado.tcl",
-    """create_ip -name xdma -vendor xilinx.com -library ip -version 4.0 -module_name vcu118pcie_axi_bridge_x4""" ++
-    """set_property -dict [list CONFIG.Component_Name {vcu118pcie_axi_bridge_x4} """ ++
-                             """CONFIG.functional_mode {AXI_Bridge} """ ++
-                             """CONFIG.mode_selection {Advanced} """ ++ 
-                             """CONFIG.device_port_type {Root_Port_of_PCI_Express_Root_Complex} """ ++
-                             """CONFIG.pcie_blk_locn {X0Y3} """ ++
-                             """CONFIG.pl_link_cap_max_link_width {X4} """ ++
-                             """CONFIG.pl_link_cap_max_link_speed {5.0_GT/s} """ ++
-                             """CONFIG.axi_addr_width {32} CONFIG.axisten_freq {250} """ ++
-                             """CONFIG.pf0_device_id {9124} """ ++
-                             """CONFIG.pf0_base_class_menu {Bridge_device} """ ++
-                             """CONFIG.pf0_class_code_base {06} """ ++ 
-                             """CONFIG.pf0_sub_class_interface_menu {CardBus_bridge} """ ++
-                             """CONFIG.pf0_class_code_sub {07} """ ++
-                             """CONFIG.pf0_class_code_interface {00} """ ++
-                             """CONFIG.pf0_class_code {060700} """ ++
-                             """CONFIG.xdma_axilite_slave {true} """ ++
-                             """CONFIG.en_gt_selection {true} """ ++
-                             """CONFIG.select_quad {GTY_Quad_126} """ ++ 
-                             """CONFIG.plltype {QPLL1} """ ++
-                             """CONFIG.type1_membase_memlimit_enable {Enabled} """ ++
-                             """CONFIG.type1_prefetchable_membase_memlimit {64bit_Enabled} """ ++
-                             """CONFIG.BASEADDR {0x00000000} """ ++ 
-                             """CONFIG.HIGHADDR {0x001FFFFF} """ ++
-                             """CONFIG.pf1_class_code {060700} """ ++
-                             """CONFIG.pf1_base_class_menu {Bridge_device} """ ++
-                             """CONFIG.pf1_class_code_base {06} """ ++
-                             """CONFIG.pf1_class_code_sub {07} """ ++ 
-                             """CONFIG.pf1_sub_class_interface_menu {CardBus_bridge} """ ++
-                             """CONFIG.pf1_class_code_interface {00} """ ++
-                             """CONFIG.pf0_bar0_type_mqdma {Memory} """ ++
-                             """CONFIG.pf1_bar0_type_mqdma {Memory} """ ++
-                             """CONFIG.pf2_bar0_type_mqdma {Memory} """ ++
-                             """CONFIG.pf3_bar0_type_mqdma {Memory} """ ++
-                             """CONFIG.pf0_sriov_bar0_type {Memory} """ ++
-                             """CONFIG.pf1_sriov_bar0_type {Memory} """ ++
-                             """CONFIG.pf2_sriov_bar0_type {Memory} """ ++
-                             """CONFIG.pf3_sriov_bar0_type {Memory} """ ++
-                             """CONFIG.PF0_DEVICE_ID_mqdma {9124} """ ++
-                             """CONFIG.PF2_DEVICE_ID_mqdma {9124} """ ++
-                             """CONFIG.PF3_DEVICE_ID_mqdma {9124} """ ++
-                             """CONFIG.pf0_base_class_menu_mqdma {Bridge_device} """ ++
-                             """CONFIG.pf0_class_code_base_mqdma {06} """ ++
-                             """CONFIG.pf0_class_code_mqdma {068000} """ ++
-                             """CONFIG.pf1_base_class_menu_mqdma {Bridge_device} """ ++ 
-                             """CONFIG.pf1_class_code_base_mqdma {06} """ ++
-                             """CONFIG.pf1_class_code_mqdma {068000} """ ++
-                             """CONFIG.pf2_base_class_menu_mqdma {Bridge_device} """ ++
-                             """CONFIG.pf2_class_code_base_mqdma {06} """ ++
-                             """CONFIG.pf2_class_code_mqdma {068000} """ ++
-                             """CONFIG.pf3_base_class_menu_mqdma {Bridge_device} """ ++
-                             """CONFIG.pf3_class_code_base_mqdma {06} """ ++
-                             """CONFIG.pf3_class_code_mqdma {068000}] [get_ips vcu118pcie_axi_bridge_x4]"""
+    """
+       set board_part [get_property BOARD_PART [current_project] ]
+       set_property BOARD_PART {} [current_project] 
+       create_ip -name xdma -vendor xilinx.com -library ip -version 4.0 -module_name vcu118pcie_axi_bridge_x4
+       set_property -dict [list CONFIG.Component_Name {vcu118pcie_axi_bridge_x4}  \
+                                CONFIG.functional_mode {AXI_Bridge} \
+                                CONFIG.mode_selection {Advanced} \
+                                CONFIG.device_port_type {Root_Port_of_PCI_Express_Root_Complex} \
+                                CONFIG.pcie_blk_locn {""" + pcie_blk_locn + """} \
+                                CONFIG.pl_link_cap_max_link_width {X4} \
+                                CONFIG.pl_link_cap_max_link_speed {5.0_GT/s} \
+                                CONFIG.axi_addr_width {32} CONFIG.axisten_freq {250} \
+                                CONFIG.pf0_device_id {9124} \
+                                CONFIG.pf0_base_class_menu {Bridge_device} \
+                                CONFIG.pf0_class_code_base {06}  \
+                                CONFIG.pf0_sub_class_interface_menu {CardBus_bridge} \
+                                CONFIG.pf0_class_code_sub {07} \
+                                CONFIG.pf0_class_code_interface {00} \
+                                CONFIG.pf0_class_code {060700} \
+                                CONFIG.xdma_axilite_slave {true} \
+                                CONFIG.en_gt_selection {true} \
+                                CONFIG.select_quad {""" + select_quad + """}  \
+                                CONFIG.plltype {QPLL1} \
+                                CONFIG.type1_membase_memlimit_enable {Enabled} \
+                                CONFIG.type1_prefetchable_membase_memlimit {64bit_Enabled} \
+                                CONFIG.BASEADDR {0x00000000}  \
+                                CONFIG.HIGHADDR {0x001FFFFF} \
+                                CONFIG.pf1_class_code {060700} \
+                                CONFIG.pf1_base_class_menu {Bridge_device} \
+                                CONFIG.pf1_class_code_base {06} \
+                                CONFIG.pf1_class_code_sub {07}  \
+                                CONFIG.pf1_sub_class_interface_menu {CardBus_bridge} \
+                                CONFIG.pf1_class_code_interface {00} \
+                                CONFIG.pf0_bar0_type_mqdma {Memory} \
+                                CONFIG.pf1_bar0_type_mqdma {Memory} \
+                                CONFIG.pf2_bar0_type_mqdma {Memory} \
+                                CONFIG.pf3_bar0_type_mqdma {Memory} \
+                                CONFIG.pf0_sriov_bar0_type {Memory} \
+                                CONFIG.pf1_sriov_bar0_type {Memory} \
+                                CONFIG.pf2_sriov_bar0_type {Memory} \
+                                CONFIG.pf3_sriov_bar0_type {Memory} \
+                                CONFIG.PF0_DEVICE_ID_mqdma {9124} \
+                                CONFIG.PF2_DEVICE_ID_mqdma {9124} \
+                                CONFIG.PF3_DEVICE_ID_mqdma {9124} \
+                                CONFIG.pf0_base_class_menu_mqdma {Bridge_device} \
+                                CONFIG.pf0_class_code_base_mqdma {06} \
+                                CONFIG.pf0_class_code_mqdma {068000} \
+                                CONFIG.pf1_base_class_menu_mqdma {Bridge_device} \
+                                CONFIG.pf1_class_code_base_mqdma {06} \
+                                CONFIG.pf1_class_code_mqdma {068000} \
+                                CONFIG.pf2_base_class_menu_mqdma {Bridge_device} \
+                                CONFIG.pf2_class_code_base_mqdma {06} \
+                                CONFIG.pf2_class_code_mqdma {068000} \
+                                CONFIG.pf3_base_class_menu_mqdma {Bridge_device} \
+                                CONFIG.pf3_class_code_base_mqdma {06} \
+                                CONFIG.pf3_class_code_mqdma {068000}] [get_ips vcu118pcie_axi_bridge_x4]
+      set_property BOARD_PART $board_part [current_project]
+      """ 
   )
 }

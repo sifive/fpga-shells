@@ -53,8 +53,8 @@ set_property IOB TRUE [get_cells "uart_rxd_sync/sync_1"]
 
 # PCI Express
 #FMC 1 refclk
-set_property PACKAGE_PIN A10 [get_ports {pcie_REFCLK_rxp}]
-set_property PACKAGE_PIN A9 [get_ports {pcie_REFCLK_rxn}]
+set_property PACKAGE_PIN V38 [get_ports {pcie_REFCLK_rxp}]
+set_property PACKAGE_PIN V39 [get_ports {pcie_REFCLK_rxn}]
 create_clock -name pcie_ref_clk -period 10 [get_ports pcie_REFCLK_rxp]
 set_input_jitter [get_clocks -of_objects [get_ports pcie_REFCLK_rxp]] 0.5
 

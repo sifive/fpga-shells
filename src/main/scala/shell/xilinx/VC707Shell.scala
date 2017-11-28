@@ -18,10 +18,11 @@ import sifive.fpgashells.devices.xilinx.xilinxvcu118mig._
 import sifive.fpgashells.devices.xilinx.xilinxvc707pciex1._
 import sifive.fpgashells.devices.xilinx.xilinxvcu118pciex4._
 import sifive.fpgashells.ip.xilinx.{IBUFDS, PowerOnResetFPGAOnly, sdio_spi_bridge, vc707_sys_clock_mmcm0, 
-                                    vc707_sys_clock_mmcm1, vc707reset}
+                                    vc707_sys_clock_mmcm1, vcu118_sys_clock_mmcm0, vcu118_sys_clock_mmcm1,
+                                    vc707reset}
 
 //-------------------------------------------------------------------------
-// VC707Shell
+// VC707
 //-------------------------------------------------------------------------
 
 trait HasDDR3 { this: VC707Shell =>
@@ -57,6 +58,35 @@ trait HasPCIe { this: VC707Shell =>
   }
 }
 
+
+trait HasVC707MMCMs { this : VC707Shell =>
+  //25MHz and multiples
+  val vc707_sys_clock_mmcm0 = Module(new vc707_sys_clock_mmcm0)
+  vc707_sys_clock_mmcm0.io.clk_in1 := sys_clock.asUInt
+  vc707_sys_clock_mmcm0.io.reset   := reset
+  clk12_5              := vc707_sys_clock_mmcm0.io.clk_out1
+  clk25                := vc707_sys_clock_mmcm0.io.clk_out2
+  clk37_5              := vc707_sys_clock_mmcm0.io.clk_out3
+  clk50                := vc707_sys_clock_mmcm0.io.clk_out4
+  clk100               := vc707_sys_clock_mmcm0.io.clk_out5
+  clk150               := vc707_sys_clock_mmcm0.io.clk_out6
+  clk75                := vc707_sys_clock_mmcm0.io.clk_out7
+  mmcm_25MHz_locked    := vc707_sys_clock_mmcm0.io.locked
+
+  //65MHz and multiples
+  val vc707_sys_clock_mmcm1 = Module(new vc707_sys_clock_mmcm1)
+  vc707_sys_clock_mmcm1.io.clk_in1 := sys_clock.asUInt
+  vc707_sys_clock_mmcm1.io.reset   := reset
+  clk32_5              := vc707_sys_clock_mmcm1.io.clk_out1
+  clk65                := vc707_sys_clock_mmcm1.io.clk_out2
+  mmcm_65Mhz_locked    := vc707_sys_clock_mmcm1.io.locked
+}
+
+//-------------------------------------------------------------------------
+// VCU118
+//-------------------------------------------------------------------------
+
+
 trait HasVCU118DDR4 { this : VC707Shell =>
   require(!p.lift(MemoryXilinxDDRKey).isEmpty)
   val ddr = IO(new XilinxVCU118MIGPads)
@@ -86,8 +116,29 @@ trait HasVCU118PCIe { this : VC707Shell =>
     pcie <> dut.xilinxvcu118pcie
   }
 }
- 
 
+trait HasVCU118MMCMs { this : VC707Shell =>
+  //25MHz and multiples
+  val vc707_sys_clock_mmcm0 = Module(new vcu118_sys_clock_mmcm0)
+  vc707_sys_clock_mmcm0.io.clk_in1 := sys_clock.asUInt
+  vc707_sys_clock_mmcm0.io.reset   := reset
+  clk12_5              := vc707_sys_clock_mmcm0.io.clk_out1
+  clk25                := vc707_sys_clock_mmcm0.io.clk_out2
+  clk37_5              := vc707_sys_clock_mmcm0.io.clk_out3
+  clk50                := vc707_sys_clock_mmcm0.io.clk_out4
+  clk100               := vc707_sys_clock_mmcm0.io.clk_out5
+  clk150               := vc707_sys_clock_mmcm0.io.clk_out6
+  clk75                := vc707_sys_clock_mmcm0.io.clk_out7
+  mmcm_25MHz_locked    := vc707_sys_clock_mmcm0.io.locked
+
+  //65MHz and multiples
+  val vc707_sys_clock_mmcm1 = Module(new vcu118_sys_clock_mmcm1)
+  vc707_sys_clock_mmcm1.io.clk_in1 := sys_clock.asUInt
+  vc707_sys_clock_mmcm1.io.reset   := reset
+  clk32_5              := vc707_sys_clock_mmcm1.io.clk_out1
+  clk65                := vc707_sys_clock_mmcm1.io.clk_out2
+  mmcm_65Mhz_locked    := vc707_sys_clock_mmcm1.io.locked
+}
 
 
 abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
@@ -96,7 +147,6 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
   // Interface
   //-----------------------------------------------------------------------
   
-  // differential sysclk
   val sys_diff_clock_clk_n = IO(Input(Bool()))
   val sys_diff_clock_clk_p = IO(Input(Bool()))
 
@@ -176,47 +226,42 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
   val mmcm_lock_pcie  = Wire(Bool())
 
   //-----------------------------------------------------------------------
-  // Differential clock
+  // Differential sys_clock
   //-----------------------------------------------------------------------
 
   val sys_clk_ibufds = Module(new IBUFDS)
   sys_clk_ibufds.io.I  := sys_diff_clock_clk_p
   sys_clk_ibufds.io.IB := sys_diff_clock_clk_n
-
-  //-----------------------------------------------------------------------
-  // System clock and reset
-  //-----------------------------------------------------------------------
-
-  // Clock that drives the clock generator and the MIG
   sys_clock := sys_clk_ibufds.io.O.asClock
 
-  // Allow the debug module to reset everything. Resets the MIG
+  //-----------------------------------------------------------------------
+  // Reset
+  //-----------------------------------------------------------------------
+
+  // Allow the debug module to reset everything
   sys_reset := reset | dut_ndreset
 
   //-----------------------------------------------------------------------
-  // Clock Generator
+  // Clocks generated from sys_clock
   //-----------------------------------------------------------------------
 
   //25MHz and multiples
-  val vc707_sys_clock_mmcm0 = Module(new vc707_sys_clock_mmcm0)
-  vc707_sys_clock_mmcm0.io.clk_in1 := sys_clock.asUInt
-  vc707_sys_clock_mmcm0.io.reset   := reset
-  val clk12_5              = vc707_sys_clock_mmcm0.io.clk_out1
-  val clk25                = vc707_sys_clock_mmcm0.io.clk_out2
-  val clk37_5              = vc707_sys_clock_mmcm0.io.clk_out3
-  val clk50                = vc707_sys_clock_mmcm0.io.clk_out4
-  val clk100               = vc707_sys_clock_mmcm0.io.clk_out5
-  val clk150               = vc707_sys_clock_mmcm0.io.clk_out6
-  val clk75                = vc707_sys_clock_mmcm0.io.clk_out7
-  val vc707_sys_clock_mmcm0_locked = vc707_sys_clock_mmcm0.io.locked
+  val clk12_5 = Wire(Clock())
+  val clk25   = Wire(Clock())
+  val clk37_5 = Wire(Clock())
+  val clk50   = Wire(Clock())
+  val clk100  = Wire(Clock())
+  val clk150  = Wire(Clock())
+  val clk75   = Wire(Clock())
 
-  //65MHz and multiples
-  val vc707_sys_clock_mmcm1 = Module(new vc707_sys_clock_mmcm1)
-  vc707_sys_clock_mmcm1.io.clk_in1 := sys_clock.asUInt
-  vc707_sys_clock_mmcm1.io.reset   := reset
-  val clk32_5              = vc707_sys_clock_mmcm1.io.clk_out1
-  val clk65                = vc707_sys_clock_mmcm1.io.clk_out2
-  val vc707_sys_clock_mmcm1_locked = vc707_sys_clock_mmcm1.io.locked
+  //65MHz and multiplies
+  val clk32_5 = Wire(Clock())
+  val clk65   = Wire(Clock())
+  
+  //MMCM locked
+  val mmcm_25MHz_locked = Wire(Bool())
+  val mmcm_65Mhz_locked = Wire(Bool())
+ 
 
   // DUT clock
   dut_clock := clk37_5
@@ -225,8 +270,8 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
   // System reset
   //-----------------------------------------------------------------------
 
-  do_reset             := !mig_mmcm_locked || !mmcm_lock_pcie || mig_sys_reset || !vc707_sys_clock_mmcm0_locked ||
-                          !vc707_sys_clock_mmcm1_locked
+  do_reset             := !mig_mmcm_locked || !mmcm_lock_pcie || mig_sys_reset || !mmcm_25MHz_locked ||
+                          !mmcm_65Mhz_locked
   mig_resetn           := !mig_reset
   dut_resetn           := !dut_reset
   pcie_dat_resetn      := !pcie_dat_reset
