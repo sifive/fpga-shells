@@ -303,6 +303,112 @@ class vc707_sys_clock_mmcm1 extends BlackBox {
   )
 }
 
+class vcu118_sys_clock_mmcm0 extends BlackBox {
+  val io = new Bundle {
+    val clk_in1   = Bool(INPUT)
+    val clk_out1  = Clock(OUTPUT)
+    val clk_out2  = Clock(OUTPUT)
+    val clk_out3  = Clock(OUTPUT)
+    val clk_out4  = Clock(OUTPUT)
+    val clk_out5  = Clock(OUTPUT)
+    val clk_out6  = Clock(OUTPUT)
+    val clk_out7  = Clock(OUTPUT)
+    val reset     = Bool(INPUT)
+    val locked    = Bool(OUTPUT)
+  }
+ 
+  ElaborationArtefacts.add(
+    "vcu118_sys_clock_mmcm0.vivado.tcl",
+    """create_ip -name clk_wiz -vendor xilinx.com -library ip -module_name vcu118_sys_clock_mmcm0 -dir $ipdir -force
+    set_property -dict [list \
+    CONFIG.CLK_IN1_BOARD_INTERFACE {Custom}  \
+    CONFIG.USE_INCLK_SWITCHOVER {false} \
+    CONFIG.PRIM_SOURCE {No_buffer} \
+    CONFIG.PRIM_IN_FREQ {300.000} \
+    CONFIG.CLKOUT2_USED {true} \
+    CONFIG.CLKOUT3_USED {true} \
+    CONFIG.CLKOUT4_USED {true} \
+    CONFIG.CLKOUT5_USED {true} \
+    CONFIG.CLKOUT6_USED {true} \
+    CONFIG.CLKOUT7_USED {true} \
+    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {12.5} \
+    CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {25} \
+    CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {37.5} \
+    CONFIG.CLKOUT4_REQUESTED_OUT_FREQ {50} \
+    CONFIG.CLKOUT6_REQUESTED_OUT_FREQ {150} \
+    CONFIG.CLKOUT7_REQUESTED_OUT_FREQ {75} \
+    CONFIG.CLKIN1_JITTER_PS {33.330000000000005}  \
+    CONFIG.MMCM_DIVCLK_DIVIDE {1} \
+    CONFIG.MMCM_CLKFBOUT_MULT_F {4.000} \
+    CONFIG.MMCM_CLKIN1_PERIOD {3.333}  \
+    CONFIG.MMCM_CLKOUT0_DIVIDE_F {96.000} \
+    CONFIG.MMCM_CLKOUT1_DIVIDE {48} \
+    CONFIG.MMCM_CLKOUT2_DIVIDE {32} \
+    CONFIG.MMCM_CLKOUT3_DIVIDE {24} \
+    CONFIG.MMCM_CLKOUT4_DIVIDE {12} \
+    CONFIG.MMCM_CLKOUT5_DIVIDE {8} \
+    CONFIG.MMCM_CLKOUT6_DIVIDE {16} \
+    CONFIG.NUM_OUT_CLKS {7} \
+    CONFIG.CLKOUT1_JITTER {153.656} \
+    CONFIG.CLKOUT1_PHASE_ERROR {77.836} \
+    CONFIG.CLKOUT2_JITTER {133.817} \
+    CONFIG.CLKOUT2_PHASE_ERROR {77.836} \
+    CONFIG.CLKOUT3_JITTER {123.317} \
+    CONFIG.CLKOUT3_PHASE_ERROR {77.836} \
+    CONFIG.CLKOUT4_JITTER {116.415} \
+    CONFIG.CLKOUT4_PHASE_ERROR {77.836} \
+    CONFIG.CLKOUT5_JITTER {101.475} \
+    CONFIG.CLKOUT5_PHASE_ERROR {77.836} \
+    CONFIG.CLKOUT6_JITTER {93.717} \
+    CONFIG.CLKOUT6_PHASE_ERROR {77.836} \
+    CONFIG.CLKOUT7_JITTER {107.379} \
+    CONFIG.CLKOUT7_PHASE_ERROR {77.836}] [get_ips vcu118_sys_clock_mmcm0] """
+  )
+}
+
+class vcu118_sys_clock_mmcm1 extends BlackBox {
+  val io = new Bundle {
+    val clk_in1   = Bool(INPUT)
+    val clk_out1  = Clock(OUTPUT)
+    val clk_out2  = Clock(OUTPUT)
+    val reset     = Bool(INPUT)
+    val locked    = Bool(OUTPUT)
+  }
+  
+  ElaborationArtefacts.add(
+    "vcu118_sys_clock_mmcm1.vivado.tcl",
+    """create_ip -name clk_wiz -vendor xilinx.com -library ip -module_name vcu118_sys_clock_mmcm1 -dir $ipdir -force
+    set_property -dict [list \
+    CONFIG.CLK_IN1_BOARD_INTERFACE {Custom}  \
+    CONFIG.USE_INCLK_SWITCHOVER {false} \
+    CONFIG.PRIM_SOURCE {No_buffer} \
+    CONFIG.PRIM_IN_FREQ {300.000} \
+    CONFIG.CLKOUT2_USED {true} \
+    CONFIG.CLKOUT3_USED {false} \
+    CONFIG.CLKOUT4_USED {false} \
+    CONFIG.CLKOUT5_USED {false} \
+    CONFIG.CLKOUT6_USED {false} \
+    CONFIG.CLKOUT7_USED {false} \
+    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {32.5} \
+    CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {65} \
+    CONFIG.CLKIN1_JITTER_PS {33.330000000000005}  \
+    CONFIG.MMCM_DIVCLK_DIVIDE {5}  \
+    CONFIG.MMCM_CLKFBOUT_MULT_F {19.500}  \
+    CONFIG.MMCM_CLKOUT0_DIVIDE_F {36.000}  \
+    CONFIG.MMCM_CLKOUT1_DIVIDE {18} \
+    CONFIG.MMCM_CLKOUT2_DIVIDE {1}  \
+    CONFIG.MMCM_CLKOUT3_DIVIDE {1} \
+    CONFIG.MMCM_CLKOUT4_DIVIDE {1} \
+    CONFIG.MMCM_CLKOUT5_DIVIDE {1} \
+    CONFIG.MMCM_CLKOUT6_DIVIDE {1} \
+    CONFIG.NUM_OUT_CLKS {2} \
+    CONFIG.CLKOUT1_JITTER {158.792} \
+    CONFIG.CLKOUT1_PHASE_ERROR {133.651}  \
+    CONFIG.CLKOUT2_JITTER {138.759} \
+    CONFIG.CLKOUT2_PHASE_ERROR {133.651}] [get_ips vcu118_sys_clock_mmcm1] """
+  )
+}
+
 //-------------------------------------------------------------------------
 // vc707reset
 //-------------------------------------------------------------------------
