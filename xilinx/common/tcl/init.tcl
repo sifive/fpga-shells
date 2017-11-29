@@ -19,8 +19,19 @@ if {[file exists $boardiptcl]} {
   source $boardiptcl
 }
 
+#report_ip_status
+
+# Turn off OOC (out-of-context synthesis) 
 # AR 58526 <http://www.xilinx.com/support/answers/58526.html>
-set_property GENERATE_SYNTH_CHECKPOINT {false} [get_files -all {*.xci}]
+#set_property GENERATE_SYNTH_CHECKPOINT {false} [get_files -all {*.xci}]
+# Does not work for new "subsystem" IPs wihch contain multiple XCI files
+# Need to apply properyt to "top level" XCIs only
+set ip_component_names [get_property CONFIG.Component_Name [get_ips]]
+foreach ip_component_name $ip_component_names {
+  set xci_extension {.xci}
+  set ip_xci $ip_component_name$xci_extension
+  set_property GENERATE_SYNTH_CHECKPOINT {false} [get_files $ip_xci]
+}
 
 # Get a list of IPs in the current design
 set obj [get_ips]
