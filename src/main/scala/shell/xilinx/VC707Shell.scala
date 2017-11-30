@@ -93,10 +93,10 @@ trait HasVCU118DDR4 { this : VC707Shell =>
 
   def connectMIG(dut: HasMemoryXilinxVCU118MIGModuleImp): Unit = {
     // Clock & Reset
-    dut.xilinxvcu118mig.sys_clk_i               := sys_clock.asUInt
+    dut.xilinxvcu118mig.c0_sys_clk_i            := sys_clock.asUInt
     mig_clock                                   := dut.xilinxvcu118mig.c0_ddr4_ui_clk
     mig_sys_reset                               := dut.xilinxvcu118mig.c0_ddr4_ui_clk_sync_rst
-    dut.xilinxvcu118mig.c0_ddr4_s_axi_aresetn   := mig_resetn
+    dut.xilinxvcu118mig.c0_ddr4_aresetn         := mig_resetn
     dut.xilinxvcu118mig.sys_rst                 := sys_reset
 
     ddr <> dut.xilinxvcu118mig

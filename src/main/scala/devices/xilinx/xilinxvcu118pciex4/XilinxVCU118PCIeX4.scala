@@ -10,7 +10,7 @@ import freechips.rocketchip.tilelink._
 import freechips.rocketchip.interrupts._
 import freechips.rocketchip.coreplex.{HasCrossing,AsynchronousCrossing}
 import sifive.fpgashells.ip.xilinx.vcu118pcie_axi_bridge_x4.{VCU118PCIeAXIBridgeX4, VCU118PCIeAXIBridgeX4IOClocksReset, VCU118PCIeAXIBridgeX4IOSerial,EDGE,FMCP}
-import sifive.fpgashells.ip.xilinx.ibufds_gte2.IBUFDS_GTE2
+import sifive.fpgashells.ip.xilinx.ibufds_gte4.IBUFDS_GTE4
 
 trait VC707AXIToPCIeRefClk extends Bundle{
   val REFCLK_rxp = Bool(INPUT)
@@ -63,10 +63,10 @@ class XilinxVCU118PCIeX4(implicit p: Parameters) extends LazyModule with HasCros
     io.port <> vcu118pcie_axi_bridge_x4.module.io.port
 
     //PCIe Reference Clock
-    val ibufds_gte2 = Module(new IBUFDS_GTE2)
-    vcu118pcie_axi_bridge_x4.module.io.REFCLK := ibufds_gte2.io.O
-    ibufds_gte2.io.CEB := UInt(0)
-    ibufds_gte2.io.I := io.port.REFCLK_rxp
-    ibufds_gte2.io.IB := io.port.REFCLK_rxn
+    val ibufds_gte4 = Module(new IBUFDS_GTE4)
+    vcu118pcie_axi_bridge_x4.module.io.REFCLK := ibufds_gte4.io.O
+    ibufds_gte4.io.CEB := UInt(0)
+    ibufds_gte4.io.I := io.port.REFCLK_rxp
+    ibufds_gte4.io.IB := io.port.REFCLK_rxn
   }
 }

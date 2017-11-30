@@ -63,12 +63,12 @@ class XilinxVCU118MIGIsland(c : XilinxVC707MIGParams)(implicit p: Parameters) ex
     attach(io.port.c0_ddr4_dqs_t,blackbox.io.c0_ddr4_dqs_t)
     //VCU118MIGIOCLocksReset
     blackbox.io.sys_rst                 := io.port.sys_rst
-    blackbox.io.sys_clk_i               := io.port.sys_clk_i
+    blackbox.io.c0_sys_clk_i            := io.port.c0_sys_clk_i
     io.port.c0_init_calib_complete      := blackbox.io.c0_init_calib_complete
     io.port.c0_ddr4_ui_clk              := blackbox.io.c0_ddr4_ui_clk
     io.port.c0_ddr4_ui_clk_sync_rst     := blackbox.io.c0_ddr4_ui_clk_sync_rst
     io.port.dbg_clk                     := blackbox.io.dbg_clk
-    blackbox.io.c0_ddr4_s_axi_aresetn   := io.port.c0_ddr4_s_axi_aresetn
+    blackbox.io.c0_ddr4_aresetn         := io.port.c0_ddr4_aresetn
  
     //VCU118MIGAXISlave 
     val awaddr = axi_async.aw.bits.addr - UInt(offset)
