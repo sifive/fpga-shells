@@ -237,8 +237,8 @@ class VCU118PCIeAXIBridgeX4(pcieConnector : PCIeConnector)(implicit p:Parameters
 
     val io = IO(new Bundle {
       val port = new VCU118PCIeAXIBridgeX4IOBundle
-      val sys_clk_gt = Input(Bool)
-      val sys_clk = Input(Bool)
+      val sys_clk_gt = Input(Bool())
+      val sys_clk = Input(Bool())
     })
 
     val blackbox = Module(new vcu118pcie_axi_bridge_x4)
