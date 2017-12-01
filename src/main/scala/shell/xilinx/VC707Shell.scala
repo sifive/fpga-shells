@@ -90,10 +90,18 @@ trait HasVC707MMCMs { this : VC707Shell =>
 trait HasVCU118DDR4 { this : VC707Shell =>
   require(!p.lift(MemoryXilinxDDRKey).isEmpty)
   val ddr = IO(new XilinxVCU118MIGPads)
+  val sys_diff_clock_250_clk_n = IO(Input(Bool()))
+  val sys_diff_clock_250_clk_p = IO(Input(Bool()))
+
+  val sys_clock_250        = Wire(Clock())
+  val sys_clk_250_ibufds   = Module(new IBUFDS)
+  sys_clk_250_ibufds.io.I  := sys_diff_clock_250_clk_p
+  sys_clk_250_ibufds.io.IB := sys_diff_clock_250_clk_n
+  sys_clock_250 := sys_clk_250_ibufds.io.O.asClock
 
   def connectMIG(dut: HasMemoryXilinxVCU118MIGModuleImp): Unit = {
     // Clock & Reset
-    dut.xilinxvcu118mig.c0_sys_clk_i            := sys_clock.asUInt
+    dut.xilinxvcu118mig.c0_sys_clk_i            := sys_clock_250.asUInt
     mig_clock                                   := dut.xilinxvcu118mig.c0_ddr4_ui_clk
     mig_sys_reset                               := dut.xilinxvcu118mig.c0_ddr4_ui_clk_sync_rst
     dut.xilinxvcu118mig.c0_ddr4_aresetn         := mig_resetn
