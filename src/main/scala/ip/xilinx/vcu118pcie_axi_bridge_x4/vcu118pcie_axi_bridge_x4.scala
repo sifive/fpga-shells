@@ -36,6 +36,9 @@ trait VCU118PCIeAXIBridgeX4IOClocksReset extends Bundle {
   val axi_aclk              = Output(Clock())
   val axi_aresetn           = Output(Bool())
   val axi_ctl_aresetn       = Output(Bool())
+
+  //reference clocks
+  
 }
 
 //scalastyle:off
@@ -49,7 +52,7 @@ class vcu118pcie_axi_bridge_x4() extends BlackBox
     val user_lnk_up           = Output(Bool())
 
     val sys_clk_gt            = Input(Bool())   //REFCLK
-    val sys_clk               = Input(Bool())   //DRP Clock. Same frequency as sys_clk_gt if <250Mhz
+    val sys_clk               = Input(Bool())   //DRP Clock. Connect to ODIV2 port of reference clock IBUFDS_GTE4
 
     //interrupt
     val interrupt_out         = Bool(OUTPUT)
@@ -234,7 +237,8 @@ class VCU118PCIeAXIBridgeX4(pcieConnector : PCIeConnector)(implicit p:Parameters
 
     val io = IO(new Bundle {
       val port = new VCU118PCIeAXIBridgeX4IOBundle
-      val REFCLK = Bool(INPUT)
+      val sys_clk_gt = Input(Bool)
+      val sys_clk = Input(Bool)
     })
 
     val blackbox = Module(new vcu118pcie_axi_bridge_x4)
@@ -261,8 +265,8 @@ class VCU118PCIeAXIBridgeX4(pcieConnector : PCIeConnector)(implicit p:Parameters
     // := user_lnk_up
 
     //REFCLK
-    blackbox.io.sys_clk_gt          := io.REFCLK
-    blackbox.io.sys_clk             := io.REFCLK
+    blackbox.io.sys_clk_gt          := io.sys_clk_gt
+    blackbox.io.sys_clk             := io.sys_clk
 
     //i
     i(0)                            := blackbox.io.interrupt_out

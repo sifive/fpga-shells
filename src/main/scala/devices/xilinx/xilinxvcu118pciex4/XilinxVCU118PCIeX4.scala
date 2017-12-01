@@ -64,7 +64,8 @@ class XilinxVCU118PCIeX4(implicit p: Parameters) extends LazyModule with HasCros
 
     //PCIe Reference Clock
     val ibufds_gte4 = Module(new IBUFDS_GTE4)
-    vcu118pcie_axi_bridge_x4.module.io.REFCLK := ibufds_gte4.io.O
+    vcu118pcie_axi_bridge_x4.module.io.sys_clk_gt := ibufds_gte4.io.O
+    vcu118pcie_axi_bridge_x4.module.io.sys_clk := ibufds_gte4.io.ODIV2
     ibufds_gte4.io.CEB := UInt(0)
     ibufds_gte4.io.I := io.port.REFCLK_rxp
     ibufds_gte4.io.IB := io.port.REFCLK_rxn
