@@ -90,18 +90,16 @@ trait HasVC707MMCMs { this : VC707Shell =>
 trait HasVCU118DDR4 { this : VC707Shell =>
   require(!p.lift(MemoryXilinxDDRKey).isEmpty)
   val ddr = IO(new XilinxVCU118MIGPads)
-  val sys_diff_clock_250_clk_n = IO(Input(Bool()))
-  val sys_diff_clock_250_clk_p = IO(Input(Bool()))
 
-  val sys_clock_250        = Wire(Clock())
-  val sys_clk_250_ibufds   = Module(new IBUFDS)
-  sys_clk_250_ibufds.io.I  := sys_diff_clock_250_clk_p
-  sys_clk_250_ibufds.io.IB := sys_diff_clock_250_clk_n
-  sys_clock_250 := sys_clk_250_ibufds.io.O.asClock
+  //val sys_clock_250        = Wire(Clock())
+  //val sys_clk_250_ibufds   = Module(new IBUFDS)
+  //sys_clk_250_ibufds.io.I  := sys_diff_clock_250_clk_p
+  //sys_clk_250_ibufds.io.IB := sys_diff_clock_250_clk_n
+  //sys_clock_250 := sys_clk_250_ibufds.io.O.asClock
 
   def connectMIG(dut: HasMemoryXilinxVCU118MIGModuleImp): Unit = {
     // Clock & Reset
-    dut.xilinxvcu118mig.c0_sys_clk_i            := sys_clock_250.asUInt
+    //dut.xilinxvcu118mig.c0_sys_clk_i            := sys_clock_250.asUInt
     mig_clock                                   := dut.xilinxvcu118mig.c0_ddr4_ui_clk
     mig_sys_reset                               := dut.xilinxvcu118mig.c0_ddr4_ui_clk_sync_rst
     dut.xilinxvcu118mig.c0_ddr4_aresetn         := mig_resetn
@@ -127,25 +125,25 @@ trait HasVCU118PCIe { this : VC707Shell =>
 
 trait HasVCU118MMCMs { this : VC707Shell =>
   //25MHz and multiples
-  val vc707_sys_clock_mmcm0 = Module(new vcu118_sys_clock_mmcm0)
-  vc707_sys_clock_mmcm0.io.clk_in1 := sys_clock.asUInt
-  vc707_sys_clock_mmcm0.io.reset   := reset
-  clk12_5              := vc707_sys_clock_mmcm0.io.clk_out1
-  clk25                := vc707_sys_clock_mmcm0.io.clk_out2
-  clk37_5              := vc707_sys_clock_mmcm0.io.clk_out3
-  clk50                := vc707_sys_clock_mmcm0.io.clk_out4
-  clk100               := vc707_sys_clock_mmcm0.io.clk_out5
-  clk150               := vc707_sys_clock_mmcm0.io.clk_out6
-  clk75                := vc707_sys_clock_mmcm0.io.clk_out7
-  mmcm_25MHz_locked    := vc707_sys_clock_mmcm0.io.locked
+  val vcu118_sys_clock_mmcm0 = Module(new vcu118_sys_clock_mmcm0)
+  vcu118_sys_clock_mmcm0.io.clk_in1 := sys_clock.asUInt
+  vcu118_sys_clock_mmcm0.io.reset   := reset
+  clk12_5              := vcu118_sys_clock_mmcm0.io.clk_out1
+  clk25                := vcu118_sys_clock_mmcm0.io.clk_out2
+  clk37_5              := vcu118_sys_clock_mmcm0.io.clk_out3
+  clk50                := vcu118_sys_clock_mmcm0.io.clk_out4
+  clk100               := vcu118_sys_clock_mmcm0.io.clk_out5
+  clk150               := vcu118_sys_clock_mmcm0.io.clk_out6
+  clk75                := vcu118_sys_clock_mmcm0.io.clk_out7
+  mmcm_25MHz_locked    := vcu118_sys_clock_mmcm0.io.locked
 
   //65MHz and multiples
-  val vc707_sys_clock_mmcm1 = Module(new vcu118_sys_clock_mmcm1)
-  vc707_sys_clock_mmcm1.io.clk_in1 := sys_clock.asUInt
-  vc707_sys_clock_mmcm1.io.reset   := reset
-  clk32_5              := vc707_sys_clock_mmcm1.io.clk_out1
-  clk65                := vc707_sys_clock_mmcm1.io.clk_out2
-  mmcm_65Mhz_locked    := vc707_sys_clock_mmcm1.io.locked
+  val vcu118_sys_clock_mmcm1 = Module(new vcu118_sys_clock_mmcm1)
+  vcu118_sys_clock_mmcm1.io.clk_in1 := sys_clock.asUInt
+  vcu118_sys_clock_mmcm1.io.reset   := reset
+  clk32_5              := vcu118_sys_clock_mmcm1.io.clk_out1
+  clk65                := vcu118_sys_clock_mmcm1.io.clk_out2
+  mmcm_65Mhz_locked    := vcu118_sys_clock_mmcm1.io.locked
 }
 
 

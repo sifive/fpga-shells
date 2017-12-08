@@ -9,6 +9,8 @@ import freechips.rocketchip.config._
 
 // Black Box
 trait VCU118MIGIODDR extends Bundle {
+  val c0_sys_clk_n             = Bool(INPUT)
+  val c0_sys_clk_p             = Bool(INPUT)
   val c0_ddr4_act_n            = Bool(OUTPUT)
   val c0_ddr4_adr              = Bits(OUTPUT,17)
   val c0_ddr4_ba               = Bits(OUTPUT,2)
@@ -28,7 +30,7 @@ trait VCU118MIGIODDR extends Bundle {
 trait VCU118MIGIOClocksReset extends Bundle {
   val sys_rst                   = Bool(INPUT)
   // "NO_BUFFER" clock source (must be connected to IBUF outside of IP)
-  val c0_sys_clk_i              = Bool(INPUT)
+  //val c0_sys_clk_i              = Bool(INPUT)
 
   val c0_init_calib_complete    = Bool(OUTPUT)
   val c0_ddr4_ui_clk            = Clock(OUTPUT)
@@ -102,7 +104,8 @@ class vcu118migc1(implicit val p:Parameters) extends BlackBox
   ElaborationArtefacts.add(
    """vcu118migc1.vivado.tcl""",
    """create_ip -name ddr4 -vendor xilinx.com -library ip -version 2.2 -module_name vcu118migc1 -dir $ipdir -force
-      set_property -dict [list CONFIG.C0.DDR4_TimePeriod {833} \
+      set_property -dict [list CONFIG.C0_CLOCK_BOARD_INTERFACE {Custom} \
+                               CONFIG.C0.DDR4_TimePeriod {833} \
                                CONFIG.C0.DDR4_InputClockPeriod {4000} \
                                CONFIG.C0.DDR4_CLKOUT0_DIVIDE {5} \
                                CONFIG.C0.DDR4_MemoryPart {EDY4016AABG-DR-F} \
@@ -113,7 +116,6 @@ class vcu118migc1(implicit val p:Parameters) extends BlackBox
                                CONFIG.C0.DDR4_CasWriteLatency {12} \
                                CONFIG.C0.DDR4_AxiDataWidth {64} \
                                CONFIG.C0.DDR4_AxiAddressWidth {31} \
-                               CONFIG.System_Clock {No_Buffer}  \
                                CONFIG.C0.BANK_GROUP_WIDTH {1} \
                                CONFIG.Component_Name {vcu118ddr4c1} \
                                CONFIG.Debug_Signal {Disable} \
@@ -121,6 +123,8 @@ class vcu118migc1(implicit val p:Parameters) extends BlackBox
                                ] [get_ips vcu118migc1] 
     """
   )
+
+                               //CONFIG.System_Clock {No_Buffer}  \
 
 }
 //scalastyle:on

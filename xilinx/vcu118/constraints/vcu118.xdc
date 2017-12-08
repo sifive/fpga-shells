@@ -6,10 +6,10 @@
 
 #DDR
 #250 MHZ clk
-set_property PACKAGE_PIN E12        [get_ports "c0_sys_clk_p"]
-set_property IOSTANDARD DIFF_SSTL12 [get_ports "c0_sys_clk_p"]
-set_property PACKAGE_PIN D12        [get_ports "c0_sys_clk_n"]
-set_property IOSTANDARD DIFF_SSTL12 [get_ports "c0_sys_clk_n"]
+set_property PACKAGE_PIN E12        [get_ports "ddr_c0_sys_clk_p"]
+set_property IOSTANDARD DIFF_SSTL12 [get_ports "ddr_c0_sys_clk_p"]
+set_property PACKAGE_PIN D12        [get_ports "ddr_c0_sys_clk_n"]
+set_property IOSTANDARD DIFF_SSTL12 [get_ports "ddr_c0_sys_clk_n"]
 
 set_property PACKAGE_PIN E13      [get_ports "ddr_c0_ddr4_act_n"]
 set_property PACKAGE_PIN D14      [get_ports "ddr_c0_ddr4_adr[0]"]
@@ -162,8 +162,8 @@ set_property -dict { PACKAGE_PIN F31  IOSTANDARD DIFF_SSTL12 } [get_ports sys_di
 #set_property BOARD_PIN {?} [get_ports sys_diff_clock_250_clk_p]
 #set_property BOARD_PIN {?} [get_ports sys_diff_clock_250_clk_n]
 #No BOARD_PIN
-set_property -dict { PACKAGE_PIN E12  IOSTANDARD DIFF_SSTL12 } [get_ports sys_diff_clock_250_clk_p]
-set_property -dict { PACKAGE_PIN D12  IOSTANDARD DIFF_SSTL12 } [get_ports sys_diff_clock_250_clk_n]
+#set_property -dict { PACKAGE_PIN E12  IOSTANDARD DIFF_SSTL12 } [get_ports sys_diff_clock_250_clk_p]
+#set_property -dict { PACKAGE_PIN D12  IOSTANDARD DIFF_SSTL12 } [get_ports sys_diff_clock_250_clk_n]
 
 #reset
 #BOARD_PIN
@@ -228,12 +228,12 @@ set_property -dict { PACKAGE_PIN D21  IOSTANDARD LVCMOS12} [get_ports sw_3]
 #todo was rts_n
 #set_property BOARD_PIN {USB_UART_RTS} [get_property uart_rts]
 #No BOARD_PIN
-set_property -dict { PACKAGE_PIN AW25} [get_ports uart_rx]
+set_property -dict { PACKAGE_PIN AW25  IOSTANDARD LVCMOS18} [get_ports uart_rx]
 #todo was cts_n
 set_property -dict { PACKAGE_PIN BB22  IOSTANDARD LVCMOS18} [get_ports uart_cts]
-set_property -dict { PACKAGE_PIN BB21} [get_ports uart_tx]
+set_property -dict { PACKAGE_PIN BB21  IOSTANDARD LVCMOS18} [get_ports uart_tx]
 #todo was rts_n
-set_property -dict { PACKAGE_PIN AY25  IOSTANDARD LVCMOS18} [get_ports uart_rts]
+set_property -dict { PACKAGE_PIN AY25  IOSTANDARD LVCMOS18} [get_ports uart_rtsn]
 
 
 # Platform specific constraints
@@ -309,19 +309,9 @@ set_property -dict { PACKAGE_PIN N30  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_po
 set_property -dict { PACKAGE_PIN P30  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDO}]
 
 
-
 set_clock_groups -asynchronous \
-  -group { clk_pll_i } \
-  -group { \
-	clk_out1_vc707_sys_clock_mmcm0 \
-	clk_out2_vc707_sys_clock_mmcm0 \
-	clk_out3_vc707_sys_clock_mmcm0 \
-	clk_out4_vc707_sys_clock_mmcm0 \
-	clk_out5_vc707_sys_clock_mmcm0 \
-	clk_out6_vc707_sys_clock_mmcm0 \
-	clk_out7_vc707_sys_clock_mmcm0 } \
-  -group { \
-	clk_out1_vc707_sys_clock_mmcm1 \
-	clk_out2_vc707_sys_clock_mmcm1 } \
-  -group [list [get_clocks -include_generated_clocks -of_objects [get_pins -hier -filter {name =~ *pcie*TXOUTCLK}]]]
+  -group [get_clocks -filter {SOURCE=~"U500VCU118System/xilinxvcu118mig_1/*"}] \
+  -group [get_clocks -filter {SOURCE=~"U500VCU118System/xilinxvcu118pcie_1/*"}]
+  -group [get_clocks -filter {SOURCE=~"vcu118_sys_clock_mmcm0/*"}] \
+  -group [get_clocks -filter {SOURCE=~"vcu118_sys_clock_mmcm1/*"}]
 

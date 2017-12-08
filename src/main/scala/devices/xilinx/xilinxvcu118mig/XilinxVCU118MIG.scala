@@ -46,6 +46,10 @@ class XilinxVCU118MIGIsland(c : XilinxVC707MIGParams)(implicit p: Parameters) ex
     //pins to top level
     //io.port <> blackbox.io does not work erroring out in FIRRTL due to analogs in bundles
     //VCU118MIGIODDR 
+    //inputs
+    blackbox.io.c0_sys_clk_n            := io.port.c0_sys_clk_n
+    blackbox.io.c0_sys_clk_p            := io.port.c0_sys_clk_p
+    //outputs
     io.port.c0_ddr4_act_n               := blackbox.io.c0_ddr4_act_n
     io.port.c0_ddr4_adr                 := blackbox.io.c0_ddr4_adr
     io.port.c0_ddr4_ba                  := blackbox.io.c0_ddr4_ba  
@@ -63,7 +67,7 @@ class XilinxVCU118MIGIsland(c : XilinxVC707MIGParams)(implicit p: Parameters) ex
     attach(io.port.c0_ddr4_dqs_t,blackbox.io.c0_ddr4_dqs_t)
     //VCU118MIGIOCLocksReset
     blackbox.io.sys_rst                 := io.port.sys_rst
-    blackbox.io.c0_sys_clk_i            := io.port.c0_sys_clk_i
+   //blackbox.io.c0_sys_clk_i            := io.port.c0_sys_clk_i
     io.port.c0_init_calib_complete      := blackbox.io.c0_init_calib_complete
     io.port.c0_ddr4_ui_clk              := blackbox.io.c0_ddr4_ui_clk
     io.port.c0_ddr4_ui_clk_sync_rst     := blackbox.io.c0_ddr4_ui_clk_sync_rst
