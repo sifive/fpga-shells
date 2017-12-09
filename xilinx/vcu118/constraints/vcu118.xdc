@@ -311,7 +311,7 @@ set_property -dict { PACKAGE_PIN P30  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_po
 
 set_clock_groups -asynchronous \
   -group [get_clocks -filter {SOURCE=~"U500VCU118System/xilinxvcu118mig_1/*"}] \
-  -group [get_clocks -filter {SOURCE=~"U500VCU118System/xilinxvcu118pcie_1/*"}]
+  -group [get_clocks -filter {SOURCE=~"U500VCU118System/xilinxvcu118pcie_1/*"}] \
   -group [get_clocks -filter {SOURCE=~"vcu118_sys_clock_mmcm0/*"}] \
   -group [get_clocks -filter {SOURCE=~"vcu118_sys_clock_mmcm1/*"}]
 
