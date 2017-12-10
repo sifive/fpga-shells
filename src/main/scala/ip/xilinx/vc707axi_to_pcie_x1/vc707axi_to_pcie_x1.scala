@@ -196,8 +196,8 @@ class VC707AXIToPCIeX1(implicit p:Parameters) extends LazyModule
       address       = List(AddressSet(0x60000000L, 0x1fffffffL)),
       resources     = Seq(Resource(device, "ranges")),
       executable    = true,
-      supportsWrite = TransferSizes(1, 256),
-      supportsRead  = TransferSizes(1, 256))),
+      supportsWrite = TransferSizes(1, 128),
+      supportsRead  = TransferSizes(1, 128))),
     beatBytes = 8)))
 
   val control = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
