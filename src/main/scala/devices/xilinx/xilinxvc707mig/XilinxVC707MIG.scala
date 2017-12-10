@@ -38,8 +38,8 @@ class XilinxVC707MIGIsland(c : XilinxVC707MIGParams)(implicit p: Parameters) ext
       resources     = device.reg,
       regionType    = RegionType.UNCACHED,
       executable    = true,
-      supportsWrite = TransferSizes(1, 256*8),
-      supportsRead  = TransferSizes(1, 256*8))),
+      supportsWrite = TransferSizes(1, 128),
+      supportsRead  = TransferSizes(1, 128))),
     beatBytes = 8)))
 
   lazy val module = new LazyModuleImp(this) {
