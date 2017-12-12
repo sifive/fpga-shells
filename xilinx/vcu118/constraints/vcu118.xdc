@@ -308,10 +308,14 @@ set_property -dict { PACKAGE_PIN M30  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_po
 set_property -dict { PACKAGE_PIN N30  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDI}]
 set_property -dict { PACKAGE_PIN P30  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDO}]
 
-
+#notes :
+#-of_object [get_cells "U500VCU118System/xilinxvcu118mig_1"] 
+#does not work. Through clocks included, single clock in 2 groups and ignored
+#-group [get_clocks -filter {SOURCE=~"U500VCU118System/xilinxvcu118mig_1/*"}] \
+#does not work. Recovered PCIe clocks in GT inst do not have "SOURCE" set correctly, only SOURCE_PINS
 set_clock_groups -asynchronous \
-  -group [get_clocks -filter {SOURCE=~"U500VCU118System/xilinxvcu118mig_1/*"}] \
-  -group [get_clocks -filter {SOURCE=~"U500VCU118System/xilinxvcu118pcie_1/*"}] \
-  -group [get_clocks -filter {SOURCE=~"vcu118_sys_clock_mmcm0/*"}] \
-  -group [get_clocks -filter {SOURCE=~"vcu118_sys_clock_mmcm1/*"}]
+  -group [get_clocks -filter {SOURCE_PINS=~"U500VCU118System/xilinxvcu118mig_1/*"}] \
+  -group [get_clocks -filter {SOURCE_PINS=~"U500VCU118System/xilinxvcu118pcie_1/*"}] \
+  -group [get_clocks -filter {SOURCE_PINS=~"vcu118_sys_clock_mmcm0/*"}] \
+  -group [get_clocks -filter {SOURCE_PINS=~"vcu118_sys_clock_mmcm1/*"}]
 
