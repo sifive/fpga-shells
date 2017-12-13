@@ -20,6 +20,11 @@ if {[info exists pre_impl_debug_tcl]} {
 # Post synthesis optimization
 source [file join $scriptdir "opt.tcl"]
 
+# Post synthesis optimzation debug 
+if {[info exists post_opt_debug_tcl]} {
+  source [file join $scriptdir $post_opt_debug_tcl]
+}
+
 # Place the design
 source [file join $scriptdir "place.tcl"]
 
@@ -30,7 +35,7 @@ source [file join $scriptdir "route.tcl"]
 source [file join $scriptdir "bitstream.tcl"]
 
 # Post-implementation debug
-if {[info exists post_impl_debug_tcl)]} {
+if {[info exists post_impl_debug_tcl]} {
   source [file join $scriptdir $post_impl_debug_tcl]
 }
 

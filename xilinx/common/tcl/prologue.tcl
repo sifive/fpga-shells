@@ -23,6 +23,9 @@ while {[llength $argv]} {
     -pre-impl-debug-tcl {
       set argv [lassign $argv[set argv {}] pre_impl_debug_tcl]
     }
+    -post-opt-debug-tcl {
+      set argv [lassign $argv[set argv {}] post_opt_debug_tcl]
+    }
     -post-impl-debug-tcl {
       set argv [lassign $argv[set argv {}] post_impl_debug_tcl]
     }
