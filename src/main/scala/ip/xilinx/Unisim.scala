@@ -33,7 +33,7 @@ extends BlackBox(
   "DIFF_TERM" -> booleanToVerilogStringParam(DIFF_TERM),
   "DQS_BIAS" -> booleanToVerilogStringParam(DQS_BIAS),
   "IBUF_DELAY_VALUE" -> IntParam(IBUF_DELAY_VALUE),
-  "IBUDF_LOW_PWR" -> booleanToVerilogStringParam(IBUF_LOW_PWR),
+  "IBUF_LOW_PWR" -> booleanToVerilogStringParam(IBUF_LOW_PWR),
   "IFD_DELAY_VALUE" -> StringParam(IFD_DELAY_VALUE),
   "IOSTANDARD" -> StringParam(IOSTANDARD)
   )
