@@ -64,13 +64,6 @@ set_property PACKAGE_PIN H3 [get_ports {pcie_pci_exp_txn}]
 set_property PACKAGE_PIN G6 [get_ports {pcie_pci_exp_rxp}]
 set_property PACKAGE_PIN G5 [get_ports {pcie_pci_exp_rxn}]
 
-# JTAG
-set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets jtag_TCK_IBUF]
-set_property -dict { PACKAGE_PIN R32  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TCK}]
-set_property -dict { PACKAGE_PIN W36  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TMS}]
-set_property -dict { PACKAGE_PIN W37  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDI}]
-set_property -dict { PACKAGE_PIN V40  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDO}]
-
 # SDIO
 set_property -dict { PACKAGE_PIN AN30  IOSTANDARD LVCMOS18  IOB TRUE } [get_ports {sdio_clk}]
 set_property -dict { PACKAGE_PIN AP30  IOSTANDARD LVCMOS18  IOB TRUE  PULLUP TRUE } [get_ports {sdio_cmd}]

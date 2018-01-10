@@ -7,7 +7,7 @@ import chisel3.experimental.{RawModule, Analog, withClockAndReset}
 
 import freechips.rocketchip.config._
 import freechips.rocketchip.devices.debug._
-import freechips.rocketchip.util.{SyncResetSynchronizerShiftReg}
+import freechips.rocketchip.util.{SyncResetSynchronizerShiftReg, ElaborationArtefacts}
 
 import sifive.blocks.devices.gpio._
 import sifive.blocks.devices.spi._
@@ -222,7 +222,48 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
   // Debug JTAG
   //---------------------------------------------------------------------
 
-  def connectDebugJTAG(dut: HasPeripheryDebugModuleImp): SystemJTAGIO = {
+  def connectDebugJTAG(dut: HasPeripheryDebugModuleImp, fmcxm105: Boolean = true): SystemJTAGIO = {
+  
+    ElaborationArtefacts.add(
+    """debugjtag.vivado.tcl""",
+    """set vc707debugjtag_vivado_tcl_dir [file dirname [file normalize [info script]]]
+       add_files -fileset [current_fileset -constrset] [glob -directory $vc707debugjtag_vivado_tcl_dir {*.vc707debugjtag.xdc}]"""
+    )
+
+    if(fmcxm105) {
+      //VC707 constraints for Xilinx FMC XM105 Debug Card
+      ElaborationArtefacts.add(
+        """vc707debugjtag.xdc""",
+        """set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets jtag_TCK_IBUF]
+           set_property -dict { PACKAGE_PIN R32  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TCK}]
+           set_property -dict { PACKAGE_PIN W36  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TMS}]
+           set_property -dict { PACKAGE_PIN W37  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDI}]
+           set_property -dict { PACKAGE_PIN V40  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDO}] """
+      )
+    } else {
+      //VC707 constraints for Olimex connect to LCD panel header
+     ElaborationArtefacts.add(
+        """vc707debugjtag.xdc""",
+        """
+           #Olimex Pin  Olimex Function LCD Pin LCD Function FPGA Pin
+           #1           VREF            14      5V
+           #3           TTRST_N         1       LCD_DB7       AN40
+           #5           TTDI            2       LCD_DB6       AR39
+           #7           TTMS            3       LCD_DB5       AR38
+           #9           TTCK            4       LCD_DB4       AT42
+           #11          TRTCK           NC      NC            NC
+           #13          TTDO            9       LCD_E         AT40
+           #15          TSRST_N         10      LCD_RW        AR42
+           #2           VREF            14      5V
+           #18          GND             13      GND
+           set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets jtag_TCK_IBUF]
+           set_property -dict { PACKAGE_PIN AT42  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TCK}]
+           set_property -dict { PACKAGE_PIN AR38  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TMS}]
+           set_property -dict { PACKAGE_PIN AR39  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDI}]
+           set_property -dict { PACKAGE_PIN AT40  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDO}] """
+      )
+    }
+   
     val djtag     = dut.debug.systemjtag.get
 
     djtag.jtag.TCK := jtag_TCK
