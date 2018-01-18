@@ -55,6 +55,72 @@ trait HasPCIe { this: VC707Shell =>
   }
 }
 
+trait HasDebugJTAG { this: VC707Shell =>
+  // JTAG
+  val jtag_TCK             = IO(Input(Clock()))
+  val jtag_TMS             = IO(Input(Bool()))
+  val jtag_TDI             = IO(Input(Bool()))
+  val jtag_TDO             = IO(Output(Bool()))
+
+  def connectDebugJTAG(dut: HasPeripheryDebugModuleImp, fmcxm105: Boolean = true): SystemJTAGIO = {
+  
+    ElaborationArtefacts.add(
+    """debugjtag.vivado.tcl""",
+    """set vc707debugjtag_vivado_tcl_dir [file dirname [file normalize [info script]]]
+       add_files -fileset [current_fileset -constrset] [glob -directory $vc707debugjtag_vivado_tcl_dir {*.vc707debugjtag.xdc}]"""
+    )
+
+    if(fmcxm105) {
+      //VC707 constraints for Xilinx FMC XM105 Debug Card
+      ElaborationArtefacts.add(
+        """vc707debugjtag.xdc""",
+        """set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets jtag_TCK_IBUF]
+           set_property -dict { PACKAGE_PIN R32  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TCK}]
+           set_property -dict { PACKAGE_PIN W36  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TMS}]
+           set_property -dict { PACKAGE_PIN W37  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDI}]
+           set_property -dict { PACKAGE_PIN V40  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDO}] """
+      )
+    } else {
+      //VC707 constraints for Olimex connect to LCD panel header
+     ElaborationArtefacts.add(
+        """vc707debugjtag.xdc""",
+        """
+           #Olimex Pin  Olimex Function LCD Pin LCD Function FPGA Pin
+           #1           VREF            14      5V
+           #3           TTRST_N         1       LCD_DB7       AN40
+           #5           TTDI            2       LCD_DB6       AR39
+           #7           TTMS            3       LCD_DB5       AR38
+           #9           TTCK            4       LCD_DB4       AT42
+           #11          TRTCK           NC      NC            NC
+           #13          TTDO            9       LCD_E         AT40
+           #15          TSRST_N         10      LCD_RW        AR42
+           #2           VREF            14      5V
+           #18          GND             13      GND
+           set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets jtag_TCK_IBUF]
+           set_property -dict { PACKAGE_PIN AT42  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TCK}]
+           set_property -dict { PACKAGE_PIN AR38  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TMS}]
+           set_property -dict { PACKAGE_PIN AR39  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDI}]
+           set_property -dict { PACKAGE_PIN AT40  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDO}] """
+      )
+    }
+   
+    val djtag     = dut.debug.systemjtag.get
+
+    djtag.jtag.TCK := jtag_TCK
+    djtag.jtag.TMS := jtag_TMS
+    djtag.jtag.TDI := jtag_TDI
+    jtag_TDO       := djtag.jtag.TDO.data
+
+    djtag.mfr_id   := p(JtagDTMKey).idcodeManufId.U(11.W)
+
+    djtag.reset    := PowerOnResetFPGAOnly(dut_clock)
+    dut_ndreset    := dut.debug.ndreset
+    djtag
+  }
+}
+
+  
+
 abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
 
   //-----------------------------------------------------------------------
@@ -81,12 +147,6 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
   val sdio_clk             = IO(Output(Bool()))
   val sdio_cmd             = IO(Analog(1.W))
   val sdio_dat             = IO(Analog(4.W))
-
-  // JTAG
-  val jtag_TCK             = IO(Input(Clock()))
-  val jtag_TMS             = IO(Input(Bool()))
-  val jtag_TDI             = IO(Input(Bool()))
-  val jtag_TDO             = IO(Output(Bool()))
 
   //Buttons
   val btn_0                = IO(Analog(1.W))
@@ -218,65 +278,7 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
   mig_mmcm_locked      := UInt("b1")
   mmcm_lock_pcie       := UInt("b1")
  
-  //---------------------------------------------------------------------
-  // Debug JTAG
-  //---------------------------------------------------------------------
 
-  def connectDebugJTAG(dut: HasPeripheryDebugModuleImp, fmcxm105: Boolean = true): SystemJTAGIO = {
-  
-    ElaborationArtefacts.add(
-    """debugjtag.vivado.tcl""",
-    """set vc707debugjtag_vivado_tcl_dir [file dirname [file normalize [info script]]]
-       add_files -fileset [current_fileset -constrset] [glob -directory $vc707debugjtag_vivado_tcl_dir {*.vc707debugjtag.xdc}]"""
-    )
-
-    if(fmcxm105) {
-      //VC707 constraints for Xilinx FMC XM105 Debug Card
-      ElaborationArtefacts.add(
-        """vc707debugjtag.xdc""",
-        """set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets jtag_TCK_IBUF]
-           set_property -dict { PACKAGE_PIN R32  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TCK}]
-           set_property -dict { PACKAGE_PIN W36  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TMS}]
-           set_property -dict { PACKAGE_PIN W37  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDI}]
-           set_property -dict { PACKAGE_PIN V40  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDO}] """
-      )
-    } else {
-      //VC707 constraints for Olimex connect to LCD panel header
-     ElaborationArtefacts.add(
-        """vc707debugjtag.xdc""",
-        """
-           #Olimex Pin  Olimex Function LCD Pin LCD Function FPGA Pin
-           #1           VREF            14      5V
-           #3           TTRST_N         1       LCD_DB7       AN40
-           #5           TTDI            2       LCD_DB6       AR39
-           #7           TTMS            3       LCD_DB5       AR38
-           #9           TTCK            4       LCD_DB4       AT42
-           #11          TRTCK           NC      NC            NC
-           #13          TTDO            9       LCD_E         AT40
-           #15          TSRST_N         10      LCD_RW        AR42
-           #2           VREF            14      5V
-           #18          GND             13      GND
-           set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets jtag_TCK_IBUF]
-           set_property -dict { PACKAGE_PIN AT42  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TCK}]
-           set_property -dict { PACKAGE_PIN AR38  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TMS}]
-           set_property -dict { PACKAGE_PIN AR39  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDI}]
-           set_property -dict { PACKAGE_PIN AT40  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDO}] """
-      )
-    }
-   
-    val djtag     = dut.debug.systemjtag.get
-
-    djtag.jtag.TCK := jtag_TCK
-    djtag.jtag.TMS := jtag_TMS
-    djtag.jtag.TDI := jtag_TDI
-    jtag_TDO       := djtag.jtag.TDO.data
-
-    djtag.mfr_id   := p(JtagDTMKey).idcodeManufId.U(11.W)
-
-    djtag.reset    := PowerOnResetFPGAOnly(dut_clock)
-    dut_ndreset    := dut.debug.ndreset
-    djtag
-  }
 
   //-----------------------------------------------------------------------
   // UART
