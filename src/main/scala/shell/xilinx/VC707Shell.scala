@@ -16,7 +16,7 @@ import sifive.blocks.devices.uart._
 import sifive.fpgashells.devices.xilinx.xilinxvc707mig._
 import sifive.fpgashells.devices.xilinx.xilinxvc707pciex1._
 import sifive.fpgashells.ip.xilinx.{IBUFDS, PowerOnResetFPGAOnly, sdio_spi_bridge, vc707_sys_clock_mmcm0, 
-                                    vc707_sys_clock_mmcm1, vc707reset}
+                                    vc707_sys_clock_mmcm1, vc707_sys_clock_mmcm2 , vc707reset}
 
 //-------------------------------------------------------------------------
 // VC707Shell
@@ -223,7 +223,7 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
   //-----------------------------------------------------------------------
 
   //25MHz and multiples
-  val vc707_sys_clock_mmcm0 = Module(new vc707_sys_clock_mmcm0)
+  val vc707_sys_clock_mmcm0 = Module(new vc707_sys_clock_mmcm2)
   vc707_sys_clock_mmcm0.io.clk_in1 := sys_clock.asUInt
   vc707_sys_clock_mmcm0.io.reset   := reset
   val clk12_5              = vc707_sys_clock_mmcm0.io.clk_out1
@@ -233,6 +233,7 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
   val clk100               = vc707_sys_clock_mmcm0.io.clk_out5
   val clk150               = vc707_sys_clock_mmcm0.io.clk_out6
   val clk75                = vc707_sys_clock_mmcm0.io.clk_out7
+  val clk12_5_180          = vc707_sys_clock_mmcm0.io.clk_out7
   val vc707_sys_clock_mmcm0_locked = vc707_sys_clock_mmcm0.io.locked
 
   //65MHz and multiples

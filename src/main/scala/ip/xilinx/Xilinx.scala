@@ -210,6 +210,104 @@ class vc707_sys_clock_mmcm1 extends BlackBox {
   )
 }
 
+class vc707_sys_clock_mmcm2 extends BlackBox {
+  val io = new Bundle {
+    val clk_in1   = Bool(INPUT)
+    val clk_out1  = Clock(OUTPUT)
+    val clk_out2  = Clock(OUTPUT)
+    val clk_out3  = Clock(OUTPUT)
+    val clk_out4  = Clock(OUTPUT)
+    val clk_out5  = Clock(OUTPUT)
+    val clk_out6  = Clock(OUTPUT)
+    val clk_out7  = Clock(OUTPUT)
+    val reset     = Bool(INPUT)
+    val locked    = Bool(OUTPUT)
+  }
+  
+  ElaborationArtefacts.add(
+    "vc707_sys_clock_mmcm2.vivado.tcl",
+    """create_ip -name clk_wiz -vendor xilinx.com -library ip -module_name vc707_sys_clock_mmcm2 -dir $ipdir -force
+    set_property -dict [list \
+    CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \
+    CONFIG.PRIM_SOURCE {No_buffer} \
+    CONFIG.CLKOUT1_USED {true} \
+    CONFIG.CLKOUT2_USED {true} \
+    CONFIG.CLKOUT3_USED {true} \
+    CONFIG.CLKOUT4_USED {true} \
+    CONFIG.CLKOUT5_USED {true} \
+    CONFIG.CLKOUT6_USED {true} \
+    CONFIG.CLKOUT7_USED {true} \
+    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {12.5} \
+    CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {25} \
+    CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {37.5} \
+    CONFIG.CLKOUT4_REQUESTED_OUT_FREQ {50} \
+    CONFIG.CLKOUT5_REQUESTED_OUT_FREQ {100} \
+    CONFIG.CLKOUT6_REQUESTED_OUT_FREQ {150.000} \
+    CONFIG.CLKOUT7_REQUESTED_OUT_FREQ {12.5} \
+    CONFIG.CLKOUT7_REQUESTED_PHASE {180} \
+    CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \
+    CONFIG.PRIM_IN_FREQ {200.000} \
+    CONFIG.CLKIN1_JITTER_PS {50.0} \
+    CONFIG.MMCM_DIVCLK_DIVIDE {2} \
+    CONFIG.MMCM_CLKFBOUT_MULT_F {9.0} \
+    CONFIG.MMCM_CLKIN1_PERIOD {5.0} \
+    CONFIG.MMCM_CLKOUT0_DIVIDE_F {72.000} \
+    CONFIG.MMCM_CLKOUT1_DIVIDE {36} \
+    CONFIG.MMCM_CLKOUT2_DIVIDE {24} \
+    CONFIG.MMCM_CLKOUT3_DIVIDE {18} \
+    CONFIG.MMCM_CLKOUT4_DIVIDE {9} \
+    CONFIG.MMCM_CLKOUT5_DIVIDE {6} \
+    CONFIG.MMCM_CLKOUT6_DIVIDE {72} \
+    CONFIG.NUM_OUT_CLKS {7} \
+    CONFIG.CLKOUT1_JITTER {206.010} \
+    CONFIG.CLKOUT1_PHASE_ERROR {105.461} \
+    CONFIG.CLKOUT2_JITTER {180.172} \
+    CONFIG.CLKOUT2_PHASE_ERROR {105.461} \
+    CONFIG.CLKOUT3_JITTER {166.503} \
+    CONFIG.CLKOUT3_PHASE_ERROR {105.503} \
+    CONFIG.CLKOUT4_JITTER {157.199} \
+    CONFIG.CLKOUT4_PHASE_ERROR {105.461} \
+    CONFIG.CLKOUT5_JITTER {110.629} \
+    CONFIG.CLKOUT5_PHASE_ERROR {136.686} \
+    CONFIG.CLKOUT6_JITTER {126.399} \
+    CONFIG.CLKOUT6_PHASE_ERROR {105.461} \
+    CONFIG.CLKOUT7_JITTER {206.010} \
+    CONFIG.CLKOUT7_PHASE_ERROR {105.461}] [get_ips vc707_sys_clock_mmcm2] """
+  )
+}
+
+class vc707_sys_clock_mmcm3 extends BlackBox {
+  val io = new Bundle {
+    val clk_in1   = Bool(INPUT)
+    val clk_out1  = Clock(OUTPUT)
+    val clk_out2  = Clock(OUTPUT)
+    val reset     = Bool(INPUT)
+    val locked    = Bool(OUTPUT)
+  }
+  
+  ElaborationArtefacts.add(
+    "vc707_sys_clock_mmcm3.vivado.tcl",
+    """create_ip -name clk_wiz -vendor xilinx.com -library ip -module_name vc707_sys_clock_mmcm3 -dir $ipdir -force
+    set_property -dict [list CONFIG.PRIM_IN_FREQ {12.5} \
+                             CONFIG.CLKOUT2_USED {true} \
+                             CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {12.5} \
+                             CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {12.5} \
+                             CONFIG.CLKOUT2_REQUESTED_PHASE {180} \
+                             CONFIG.CLKIN1_JITTER_PS {800.0} \
+                             CONFIG.MMCM_DIVCLK_DIVIDE {1} \
+                             CONFIG.MMCM_CLKFBOUT_MULT_F {64.000} \
+                             CONFIG.MMCM_CLKIN1_PERIOD {80.0} \
+                             CONFIG.MMCM_CLKOUT0_DIVIDE_F {64.000} \
+                             CONFIG.MMCM_CLKOUT1_DIVIDE {64} \
+                             CONFIG.MMCM_CLKOUT1_PHASE {180.000} \
+                             CONFIG.NUM_OUT_CLKS {2} \
+                             CONFIG.CLKOUT1_JITTER {627.393} \
+                             CONFIG.CLKOUT1_PHASE_ERROR {651.718} \
+                             CONFIG.CLKOUT2_JITTER {627.393} \
+                             CONFIG.CLKOUT2_PHASE_ERROR {651.718}] [get_ips vc707_sys_clock_mmcm3] """
+  )
+}
+
 //-------------------------------------------------------------------------
 // vc707reset
 //-------------------------------------------------------------------------
