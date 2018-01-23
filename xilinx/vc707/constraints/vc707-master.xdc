@@ -75,13 +75,13 @@ set_property -dict { PACKAGE_PIN AT30  IOSTANDARD LVCMOS18  IOB TRUE  PULLUP TRU
 set_clock_groups -asynchronous \
   -group { clk_pll_i } \
   -group { \
-	clk_out1_vc707_sys_clock_mmcm0 \
-	clk_out2_vc707_sys_clock_mmcm0 \
-	clk_out3_vc707_sys_clock_mmcm0 \
-	clk_out4_vc707_sys_clock_mmcm0 \
-	clk_out5_vc707_sys_clock_mmcm0 \
-	clk_out6_vc707_sys_clock_mmcm0 \
-	clk_out7_vc707_sys_clock_mmcm0 } \
+	clk_out1_vc707_sys_clock_mmcm2 \
+	clk_out2_vc707_sys_clock_mmcm2 \
+	clk_out3_vc707_sys_clock_mmcm2 \
+	clk_out4_vc707_sys_clock_mmcm2 \
+	clk_out5_vc707_sys_clock_mmcm2 \
+	clk_out6_vc707_sys_clock_mmcm2 \
+	clk_out7_vc707_sys_clock_mmcm2 } \
   -group { \
 	clk_out1_vc707_sys_clock_mmcm1 \
 	clk_out2_vc707_sys_clock_mmcm1 } \
