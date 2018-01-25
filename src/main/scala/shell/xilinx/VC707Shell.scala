@@ -233,7 +233,7 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
   val clk100               = vc707_sys_clock_mmcm0.io.clk_out5
   val clk150               = vc707_sys_clock_mmcm0.io.clk_out6
   val clk75                = vc707_sys_clock_mmcm0.io.clk_out7
-  val clk12_5_180          = vc707_sys_clock_mmcm0.io.clk_out7
+  val clk100_180           = vc707_sys_clock_mmcm0.io.clk_out7
   val vc707_sys_clock_mmcm0_locked = vc707_sys_clock_mmcm0.io.locked
 
   //65MHz and multiples
