@@ -193,7 +193,7 @@ class VC707AXIToPCIeX1(implicit p:Parameters) extends LazyModule
 
   val slave = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
     slaves = Seq(AXI4SlaveParameters(
-      address       = List(AddressSet(0x60000000L, 0x1fffffffL)),
+      address       = List(AddressSet(0x40000000L, 0x1fffffffL)),
       resources     = Seq(Resource(device, "ranges")),
       executable    = true,
       supportsWrite = TransferSizes(1, 128),
@@ -202,7 +202,7 @@ class VC707AXIToPCIeX1(implicit p:Parameters) extends LazyModule
 
   val control = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
     slaves = Seq(AXI4SlaveParameters(
-      address       = List(AddressSet(0x50000000L, 0x03ffffffL)),
+      address       = List(AddressSet(0x2000000000L, 0x3ffffffL)), // when truncated to 32-bits, is 0
       resources     = device.reg("control"),
       supportsWrite = TransferSizes(1, 4),
       supportsRead  = TransferSizes(1, 4),
@@ -402,13 +402,13 @@ class VC707AXIToPCIeX1(implicit p:Parameters) extends LazyModule
     """ 
       create_ip -vendor xilinx.com -library ip -version 2.8 -name axi_pcie -module_name vc707axi_to_pcie_x1 -dir $ipdir -force
       set_property -dict [list \
-      CONFIG.AXIBAR2PCIEBAR_0             {0x60000000} \
+      CONFIG.AXIBAR2PCIEBAR_0             {0x40000000} \
       CONFIG.AXIBAR2PCIEBAR_1             {0x00000000} \
       CONFIG.AXIBAR2PCIEBAR_2             {0x00000000} \
       CONFIG.AXIBAR2PCIEBAR_3             {0x00000000} \
       CONFIG.AXIBAR2PCIEBAR_4             {0x00000000} \
       CONFIG.AXIBAR2PCIEBAR_5             {0x00000000} \
-      CONFIG.AXIBAR_0                     {0x60000000} \
+      CONFIG.AXIBAR_0                     {0x40000000} \
       CONFIG.AXIBAR_1                     {0xFFFFFFFF} \
       CONFIG.AXIBAR_2                     {0xFFFFFFFF} \
       CONFIG.AXIBAR_3                     {0xFFFFFFFF} \
@@ -420,7 +420,7 @@ class VC707AXIToPCIeX1(implicit p:Parameters) extends LazyModule
       CONFIG.AXIBAR_AS_3                  {false} \
       CONFIG.AXIBAR_AS_4                  {false} \
       CONFIG.AXIBAR_AS_5                  {false} \
-      CONFIG.AXIBAR_HIGHADDR_0            {0x7FFFFFFF} \
+      CONFIG.AXIBAR_HIGHADDR_0            {0x5FFFFFFF} \
       CONFIG.AXIBAR_HIGHADDR_1            {0x00000000} \
       CONFIG.AXIBAR_HIGHADDR_2            {0x00000000} \
       CONFIG.AXIBAR_HIGHADDR_3            {0x00000000} \
@@ -440,14 +440,14 @@ class VC707AXIToPCIeX1(implicit p:Parameters) extends LazyModule
       CONFIG.BAR2_SIZE                    {8} \
       CONFIG.BAR2_TYPE                    {N/A} \
       CONFIG.BAR_64BIT                    {true} \
-      CONFIG.BASEADDR                     {0x50000000} \
+      CONFIG.BASEADDR                     {0x00000000} \
       CONFIG.BASE_CLASS_MENU              {Bridge_device} \
       CONFIG.CLASS_CODE                   {0x060400} \
       CONFIG.COMP_TIMEOUT                 {50ms} \
       CONFIG.Component_Name               {design_1_axi_pcie_1_0} \
       CONFIG.DEVICE_ID                    {0x7111} \
       CONFIG.ENABLE_CLASS_CODE            {true} \
-      CONFIG.HIGHADDR                     {0x53FFFFFF} \
+      CONFIG.HIGHADDR                     {0x03FFFFFF} \
       CONFIG.INCLUDE_BAROFFSET_REG        {true} \
       CONFIG.INCLUDE_RC                   {Root_Port_of_PCI_Express_Root_Complex} \
       CONFIG.INTERRUPT_PIN                {false} \

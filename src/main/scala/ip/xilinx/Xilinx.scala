@@ -13,99 +13,6 @@ import sifive.blocks.devices.pinctrl.{BasePin}
 // BlackBox modules used in the Xilinx FPGA flows
 //========================================================================
 
-//-------------------------------------------------------------------------
-// IBUFDS
-//-------------------------------------------------------------------------
-//IP : xilinx unisim IBUFDS. SelectIO Differential Signaling Input
-// Buffer unparameterized
-
-class IBUFDS extends BlackBox {
-  val io = new Bundle {
-    val O         = Bool(OUTPUT)
-    val I         = Bool(INPUT)
-    val IB        = Bool(INPUT)
-  }
-}
-
-//-------------------------------------------------------------------------
-// IBUFG
-//-------------------------------------------------------------------------
-/** IBUFG -- Clock Input Buffer */
-
-class IBUFG extends BlackBox {
-  val io = new Bundle {
-    val O = Output(Clock())
-    val I = Input(Clock())
-  }
-}
-
-object IBUFG {
-  def apply (pin: Clock): Clock = {
-    val pad = Module (new IBUFG())
-    pad.io.I := pin
-    pad.io.O
-  }
-}
-
-//-------------------------------------------------------------------------
-// IOBUF
-//-------------------------------------------------------------------------
-/** IOBUF -- Bidirectional IO Buffer. */
-
-class IOBUF extends BlackBox {
-  val io = new Bundle {
-    val O  = Output(Bool())
-    val IO = Analog(1.W)
-    val I  = Input(Bool())
-    val T  = Input(Bool())
-  }
-}
-
-object IOBUF {
-  def apply (pin: Analog, ctrl: BasePin): Bool = {
-    val pad = Module(new IOBUF())
-    pad.io.I    := ctrl.o.oval
-    pad.io.T    := ~ctrl.o.oe
-    ctrl.i.ival := pad.io.O & ctrl.o.ie
-    attach(pad.io.IO, pin)
-    pad.io.O & ctrl.o.ie
-  }
-
-  // Creates an output IOBUF
-  def apply (pin: Analog, in: Bool): Unit = {
-    val pad = Module(new IOBUF())
-    pad.io.I := in
-    pad.io.T := false.B
-    attach(pad.io.IO, pin)
-  }
-
-  // Creates an input IOBUF
-  def apply (pin: Analog): Bool = {
-    val pad = Module(new IOBUF())
-    pad.io.I := false.B
-    pad.io.T := true.B
-    attach(pad.io.IO, pin)
-    pad.io.O
-  }
-}
-
-//-------------------------------------------------------------------------
-// PULLUP
-//-------------------------------------------------------------------------
-/** PULLUP : can be applied to Input to add a Pullup. */
-
-class PULLUP extends BlackBox {
-  val io = new Bundle {
-    val O = Analog(1.W)
-  }
-}
-
-object PULLUP {
-  def apply (pin: Analog): Unit = {
-    val pullup = Module(new PULLUP())
-    attach(pullup.io.O, pin)
-  }
-}
 
 //-------------------------------------------------------------------------
 // mmcm
@@ -300,6 +207,102 @@ class vc707_sys_clock_mmcm1 extends BlackBox {
     CONFIG.CLKOUT3_JITTER {131.973} \
     CONFIG.CLKOUT3_PHASE_ERROR {87.159}] \
     [get_ips vc707_sys_clock_mmcm1] """
+  )
+}
+
+class vc707_sys_clock_mmcm2 extends BlackBox {
+  val io = new Bundle {
+    val clk_in1   = Bool(INPUT)
+    val clk_out1  = Clock(OUTPUT)
+    val clk_out2  = Clock(OUTPUT)
+    val clk_out3  = Clock(OUTPUT)
+    val clk_out4  = Clock(OUTPUT)
+    val clk_out5  = Clock(OUTPUT)
+    val clk_out6  = Clock(OUTPUT)
+    val clk_out7  = Clock(OUTPUT)
+    val reset     = Bool(INPUT)
+    val locked    = Bool(OUTPUT)
+  }
+  
+  ElaborationArtefacts.add(
+    "vc707_sys_clock_mmcm2.vivado.tcl",
+    """create_ip -name clk_wiz -vendor xilinx.com -library ip -module_name vc707_sys_clock_mmcm2 -dir $ipdir -force
+    set_property -dict [list \
+    CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \
+    CONFIG.PRIM_SOURCE {No_buffer} \
+    CONFIG.CLKOUT1_USED {true} \
+    CONFIG.CLKOUT2_USED {true} \
+    CONFIG.CLKOUT3_USED {true} \
+    CONFIG.CLKOUT4_USED {true} \
+    CONFIG.CLKOUT5_USED {true} \
+    CONFIG.CLKOUT6_USED {true} \
+    CONFIG.CLKOUT7_USED {true} \
+    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {12.5} \
+    CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {25} \
+    CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {37.5} \
+    CONFIG.CLKOUT4_REQUESTED_OUT_FREQ {50} \
+    CONFIG.CLKOUT5_REQUESTED_OUT_FREQ {100} \
+    CONFIG.CLKOUT6_REQUESTED_OUT_FREQ {150.000} \
+    CONFIG.CLKOUT7_REQUESTED_OUT_FREQ {100} \
+    CONFIG.CLKOUT7_REQUESTED_PHASE {180} \
+    CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \
+    CONFIG.PRIM_IN_FREQ {200.000} \
+    CONFIG.CLKIN1_JITTER_PS {50.0} \
+    CONFIG.MMCM_DIVCLK_DIVIDE {2} \
+    CONFIG.MMCM_CLKFBOUT_MULT_F {9.0} \
+    CONFIG.MMCM_CLKIN1_PERIOD {5.0} \
+    CONFIG.MMCM_CLKOUT0_DIVIDE_F {72.000} \
+    CONFIG.MMCM_CLKOUT1_DIVIDE {36} \
+    CONFIG.MMCM_CLKOUT2_DIVIDE {24} \
+    CONFIG.MMCM_CLKOUT3_DIVIDE {18} \
+    CONFIG.MMCM_CLKOUT4_DIVIDE {9} \
+    CONFIG.MMCM_CLKOUT5_DIVIDE {6} \
+    CONFIG.MMCM_CLKOUT6_DIVIDE {9} \
+    CONFIG.NUM_OUT_CLKS {7} \
+    CONFIG.CLKOUT1_JITTER {206.010} \
+    CONFIG.CLKOUT1_PHASE_ERROR {105.461} \
+    CONFIG.CLKOUT2_JITTER {180.172} \
+    CONFIG.CLKOUT2_PHASE_ERROR {105.461} \
+    CONFIG.CLKOUT3_JITTER {166.503} \
+    CONFIG.CLKOUT3_PHASE_ERROR {105.461} \
+    CONFIG.CLKOUT4_JITTER {157.199} \
+    CONFIG.CLKOUT4_PHASE_ERROR {105.461} \
+    CONFIG.CLKOUT5_JITTER {136.686} \
+    CONFIG.CLKOUT5_PHASE_ERROR {105.461} \
+    CONFIG.CLKOUT6_JITTER {126.399} \
+    CONFIG.CLKOUT6_PHASE_ERROR {105.461} \
+    CONFIG.CLKOUT7_JITTER {206.010} \
+    CONFIG.CLKOUT7_PHASE_ERROR {136.686}] [get_ips vc707_sys_clock_mmcm2] """
+  )
+}
+
+class vc707_sys_clock_mmcm3 extends BlackBox {
+  val io = new Bundle {
+    val clk_in1   = Bool(INPUT)
+    val clk_out1  = Clock(OUTPUT)
+    val reset     = Bool(INPUT)
+    val locked    = Bool(OUTPUT)
+  }
+
+  ElaborationArtefacts.add(
+    "vc707_sys_clock_mmcm3.vivado.tcl",
+    """create_ip -name clk_wiz -vendor xilinx.com -library ip -module_name vc707_sys_clock_mmcm3 -dir $ipdir -force
+    set_property -dict [list \
+    CONFIG.PRIM_SOURCE {No_buffer} \
+    CONFIG.PRIM_IN_FREQ {100} \
+    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {100} \
+    CONFIG.CLKOUT1_REQUESTED_PHASE {180} \
+    CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \
+    CONFIG.CLKIN1_JITTER_PS {100.0} \
+    CONFIG.MMCM_DIVCLK_DIVIDE {1} \
+    CONFIG.MMCM_CLKFBOUT_MULT_F {10.000} \
+    CONFIG.MMCM_CLKIN1_PERIOD {10.0} \
+    CONFIG.MMCM_CLKOUT0_DIVIDE_F {10.000} \
+    CONFIG.MMCM_CLKOUT1_DIVIDE {10} \
+    CONFIG.MMCM_CLKOUT1_PHASE {180.000} \
+    CONFIG.NUM_OUT_CLKS {1} \
+    CONFIG.CLKOUT1_JITTER {130.958} \
+    CONFIG.CLKOUT1_PHASE_ERROR {98.575}] [get_ips vc707_sys_clock_mmcm3] """
   )
 }
 

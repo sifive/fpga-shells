@@ -64,13 +64,6 @@ set_property PACKAGE_PIN H3 [get_ports {pcie_pci_exp_txn}]
 set_property PACKAGE_PIN G6 [get_ports {pcie_pci_exp_rxp}]
 set_property PACKAGE_PIN G5 [get_ports {pcie_pci_exp_rxn}]
 
-# JTAG
-set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets jtag_TCK_IBUF]
-set_property -dict { PACKAGE_PIN R32  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TCK}]
-set_property -dict { PACKAGE_PIN W36  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TMS}]
-set_property -dict { PACKAGE_PIN W37  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDI}]
-set_property -dict { PACKAGE_PIN V40  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDO}]
-
 # SDIO
 set_property -dict { PACKAGE_PIN AN30  IOSTANDARD LVCMOS18  IOB TRUE } [get_ports {sdio_clk}]
 set_property -dict { PACKAGE_PIN AP30  IOSTANDARD LVCMOS18  IOB TRUE  PULLUP TRUE } [get_ports {sdio_cmd}]
@@ -79,18 +72,23 @@ set_property -dict { PACKAGE_PIN AU31  IOSTANDARD LVCMOS18  IOB TRUE  PULLUP TRU
 set_property -dict { PACKAGE_PIN AV31  IOSTANDARD LVCMOS18  IOB TRUE  PULLUP TRUE } [get_ports {sdio_dat[2]}]
 set_property -dict { PACKAGE_PIN AT30  IOSTANDARD LVCMOS18  IOB TRUE  PULLUP TRUE } [get_ports {sdio_dat[3]}]
 
+create_clock -name chiplink_b2c_clock -period 10 [get_ports chiplink_b2c_clk]
+
 set_clock_groups -asynchronous \
   -group { clk_pll_i } \
   -group { \
-	clk_out1_vc707_sys_clock_mmcm0 \
-	clk_out2_vc707_sys_clock_mmcm0 \
-	clk_out3_vc707_sys_clock_mmcm0 \
-	clk_out4_vc707_sys_clock_mmcm0 \
-	clk_out5_vc707_sys_clock_mmcm0 \
-	clk_out6_vc707_sys_clock_mmcm0 \
-	clk_out7_vc707_sys_clock_mmcm0 } \
+	sys_diff_clk \
+	clk_out1_vc707_sys_clock_mmcm2 \
+	clk_out2_vc707_sys_clock_mmcm2 \
+	clk_out3_vc707_sys_clock_mmcm2 \
+	clk_out4_vc707_sys_clock_mmcm2 \
+	clk_out5_vc707_sys_clock_mmcm2 \
+	clk_out6_vc707_sys_clock_mmcm2 \
+	clk_out7_vc707_sys_clock_mmcm2 } \
   -group { \
 	clk_out1_vc707_sys_clock_mmcm1 \
 	clk_out2_vc707_sys_clock_mmcm1 } \
+  -group { \
+        clk_out1_vc707_sys_clock_mmcm3 \
+        chiplink_b2c_clock } \
   -group [list [get_clocks -include_generated_clocks -of_objects [get_pins -hier -filter {name =~ *pcie*TXOUTCLK}]]]
-
