@@ -3,18 +3,18 @@ package sifive.fpgashells.devices.xilinx.xilinxvc707mig
 
 import Chisel._
 import freechips.rocketchip.config._
-import freechips.rocketchip.coreplex.HasMemoryBus
+import freechips.rocketchip.subsystem.BaseSubsystem
 import freechips.rocketchip.diplomacy.{LazyModule, LazyModuleImp, AddressRange}
 
 case object MemoryXilinxDDRKey extends Field[XilinxVC707MIGParams]
 
-trait HasMemoryXilinxVC707MIG extends HasMemoryBus {
+trait HasMemoryXilinxVC707MIG { this: BaseSubsystem =>
   val module: HasMemoryXilinxVC707MIGModuleImp
 
   val xilinxvc707mig = LazyModule(new XilinxVC707MIG(p(MemoryXilinxDDRKey)))
 
-  require(nMemoryChannels == 1, "Coreplex must have 1 master memory port")
-  xilinxvc707mig.node := memBuses.head.toDRAMController
+  require(nMemoryChannels == 1, "Core complex must have at most 1 master memory port")
+  xilinxvc707mig.node := memBuses.head.toDRAMController(Some("xilinxvc707mig"))()
 }
 
 trait HasMemoryXilinxVC707MIGBundle {
