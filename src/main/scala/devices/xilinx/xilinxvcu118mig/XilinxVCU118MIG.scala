@@ -77,14 +77,7 @@ class XilinxVCU118MIGIsland(c : XilinxVCU118MIGParams)(implicit p: Parameters) e
 
     io.port.c0_ddr4_ui_clk      := blackbox.io.c0_ddr4_ui_clk
     io.port.c0_ddr4_ui_clk_sync_rst := blackbox.io.c0_ddr4_ui_clk_sync_rst
-    //io.port.mmcm_locked       := blackbox.io.mmcm_locked
     blackbox.io.c0_ddr4_aresetn := io.port.c0_ddr4_aresetn
-    //blackbox.io.app_sr_req      := Bool(false)
-    //blackbox.io.app_ref_req     := Bool(false)
-    //blackbox.io.app_zq_req      := Bool(false)
-    //app_sr_active               := unconnected
-    //app_ref_ack                 := unconnected
-    //app_zq_ack                  := unconnected
 
     val awaddr = axi_async.aw.bits.addr - UInt(offset)
     val araddr = axi_async.ar.bits.addr - UInt(offset)
@@ -139,7 +132,6 @@ class XilinxVCU118MIGIsland(c : XilinxVCU118MIGParams)(implicit p: Parameters) e
     //misc
     io.port.c0_init_calib_complete := blackbox.io.c0_init_calib_complete
     blackbox.io.sys_rst       :=io.port.sys_rst
-    //mig.device_temp         :- unconnceted
   }
 }
 

@@ -95,22 +95,6 @@ class vcu118mig(depth : BigInt)(implicit val p:Parameters) extends BlackBox
     val c0_ddr4_s_axi_rvalid          = Bool(OUTPUT)
   }
 
-//   val migprj = if(depth<=0x40000000) vcu118mig1gbprj else vcu118mig4gbprj
-//   val migprjname =  if(depth<=0x40000000) """{/vcu118mig1gb.prj}""" else """{/vcu118mig4gb.prj}"""
-//   val modulename =  if(depth<=0x40000000)  """vcu118mig1gb""" else """vcu118mig4gb"""
-
-//   ElaborationArtefacts.add(
-//   modulename++".vivado.tcl",
-//    """set migprj """++migprj++"""
-//    set migprjfile """++migprjname++"""
-//    set migprjfilepath $ipdir$migprjfile
-//    set fp [open $migprjfilepath w+]
-//    puts $fp $migprj
-//    close $fp
-//    create_ip -vendor xilinx.com -library ip -name mig_7series -module_name """ ++ modulename ++ """ -dir $ipdir -force
-//    set_property CONFIG.XML_INPUT_FILE $migprjfilepath [get_ips """ ++ modulename ++ """] """
-//   )
-
   ElaborationArtefacts.add(
     "vcu118mig1gb.vivado.tcl",
     """ 
