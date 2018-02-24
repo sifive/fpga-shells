@@ -13,7 +13,7 @@ trait HasMemoryXilinxVC707MIG { this: BaseSubsystem =>
 
   val xilinxvc707mig = LazyModule(new XilinxVC707MIG(p(MemoryXilinxDDRKey)))
 
-  require(nMemoryChannels == 1, "Core complex must have at most 1 master memory port")
+  require(nMemoryChannels == 1, "Core complex must have 1 master memory port")
   xilinxvc707mig.node := memBuses.head.toDRAMController(Some("xilinxvc707mig"))()
 }
 
