@@ -71,24 +71,3 @@ set_property -dict { PACKAGE_PIN AR30  IOSTANDARD LVCMOS18  IOB TRUE  PULLUP TRU
 set_property -dict { PACKAGE_PIN AU31  IOSTANDARD LVCMOS18  IOB TRUE  PULLUP TRUE } [get_ports {sdio_dat[1]}]
 set_property -dict { PACKAGE_PIN AV31  IOSTANDARD LVCMOS18  IOB TRUE  PULLUP TRUE } [get_ports {sdio_dat[2]}]
 set_property -dict { PACKAGE_PIN AT30  IOSTANDARD LVCMOS18  IOB TRUE  PULLUP TRUE } [get_ports {sdio_dat[3]}]
-
-create_clock -name chiplink_b2c_clock -period 10 [get_ports chiplink_b2c_clk]
-
-set_clock_groups -asynchronous \
-  -group { clk_pll_i } \
-  -group { \
-	sys_diff_clk \
-	clk_out1_vc707_sys_clock_mmcm2 \
-	clk_out2_vc707_sys_clock_mmcm2 \
-	clk_out3_vc707_sys_clock_mmcm2 \
-	clk_out4_vc707_sys_clock_mmcm2 \
-	clk_out5_vc707_sys_clock_mmcm2 \
-	clk_out6_vc707_sys_clock_mmcm2 \
-	clk_out7_vc707_sys_clock_mmcm2 } \
-  -group { \
-	clk_out1_vc707_sys_clock_mmcm1 \
-	clk_out2_vc707_sys_clock_mmcm1 } \
-  -group { \
-        clk_out1_vc707_sys_clock_mmcm3 \
-        chiplink_b2c_clock } \
-  -group [list [get_clocks -include_generated_clocks -of_objects [get_pins -hier -filter {name =~ *pcie*TXOUTCLK}]]]
