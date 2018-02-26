@@ -29,7 +29,7 @@ class XilinxVCU118MIGIsland(c : XilinxVCU118MIGParams)(implicit p: Parameters) e
   val offset = ranges.head.base
   val depth = ranges.head.size
   val crossing = AsynchronousCrossing(8)
-  require((depth<=0x100000000L),"vcu118mig supports upto 4GB depth configuraton")
+  require((depth<=0x80000000L),"vcu118mig supports upto 2GB depth configuraton")
   
   val device = new MemoryDevice
   val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(

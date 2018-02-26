@@ -11,7 +11,7 @@ import freechips.rocketchip.config._
 // Black Box
 
 class VCU118MIGIODDR(depth : BigInt) extends GenericParameterizedBundle(depth) {
-  require((depth<=0x100000000L),"VCU118MIGIODDR supports upto 4GB depth configuraton")
+  require((depth<=0x80000000L),"VCU118MIGIODDR supports upto 2GB depth configuraton")
   val c0_ddr4_adr           = Bits(OUTPUT,17)
   val c0_ddr4_bg            = Bits(OUTPUT,1)
   val c0_ddr4_ba            = Bits(OUTPUT,2)
@@ -23,10 +23,10 @@ class VCU118MIGIODDR(depth : BigInt) extends GenericParameterizedBundle(depth) {
   val c0_ddr4_cs_n          = Bits(OUTPUT,1)
   val c0_ddr4_odt           = Bits(OUTPUT,1)
 
-  val c0_ddr4_dq            = Analog(32.W)
-  val c0_ddr4_dqs_c         = Analog(4.W)
-  val c0_ddr4_dqs_t         = Analog(4.W)
-  val c0_ddr4_dm_dbi_n      = Analog(4.W)
+  val c0_ddr4_dq            = Analog(64.W)
+  val c0_ddr4_dqs_c         = Analog(8.W)
+  val c0_ddr4_dqs_t         = Analog(8.W)
+  val c0_ddr4_dm_dbi_n      = Analog(8.W)
 }
 
 //reused directly in io bundle for sifive.blocks.devices.xilinxvcu118mig
@@ -47,13 +47,12 @@ trait VCU118MIGIOClocksReset extends Bundle {
 //turn off linter: blackbox name must match verilog module
 class vcu118mig(depth : BigInt)(implicit val p:Parameters) extends BlackBox
 {
-  require((depth<=0x100000000L),"vcu118mig supports upto 4GB depth configuraton")
-  override def desiredName = if(depth<=0x40000000) "vcu118mig1gb" else "vcu118mig4gb"
+  require((depth<=0x80000000L),"vcu118mig supports upto 2GB depth configuraton")
 
   val io = new VCU118MIGIODDR(depth) with VCU118MIGIOClocksReset {
     //slave interface write address ports
     val c0_ddr4_s_axi_awid            = Bits(INPUT,4)
-    val c0_ddr4_s_axi_awaddr          = Bits(INPUT,if(depth<=0x40000000) 30 else 32)
+    val c0_ddr4_s_axi_awaddr          = Bits(INPUT,31)
     val c0_ddr4_s_axi_awlen           = Bits(INPUT,8)
     val c0_ddr4_s_axi_awsize          = Bits(INPUT,3)
     val c0_ddr4_s_axi_awburst         = Bits(INPUT,2)
@@ -76,7 +75,7 @@ class vcu118mig(depth : BigInt)(implicit val p:Parameters) extends BlackBox
     val c0_ddr4_s_axi_bvalid          = Bool(OUTPUT)
     //slave interface read address ports
     val c0_ddr4_s_axi_arid            = Bits(INPUT,4)
-    val c0_ddr4_s_axi_araddr          = Bits(INPUT,if(depth<=0x40000000) 30 else 32)
+    val c0_ddr4_s_axi_araddr          = Bits(INPUT,31)
     val c0_ddr4_s_axi_arlen           = Bits(INPUT,8)
     val c0_ddr4_s_axi_arsize          = Bits(INPUT,3)
     val c0_ddr4_s_axi_arburst         = Bits(INPUT,2)
@@ -96,9 +95,9 @@ class vcu118mig(depth : BigInt)(implicit val p:Parameters) extends BlackBox
   }
 
   ElaborationArtefacts.add(
-    "vcu118mig1gb.vivado.tcl",
+    "vcu118mig.vivado.tcl",
     """ 
-      create_ip -vendor xilinx.com -library ip -version 2.2 -name ddr4 -module_name vcu118mig1gb -dir $ipdir -force
+      create_ip -vendor xilinx.com -library ip -version 2.2 -name ddr4 -module_name vcu118mig -dir $ipdir -force
       set_property -dict [list \
       CONFIG.AL_SEL                               {0} \
       CONFIG.C0.ADDR_WIDTH                        {17} \
@@ -109,7 +108,7 @@ class vcu118mig(depth : BigInt)(implicit val p:Parameters) extends BlackBox
       CONFIG.C0.ControllerType                    {DDR4_SDRAM} \
       CONFIG.C0.DDR4_AUTO_AP_COL_A3               {false} \
       CONFIG.C0.DDR4_AutoPrecharge                {false} \
-      CONFIG.C0.DDR4_AxiAddressWidth              {30} \
+      CONFIG.C0.DDR4_AxiAddressWidth              {31} \
       CONFIG.C0.DDR4_AxiArbitrationScheme         {RD_PRI_REG} \
       CONFIG.C0.DDR4_AxiDataWidth                 {64} \
       CONFIG.C0.DDR4_AxiIDWidth                   {4} \
@@ -127,7 +126,7 @@ class vcu118mig(depth : BigInt)(implicit val p:Parameters) extends BlackBox
       CONFIG.C0.DDR4_CustomParts                  {no_file_loaded} \
       CONFIG.C0.DDR4_DIVCLK_DIVIDE                {2} \
       CONFIG.C0.DDR4_DataMask                     {DM_NO_DBI} \
-      CONFIG.C0.DDR4_DataWidth                    {32} \
+      CONFIG.C0.DDR4_DataWidth                    {64} \
       CONFIG.C0.DDR4_Ecc                          {false} \
       CONFIG.C0.DDR4_MCS_ECC                      {false} \
       CONFIG.C0.DDR4_Mem_Add_Map                  {ROW_COLUMN_BANK} \
@@ -173,7 +172,7 @@ class vcu118mig(depth : BigInt)(implicit val p:Parameters) extends BlackBox
       CONFIG.TIMING_3DS                           {false} \
       CONFIG.TIMING_OP1                           {false} \
       CONFIG.TIMING_OP2                           {false} \
-      ] [get_ips vcu118mig1gb]"""
+      ] [get_ips vcu118mig]"""
   )
    
 }
