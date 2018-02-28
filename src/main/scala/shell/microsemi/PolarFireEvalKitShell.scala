@@ -16,7 +16,6 @@ import sifive.blocks.devices.uart._
 import sifive.fpgashells.ip.microsemi.{CLKINT}
 
 import sifive.fpgashells.devices.microsemi.polarfireddr3._
-import microsemi.fpgashells.devices.microsemi.polarfireddr4._
 
 import sifive.fpgashells.ip.microsemi.corejtagdebug._
 import sifive.fpgashells.ip.microsemi.polarfireccc._
