@@ -1,5 +1,5 @@
 // See LICENSE for license details.
-package microsemi.fpgashells.ip.microsemi.polarfire_reset
+package sifive.fpgashells.ip.microsemi.polarfirereset
 
 import Chisel._
 import chisel3.experimental.{Analog,attach}
