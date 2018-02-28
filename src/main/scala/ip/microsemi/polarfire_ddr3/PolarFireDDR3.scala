@@ -1,5 +1,5 @@
 // See LICENSE for license details.
-package microsemi.fpgashells.ip.microsemi.polarfireddr3
+package sifive.fpgashells.ip.microsemi.polarfireddr3
 
 import Chisel._
 import chisel3.experimental.{Analog,attach}
