@@ -7,7 +7,7 @@ import freechips.rocketchip.util.{ElaborationArtefacts}
 import freechips.rocketchip.util.GenericParameterizedBundle
 import freechips.rocketchip.config._
 
-// Black Box
+// Black Box for Microsemi DirectCore IP block Actel:DirectCore:COREJTAGDEBUG:2.0.100
 
 trait CoreJtagDebugIOJTAGPads extends Bundle {
 
@@ -53,5 +53,19 @@ class CoreJtagDebugBlock(implicit val p:Parameters) extends BlackBox
     val UDRCK_OUT    = Bool(OUTPUT)
     val UDRCAP_OUT   = Bool(OUTPUT)
   }
+  
+  ElaborationArtefacts.add(
+    "Libero.corejtagdebug.tcl",
+    """ 
+create_design -id Actel:DirectCore:COREJTAGDEBUG:2.0.100 -design_name {corejtagdebug_wrapper} -config_file {} -params {} -inhibit_configurator 0 
+open_smartdesign -design {corejtagdebug_wrapper}
+configure_design -component {corejtagdebug_wrapper} -library {} 
+configure_vlnv_instance -component {corejtagdebug_wrapper} -library {} -name {corejtagdebug_wrapper_0} -params {"IR_CODE:0x55" "ACTIVE_HIGH_TGT_RESET:1"} -validate_rules 0 
+fix_vlnv_instance -component {corejtagdebug_wrapper} -library {} -name {corejtagdebug_wrapper_0} 
+open_smartdesign -design {corejtagdebug_wrapper}
+configure_design -component {corejtagdebug_wrapper} -library {} 
+"""
+  )
+
 }
 //scalastyle:on
