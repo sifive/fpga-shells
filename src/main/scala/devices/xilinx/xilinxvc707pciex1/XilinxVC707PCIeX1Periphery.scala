@@ -2,17 +2,17 @@
 package sifive.fpgashells.devices.xilinx.xilinxvc707pciex1
 
 import Chisel._
-import freechips.rocketchip.coreplex.{HasInterruptBus, HasSystemBus}
 import freechips.rocketchip.diplomacy.{LazyModule, LazyModuleImp, BufferParams}
+import freechips.rocketchip.subsystem.BaseSubsystem
 import freechips.rocketchip.tilelink.{TLAsyncCrossingSource, TLAsyncCrossingSink}
 import freechips.rocketchip.interrupts.IntSyncCrossingSink
 
-trait HasSystemXilinxVC707PCIeX1 extends HasSystemBus with HasInterruptBus {
+trait HasSystemXilinxVC707PCIeX1 { this: BaseSubsystem =>
   val xilinxvc707pcie = LazyModule(new XilinxVC707PCIeX1)
-
-  sbus.fromSyncFIFOMaster(BufferParams.none) := xilinxvc707pcie.crossTLOut := xilinxvc707pcie.master
-  xilinxvc707pcie.slave := xilinxvc707pcie.crossTLIn := sbus.toFixedWidthSlaves
-  xilinxvc707pcie.control := xilinxvc707pcie.crossTLIn := sbus.toFixedWidthSlaves
+  private val name = Some("xilinxvc707pcie")
+  sbus.fromMaster(name) { xilinxvc707pcie.crossTLOut } := xilinxvc707pcie.master
+  xilinxvc707pcie.slave := sbus.toFixedWidthSlave(name) { xilinxvc707pcie.crossTLIn }
+  xilinxvc707pcie.control := sbus.toFixedWidthSlave(name) { xilinxvc707pcie.crossTLIn }
   ibus.fromSync := xilinxvc707pcie.crossIntOut := xilinxvc707pcie.intnode
 }
 
