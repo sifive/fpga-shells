@@ -7,11 +7,12 @@ import chisel3.experimental.{RawModule, Analog, withClockAndReset}
 
 import freechips.rocketchip.config._
 import freechips.rocketchip.devices.debug._
-import freechips.rocketchip.util.{SyncResetSynchronizerShiftReg, ElaborationArtefacts}
+import freechips.rocketchip.util.{SyncResetSynchronizerShiftReg, ElaborationArtefacts, HeterogeneousBag}
 
 import sifive.blocks.devices.gpio._
 import sifive.blocks.devices.spi._
 import sifive.blocks.devices.uart._
+import sifive.blocks.devices.chiplink._
 
 import sifive.fpgashells.devices.xilinx.xilinxvc707mig._
 import sifive.fpgashells.devices.xilinx.xilinxvc707pciex1._
@@ -116,6 +117,262 @@ trait HasDebugJTAG { this: VC707Shell =>
     djtag.reset    := PowerOnResetFPGAOnly(dut_clock)
     dut_ndreset    := dut.debug.ndreset
     djtag
+  }
+}
+
+trait HasVC707ChipLink { this: VC707Shell =>
+
+  val chiplink = IO(new WideDataLayerPort(ChipLinkParams(Nil,Nil)))
+  val ereset_n = IO(Bool(INPUT))
+
+  def constrainChipLink(iofpga: Boolean = false): Unit = {
+    val direction0Pins = if(iofpga) "chiplink_b2c"  else "chiplink_c2b"
+    val direction1Pins = if(iofpga) "chiplink_c2b"  else "chiplink_b2c"
+
+    ElaborationArtefacts.add(
+      """vc707chiplink.vivado.tcl""",
+      """set vc707chiplink_vivado_tcl_dir [file dirname [file normalize [info script]]]
+         add_files -fileset [current_fileset -constrset] [glob -directory $vc707chiplink_vivado_tcl_dir {*.vc707chiplink.xdc}]"""
+    )
+
+    ElaborationArtefacts.add(
+      """vc707chiplink.xdc""",
+      """set_property PACKAGE_PIN AF39 [get_ports """ ++  direction0Pins ++ """_clk]
+        set_property PACKAGE_PIN AD40 [get_ports {""" ++ direction0Pins ++ """_data[0]}]
+        set_property PACKAGE_PIN AD41 [get_ports {""" ++ direction0Pins ++ """_data[1]}]
+        set_property PACKAGE_PIN AF41 [get_ports {""" ++ direction0Pins ++ """_data[2]}]
+        set_property PACKAGE_PIN AG41 [get_ports {""" ++ direction0Pins ++ """_data[3]}]
+        set_property PACKAGE_PIN AK39 [get_ports {""" ++ direction0Pins ++ """_data[4]}]
+        set_property PACKAGE_PIN AL39 [get_ports {""" ++ direction0Pins ++ """_data[5]}]
+        set_property PACKAGE_PIN AJ42 [get_ports {""" ++ direction0Pins ++ """_data[6]}]
+        set_property PACKAGE_PIN AK42 [get_ports {""" ++ direction0Pins ++ """_data[7]}]
+        set_property PACKAGE_PIN AL41 [get_ports {""" ++ direction0Pins ++ """_data[8]}]
+        set_property PACKAGE_PIN AL42 [get_ports {""" ++ direction0Pins ++ """_data[9]}]
+        set_property PACKAGE_PIN AF42 [get_ports {""" ++ direction0Pins ++ """_data[10]}]
+        set_property PACKAGE_PIN AG42 [get_ports {""" ++ direction0Pins ++ """_data[11]}]
+        set_property PACKAGE_PIN AD38 [get_ports {""" ++ direction0Pins ++ """_data[12]}]
+        set_property PACKAGE_PIN AE38 [get_ports {""" ++ direction0Pins ++ """_data[13]}]
+        set_property PACKAGE_PIN AC40 [get_ports {""" ++ direction0Pins ++ """_data[14]}]
+        set_property PACKAGE_PIN AC41 [get_ports {""" ++ direction0Pins ++ """_data[15]}]
+        set_property PACKAGE_PIN AD42 [get_ports {""" ++ direction0Pins ++ """_data[16]}]
+        set_property PACKAGE_PIN AE42 [get_ports {""" ++ direction0Pins ++ """_data[17]}]
+        set_property PACKAGE_PIN AJ38 [get_ports {""" ++ direction0Pins ++ """_data[18]}]
+        set_property PACKAGE_PIN AK38 [get_ports {""" ++ direction0Pins ++ """_data[19]}]
+        set_property PACKAGE_PIN AB41 [get_ports {""" ++ direction0Pins ++ """_data[20]}]
+        set_property PACKAGE_PIN AB42 [get_ports {""" ++ direction0Pins ++ """_data[21]}]
+        set_property PACKAGE_PIN Y42  [get_ports {""" ++ direction0Pins ++ """_data[22]}]
+        set_property PACKAGE_PIN AA42 [get_ports {""" ++ direction0Pins ++ """_data[23]}]
+        set_property PACKAGE_PIN Y39  [get_ports {""" ++ direction0Pins ++ """_data[24]}]
+        set_property PACKAGE_PIN AA39 [get_ports {""" ++ direction0Pins ++ """_data[25]}]
+        set_property PACKAGE_PIN W40  [get_ports {""" ++ direction0Pins ++ """_data[26]}]
+        set_property PACKAGE_PIN Y40  [get_ports {""" ++ direction0Pins ++ """_data[27]}]
+        set_property PACKAGE_PIN AB38 [get_ports {""" ++ direction0Pins ++ """_data[28]}]
+        set_property PACKAGE_PIN AB39 [get_ports {""" ++ direction0Pins ++ """_data[29]}]
+        set_property PACKAGE_PIN AC38 [get_ports {""" ++ direction0Pins ++ """_data[30]}]
+        set_property PACKAGE_PIN AC39 [get_ports {""" ++ direction0Pins ++ """_data[31]}]
+        set_property PACKAGE_PIN AJ40 [get_ports """ ++ direction0Pins ++ """_send]
+        set_property PACKAGE_PIN AJ41 [get_ports """ ++ direction0Pins ++ """_rst]
+
+        set_property PACKAGE_PIN U39 [get_ports """ ++ direction1Pins ++ """_clk]
+        set_property PACKAGE_PIN U37 [get_ports {""" ++ direction1Pins ++ """_data[0]}]
+        set_property PACKAGE_PIN U38 [get_ports {""" ++ direction1Pins ++ """_data[1]}]
+        set_property PACKAGE_PIN U36 [get_ports {""" ++ direction1Pins ++ """_data[2]}]
+        set_property PACKAGE_PIN T37 [get_ports {""" ++ direction1Pins ++ """_data[3]}]
+        set_property PACKAGE_PIN U32 [get_ports {""" ++ direction1Pins ++ """_data[4]}]
+        set_property PACKAGE_PIN U33 [get_ports {""" ++ direction1Pins ++ """_data[5]}]
+        set_property PACKAGE_PIN V33 [get_ports {""" ++ direction1Pins ++ """_data[6]}]
+        set_property PACKAGE_PIN V34 [get_ports {""" ++ direction1Pins ++ """_data[7]}]
+        set_property PACKAGE_PIN P35 [get_ports {""" ++ direction1Pins ++ """_data[8]}]
+        set_property PACKAGE_PIN P36 [get_ports {""" ++ direction1Pins ++ """_data[9]}]
+        set_property PACKAGE_PIN W32 [get_ports {""" ++ direction1Pins ++ """_data[10]}]
+        set_property PACKAGE_PIN W33 [get_ports {""" ++ direction1Pins ++ """_data[11]}]
+        set_property PACKAGE_PIN R38 [get_ports {""" ++ direction1Pins ++ """_data[12]}]
+        set_property PACKAGE_PIN R39 [get_ports {""" ++ direction1Pins ++ """_data[13]}]
+        set_property PACKAGE_PIN U34 [get_ports {""" ++ direction1Pins ++ """_data[14]}]
+        set_property PACKAGE_PIN T35 [get_ports {""" ++ direction1Pins ++ """_data[15]}]
+        set_property PACKAGE_PIN R33 [get_ports {""" ++ direction1Pins ++ """_data[16]}]
+        set_property PACKAGE_PIN R34 [get_ports {""" ++ direction1Pins ++ """_data[17]}]
+        set_property PACKAGE_PIN N33 [get_ports {""" ++ direction1Pins ++ """_data[18]}]
+        set_property PACKAGE_PIN N34 [get_ports {""" ++ direction1Pins ++ """_data[19]}]
+        set_property PACKAGE_PIN P32 [get_ports {""" ++ direction1Pins ++ """_data[20]}]
+        set_property PACKAGE_PIN P33 [get_ports {""" ++ direction1Pins ++ """_data[21]}]
+        set_property PACKAGE_PIN V35 [get_ports {""" ++ direction1Pins ++ """_data[22]}]
+        set_property PACKAGE_PIN V36 [get_ports {""" ++ direction1Pins ++ """_data[23]}]
+        set_property PACKAGE_PIN W36 [get_ports {""" ++ direction1Pins ++ """_data[24]}]
+        set_property PACKAGE_PIN W37 [get_ports {""" ++ direction1Pins ++ """_data[25]}]
+        set_property PACKAGE_PIN T32 [get_ports {""" ++ direction1Pins ++ """_data[26]}]
+        set_property PACKAGE_PIN R32 [get_ports {""" ++ direction1Pins ++ """_data[27]}]
+        set_property PACKAGE_PIN V39 [get_ports {""" ++ direction1Pins ++ """_data[28]}]
+        set_property PACKAGE_PIN V40 [get_ports {""" ++ direction1Pins ++ """_data[29]}]
+        set_property PACKAGE_PIN P37 [get_ports {""" ++ direction1Pins ++ """_data[30]}]
+        set_property PACKAGE_PIN P38 [get_ports {""" ++ direction1Pins ++ """_data[31]}]
+        set_property PACKAGE_PIN T36 [get_ports """ ++ direction1Pins ++ """_send]
+        set_property PACKAGE_PIN R37 [get_ports """ ++ direction1Pins ++ """_rst]
+
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[31]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[30]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[29]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[28]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[27]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[26]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[25]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[24]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[23]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[22]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[21]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[20]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[19]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[18]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[17]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[16]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[15]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[14]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[13]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[12]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[11]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[10]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[9]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[8]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[7]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[6]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[5]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[4]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[3]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[2]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[1]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction0Pins ++ """_data[0]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[31]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[30]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[29]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[28]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[27]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[26]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[25]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[24]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[23]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[22]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[21]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[20]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[19]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[18]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[17]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[16]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[15]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[14]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[13]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[12]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[11]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[10]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[9]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[8]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[7]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[6]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[5]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[4]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[3]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[2]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[1]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {""" ++ direction1Pins ++ """_data[0]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[31]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[30]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[29]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[28]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[27]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[26]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[25]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[24]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[23]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[22]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[21]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[20]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[19]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[18]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[17]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[16]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[15]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[14]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[13]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[12]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[11]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[10]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[9]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[8]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[7]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[6]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[5]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[4]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[3]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[2]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[1]}]
+        set_property SLEW FAST [get_ports {""" ++ direction1Pins ++ """_data[0]}]
+
+
+        set_property IOSTANDARD LVCMOS18 [get_ports """ ++ direction0Pins ++ """_clk]
+        set_property IOSTANDARD LVCMOS18 [get_ports """ ++ direction0Pins ++ """_rst]
+        set_property IOSTANDARD LVCMOS18 [get_ports """ ++ direction0Pins ++ """_send]
+        set_property IOSTANDARD LVCMOS18 [get_ports """ ++ direction1Pins ++ """_clk]
+        set_property IOSTANDARD LVCMOS18 [get_ports """ ++ direction1Pins ++ """_rst]
+        set_property IOSTANDARD LVCMOS18 [get_ports """ ++ direction1Pins ++ """_send]
+        set_property SLEW FAST [get_ports """ ++ direction1Pins ++ """_clk]
+        set_property SLEW FAST [get_ports """ ++ direction1Pins ++ """_rst]
+        set_property SLEW FAST [get_ports """ ++ direction1Pins ++ """_send]
+
+
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[31]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[30]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[29]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[28]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[27]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[26]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[25]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[24]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[23]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[22]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[21]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[20]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[19]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[18]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[17]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[16]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[15]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[14]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[13]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[12]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[11]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[10]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[9]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[8]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[7]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[6]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[5]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[4]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[3]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[2]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[1]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_data[0]]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_send]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_clk]
+        set_property OFFCHIP_TERM NONE [get_ports """ ++ direction1Pins ++ """_rst]
+
+        # Aloe reset sent to FPGA
+        set_property IOSTANDARD LVCMOS18 [get_ports ereset_n]
+        set_property PACKAGE_PIN AF40    [get_ports ereset_n]
+
+        #Put first level RX/TX flops in IOB
+        set_property IOB TRUE [get_cells -of_objects [all_fanout -flat -endpoints_only [get_ports "chiplink_b2c_data*"]]]
+        set_property IOB TRUE [get_cells -of_objects [all_fanout -flat -endpoints_only [get_ports "chiplink_b2c_send"]]]
+        set_property IOB TRUE [get_cells -of_objects [all_fanin -flat -startpoints_only [get_ports "chiplink_c2b_data*"]]]
+        set_property IOB TRUE [get_cells -of_objects [all_fanin -flat -startpoints_only [get_ports "chiplink_c2b_send"]]]
+"""
+    )
+
+  }
+
+  def connectChipLink(dut: { val chiplink: HeterogeneousBag[WideDataLayerPort] } , iofpga: Boolean = false): Unit = {
+    constrainChipLink(iofpga)
+
+    chiplink <> dut.chiplink(0)
+    //dut.chiplink_xilinx_7series_phy.get.idelayctrl_refclk := sys_clock
   }
 }
 
