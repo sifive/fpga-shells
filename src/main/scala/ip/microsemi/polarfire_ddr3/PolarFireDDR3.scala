@@ -96,9 +96,9 @@ class DDR3_Subsys(depth : BigInt)(implicit val p:Parameters) extends BlackBox
   }
 
   ElaborationArtefacts.add(
-    "Libero.polarfire_ddr3.tcl",
+    "AddIPInstance.polarfire_ddr3.libero.tcl",
     """ 
-create_design -id Actel:SystemBuilder:PF_DDR3:2.1.101 -design_name {pf_ddr} -config_file {} -params {} -inhibit_configurator 0
+create_design -id Actel:SystemBuilder:PF_DDR3:2.2.109 -design_name {pf_ddr} -config_file {} -params {} -inhibit_configurator 0
 open_smartdesign -design pf_ddr
 sysbld_configure_page -component pf_ddr -page PF_DDR3_UI -param WIDTH:16 \
                                                          -param CLOCK_DDR:666.666 \
