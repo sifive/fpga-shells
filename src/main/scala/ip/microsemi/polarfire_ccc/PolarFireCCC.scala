@@ -11,8 +11,8 @@ case class PolarFireCCCParameters(
   name:             String,
   pll_in_freq:      Double  = 50,
   gl0Enabled:       Boolean = true,
-  gl1Enabled:       Boolean = false,
-  gl2Enabled:       Boolean = false,
+  gl1Enabled:       Boolean = true,
+  gl2Enabled:       Boolean = true,
   gl0_0_out_freq:   Double  = 111.111,
   gl1_0_out_freq:   Double  = 111.111,
   gl2_0_out_freq:   Double  = 111.111
@@ -41,7 +41,7 @@ class PolarFireCCC(c : PolarFireCCCParameters)(implicit val p:Parameters) extend
   
   
   ElaborationArtefacts.add(
-    "Libero." ++ modulename ++".tcl",
+    "AddIPInstance." ++ modulename ++".libero.tcl",
     """ 
 create_design -id Actel:SgCore:PF_CCC:1.0.112 -design_name {""" ++ modulename ++"""} -config_file {} -params {} -inhibit_configurator 0
 open_smartdesign -design {""" ++ modulename ++"""}
@@ -55,7 +55,7 @@ configure_vlnv_instance -component {""" ++ modulename ++"""} -library {} -name {
              "GL2_0_IS_USED:""" ++ c.gl2Enabled.toString ++ """" \
              "GL2_0_OUT_FREQ:""" ++ c.gl2_0_out_freq.toString ++ """" \
             } -validate_rules 0 
-fix_vlnv_instance -component {""" ++ modulename ++"""} -library {} -name {""" ++ modulename ++"""} 
+fix_vlnv_instance -component {""" ++ modulename ++"""} -library {} -name {""" ++ modulename ++"""_0} 
 open_smartdesign -design {""" ++ modulename ++"""}
 configure_design -component {""" ++ modulename ++"""} -library {}"""
   )
