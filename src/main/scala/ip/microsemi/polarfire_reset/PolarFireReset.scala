@@ -7,7 +7,7 @@ import freechips.rocketchip.util.{ElaborationArtefacts}
 import freechips.rocketchip.util.GenericParameterizedBundle
 import freechips.rocketchip.config._
 
-// Black Box for Microsemi PolarFire IP block Actel:DirectCore:CORERESET_PF:2.0.112
+// Black Box for Microsemi PolarFire IP block Actel:DirectCore:CORERESET_PF:2.1.100
 
 trait PolarFireResetIOPads extends Bundle {
 
@@ -33,7 +33,7 @@ class PolarFireReset(implicit val p:Parameters) extends BlackBox
   ElaborationArtefacts.add(
     "Libero.polarfire_reset.tcl",
     """ 
-create_design -id Actel:DirectCore:CORERESET_PF:2.0.112 -design_name {polarfire_reset} -config_file {} -params {} -inhibit_configurator 0
+create_design -id Actel:DirectCore:CORERESET_PF:2.1.100 -design_name {polarfire_reset} -config_file {} -params {} -inhibit_configurator 0
 open_smartdesign -design {polarfire_reset}
 configure_design -component {polarfire_reset} -library {}
 fix_vlnv_instance -component {polarfire_reset} -library {} -name {polarfire_reset_0}
