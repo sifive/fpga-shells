@@ -5,7 +5,8 @@ import Chisel._
 import chisel3.experimental.{Analog,attach}
 import freechips.rocketchip.amba.axi4._
 import freechips.rocketchip.config.Parameters
-import freechips.rocketchip.coreplex._
+//import freechips.rocketchip.coreplex._
+import freechips.rocketchip.subsystem._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
 import freechips.rocketchip.interrupts._

@@ -3,13 +3,13 @@ package sifive.fpgashells.devices.microsemi.polarfireevalkitpciex4
 
 import Chisel._
 import freechips.rocketchip.amba.axi4._
-import freechips.rocketchip.coreplex.CacheBlockBytes
+//import freechips.rocketchip.coreplex.CacheBlockBytes
 import freechips.rocketchip.config.Parameters
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
 import freechips.rocketchip.interrupts._
-import freechips.rocketchip.coreplex.{HasCrossing,AsynchronousCrossing}
-
+//import freechips.rocketchip.coreplex.{HasCrossing,AsynchronousCrossing}
+import freechips.rocketchip.subsystem.{HasCrossing, AsynchronousCrossing, CacheBlockBytes}
 
 import sifive.fpgashells.ip.microsemi.polarfirepcierootport._
 
@@ -26,6 +26,7 @@ class PolarFireEvalKitPCIeX4Pads extends Bundle
 class PolarFireEvalKitPCIeX4IO extends Bundle
     with PolarFireEvalKitPCIeRefClk
     with PolarFirePCIeIOSerial
+    with PolarFirePCIeIODebug
     with PolarFirePCIeIOClocksReset {
   val axi_ctl_aresetn = Bool(INPUT)
 }

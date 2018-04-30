@@ -3,18 +3,20 @@ package sifive.fpgashells.devices.microsemi.polarfireddr4
 
 import Chisel._
 import freechips.rocketchip.config._
-import freechips.rocketchip.coreplex.HasMemoryBus
+//import freechips.rocketchip.coreplex.HasMemoryBus
+import freechips.rocketchip.subsystem.BaseSubsystem
 import freechips.rocketchip.diplomacy.{LazyModule, LazyModuleImp, AddressRange}
 
 case object MemoryMicrosemiDDR4Key extends Field[PolarFireEvalKitDDR4Params]
 
-trait HasMemoryPolarFireEvalKitDDR4 extends HasMemoryBus {
+//trait HasMemoryPolarFireEvalKitDDR4 extends HasMemoryBus {
+trait HasMemoryPolarFireEvalKitDDR4 { this: BaseSubsystem =>
   val module: HasMemoryPolarFireEvalKitDDR4ModuleImp
 
   val polarfireddrsubsys = LazyModule(new PolarFireEvalKitDDR4(p(MemoryMicrosemiDDR4Key)))
 
   require(nMemoryChannels == 1, "Coreplex must have 1 master memory port")
-  polarfireddrsubsys.node := memBuses.head.toDRAMController
+  polarfireddrsubsys.node := memBuses.head.toDRAMController(Some("PolarFireDDR"))()
 }
 
 trait HasMemoryPolarFireEvalKitDDR4Bundle {
