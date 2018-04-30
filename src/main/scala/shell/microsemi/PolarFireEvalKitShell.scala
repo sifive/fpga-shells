@@ -7,7 +7,7 @@ import chisel3.experimental.{RawModule, Analog, withClockAndReset}
 
 import freechips.rocketchip.config._
 import freechips.rocketchip.devices.debug._
-import freechips.rocketchip.util.{SyncResetSynchronizerShiftReg, ResetCatchAndSync}
+import freechips.rocketchip.util.{SyncResetSynchronizerShiftReg, ResetCatchAndSync, ElaborationArtefacts, HeterogeneousBag}
 
 import sifive.blocks.devices.gpio._
 import sifive.blocks.devices.spi._
@@ -30,6 +30,7 @@ import sifive.fpgashells.ip.microsemi.polarfiretxpll._
 import sifive.fpgashells.ip.microsemi.polarfire_oscillator._
 import sifive.fpgashells.ip.microsemi.polarfireclockdivider._
 import sifive.fpgashells.ip.microsemi.polarfireglitchlessmux._
+import sifive.blocks.devices.chiplink._
 
 //-------------------------------------------------------------------------
 // PolarFire Evaluation Kit Shell
@@ -76,10 +77,12 @@ trait HasPCIe { this: PolarFireEvalKitShell =>
 
   def connectPCIe(dut: HasSystemPolarFireEvalKitPCIeX4ModuleImp): Unit = {
     // Clock & Reset
-    dut.pf_eval_kit_pcie.APB_S_PCLK     := hart_clk
+//    dut.pf_eval_kit_pcie.APB_S_PCLK     := hart_clk
+    dut.pf_eval_kit_pcie.APB_S_PCLK     := dut_clock
     dut.pf_eval_kit_pcie.APB_S_PRESET_N := UInt("b1")
     
-    dut.pf_eval_kit_pcie.AXI_CLK        := hart_clk_150
+//    dut.pf_eval_kit_pcie.AXI_CLK        := hart_clk_150
+    dut.pf_eval_kit_pcie.AXI_CLK        := dut_clock
     dut.pf_eval_kit_pcie.AXI_CLK_STABLE := hart_clk_lock
     
     dut.pf_eval_kit_pcie.PCIE_1_TL_CLK_125MHz   := pcie_tl_clk
@@ -96,6 +99,282 @@ trait HasPCIe { this: PolarFireEvalKitShell =>
     dut.pf_eval_kit_pcie.PCIE_1_TX_PLL_LOCK := pf_tx_pll_lock
 
     pcie <> dut.pf_eval_kit_pcie
+  }
+}
+/*
+trait HasCoreJTAGDebug { this: PolarFireEvalKitShell =>
+  // JTAG inside the FPGA fabric through user JTAG FPGA macro (UJTAG)
+  val fpga_jtag = Module(new CoreJtagDebugBlock)
+  
+  fpga_jtag.io.UTDO_IN_0   := UInt("b0")
+  fpga_jtag.io.UTDO_IN_1   := UInt("b0")
+  fpga_jtag.io.UTDO_IN_2   := UInt("b0")
+  fpga_jtag.io.UTDO_IN_3   := UInt("b0")
+  fpga_jtag.io.UTDODRV_0   := UInt("b0")
+  fpga_jtag.io.UTDODRV_1   := UInt("b0")
+  fpga_jtag.io.UTDODRV_2   := UInt("b0")
+  fpga_jtag.io.UTDODRV_3   := UInt("b0")
+
+}
+*/
+
+
+trait HasPFEvalKitChipLink { this: PolarFireEvalKitShell =>
+
+  val chiplink = IO(new WideDataLayerPort(ChipLinkParams(Nil,Nil)))
+  val ereset_n = IO(Bool(INPUT))
+
+  def constrainChipLink(iofpga: Boolean = false): Unit = {
+    val direction0Pins = if(iofpga) "chiplink_b2c"  else "chiplink_c2b"
+    val direction1Pins = if(iofpga) "chiplink_c2b"  else "chiplink_b2c"
+/*
+    ElaborationArtefacts.add(
+      """vc707chiplink.vivado.tcl""",
+      """set vc707chiplink_vivado_tcl_dir [file dirname [file normalize [info script]]]
+         add_files -fileset [current_fileset -constrset] [glob -directory $vc707chiplink_vivado_tcl_dir {*.vc707chiplink.xdc}]"""
+    )
+*/
+
+/*
+    ElaborationArtefacts.add(
+      """vc707chiplink.xdc""", s"""
+        set_property PACKAGE_PIN AF39 [get_ports ${direction0Pins}_clk]
+        set_property PACKAGE_PIN AD40 [get_ports {${direction0Pins}_data[0]}]
+        set_property PACKAGE_PIN AD41 [get_ports {${direction0Pins}_data[1]}]
+        set_property PACKAGE_PIN AF41 [get_ports {${direction0Pins}_data[2]}]
+        set_property PACKAGE_PIN AG41 [get_ports {${direction0Pins}_data[3]}]
+        set_property PACKAGE_PIN AK39 [get_ports {${direction0Pins}_data[4]}]
+        set_property PACKAGE_PIN AL39 [get_ports {${direction0Pins}_data[5]}]
+        set_property PACKAGE_PIN AJ42 [get_ports {${direction0Pins}_data[6]}]
+        set_property PACKAGE_PIN AK42 [get_ports {${direction0Pins}_data[7]}]
+        set_property PACKAGE_PIN AL41 [get_ports {${direction0Pins}_data[8]}]
+        set_property PACKAGE_PIN AL42 [get_ports {${direction0Pins}_data[9]}]
+        set_property PACKAGE_PIN AF42 [get_ports {${direction0Pins}_data[10]}]
+        set_property PACKAGE_PIN AG42 [get_ports {${direction0Pins}_data[11]}]
+        set_property PACKAGE_PIN AD38 [get_ports {${direction0Pins}_data[12]}]
+        set_property PACKAGE_PIN AE38 [get_ports {${direction0Pins}_data[13]}]
+        set_property PACKAGE_PIN AC40 [get_ports {${direction0Pins}_data[14]}]
+        set_property PACKAGE_PIN AC41 [get_ports {${direction0Pins}_data[15]}]
+        set_property PACKAGE_PIN AD42 [get_ports {${direction0Pins}_data[16]}]
+        set_property PACKAGE_PIN AE42 [get_ports {${direction0Pins}_data[17]}]
+        set_property PACKAGE_PIN AJ38 [get_ports {${direction0Pins}_data[18]}]
+        set_property PACKAGE_PIN AK38 [get_ports {${direction0Pins}_data[19]}]
+        set_property PACKAGE_PIN AB41 [get_ports {${direction0Pins}_data[20]}]
+        set_property PACKAGE_PIN AB42 [get_ports {${direction0Pins}_data[21]}]
+        set_property PACKAGE_PIN Y42  [get_ports {${direction0Pins}_data[22]}]
+        set_property PACKAGE_PIN AA42 [get_ports {${direction0Pins}_data[23]}]
+        set_property PACKAGE_PIN Y39  [get_ports {${direction0Pins}_data[24]}]
+        set_property PACKAGE_PIN AA39 [get_ports {${direction0Pins}_data[25]}]
+        set_property PACKAGE_PIN W40  [get_ports {${direction0Pins}_data[26]}]
+        set_property PACKAGE_PIN Y40  [get_ports {${direction0Pins}_data[27]}]
+        set_property PACKAGE_PIN AB38 [get_ports {${direction0Pins}_data[28]}]
+        set_property PACKAGE_PIN AB39 [get_ports {${direction0Pins}_data[29]}]
+        set_property PACKAGE_PIN AC38 [get_ports {${direction0Pins}_data[30]}]
+        set_property PACKAGE_PIN AC39 [get_ports {${direction0Pins}_data[31]}]
+        set_property PACKAGE_PIN AJ40 [get_ports ${direction0Pins}_send]
+        set_property PACKAGE_PIN AJ41 [get_ports ${direction0Pins}_rst]
+
+        set_property PACKAGE_PIN U39 [get_ports ${direction1Pins}_clk]
+        set_property PACKAGE_PIN U37 [get_ports {${direction1Pins}_data[0]}]
+        set_property PACKAGE_PIN U38 [get_ports {${direction1Pins}_data[1]}]
+        set_property PACKAGE_PIN U36 [get_ports {${direction1Pins}_data[2]}]
+        set_property PACKAGE_PIN T37 [get_ports {${direction1Pins}_data[3]}]
+        set_property PACKAGE_PIN U32 [get_ports {${direction1Pins}_data[4]}]
+        set_property PACKAGE_PIN U33 [get_ports {${direction1Pins}_data[5]}]
+        set_property PACKAGE_PIN V33 [get_ports {${direction1Pins}_data[6]}]
+        set_property PACKAGE_PIN V34 [get_ports {${direction1Pins}_data[7]}]
+        set_property PACKAGE_PIN P35 [get_ports {${direction1Pins}_data[8]}]
+        set_property PACKAGE_PIN P36 [get_ports {${direction1Pins}_data[9]}]
+        set_property PACKAGE_PIN W32 [get_ports {${direction1Pins}_data[10]}]
+        set_property PACKAGE_PIN W33 [get_ports {${direction1Pins}_data[11]}]
+        set_property PACKAGE_PIN R38 [get_ports {${direction1Pins}_data[12]}]
+        set_property PACKAGE_PIN R39 [get_ports {${direction1Pins}_data[13]}]
+        set_property PACKAGE_PIN U34 [get_ports {${direction1Pins}_data[14]}]
+        set_property PACKAGE_PIN T35 [get_ports {${direction1Pins}_data[15]}]
+        set_property PACKAGE_PIN R33 [get_ports {${direction1Pins}_data[16]}]
+        set_property PACKAGE_PIN R34 [get_ports {${direction1Pins}_data[17]}]
+        set_property PACKAGE_PIN N33 [get_ports {${direction1Pins}_data[18]}]
+        set_property PACKAGE_PIN N34 [get_ports {${direction1Pins}_data[19]}]
+        set_property PACKAGE_PIN P32 [get_ports {${direction1Pins}_data[20]}]
+        set_property PACKAGE_PIN P33 [get_ports {${direction1Pins}_data[21]}]
+        set_property PACKAGE_PIN V35 [get_ports {${direction1Pins}_data[22]}]
+        set_property PACKAGE_PIN V36 [get_ports {${direction1Pins}_data[23]}]
+        set_property PACKAGE_PIN W36 [get_ports {${direction1Pins}_data[24]}]
+        set_property PACKAGE_PIN W37 [get_ports {${direction1Pins}_data[25]}]
+        set_property PACKAGE_PIN T32 [get_ports {${direction1Pins}_data[26]}]
+        set_property PACKAGE_PIN R32 [get_ports {${direction1Pins}_data[27]}]
+        set_property PACKAGE_PIN V39 [get_ports {${direction1Pins}_data[28]}]
+        set_property PACKAGE_PIN V40 [get_ports {${direction1Pins}_data[29]}]
+        set_property PACKAGE_PIN P37 [get_ports {${direction1Pins}_data[30]}]
+        set_property PACKAGE_PIN P38 [get_ports {${direction1Pins}_data[31]}]
+
+        set_property PACKAGE_PIN T36 [get_ports ${direction1Pins}_send]
+        set_property PACKAGE_PIN R37 [get_ports ${direction1Pins}_rst]
+
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[31]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[30]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[29]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[28]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[27]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[26]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[25]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[24]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[23]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[22]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[21]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[20]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[19]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[18]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[17]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[16]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[15]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[14]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[13]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[12]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[11]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[10]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[9]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[8]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[7]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[6]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[5]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[4]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[3]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[2]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[1]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction0Pins}_data[0]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[31]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[30]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[29]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[28]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[27]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[26]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[25]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[24]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[23]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[22]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[21]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[20]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[19]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[18]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[17]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[16]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[15]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[14]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[13]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[12]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[11]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[10]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[9]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[8]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[7]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[6]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[5]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[4]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[3]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[2]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[1]}]
+        set_property IOSTANDARD LVCMOS18 [get_ports {${direction1Pins}_data[0]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[31]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[30]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[29]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[28]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[27]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[26]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[25]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[24]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[23]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[22]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[21]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[20]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[19]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[18]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[17]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[16]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[15]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[14]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[13]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[12]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[11]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[10]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[9]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[8]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[7]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[6]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[5]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[4]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[3]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[2]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[1]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[0]}]
+
+
+        set_property IOSTANDARD LVCMOS18 [get_ports ${direction0Pins}_clk]
+        set_property IOSTANDARD LVCMOS18 [get_ports ${direction0Pins}_rst]
+        set_property IOSTANDARD LVCMOS18 [get_ports ${direction0Pins}_send]
+        set_property IOSTANDARD LVCMOS18 [get_ports ${direction1Pins}_clk]
+        set_property IOSTANDARD LVCMOS18 [get_ports ${direction1Pins}_rst]
+        set_property IOSTANDARD LVCMOS18 [get_ports ${direction1Pins}_send]
+        set_property SLEW FAST [get_ports ${direction1Pins}_clk]
+        set_property SLEW FAST [get_ports ${direction1Pins}_rst]
+        set_property SLEW FAST [get_ports ${direction1Pins}_send]
+
+
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[31]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[30]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[29]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[28]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[27]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[26]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[25]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[24]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[23]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[22]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[21]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[20]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[19]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[18]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[17]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[16]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[15]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[14]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[13]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[12]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[11]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[10]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[9]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[8]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[7]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[6]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[5]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[4]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[3]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[2]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[1]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_data[0]]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_send]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_clk]
+        set_property OFFCHIP_TERM NONE [get_ports ${direction1Pins}_rst]
+
+        # Aloe reset sent to FPGA
+        set_property IOSTANDARD LVCMOS18 [get_ports ereset_n]
+        set_property PACKAGE_PIN AF40    [get_ports ereset_n]
+
+        #Put first level RX/TX flops in IOB
+        set_property IOB TRUE [get_cells -of_objects [all_fanout -flat -endpoints_only [get_ports "chiplink_b2c_data*"]]]
+        set_property IOB TRUE [get_cells -of_objects [all_fanout -flat -endpoints_only [get_ports "chiplink_b2c_send"]]]
+        set_property IOB TRUE [get_cells -of_objects [all_fanin -flat -startpoints_only [get_ports "chiplink_c2b_data*"]]]
+        set_property IOB TRUE [get_cells -of_objects [all_fanin -flat -startpoints_only [get_ports "chiplink_c2b_send"]]]
+"""
+    )
+*/
+  }
+
+  def connectChipLink(dut: { val chiplink: HeterogeneousBag[WideDataLayerPort] } , iofpga: Boolean = false): Unit = {
+    constrainChipLink(iofpga)
+
+    chiplink <> dut.chiplink(0)
+    //dut.chiplink_xilinx_7series_phy.get.idelayctrl_refclk := sys_clock
   }
 }
 
@@ -155,11 +434,12 @@ abstract class PolarFireEvalKitShell(implicit val p: Parameters) extends RawModu
   val sw_7                 = IO(Analog(1.W))
 
   // debug
+  val debug_io0            = IO(Output(Bool()))
   val debug_io1            = IO(Output(Clock()))
   val debug_io2            = IO(Output(Bool()))
-  val debug_io3            = IO(Output(Clock()))
-  val debug_io4            = IO(Output(Bool()))
-//  val debug_io5            = IO(Output(Bool()))
+  val debug_io3            = IO(Output(Bool()))
+  val debug_io4            = IO(Output(Clock()))
+  val debug_io5            = IO(Output(Bool()))
   
   //-----------------------------------------------------------------------
   // Wire declarations
@@ -244,9 +524,9 @@ abstract class PolarFireEvalKitShell(implicit val p: Parameters) extends RawModu
   hart_clk_ccc.io.REF_CLK_0 := mig_clock_out
   dut_clock := hart_clk
 
-  debug_io1 := dut_clock
-  debug_io2 := hart_clk_lock
-  debug_io3 := ddr3_clk_in
+//  debug_io1 := dut_clock
+//  debug_io2 := hart_clk_lock
+//  debug_io3 := ddr3_clk_in
   
   //-----------------------------------------------------------------------
   // System reset
@@ -267,7 +547,7 @@ abstract class PolarFireEvalKitShell(implicit val p: Parameters) extends RawModu
 
   sys_reset_n   := pf_reset.io.FABRIC_RESET_N
 
-  debug_io4 := sys_reset_n
+//  debug_io4 := sys_reset_n
   
   mig_resetn           := !mig_reset
   pcie_dat_resetn      := !pcie_dat_reset
@@ -275,8 +555,11 @@ abstract class PolarFireEvalKitShell(implicit val p: Parameters) extends RawModu
 
   dut_reset_i := !pf_reset.io.FABRIC_RESET_N | !hart_clk_lock | !ddr_ctrlr_ready
   
-  withClockAndReset(hart_clk, fpga_reset) {
-    dut_reset := ResetCatchAndSync(hart_clk, dut_reset_i, 10)
+//  withClockAndReset(hart_clk, fpga_reset) {
+//    dut_reset := ResetCatchAndSync(hart_clk, dut_reset_i, 10)
+//  }
+  withClockAndReset(dut_clock, fpga_reset) {
+    dut_reset := ResetCatchAndSync(dut_clock, dut_reset_i, 10)
   }
   
   //overrided in connectMIG and connect PCIe
@@ -309,6 +592,7 @@ abstract class PolarFireEvalKitShell(implicit val p: Parameters) extends RawModu
   //---------------------------------------------------------------------
 
   // JTAG inside the FPGA fabric through user JTAG FPGA macro (UJTAG)
+/*
   val fpga_jtag = Module(new CoreJtagDebugBlock)
   
   fpga_jtag.io.UTDO_IN_0   := UInt("b0")
@@ -340,7 +624,7 @@ abstract class PolarFireEvalKitShell(implicit val p: Parameters) extends RawModu
     dut_ndreset    := dut.debug.ndreset
     djtag
   }
-
+*/
   //-----------------------------------------------------------------------
   // UART
   //-----------------------------------------------------------------------
