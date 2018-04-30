@@ -1,0 +1,3 @@
+
+set_location -inst_name hart_clk_ccc/hart_clk_ccc_0/pll_inst_0 -fixed true -x 2461 -y 377
+set_location -inst_name ddr3_clk_ccc/ddr3_clk_ccc_0/pll_inst_0 -fixed true -x 2460 -y 5

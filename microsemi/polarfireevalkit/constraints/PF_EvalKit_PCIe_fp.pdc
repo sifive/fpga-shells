@@ -1,0 +1,29 @@
+# Microsemi Physical design constraints file
+
+# Version: PolarFire v2.0 12.200.0.20
+
+# Design Name: U500PolarFireEvalKitFPGAChip 
+
+# Input Netlist Format: EDIF 
+
+# Family: PolarFire , Die: MPF300TS_ES , Package: FCG1152 , Speed grade: -1 
+
+# Date generated: Mon Jan  8 10:19:51 2018 
+
+
+#
+# Local clock constraints
+#
+
+
+#
+# Region constraints
+#
+
+
+#
+# Core cell constraints
+#
+
+set_location -inst_name pf_xcvr_ref_clk/transceiver_refclk_0/I_IO -fixed true -x 2468 -y 236
+set_location -inst_name pf_tx_pll/transmit_pll_0/txpll_isnt_0 -fixed true -x 2466 -y 239

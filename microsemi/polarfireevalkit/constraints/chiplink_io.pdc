@@ -1,0 +1,432 @@
+# Microsemi I/O Physical Design Constraints file
+
+# User I/O Constraints file 
+
+# Version: PolarFire v2.0 12.200.0.20
+
+# Family: PolarFire , Die: MPF300TS_ES , Package: FCG1152
+
+#
+# Chiplink IOs
+#
+
+set_io -port_name chiplink_b2c_clk  \
+    -pin_name D13             \
+    -fixed true               \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[0]}  \
+    -pin_name H9                    \
+    -fixed true                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[1]}  \
+    -pin_name H8                    \
+    -fixed true                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[2]}  \
+    -pin_name G9                    \
+    -fixed true                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[3]}  \
+    -pin_name F9                    \
+    -fixed true                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[4]}  \
+    -pin_name L19                   \
+    -fixed true                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[5]}  \
+    -pin_name L18                   \
+    -fixed true                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[6]}  \
+    -pin_name H16                   \
+    -fixed true                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[7]}  \
+    -pin_name H17                   \
+    -fixed true                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[8]}  \
+    -pin_name J18                   \
+    -fixed true                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[9]}  \
+    -pin_name J19                   \
+    -fixed true                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[10]}  \
+    -pin_name F14                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[11]}  \
+    -pin_name F15                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[12]}  \
+    -pin_name G15                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[13]}  \
+    -pin_name G16                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[14]}  \
+    -pin_name K15                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[15]}  \
+    -pin_name J15                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[16]}  \
+    -pin_name J14                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[17]}  \
+    -pin_name J13                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[18]}  \
+    -pin_name L17                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[19]}  \
+    -pin_name M17                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[20]}  \
+    -pin_name J16                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[21]}  \
+    -pin_name K16                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[22]}  \
+    -pin_name K18                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[23]}  \
+    -pin_name K17                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[24]}  \
+    -pin_name F12                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[25]}  \
+    -pin_name E12                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[26]}  \
+    -pin_name H14                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[27]}  \
+    -pin_name G14                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[28]}  \
+    -pin_name F13                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[29]}  \
+    -pin_name E13                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[30]}  \
+    -pin_name A7                     \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[31]}  \
+    -pin_name A8                     \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name chiplink_b2c_rst  \
+    -pin_name D11             \
+    -fixed true               \
+    -DIRECTION INPUT
+
+
+set_io -port_name chiplink_b2c_send  \
+    -pin_name D10              \
+    -fixed true                \
+    -DIRECTION INPUT
+
+
+set_io -port_name chiplink_c2b_clk  \
+    -pin_name C11             \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[0]}  \
+    -pin_name F8                    \
+    -fixed true                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[1]}  \
+    -pin_name F7                    \
+    -fixed true                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[2]}  \
+    -pin_name G5                    \
+    -fixed true                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[3]}  \
+    -pin_name F5                    \
+    -fixed true                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[4]}  \
+    -pin_name C6                    \
+    -fixed true                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[5]}  \
+    -pin_name B6                    \
+    -fixed true                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[6]}  \
+    -pin_name B9                    \
+    -fixed true                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[7]}  \
+    -pin_name A9                    \
+    -fixed true                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[8]}  \
+    -pin_name H13                   \
+    -fixed true                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[9]}  \
+    -pin_name H12                   \
+    -fixed true                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[10]}  \
+    -pin_name D8                     \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[11]}  \
+    -pin_name C8                     \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[12]}  \
+    -pin_name C7                     \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[13]}  \
+    -pin_name B7                     \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[14]}  \
+    -pin_name E10                    \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[15]}  \
+    -pin_name E11                    \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[16]}  \
+    -pin_name J11                    \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[17]}  \
+    -pin_name H11                    \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[18]}  \
+    -pin_name G12                    \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[19]}  \
+    -pin_name G11                    \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[20]}  \
+    -pin_name E6                     \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[21]}  \
+    -pin_name D6                     \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[22]}  \
+    -pin_name D9                     \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[23]}  \
+    -pin_name C9                     \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[24]}  \
+    -pin_name B10                    \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[25]}  \
+    -pin_name A10                    \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[26]}  \
+    -pin_name G10                    \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[27]}  \
+    -pin_name F10                    \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[28]}  \
+    -pin_name E7                     \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[29]}  \
+    -pin_name E8                     \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[30]}  \
+    -pin_name E1                     \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[31]}  \
+    -pin_name D1                     \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name chiplink_c2b_rst  \
+    -pin_name G7              \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name chiplink_c2b_send  \
+    -pin_name H7               \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+

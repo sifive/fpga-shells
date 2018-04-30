@@ -1,0 +1,199 @@
+# Microsemi I/O Physical Design Constraints file
+
+# 
+# User Locked I/O Bank Settings
+# 
+
+# 
+# Unlocked I/O Bank Settings
+# The I/O Bank Settings can be locked by directly editing this file
+# or by making changes in the I/O Attribute Editor
+# 
+
+# 
+# User Locked I/O settings
+# 
+
+#set_io -port_name btn_0  \
+#    -pin_name B19        \
+#    -fixed true          \
+#    -DIRECTION OUTPUT
+
+
+#set_io -port_name btn_1  \
+#    -pin_name C21        \
+#    -fixed true          \
+#    -DIRECTION OUTPUT
+
+
+#set_io -port_name btn_2  \
+#    -pin_name A25        \
+#    -fixed true          \
+#    -DIRECTION OUTPUT
+
+
+#set_io -port_name btn_3  \
+#    -pin_name B27        \
+#    -fixed true          \
+#    -DIRECTION OUTPUT
+
+
+set_io -port_name led_0  \
+    -pin_name F22        \
+    -fixed true          \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name led_1  \
+    -pin_name B26        \
+    -fixed true          \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name led_2  \
+    -pin_name C26        \
+    -fixed true          \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name led_3  \
+    -pin_name D25        \
+    -fixed true          \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name led_4  \
+    -pin_name C27        \
+    -fixed true          \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name led_5  \
+    -pin_name F23        \
+    -fixed true          \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name led_6  \
+    -pin_name H22        \
+    -fixed true          \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name led_7  \
+    -pin_name H21        \
+    -fixed true          \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ref_clk0  \
+    -pin_name E25           \
+    -fixed true             \
+    -DIRECTION INPUT
+
+
+set_io -port_name pf_user_reset_n  \
+    -pin_name K22        \
+    -fixed true          \
+    -DIRECTION INPUT
+
+
+#set_io -port_name uart_rx  \
+#    -pin_name H18          \
+#    -fixed true            \
+#    -DIRECTION INPUT
+
+
+set_io -port_name uart_tx  \
+    -pin_name G17          \
+    -fixed true            \
+    -DIRECTION OUTPUT
+
+
+#
+# SPI flash
+#
+
+set_io -port_name spi_flash_hold  \
+    -pin_name A22                 \
+    -fixed true                   \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name spi_flash_reset  \
+    -pin_name A24                  \
+    -fixed true                    \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name spi_flash_sck  \
+    -pin_name H19                \
+    -fixed true                  \
+    -DIRECTION OUTPUT
+
+
+#set_io -port_name spi_flash_sdi  \
+#    -pin_name C18                \
+#    -fixed true                  \
+#    -DIRECTION INPUT
+
+
+set_io -port_name spi_flash_sdo  \
+    -pin_name G19                \
+    -fixed true                  \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name spi_flash_ss  \
+    -pin_name A20               \
+    -fixed true                 \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name spi_flash_wp  \
+    -pin_name A27               \
+    -fixed true                 \
+    -DIRECTION OUTPUT
+
+
+#
+# Debug
+#
+
+set_io -port_name debug_io1  \
+    -pin_name C17       \
+    -fixed true         \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name debug_io2  \
+    -pin_name A17       \
+    -fixed true         \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name debug_io3  \
+    -pin_name B17       \
+    -fixed true         \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name debug_io4  \
+    -pin_name A18       \
+    -fixed true         \
+    -DIRECTION OUTPUT
+
+set_io -port_name ddr_CTRLR_READY  \
+    -pin_name A19                  \
+    -fixed true                    \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name jtag_TDO  \
+    -pin_name A3            \
+    -fixed true             \
+    -DIRECTION OUTPUT
+
+
+
+
