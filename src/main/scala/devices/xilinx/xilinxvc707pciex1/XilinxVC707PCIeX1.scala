@@ -3,12 +3,11 @@ package sifive.fpgashells.devices.xilinx.xilinxvc707pciex1
 
 import Chisel._
 import freechips.rocketchip.amba.axi4._
-import freechips.rocketchip.coreplex.CacheBlockBytes
 import freechips.rocketchip.config.Parameters
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
 import freechips.rocketchip.interrupts._
-import freechips.rocketchip.coreplex.{HasCrossing,AsynchronousCrossing}
+import freechips.rocketchip.subsystem.{HasCrossing, AsynchronousCrossing, CacheBlockBytes}
 import sifive.fpgashells.ip.xilinx.vc707axi_to_pcie_x1.{VC707AXIToPCIeX1, VC707AXIToPCIeX1IOClocksReset, VC707AXIToPCIeX1IOSerial}
 import sifive.fpgashells.ip.xilinx.ibufds_gte2.IBUFDS_GTE2
 
