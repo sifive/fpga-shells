@@ -7,7 +7,7 @@ import chisel3.experimental.{RawModule, Analog, withClockAndReset}
 
 import freechips.rocketchip.config._
 import freechips.rocketchip.devices.debug._
-import freechips.rocketchip.util.{SyncResetSynchronizerShiftReg, ResetCatchAndSync, ElaborationArtefacts, HeterogeneousBag}
+import freechips.rocketchip.util.{SyncResetSynchronizerShiftReg, ResetCatchAndSync, ElaborationArtefacts, HeterogeneousBag, SimpleTimer}
 
 import sifive.blocks.devices.gpio._
 import sifive.blocks.devices.spi._
@@ -164,6 +164,8 @@ abstract class VeraShell(implicit val p: Parameters) extends RawModule {
   val dut_reset_i     = Wire(Bool())
   val dut_reset_sync  = Wire(Bool())
 
+  val pcie_sw_rst_complete  = Wire(Bool())
+
   val dut_ndreset     = Wire(Bool())
   val dut_ext_reset_n = Wire(Bool())
 
@@ -260,11 +262,6 @@ abstract class VeraShell(implicit val p: Parameters) extends RawModule {
   mig_mmcm_locked      := UInt("b1")
   mmcm_lock_pcie       := UInt("b1")
  
-  // PCIe switch reset:
-  val pf_rstb_i = ResetCatchAndSync(pcie_fab_ref_clk, sys_reset_n, 16384)
-  led3 := pf_rstb_i
-  pf_rstb := pf_rstb_i
-  
   //-----------------------------------------------------------------------
   // PCIe Subsystem TL Clock
   //-----------------------------------------------------------------------
@@ -276,34 +273,4 @@ abstract class VeraShell(implicit val p: Parameters) extends RawModule {
   pf_glitchless_mux.io.CLK1 := hart_clk_125
   pf_glitchless_mux.io.SEL  := pf_init_monitor.io.PCIE_INIT_DONE
   val pcie_tl_clk = pf_glitchless_mux.io.CLK_OUT
-  
-
-  //-----------------------------------------------------------------------
-  // UART
-  //-----------------------------------------------------------------------
-/*
-  def connectUART(dut: HasPeripheryUARTModuleImp): Unit = {
-    val uartParams = p(PeripheryUARTKey)
-    if (!uartParams.isEmpty) {
-      // uart connections
-      dut.uart(0).rxd := SyncResetSynchronizerShiftReg(uart_rx, 2, init = Bool(true), name=Some("uart_rxd_sync"))
-      uart_tx         := dut.uart(0).txd
-    }
-  }
-*/
-  //-----------------------------------------------------------------------
-  // SPI
-  //-----------------------------------------------------------------------
-/*
-  def connectSPI(dut: HasPeripherySPIModuleImp): Unit = {
-    // SPI
-    spi_flash_reset := fpga_reset
-    spi_flash_wp    := UInt("b0")
-    spi_flash_hold  := UInt("b0")
-    spi_flash_sck   := dut.spi(0).sck
-    spi_flash_ss    := dut.spi(0).cs(0)
-    spi_flash_sdo   := dut.spi(0).dq(0).o
-    dut.spi(0).dq(0).i := spi_flash_sdi
-  }
-*/
 }
