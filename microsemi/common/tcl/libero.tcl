@@ -5,8 +5,8 @@
 
 ######### Script arguments #########
 
-if {$argc != 3} {
-	puts "!!! ERROR !!!: This script takes 3 arguments from the Chisel build environment: BUILD_DIR MODEL PROJECT" 
+if {$argc != 5} {
+	puts "!!! ERROR !!!: This script takes 5 arguments from the Chisel build environment: BUILD_DIR MODEL PROJECT CONFIG BOARD" 
 	exit
 }
 
@@ -30,6 +30,9 @@ puts "Chisel board: $chisel_board"
 set Prjname "$chisel_model"
 set Proj "./Libero/$Prjname"
 
+set FPExpressDir "$chisel_build_dir/FlashProExpress"
+puts "FlashPro Express folder: $FPExpressDir"
+file mkdir $FPExpressDir
 
 ###########################################
 set CoreJTAGDebugver {2.0.100}
@@ -153,8 +156,62 @@ derive_constraints_sdc
 
 
 #
+# Synthesis
 #
-#
+puts "-----------------------------------------------------------------"
+puts "--------------------------- Synthesis ---------------------------"
+puts "-----------------------------------------------------------------"
+run_tool -name {SYNTHESIZE}
 
-#source ./src/Config_SD_TOP.tcl
-#source ./src/Constraint.tcl
+#
+# Place and route
+#
+puts "-----------------------------------------------------------------"
+puts "------------------------ Place and Route ------------------------"
+puts "-----------------------------------------------------------------"
+configure_tool -name {PLACEROUTE} -params {EFFORT_LEVEL:true} -params {REPAIR_MIN_DELAY:true} -params {TDPR:true} 
+run_tool -name {PLACEROUTE}
+
+#
+# Generate programming files
+#
+puts "-----------------------------------------------------------------"
+puts "------------------ Generate programming files -------------------"
+puts "-----------------------------------------------------------------"
+run_tool -name {GENERATEPROGRAMMINGDATA} 
+
+run_tool -name {GENERATEPROGRAMMINGFILE} 
+
+export_prog_job \
+    -job_file_name $chisel_model \
+    -export_dir $FPExpressDir \
+    -bitstream_file_type {TRUSTED_FACILITY} \
+    -bitstream_file_components {}
+
+
+#proc export_programming_job_g5 { name location components } {
+#                export_prog_job \
+#                                                -job_file_name $name \
+#                                                -export_dir $location \
+#                                                -bitstream_file_type {TRUSTED_FACILITY} \
+#                                                -bitstream_file_components $components
+#}
+ 
+#Export programming job file
+#export_programming_job_g5 "PF_JOB" "./srcs" {FABRIC SNVM}
+
+#export_bitstream_file \
+#         -file_name $Proj \
+#         -export_dir $Proj/designer/$Proj/export \
+#         -format {STP}
+         
+         
+#         -master_file 0 \
+#         -master_file_components {} \
+#         -encrypted_uek1_file 0 \
+#         -encrypted_uek1_file_components {} \
+#         -encrypted_uek2_file 0 \
+#         -encrypted_uek2_file_components {} \
+#         -trusted_facility_file 1 \
+#         -trusted_facility_file_components {FABRIC SNVM}
+
