@@ -189,8 +189,7 @@ class PolarFirePCIeX4(implicit p:Parameters) extends LazyModule
 
   val slave = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
     slaves = Seq(AXI4SlaveParameters(
-      address       = List(AddressSet(0x40000000L, 0x1fffffffL)),
-//<CJ>      address       = List(AddressSet(0x40000000L, 0x0fffffffL)),
+      address       = List(AddressSet(0x40000000L, 0x1fffffffL),AddressSet(0x2030000000L, 0x0fffffffL)),
       resources     = Seq(Resource(device, "ranges")),
       executable    = true,
       supportsWrite = TransferSizes(1, 128),
@@ -199,8 +198,7 @@ class PolarFirePCIeX4(implicit p:Parameters) extends LazyModule
 
   val control = APBSlaveNode(Seq(APBSlavePortParameters(
     slaves = Seq(APBSlaveParameters(
-      address       = List(AddressSet(0x2030000000L, 0x03ffffffL)),
-//<CJ>      address       = List(AddressSet(0x50000000L, 0x03ffffffL)),
+      address       = List(AddressSet(0x2000000000L, 0x0fffffffL)),
       resources     = device.reg("control"),
       supportsWrite = TransferSizes(1, 4),
       supportsRead  = TransferSizes(1, 4))),
@@ -318,14 +316,6 @@ class PolarFirePCIeX4(implicit p:Parameters) extends LazyModule
     
     
     // <CJ> debug
-/*
-    val debug_pclk    = IO(Output(Clock()))
-    val debug_preset  = IO(Output(Bool()))
-    val debug_penable = IO(Output(Bool()))
-    val debug_psel    = IO(Output(Bool()))
-    val debug_paddr2  = IO(Output(Bool()))
-    val debug_paddr3  = IO(Output(Bool()))
-*/
     io.port.debug_pclk    := io.port.APB_S_PCLK
     io.port.debug_preset  := io.port.APB_S_PRESET_N
     io.port.debug_penable := c.penable
@@ -415,7 +405,7 @@ configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCI
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_REVISION_ID:0x0000"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_DEVICE_ID:0x1556"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_SUB_SYSTEM_ID:0x0000"} -validate_rules 0 
-configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_CLASS_CODE:0x060400"} -validate_rules 0 
+configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_CLASS_CODE:0x0604"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_0_BAR_MODE:Custom"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_0_PHY_REF_CLK_SLOT:Slot"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_0_INTERRUPTS:INTx"} -validate_rules 0 
