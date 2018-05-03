@@ -10,7 +10,7 @@ set group_cl  [get_clocks -quiet {chiplink_b2c_clock              \
                                   clk_out*_vc707_sys_clock_mmcm3}]
 set group_pci [get_clocks -quiet -include_generated_clocks -of_objects [get_pins -hier -filter {name =~ *pcie*TXOUTCLK}]]
 
-set group_jtag [get_clocks -quiet {jtag_TCK}]
+set group_jtag [get_clocks -quiet {JTCK}]
 
 puts "group_mem: $group_mem"
 puts "group_sys: $group_sys"
