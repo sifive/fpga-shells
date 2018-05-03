@@ -8,8 +8,9 @@ import freechips.rocketchip.config.Parameters
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
 import freechips.rocketchip.interrupts._
+import freechips.rocketchip.util.FastToSlow
 //import freechips.rocketchip.coreplex.{HasCrossing,AsynchronousCrossing}
-import freechips.rocketchip.subsystem.{HasCrossing, AsynchronousCrossing, CacheBlockBytes}
+import freechips.rocketchip.subsystem.{HasCrossing, SynchronousCrossing, CacheBlockBytes}
 
 import sifive.fpgashells.ip.microsemi.polarfirepcierootport._
 
@@ -32,7 +33,7 @@ class PolarFireEvalKitPCIeX4IO extends Bundle
 }
 
 class PolarFireEvalKitPCIeX4(implicit p: Parameters) extends LazyModule with HasCrossing {
-  val crossing = AsynchronousCrossing(8)
+  val crossing = SynchronousCrossing()
   val axi_to_pcie = LazyModule(new PolarFirePCIeX4)
 
   val slave: TLInwardNode =
@@ -43,9 +44,14 @@ class PolarFireEvalKitPCIeX4(implicit p: Parameters) extends LazyModule with Has
       := AXI4IdIndexer(idBits=4)
       := TLToAXI4(adapterName = Some("pcie-slave")))
 
+  val APBScope = LazyModule(new SimpleLazyModule with LazyScope)
   val control: TLInwardNode =
-    (axi_to_pcie.control
-      := TLToAPB()
+    (APBScope {
+       (axi_to_pcie.control
+         := TLToAPB(false)
+         := TLRationalCrossingSink(FastToSlow)) }
+      := TLRationalCrossingSource()
+      := TLBuffer()
       := TLFragmenter(4, p(CacheBlockBytes)))
 
   val master: TLOutwardNode =
@@ -53,9 +59,12 @@ class PolarFireEvalKitPCIeX4(implicit p: Parameters) extends LazyModule with Has
       := AXI4ToTL()
       := AXI4UserYanker(capMaxFlight=Some(8))
       := AXI4Fragmenter()
+      := AXI4IdIndexer(idBits=2)
+      := AXI4Buffer()
       := axi_to_pcie.master)
 
-  val intnode: IntOutwardNode = axi_to_pcie.intnode
+  val TLScope = LazyModule(new SimpleLazyModule with LazyScope)
+  val intnode: IntOutwardNode = IntSyncCrossingSink() := TLScope { IntSyncCrossingSource() := axi_to_pcie.intnode }
 
   lazy val module = new LazyModuleImp(this) {
     val io = IO(new Bundle {
@@ -63,5 +72,9 @@ class PolarFireEvalKitPCIeX4(implicit p: Parameters) extends LazyModule with Has
     })
 
     io.port <> axi_to_pcie.module.io.port
+    APBScope.module.clock := io.port.APB_S_PCLK
+    APBScope.module.reset := ResetCatchAndSync(io.port.APB_S_PCLK, reset)
+    TLScope.module.clock := io.port.PCIE_1_TL_CLK_125MHz
+    TLScope.module.reset := ResetCatchAndSync(io.port.PCIE_1_TL_CLK_125MHz, reset)
   }
 }

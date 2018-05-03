@@ -198,7 +198,7 @@ class PolarFirePCIeX4(implicit p:Parameters) extends LazyModule
 
   val control = APBSlaveNode(Seq(APBSlavePortParameters(
     slaves = Seq(APBSlaveParameters(
-      address       = List(AddressSet(0x2000000000L, 0x0fffffffL)),
+      address       = List(AddressSet(0x2000000000L, 0x03ffffffL)),
       resources     = device.reg("control"),
       supportsWrite = TransferSizes(1, 4),
       supportsRead  = TransferSizes(1, 4))),
@@ -208,7 +208,7 @@ class PolarFirePCIeX4(implicit p:Parameters) extends LazyModule
   val master = AXI4MasterNode(Seq(AXI4MasterPortParameters(
     masters = Seq(AXI4MasterParameters(
       name    = "PolarFire PCIe",
-      id      = IdRange(0, 1),
+      id      = IdRange(0, 16),
       aligned = false)))))
 
   val intnode = IntSourceNode(IntSourcePortSimple(resources = device.int))
@@ -216,6 +216,7 @@ class PolarFirePCIeX4(implicit p:Parameters) extends LazyModule
   lazy val module = new LazyModuleImp(this) {
     // Must have exactly the right number of idBits
     require (slave.edges.in(0).bundle.idBits == 4)
+    require (master.edges.out(0).bundle.dataBits == 64)
 
     class PolarFirePCIeX4IOBundle extends Bundle with PolarFirePCIeIOSerial
                                                  with PolarFirePCIeIODebug
@@ -303,7 +304,11 @@ class PolarFirePCIeX4(implicit p:Parameters) extends LazyModule
     s.r.bits.last                       := blackbox.io.PCIESS_AXI_1_S_RLAST
     s.r.valid                           := blackbox.io.PCIESS_AXI_1_S_RVALID
     blackbox.io.PCIESS_AXI_1_S_RREADY   := s.r.ready
-    
+
+    blackbox.io.PCIE_1_INTERRUPT        := UInt(0)
+    blackbox.io.PCIE_1_M_RDERR          := Bool(false)
+    blackbox.io.PCIE_1_S_WDERR          := Bool(false)
+
     //ctl
     blackbox.io.APB_S_PADDR := c.paddr
     blackbox.io.APB_S_PENABLE := c.penable
@@ -324,9 +329,11 @@ class PolarFirePCIeX4(implicit p:Parameters) extends LazyModule
     io.port.debug_paddr3  := c.paddr(3)
 
     //m
-    m.aw.bits.id                 := UInt(0)
-    m.aw.bits.qos                := UInt(0)
+    m.aw.bits.cache := UInt(0)
+    m.aw.bits.prot  := AXI4Parameters.PROT_PRIVILEDGED
+    m.aw.bits.qos   := UInt(0)
 
+    m.aw.bits.id                        := blackbox.io.PCIESS_AXI_1_M_AWID
     m.aw.bits.addr                      := blackbox.io.PCIESS_AXI_1_M_AWADDR
     m.aw.bits.len                       := blackbox.io.PCIESS_AXI_1_M_AWLEN
     m.aw.bits.size                      := blackbox.io.PCIESS_AXI_1_M_AWSIZE
@@ -346,8 +353,11 @@ class PolarFirePCIeX4(implicit p:Parameters) extends LazyModule
     blackbox.io.PCIESS_AXI_1_M_BVALID   := m.b.valid
     m.b.ready                           := blackbox.io.PCIESS_AXI_1_M_BREADY
 
-    m.ar.bits.id                 := UInt(0)
+    m.ar.bits.cache := UInt(0)
+    m.ar.bits.prot  := AXI4Parameters.PROT_PRIVILEDGED
+    m.ar.bits.qos   := UInt(0)
 
+    m.ar.bits.id                        := blackbox.io.PCIESS_AXI_1_M_ARID
     m.ar.bits.addr                      := blackbox.io.PCIESS_AXI_1_M_ARADDR
     m.ar.bits.len                       := blackbox.io.PCIESS_AXI_1_M_ARLEN
     m.ar.bits.size                      := blackbox.io.PCIESS_AXI_1_M_ARSIZE
@@ -356,6 +366,7 @@ class PolarFirePCIeX4(implicit p:Parameters) extends LazyModule
     m.ar.bits.id                        := blackbox.io.PCIESS_AXI_1_M_ARID
     blackbox.io.PCIESS_AXI_1_M_ARREADY  := m.ar.ready
 
+    blackbox.io.PCIESS_AXI_1_M_RID        := m.r.bits.id
     blackbox.io.PCIESS_AXI_1_M_RDATA      := m.r.bits.data
     blackbox.io.PCIESS_AXI_1_M_RRESP      := m.r.bits.resp
     blackbox.io.PCIESS_AXI_1_M_RLAST      := m.r.bits.last
@@ -405,7 +416,7 @@ configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCI
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_REVISION_ID:0x0000"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_DEVICE_ID:0x1556"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_SUB_SYSTEM_ID:0x0000"} -validate_rules 0 
-configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_CLASS_CODE:0x0604"} -validate_rules 0 
+configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_CLASS_CODE:0x060400"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_0_BAR_MODE:Custom"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_0_PHY_REF_CLK_SLOT:Slot"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_0_INTERRUPTS:INTx"} -validate_rules 0 
