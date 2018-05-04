@@ -13,7 +13,7 @@ trait PolarFireTxPLLIOPads extends Bundle {
 
     val REF_CLK         = Clock(INPUT)
     val BIT_CLK         = Clock(OUTPUT)
-//    val CLK_125         = Clock(OUTPUT)
+    val CLK_125         = Clock(OUTPUT)
     val REF_CLK_TO_LANE = Clock(OUTPUT)
     val LOCK            = Bool(OUTPUT)
     val PLL_LOCK        = Bool(OUTPUT)

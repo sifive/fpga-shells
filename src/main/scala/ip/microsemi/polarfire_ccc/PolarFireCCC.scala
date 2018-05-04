@@ -15,7 +15,10 @@ case class PolarFireCCCParameters(
   gl2Enabled:       Boolean = true,
   gl0_0_out_freq:   Double  = 111.111,
   gl1_0_out_freq:   Double  = 111.111,
-  gl2_0_out_freq:   Double  = 111.111
+  gl2_0_out_freq:   Double  = 111.111,
+  gl0_0_pll_phase:  Int     = 0,
+  gl1_0_pll_phase:  Int     = 0,
+  gl2_0_pll_phase:  Int     = 0
 )
 
 // Black Box for Microsemi PolarFire Clock Conditioning Circuit (CCC) Actel:SgCore:PF_CCC:1.0.112
@@ -50,10 +53,13 @@ configure_vlnv_instance -component {""" ++ modulename ++"""} -library {} -name {
     -params {"PLL_IN_FREQ_0:""" ++ c.pll_in_freq.toString ++ """" \
              "GL0_0_IS_USED:""" ++ c.gl0Enabled.toString ++ """" \
              "GL0_0_OUT_FREQ:""" ++ c.gl0_0_out_freq.toString ++ """" \
+             "GL0_0_PLL_PHASE:""" ++ c.gl0_0_pll_phase.toString ++ """" \
              "GL1_0_IS_USED:""" ++ c.gl1Enabled.toString ++ """" \
              "GL1_0_OUT_FREQ:""" ++ c.gl1_0_out_freq.toString ++ """" \
+             "GL1_0_PLL_PHASE:""" ++ c.gl1_0_pll_phase.toString ++ """" \
              "GL2_0_IS_USED:""" ++ c.gl2Enabled.toString ++ """" \
              "GL2_0_OUT_FREQ:""" ++ c.gl2_0_out_freq.toString ++ """" \
+             "GL2_0_PLL_PHASE:""" ++ c.gl2_0_pll_phase.toString ++ """" \
             } -validate_rules 0 
 fix_vlnv_instance -component {""" ++ modulename ++"""} -library {} -name {""" ++ modulename ++"""_0} 
 open_smartdesign -design {""" ++ modulename ++"""}

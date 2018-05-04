@@ -8,8 +8,7 @@ import freechips.rocketchip.config.Parameters
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
 import freechips.rocketchip.interrupts._
-import freechips.rocketchip.util.FastToSlow
-//import freechips.rocketchip.coreplex.{HasCrossing,AsynchronousCrossing}
+import freechips.rocketchip.util._
 import freechips.rocketchip.subsystem.{HasCrossing, SynchronousCrossing, CacheBlockBytes}
 
 import sifive.fpgashells.ip.microsemi.polarfirepcierootport._
@@ -49,8 +48,8 @@ class PolarFireEvalKitPCIeX4(implicit p: Parameters) extends LazyModule with Has
     (APBScope {
        (axi_to_pcie.control
          := TLToAPB(false)
-         := TLRationalCrossingSink(FastToSlow)) }
-      := TLRationalCrossingSource()
+         := TLAsyncCrossingSink(1)) }
+      := TLAsyncCrossingSource()
       := TLBuffer()
       := TLFragmenter(4, p(CacheBlockBytes)))
 
@@ -64,7 +63,9 @@ class PolarFireEvalKitPCIeX4(implicit p: Parameters) extends LazyModule with Has
       := axi_to_pcie.master)
 
   val TLScope = LazyModule(new SimpleLazyModule with LazyScope)
-  val intnode: IntOutwardNode = IntSyncCrossingSink() := TLScope { IntSyncCrossingSource() := axi_to_pcie.intnode }
+  val intnode: IntOutwardNode = IntSyncCrossingSink() := TLScope {
+    IntSyncCrossingSource(alreadyRegistered = true) := axi_to_pcie.intnode
+  }
 
   lazy val module = new LazyModuleImp(this) {
     val io = IO(new Bundle {

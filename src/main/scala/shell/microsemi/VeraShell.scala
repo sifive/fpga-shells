@@ -216,7 +216,7 @@ abstract class VeraShell(implicit val p: Parameters) extends RawModule {
                                                                     gl1Enabled = true,
                                                                     gl2Enabled = true,
                                                                     gl0_0_out_freq = 25.0,
-                                                                    gl1_0_out_freq = 125.0,
+                                                                    gl1_0_out_freq = 100.0,
                                                                     gl2_0_out_freq = 150.0)))
   val hart_clk = hart_clk_ccc.io.OUT0_FABCLK_0
   val hart_clk_125 = hart_clk_ccc.io.OUT1_FABCLK_0
@@ -270,7 +270,7 @@ abstract class VeraShell(implicit val p: Parameters) extends RawModule {
   val pf_glitchless_mux = Module(new PolarFireGlitchlessMux)
   pf_clk_divider.io.CLK_IN  := pf_oscillator.io.RCOSC_160MHZ_GL
   pf_glitchless_mux.io.CLK0 := pf_clk_divider.io.CLK_OUT
-  pf_glitchless_mux.io.CLK1 := hart_clk_125
+  pf_glitchless_mux.io.CLK1 := pf_tx_pll.io.CLK_125
   pf_glitchless_mux.io.SEL  := pf_init_monitor.io.PCIE_INIT_DONE
   val pcie_tl_clk = pf_glitchless_mux.io.CLK_OUT
 }

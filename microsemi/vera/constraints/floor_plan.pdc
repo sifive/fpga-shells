@@ -26,7 +26,9 @@
 #
 
 set_location -inst_name pf_xcvr_ref_clk/transceiver_refclk_0/I_IO -fixed true -x 2468 -y 236
-set_location -inst_name pf_tx_pll/transmit_pll_0/txpll_isnt_0 -fixed true -x 2466 -y 239
+set_location -inst_name pf_tx_pll/transmit_pll_0/txpll_isnt_0     -fixed true -x 2466 -y 239
 
-set_location -inst_name hart_clk_ccc/hart_clk_ccc_0/pll_inst_0 -fixed true -x 0 -y 5
-
+set_location -inst_name hart_clk_ccc/hart_clk_ccc_0/pll_inst_0                -fixed true -x 1 -y 377
+set_location -inst_name iofpga/chiplink_rx_dll/chiplink_rx_dll_0/dll_inst_0   -fixed true -x 3 -y 377
+set_location -inst_name iofpga/chiplink_rx_dll/chiplink_rx_dll_0/dll_inst_0_1 -fixed true -x 3 -y 376
+set_location -inst_name iofpga/chiplink_rx_dll/chiplink_rx_dll_0/dll_inst_0_2 -fixed true -x 4 -y 376

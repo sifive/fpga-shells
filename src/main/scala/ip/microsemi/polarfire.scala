@@ -22,3 +22,11 @@ class CLKINT() extends BlackBox
     val Y = Clock(OUTPUT)
   }
 }
+
+class ICB_CLKINT() extends BlackBox
+{
+  val io = new Bundle{
+    val A = Clock(INPUT)
+    val Y = Clock(OUTPUT)
+  }
+}
