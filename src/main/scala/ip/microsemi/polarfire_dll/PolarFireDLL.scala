@@ -34,7 +34,7 @@ open_smartdesign -design {""" ++ modulename ++"""}
 configure_design -component {""" ++ modulename ++"""} -library {} 
 configure_vlnv_instance -component {""" ++ modulename ++"""} -library {} -name {""" ++ modulename ++"""_0} \
     -params {"DLL_ONLY_EN:true" \
-             "DLL_IN:100" \
+             "DLL_IN:125" \
              "DLL_MODE:INJECTION_REM_MODE" \
              "DLL_CLK_0_FABCLK_EN:true" \
             } -validate_rules 0 
