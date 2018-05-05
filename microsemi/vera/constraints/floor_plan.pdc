@@ -31,10 +31,19 @@ set_location -inst_name pf_tx_pll/transmit_pll_0/txpll_isnt_0     -fixed true -x
 set_location -inst_name pf_glitchless_mux/pf_glitchless_mux_0/I_NGMUX_1 -fixed true -x 2466 -y 163
 set_location -inst_name pf_glitchless_mux/pf_glitchless_mux_0/I_NGMUX   -fixed true -x 2465 -y 163
 
-set_location -inst_name hart_clk_ccc/hart_clk_ccc_0/pll_inst_0              -fixed true -x 1 -y 377
+# Had to move hart_clk_ccc to allow back to back DLLs in NW corner
+#set_location -inst_name hart_clk_ccc/hart_clk_ccc_0/pll_inst_0              -fixed true -x 1 -y 377
+set_location -inst_name hart_clk_ccc/hart_clk_ccc_0/pll_inst_0 -fixed true -x 0 -y 5
+
+
 set_location -inst_name iofpga/chiplink_rx_pll/chiplink_rx_pll_0/pll_inst_0 -fixed true -x 0 -y 377
 
 # Old DLL placement
-#set_location -inst_name iofpga/chiplink_rx_dll/chiplink_rx_dll_0/dll_inst_0   -fixed true -x 3 -y 377
-#set_location -inst_name iofpga/chiplink_rx_dll/chiplink_rx_dll_0/dll_inst_0_1 -fixed true -x 3 -y 376
-#set_location -inst_name iofpga/chiplink_rx_dll/chiplink_rx_dll_0/dll_inst_0_2 -fixed true -x 4 -y 376
+set_location -inst_name iofpga/chiplink_rx_dll/chiplink_rx_dll_0/dll_inst_0   -fixed true -x 3 -y 377
+set_location -inst_name iofpga/chiplink_rx_dll/chiplink_rx_dll_0/dll_inst_0_1 -fixed true -x 3 -y 376
+set_location -inst_name iofpga/chiplink_rx_dll/chiplink_rx_dll_0/dll_inst_0_2 -fixed true -x 4 -y 376
+
+# Chiplink Rx phase generation DLL
+set_location -inst_name iofpga/chiplink_rx_dll_phase/chiplink_rx_dll_phase_insertion_0/dll_inst_0_1 -fixed true -x 0 -y 376
+set_location -inst_name iofpga/chiplink_rx_dll_phase/chiplink_rx_dll_phase_insertion_0/dll_inst_0 -fixed true -x 2 -y 377
+

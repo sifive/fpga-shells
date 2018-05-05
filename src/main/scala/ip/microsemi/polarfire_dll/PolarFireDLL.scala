@@ -43,4 +43,42 @@ open_smartdesign -design {""" ++ modulename ++"""}
 configure_design -component {""" ++ modulename ++"""} -library {}"""
   )
 }
+
+
+
+
+class PolarFireDLLPhaseGenIOPads extends Bundle {
+
+    val DLL_REF_CLK      = Clock(INPUT)
+    val DLL_CLK_0_FABCLK = Clock(OUTPUT)
+    val DLL_LOCK         = Bool(OUTPUT)
+}
+
+class PolarFireDLLPhaseGen(name: String)(implicit val p:Parameters) extends BlackBox
+{
+  val modulename = name
+  override def desiredName = name
+
+  val io = new PolarFireDLLPhaseGenIOPads
+  
+  ElaborationArtefacts.add(
+    "AddIPInstance." ++ modulename ++".libero.tcl",
+    """ 
+create_design -id Actel:SgCore:PF_CCC:1.0.112 -design_name {""" ++ modulename ++"""} -config_file {} -params {} -inhibit_configurator 0
+open_smartdesign -design {""" ++ modulename ++"""}
+configure_design -component {""" ++ modulename ++"""} -library {} 
+configure_vlnv_instance -component {""" ++ modulename ++"""} -library {} -name {""" ++ modulename ++"""_0} \
+    -params {"DLL_ONLY_EN:true" \
+             "DLL_IN:125" \
+             "DLL_MODE:PHASE_GEN_MODE" \
+             "DLL_PRIM_PHASE:90" \
+             "DLL_CLK_0_FABCLK_EN:true" \
+            } -validate_rules 0 
+fix_vlnv_instance -component {""" ++ modulename ++"""} -library {} -name {""" ++ modulename ++"""_0} 
+open_smartdesign -design {""" ++ modulename ++"""}
+configure_design -component {""" ++ modulename ++"""} -library {}"""
+  )
+}
+
+
 //scalastyle:on
