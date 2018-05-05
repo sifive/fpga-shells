@@ -500,7 +500,7 @@ abstract class PolarFireEvalKitShell(implicit val p: Parameters) extends RawModu
                                                                     gl0_0_out_freq = 111.111)))
   
   ddr3_clk_ccc.io.REF_CLK_0 := ref_clk0
-  val ddr3_clk_in = ddr3_clk_ccc.io.OUT0_FABCLK_0
+  val ddr3_clk_in = ddr3_clk_ccc.io.OUT0_FABCLK_0.get
   val ddr3_clk_in_lock = ddr3_clk_ccc.io.PLL_LOCK_0
   mig_clock_in := ddr3_clk_in
 
@@ -515,14 +515,14 @@ abstract class PolarFireEvalKitShell(implicit val p: Parameters) extends RawModu
                                                                     gl0_0_out_freq = 25.0,
                                                                     gl1_0_out_freq = 125.0,
                                                                     gl2_0_out_freq = 150.0)))
-  val hart_clk = hart_clk_ccc.io.OUT0_FABCLK_0
-  val hart_clk_125 = hart_clk_ccc.io.OUT1_FABCLK_0
-  val hart_clk_150 = hart_clk_ccc.io.OUT2_FABCLK_0
+  val hart_clk_25   = hart_clk_ccc.io.OUT0_FABCLK_0.get
+  val hart_clk_125  = hart_clk_ccc.io.OUT1_FABCLK_0.get
+  val hart_clk_150  = hart_clk_ccc.io.OUT2_FABCLK_0.get
   val hart_clk_lock = hart_clk_ccc.io.PLL_LOCK_0
   
   // DUT clock
   hart_clk_ccc.io.REF_CLK_0 := mig_clock_out
-  dut_clock := hart_clk
+  dut_clock := hart_clk_25
 
 //  debug_io1 := dut_clock
 //  debug_io2 := hart_clk_lock

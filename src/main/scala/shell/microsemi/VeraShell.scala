@@ -77,10 +77,10 @@ trait HasPCIe { this: VeraShell =>
 
   def connectPCIe(dut: HasSystemPolarFireEvalKitPCIeX4ModuleImp): Unit = {
     // Clock & Reset
-    dut.pf_eval_kit_pcie.APB_S_PCLK     := hart_clk
+    dut.pf_eval_kit_pcie.APB_S_PCLK     := hart_clk_25
     dut.pf_eval_kit_pcie.APB_S_PRESET_N := UInt("b1")
     
-    dut.pf_eval_kit_pcie.AXI_CLK        := hart_clk_150
+    dut.pf_eval_kit_pcie.AXI_CLK        := hart_clk_125
     dut.pf_eval_kit_pcie.AXI_CLK_STABLE := hart_clk_lock
     
     dut.pf_eval_kit_pcie.PCIE_1_TL_CLK_125MHz   := pcie_tl_clk
@@ -210,25 +210,28 @@ abstract class VeraShell(implicit val p: Parameters) extends RawModule {
   // Coreplex Clock Generator
   //-----------------------------------------------------------------------
   val ref_clk_int = Module(new CLKINT)
-  val hart_clk_ccc = Module(new PolarFireCCC(PolarFireCCCParameters(name = "hart_clk_ccc",
-                                                                    pll_in_freq = 50.0,
-                                                                    gl0Enabled = true,
-                                                                    gl1Enabled = true,
-                                                                    gl2Enabled = true,
-                                                                    gl0_0_out_freq = 25.0,
-                                                                    gl1_0_out_freq = 125.0,
-                                                                    gl2_0_out_freq = 150.0)))
-  val hart_clk = hart_clk_ccc.io.OUT0_FABCLK_0
-  val hart_clk_125 = hart_clk_ccc.io.OUT1_FABCLK_0
-  val hart_clk_150 = hart_clk_ccc.io.OUT2_FABCLK_0
-  val hart_clk_lock = hart_clk_ccc.io.PLL_LOCK_0
+  val hart_clk_ccc = Module(new PolarFireCCC(PolarFireCCCParameters(
+    name            = "hart_clk_ccc",
+    pll_in_freq     = 50.0,
+    gl0Enabled      = true,
+    gl1Enabled      = true,
+    gl2Enabled      = true,
+    gl0_0_out_freq  = 25.0,
+    gl1_0_out_freq  = 125.0,
+    gl2_0_out_freq  = 125.0,
+    gl2_0_pll_phase = 211.5)))
+
+  val hart_clk_25     = hart_clk_ccc.io.OUT0_FABCLK_0.get
+  val hart_clk_125    = hart_clk_ccc.io.OUT1_FABCLK_0.get
+  val hart_clk_125_tx = hart_clk_ccc.io.OUT2_FABCLK_0.get
+  val hart_clk_lock   = hart_clk_ccc.io.PLL_LOCK_0
   
   ref_clk_int.io.A := ref_clk0
   hart_clk_ccc.io.REF_CLK_0 := ref_clk_int.io.Y
   
   // DUT clock
-  dut_clock := hart_clk
-  
+  dut_clock := hart_clk_25
+
   //-----------------------------------------------------------------------
   // System reset
   //-----------------------------------------------------------------------
