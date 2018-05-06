@@ -23,9 +23,9 @@ set_clock_groups -asynchronous \
 #   min = hold           = -1.2 - 0.6
 #   max = period - setup =  0.8 + 0.6
 # We add a full period because RX clock insertion adds more than a full  period of delay
-set_input_delay -min 6.2 -clock {chiplink_b2c_clk} [ get_ports { chiplink_b2c_data* chiplink_b2c_rst chiplink_b2c_send } ]
-set_input_delay -max 9.4 -clock {chiplink_b2c_clk} [ get_ports { chiplink_b2c_data* chiplink_b2c_rst chiplink_b2c_send } ]
-# phase = 12.0 -> 0.62ns setup slack, 1.5ns hold slack
+# Due to what is most likely a bug in Libero, we measured we need an additional 5ns shift
+set_input_delay -min 11.2 -clock {chiplink_b2c_clk} [ get_ports { chiplink_b2c_data* chiplink_b2c_rst chiplink_b2c_send } ]
+set_input_delay -max 14.4 -clock {chiplink_b2c_clk} [ get_ports { chiplink_b2c_data* chiplink_b2c_rst chiplink_b2c_send } ]
 
 # TX side: want to transition almost anywhere except on the rising edge of the clock
 # The data signals going to Aloe must have: clock - 1.85 <= NO transition <= clock + 0.65

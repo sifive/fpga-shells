@@ -21,7 +21,8 @@ puts "group_pci: $group_pci"
 puts "group_cl:  $group_cl"
 
 set groups [list]
-if { [llength $group_mem] > 0 } { lappend groups -group $group_mem }if { [llength $group_sys] > 0 } { lappend groups -group $group_sys }
+if { [llength $group_mem] > 0 } { lappend groups -group $group_mem }
+if { [llength $group_sys] > 0 } { lappend groups -group $group_sys }
 if { [llength $group_pci] > 0 } { lappend groups -group $group_pci }
 if { [llength $group_cl]  > 0 } { lappend groups -group $group_cl }
 
