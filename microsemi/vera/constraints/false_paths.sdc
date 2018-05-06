@@ -17,25 +17,21 @@ set_clock_groups -asynchronous \
 	-group [ get_clocks { osc_rc160mhz } ] \
 	-group [ get_clocks { ref_clk_pad_p } ]
 
-# Old DLL clock:
-#	                      iofpga/chiplink_rx_dll/chiplink_rx_dll_0/dll_inst_0/CLK_0 } ] \
-
 # RX side: want to latch almost anywhere except on the rising edge of the clock
 # The data signals coming from Aloe have: clock - 1.2 <= transition <= clock + 0.8
 # Let's add 0.6ns of safety for trace jitter+skew on both sides:
-#   min = period - 1.8
-#   max = period + 1.4
+#   min = hold           = -1.2 - 0.6
+#   max = period - setup =  0.8 + 0.6
+# We add a full period because RX clock insertion adds more than a full  period of delay
 set_input_delay -min 6.2 -clock {chiplink_b2c_clk} [ get_ports { chiplink_b2c_data* chiplink_b2c_rst chiplink_b2c_send } ]
 set_input_delay -max 9.4 -clock {chiplink_b2c_clk} [ get_ports { chiplink_b2c_data* chiplink_b2c_rst chiplink_b2c_send } ]
-# phase=180 -> 3.8ns setup, -3.5ns hold .... 3.65ns => -164.25 degree
-# phase=12  ->
+# phase = 12.0 -> 0.62ns setup slack, 1.5ns hold slack
 
 # TX side: want to transition almost anywhere except on the rising edge of the clock
 # The data signals going to Aloe must have: clock - 1.85 <= NO transition <= clock + 0.65
-# Let's add 1ns of safey for trace jitter+skew on both sides:
-#   min =          2.85
-#   max = period - 1.65
-set_output_delay -min 2.85 -clock {chiplink_c2b_clk} [ get_ports { chiplink_c2b_data* chiplink_c2b_rst chiplink_c2b_send } ]
-set_output_delay -max 6.35 -clock {chiplink_c2b_clk} [ get_ports { chiplink_c2b_data* chiplink_c2b_rst chiplink_c2b_send } ]
-# phase 180   -> -0.30ns setup, 1.10ns hold ... 0.7ns => +31.5 degrees
-# phase 211.5 ->  0.45ns setup, 0.42ns hold
+# Let's add 0.6ns of safey for trace jitter+skew on both sides:
+#   min = -hold = -0.65 - 0.6
+#   max = setup =  1.85 + 0.6
+set_output_delay -min -1.25 -clock {chiplink_c2b_clk} [ get_ports { chiplink_c2b_data* chiplink_c2b_rst chiplink_c2b_send } ]
+set_output_delay -max  2.45 -clock {chiplink_c2b_clk} [ get_ports { chiplink_c2b_data* chiplink_c2b_rst chiplink_c2b_send } ]
+# phase = 31.5 -> 0.55ns setup slack, 0.45ns hold slack

@@ -219,7 +219,7 @@ abstract class VeraShell(implicit val p: Parameters) extends RawModule {
     gl0_0_out_freq  = 25.0,
     gl1_0_out_freq  = 125.0,
     gl2_0_out_freq  = 125.0,
-    gl2_0_pll_phase = 211.5)))
+    gl2_0_pll_phase = 31.5)))
 
   val hart_clk_25     = hart_clk_ccc.io.OUT0_FABCLK_0.get
   val hart_clk_125    = hart_clk_ccc.io.OUT1_FABCLK_0.get
