@@ -43,13 +43,9 @@ class PolarFireEvalKitPCIeX4(implicit p: Parameters) extends LazyModule with Has
       := AXI4IdIndexer(idBits=4)
       := TLToAXI4(adapterName = Some("pcie-slave")))
 
-  val APBScope = LazyModule(new SimpleLazyModule with LazyScope)
   val control: TLInwardNode =
-    (APBScope {
-       (axi_to_pcie.control
-         := TLToAPB(false)
-         := TLAsyncCrossingSink(1)) }
-      := TLAsyncCrossingSource()
+    (axi_to_pcie.control
+      := TLToAPB(false)
       := TLBuffer()
       := TLFragmenter(4, p(CacheBlockBytes)))
 
@@ -73,8 +69,6 @@ class PolarFireEvalKitPCIeX4(implicit p: Parameters) extends LazyModule with Has
     })
 
     io.port <> axi_to_pcie.module.io.port
-    APBScope.module.clock := io.port.APB_S_PCLK
-    APBScope.module.reset := ResetCatchAndSync(io.port.APB_S_PCLK, reset)
     TLScope.module.clock := io.port.PCIE_1_TL_CLK_125MHz
     TLScope.module.reset := ResetCatchAndSync(io.port.PCIE_1_TL_CLK_125MHz, reset)
   }
