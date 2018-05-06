@@ -142,7 +142,14 @@ abstract class VeraShell(implicit val p: Parameters) extends RawModule {
   val led5                   = IO(Output(Bool()))
   
   // PCIe switch reset
-  val pf_rstb                = IO(Output(Bool()))
+  val pf_rstb              = IO(Output(Bool()))
+  
+  // PCIe slots reset signals
+  val perst_x1_slot        = IO(Output(Bool()))
+  val perst_x16_slot       = IO(Output(Bool()))
+  val perst_m2_slot        = IO(Output(Bool()))
+  val perst_sata_slot      = IO(Output(Bool()))
+
   
   // debug
   val debug_io0            = IO(Output(Clock()))
@@ -179,6 +186,9 @@ abstract class VeraShell(implicit val p: Parameters) extends RawModule {
   val mig_clock_in    = Wire(Clock())
   val mig_clock_out   = Wire(Clock())
   val mig_plllock_out = Wire(Bool())
+  
+  val ddr_ready       = Wire(Bool())
+  val ddr_pll_lock    = Wire(Bool())
 
   val pcie_dat_reset  = Wire(Bool())
   val pcie_dat_resetn = Wire(Bool())
@@ -247,7 +257,7 @@ abstract class VeraShell(implicit val p: Parameters) extends RawModule {
   pf_reset.io.SS_BUSY       := UInt("b0")
   pf_reset.io.FF_US_RESTORE := UInt("b0")
   
-  fpga_reset    := !pf_reset.io.FABRIC_RESET_N
+  fpga_reset    := !pf_reset.io.FABRIC_RESET_N & ddr_ready & ddr_pll_lock
   sys_reset_n   := pf_reset.io.FABRIC_RESET_N
 
   mig_resetn           := !mig_reset

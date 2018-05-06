@@ -14,7 +14,8 @@ set_clock_groups -asynchronous \
 	                      hart_clk_ccc/hart_clk_ccc_0/pll_inst_0/OUT2 \
 	                      chiplink_c2b_clk } ] \
 	-group [ get_clocks { osc_rc160mhz } ] \
-	-group [ get_clocks { ref_clk_pad_p } ]
+	-group [ get_clocks { ref_clk_pad_p } ] \
+	-group [ get_clocks { iofpga/pf_ddr4/island/blackbox/CCC_0/pll_inst_0/OUT1 } ]
 
 # RX side: want to latch almost anywhere except on the rising edge of the clock
 # The data signals coming from Aloe have: clock - 1.2 <= transition <= clock + 0.8
@@ -34,3 +35,15 @@ set_input_delay -max 14.4 -clock {chiplink_b2c_clk} [ get_ports { chiplink_b2c_d
 set_output_delay -min -1.25 -clock {chiplink_c2b_clk} [ get_ports { chiplink_c2b_data* chiplink_c2b_rst chiplink_c2b_send } ]
 set_output_delay -max  2.45 -clock {chiplink_c2b_clk} [ get_ports { chiplink_c2b_data* chiplink_c2b_rst chiplink_c2b_send } ]
 # phase = 31.5 -> 0.55ns setup slack, 0.45ns hold slack
+
+
+# DDR4 multicycle paths
+set_multicycle_path -setup_only 2 -from [ get_cells { iofpga/pf_ddr4/island/blackbox/*/*al_selec* } ]           -to [ get_clocks { iofpga/pf_ddr4/island/blackbox/CCC_0/pll_inst_0/OUT1 } ]
+set_multicycle_path -setup_only 2 -from [ get_cells { iofpga/pf_ddr4/island/blackbox/*/*cal_select* } ]         -to [ get_clocks { iofpga/pf_ddr4/island/blackbox/CCC_0/pll_inst_0/OUT1 } ]
+set_multicycle_path -setup_only 2 -from [ get_cells { iofpga/pf_ddr4/island/blackbox/*/*al_init_mr_add* } ]     -to [ get_clocks { iofpga/pf_ddr4/island/blackbox/CCC_0/pll_inst_0/OUT1 } ]
+set_multicycle_path -setup_only 2 -from [ get_cells { iofpga/pf_ddr4/island/blackbox/*/*cal_init_mr_addr* } ]   -to [ get_clocks { iofpga/pf_ddr4/island/blackbox/CCC_0/pll_inst_0/OUT1 } ]
+set_multicycle_path -setup_only 2 -from [ get_cells { iofpga/pf_ddr4/island/blackbox/*/*al_init_cs_* } ]        -to [ get_clocks { iofpga/pf_ddr4/island/blackbox/CCC_0/pll_inst_0/OUT1 } ]
+set_multicycle_path -setup_only 2 -from [ get_cells { iofpga/pf_ddr4/island/blackbox/*/*cal_init_cs_i* } ]      -to [ get_clocks { iofpga/pf_ddr4/island/blackbox/CCC_0/pll_inst_0/OUT1 } ]
+
+set_multicycle_path -setup_only 2 -from [ get_pins { iofpga/pf_ddr4/island/blackbox/DDRPHY_BLK_0/IOD_TRAINING_0/COREDDR_TIP_INT_U/reset_n_int*/CLK } ] \
+                                                                                                                -to [ get_clocks { iofpga/pf_ddr4/island/blackbox/CCC_0/pll_inst_0/OUT1 } ]
