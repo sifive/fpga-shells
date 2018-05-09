@@ -103,7 +103,7 @@ trait HasDebugJTAG { this: VC707Shell =>
            set_property -dict { PACKAGE_PIN AR38  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TMS}]
            set_property -dict { PACKAGE_PIN AR39  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDI}]
            set_property -dict { PACKAGE_PIN AT40  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDO}]
-           create_clock -add -name jtag_TCK        -period 100   -waveform {0 50} [get_ports {jtag_TCK}];"""
+           create_clock -add -name JTCK        -period 100   -waveform {0 50} [get_ports {jtag_TCK}];"""
       )
     }
    
