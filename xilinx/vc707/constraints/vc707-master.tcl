@@ -23,7 +23,7 @@ if { [llength $group_mem]    > 0 } { lappend groups -group $group_mem }
 if { [llength $group_sys]    > 0 } { lappend groups -group $group_sys }
 if { [llength $group_pci]    > 0 } { lappend groups -group $group_pci }
 if { [llength $group_cl]     > 0 } { lappend groups -group $group_cl }
-if { [llength $group_cjtag]  > 0 } { lappend groups -group $group_jtag }
+if { [llength $group_jtag]   > 0 } { lappend groups -group $group_jtag }
 
 puts "set_clock_groups -asynchronous $groups"
 set_clock_groups -asynchronous {*}$groups
