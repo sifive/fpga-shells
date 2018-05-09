@@ -75,7 +75,7 @@ trait HasDebugJTAG { this: VC707Shell =>
       //VC707 constraints for Xilinx FMC XM105 Debug Card
       ElaborationArtefacts.add(
         """vc707debugjtag.xdc""",
-        """set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets jtag_TCK_IBUF]
+        """set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets jtag_TCK]
            set_property -dict { PACKAGE_PIN R32  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TCK}]
            set_property -dict { PACKAGE_PIN W36  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TMS}]
            set_property -dict { PACKAGE_PIN W37  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDI}]
@@ -98,7 +98,7 @@ trait HasDebugJTAG { this: VC707Shell =>
            #15          TSRST_N         10      LCD_RW        AR42
            #2           VREF            14      5V
            #18          GND             13      GND
-           set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets jtag_TCK_IBUF]
+           set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets jtag_TCK]
            set_property -dict { PACKAGE_PIN AT42  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TCK}]
            set_property -dict { PACKAGE_PIN AR38  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TMS}]
            set_property -dict { PACKAGE_PIN AR39  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDI}]
