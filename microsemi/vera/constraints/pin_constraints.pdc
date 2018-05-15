@@ -1,0 +1,1059 @@
+# Microsemi I/O Physical Design Constraints file
+
+# User I/O Constraints file 
+
+# Version: PolarFire v2.0 12.200.0.20
+
+# Family: PolarFire , Die: MPF300TS_ES , Package: FCG1152
+
+# Date generated: Wed Mar 28 18:43:15 2018 
+
+
+# 
+# User Locked I/O Bank Settings
+# 
+
+set_iobank -bank_name Bank0  \
+    -vcci 1.80               \
+    -fixed true
+
+set_iobank -bank_name Bank1  \
+    -vcci 1.20               \
+    -fixed true
+
+set_iobank -bank_name Bank2  \
+    -vcci 3.30               \
+    -fixed true
+
+set_iobank -bank_name Bank4  \
+    -vcci 1.80               \
+    -fixed true
+
+set_iobank -bank_name Bank5  \
+    -vcci 3.30               \
+    -fixed true
+
+set_iobank -bank_name Bank6  \
+    -vcci 1.80               \
+    -fixed true
+
+set_iobank -bank_name Bank7  \
+    -vcci 1.80               \
+    -fixed true
+
+
+# 
+# Unlocked I/O Bank Settings
+# The I/O Bank Settings can be locked by directly editing this file
+# or by making changes in the I/O Attribute Editor
+# 
+
+
+# 
+# User Locked I/O settings
+# 
+
+#set_io -port_name PCIE_0_INTERRUPT_OUT  \
+#    -pin_name AN17                      \
+#    -fixed true                         \
+#    -DIRECTION OUTPUT
+
+
+#set_io -port_name {PCIE_0_LTSSM[0]}  \
+#    -pin_name AD14                   \
+#    -fixed true                      \
+#    -DIRECTION OUTPUT
+
+
+#set_io -port_name {PCIE_0_LTSSM[1]}  \
+#    -pin_name AJ9                    \
+#    -fixed true                      \
+#    -DIRECTION OUTPUT
+
+
+#set_io -port_name {PCIE_0_LTSSM[2]}  \
+#    -pin_name AK8                    \
+#    -fixed true                      \
+#    -DIRECTION OUTPUT
+
+
+#set_io -port_name {PCIE_0_LTSSM[3]}  \
+#    -pin_name AL18                   \
+#    -fixed true                      \
+#    -DIRECTION OUTPUT
+
+
+#set_io -port_name {PCIE_0_LTSSM[4]}  \
+#    -pin_name AM17                   \
+#    -fixed true                      \
+#    -DIRECTION OUTPUT
+
+
+#set_io -port_name ref_clk0  \
+#    -pin_name AG4            \
+#    -fixed true              \
+#    -DIRECTION INPUT
+
+set_io -port_name ereset_n  \
+    -pin_name U5            \
+    -fixed true             \
+    -DIRECTION INPUT
+
+
+
+#set_io -port_name pf_user_reset_n  \
+#    -pin_name AK18         \
+#    -fixed true            \
+#    -DIRECTION INPUT
+
+set_io -port_name chiplink_b2c_clk  \
+    -pin_name U10             \
+    -fixed true               \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[0]}  \
+    -pin_name V13                   \
+    -fixed true                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[1]}  \
+    -pin_name W13                   \
+    -fixed true                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[2]}  \
+    -pin_name T5                    \
+    -fixed true                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[3]}  \
+    -pin_name T4                    \
+    -fixed true                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[4]}  \
+    -pin_name V14                   \
+    -fixed true                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[5]}  \
+    -pin_name W14                   \
+    -fixed true                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[6]}  \
+    -pin_name R3                    \
+    -fixed true                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[7]}  \
+    -pin_name R2                    \
+    -fixed true                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[8]}  \
+    -pin_name W6                    \
+    -fixed true                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[9]}  \
+    -pin_name Y6                    \
+    -fixed true                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[10]}  \
+    -pin_name U2                     \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[11]}  \
+    -pin_name U1                     \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[12]}  \
+    -pin_name T3                     \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[13]}  \
+    -pin_name T2                     \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[14]}  \
+    -pin_name W1                     \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[15]}  \
+    -pin_name Y1                     \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[16]}  \
+    -pin_name V3                     \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[17]}  \
+    -pin_name V4                     \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[18]}  \
+    -pin_name AA4                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[19]}  \
+    -pin_name AA5                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[20]}  \
+    -pin_name V1                     \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[21]}  \
+    -pin_name V2                     \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[22]}  \
+    -pin_name Y3                     \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[23]}  \
+    -pin_name Y2                     \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[24]}  \
+    -pin_name W4                     \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[25]}  \
+    -pin_name W3                     \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[26]}  \
+    -pin_name AA3                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[27]}  \
+    -pin_name AA2                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[28]}  \
+    -pin_name Y7                     \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[29]}  \
+    -pin_name AA7                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[30]}  \
+    -pin_name AB2                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name {chiplink_b2c_data[31]}  \
+    -pin_name AB1                    \
+    -fixed true                      \
+    -DIRECTION INPUT
+
+
+set_io -port_name chiplink_b2c_rst  \
+    -pin_name AC8             \
+    -fixed true               \
+    -DIRECTION INPUT
+
+
+set_io -port_name chiplink_b2c_send  \
+    -pin_name U9               \
+    -fixed true                \
+    -DIRECTION INPUT
+
+
+set_io -port_name chiplink_c2b_clk  \
+    -pin_name T9              \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[0]}  \
+    -pin_name AB9                   \
+    -fixed true                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[1]}  \
+    -pin_name AA8                   \
+    -fixed true                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[2]}  \
+    -pin_name AB5                   \
+    -fixed true                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[3]}  \
+    -pin_name AC4                   \
+    -fixed true                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[4]}  \
+    -pin_name AC1                   \
+    -fixed true                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[5]}  \
+    -pin_name AD1                   \
+    -fixed true                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[6]}  \
+    -pin_name AB4                   \
+    -fixed true                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[7]}  \
+    -pin_name AC3                   \
+    -fixed true                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[8]}  \
+    -pin_name W10                   \
+    -fixed true                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[9]}  \
+    -pin_name Y10                   \
+    -fixed true                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[10]}  \
+    -pin_name AB7                    \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[11]}  \
+    -pin_name AB6                    \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[12]}  \
+    -pin_name W8                     \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[13]}  \
+    -pin_name Y8                     \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[14]}  \
+    -pin_name Y12                    \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[15]}  \
+    -pin_name Y13                    \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[16]}  \
+    -pin_name AA10                   \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[17]}  \
+    -pin_name AA9                    \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[18]}  \
+    -pin_name W11                    \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[19]}  \
+    -pin_name Y11                    \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[20]}  \
+    -pin_name AC7                    \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[21]}  \
+    -pin_name AC6                    \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[22]}  \
+    -pin_name AA14                   \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[23]}  \
+    -pin_name AA13                   \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[24]}  \
+    -pin_name AB11                   \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[25]}  \
+    -pin_name AB10                   \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[26]}  \
+    -pin_name AB14                   \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[27]}  \
+    -pin_name AC13                   \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[28]}  \
+    -pin_name AC11                   \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[29]}  \
+    -pin_name AC12                   \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[30]}  \
+    -pin_name AB12                   \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {chiplink_c2b_data[31]}  \
+    -pin_name AA12                   \
+    -fixed true                      \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name chiplink_c2b_rst  \
+    -pin_name AD5             \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name chiplink_c2b_send  \
+    -pin_name AD3              \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+set_io -port_name debug_io0  \
+    -pin_name AK8            \
+    -fixed true              \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name debug_io1  \
+    -pin_name AJ9            \
+    -fixed true              \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name debug_io2  \
+    -pin_name AD14           \
+    -fixed true              \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name debug_io3  \
+    -pin_name AD11           \
+    -fixed true              \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name debug_io4  \
+    -pin_name AD10           \
+    -fixed true              \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name debug_io5  \
+    -pin_name AE11           \
+    -fixed true              \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name led2  \
+    -pin_name AK17      \
+    -fixed true         \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name led3  \
+    -pin_name AN17      \
+    -fixed true         \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name led4  \
+    -pin_name AM17      \
+    -fixed true         \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name led5  \
+    -pin_name AL17      \
+    -fixed true         \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name pf_rstb  \
+    -pin_name AG15         \
+    -fixed true            \
+    -DIRECTION OUTPUT
+
+set_io -port_name perst_x1_slot  \
+    -pin_name B4           \
+    -fixed true            \
+    -io_std LVCMOS33             \
+    -DIRECTION OUTPUT
+
+set_io -port_name perst_x16_slot  \
+    -pin_name A4           \
+    -fixed true            \
+    -io_std LVCMOS33             \
+    -DIRECTION OUTPUT
+
+set_io -port_name perst_m2_slot  \
+    -pin_name B5           \
+    -fixed true            \
+    -io_std LVCMOS33             \
+    -DIRECTION OUTPUT
+
+set_io -port_name perst_sata_slot  \
+    -pin_name A5           \
+    -fixed true            \
+    -io_std LVCMOS33             \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ref_clk0  \
+    -pin_name AG4           \
+    -fixed true             \
+    -DIRECTION INPUT
+
+#set_io -port_name link_up  \
+#    -pin_name AK17         \
+#    -fixed true            \
+#    -DIRECTION OUTPUT
+
+
+#set_io -port_name pcie_switch_resetn_o  \
+#    -pin_name AG15                      \
+#    -fixed true                         \
+#    -DIRECTION OUTPUT
+
+
+
+# 
+# Dedicated Peripheral I/O Settings
+# 
+
+
+# 
+# Unlocked I/O settings
+# The I/Os in this section are unplaced or placed but are not locked
+# the other listed attributes have been applied
+# 
+
+
+#
+#Ports using Dedicated Pins
+
+#
+
+set_io -port_name pcie_PCIESS_LANE_RXD0_N  \
+    -pin_name V30                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_RXD0_P  \
+    -pin_name V29                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_RXD1_N  \
+    -pin_name W32                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_RXD1_P  \
+    -pin_name W31                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_RXD2_N  \
+    -pin_name Y30                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_RXD2_P  \
+    -pin_name Y29                     \
+    -DIRECTION INPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_RXD3_N  \
+    -pin_name AB30                    \
+    -DIRECTION INPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_RXD3_P  \
+    -pin_name AB29                    \
+    -DIRECTION INPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_TXD0_N  \
+    -pin_name V34                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_TXD0_P  \
+    -pin_name V33                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_TXD1_N  \
+    -pin_name Y34                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_TXD1_P  \
+    -pin_name Y33                     \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_TXD2_N  \
+    -pin_name AA32                    \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_TXD2_P  \
+    -pin_name AA31                    \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_TXD3_N  \
+    -pin_name AB34                    \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_TXD3_P  \
+    -pin_name AB33                    \
+    -DIRECTION OUTPUT
+
+
+
+#
+# DDR4
+#
+set_io -port_name {ddr_A[0]}  \
+    -pin_name AL27            \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[1]}  \
+    -pin_name AL26            \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[2]}  \
+    -pin_name AM27            \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[3]}  \
+    -pin_name AN27            \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[4]}  \
+    -pin_name AN26            \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[5]}  \
+    -pin_name AP25            \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[6]}  \
+    -pin_name AL25            \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[7]}  \
+    -pin_name AK25            \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[8]}  \
+    -pin_name AJ23            \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[9]}  \
+    -pin_name AH23            \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[10]}  \
+    -pin_name AJ25             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[11]}  \
+    -pin_name AJ24             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[12]}  \
+    -pin_name AL22             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[13]}  \
+    -pin_name AK23             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_BA[0]}  \
+    -pin_name AE25             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_BA[1]}  \
+    -pin_name AD23             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_BG[0]}  \
+    -pin_name AF25             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_BG[1]}  \
+    -pin_name AF24             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ddr_CAS_N  \
+    -pin_name AL23           \
+    -fixed true              \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ddr_CK0  \
+    -pin_name AP26         \
+    -fixed true            \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ddr_CK0_N  \
+    -pin_name AP27           \
+    -fixed true              \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ddr_CKE  \
+    -pin_name AF22         \
+    -fixed true            \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ddr_CS_N  \
+    -pin_name AE22          \
+    -fixed true             \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_DM_N[0]}  \
+    -pin_name AN23               \
+    -fixed true                  \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_DM_N[1]}  \
+    -pin_name AL20               \
+    -fixed true                  \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_DQS[0]}  \
+    -pin_name AP23              \
+    -fixed true                 \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQS[1]}  \
+    -pin_name AH22              \
+    -fixed true                 \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQS_N[0]}  \
+    -pin_name AP24                \
+    -fixed true                   \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQS_N[1]}  \
+    -pin_name AJ21                \
+    -fixed true                   \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[0]}  \
+    -pin_name AN22             \
+    -fixed true                \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[1]}  \
+    -pin_name AN21             \
+    -fixed true                \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[2]}  \
+    -pin_name AM24             \
+    -fixed true                \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[3]}  \
+    -pin_name AN24             \
+    -fixed true                \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[4]}  \
+    -pin_name AP21             \
+    -fixed true                \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[5]}  \
+    -pin_name AP20             \
+    -fixed true                \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[6]}  \
+    -pin_name AP19             \
+    -fixed true                \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[7]}  \
+    -pin_name AN19             \
+    -fixed true                \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[8]}  \
+    -pin_name AM21             \
+    -fixed true                \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[9]}  \
+    -pin_name AK22             \
+    -fixed true                \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[10]}  \
+    -pin_name AK21              \
+    -fixed true                 \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[11]}  \
+    -pin_name AK20              \
+    -fixed true                 \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[12]}  \
+    -pin_name AJ20              \
+    -fixed true                 \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[13]}  \
+    -pin_name AH21              \
+    -fixed true                 \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[14]}  \
+    -pin_name AG21              \
+    -fixed true                 \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[15]}  \
+    -pin_name AM19              \
+    -fixed true                 \
+    -DIRECTION INOUT
+
+
+set_io -port_name ddr_ODT  \
+    -pin_name AF23         \
+    -fixed true            \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ddr_RAS_N  \
+    -pin_name AD25           \
+    -fixed true              \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ddr_SHIELD0  \
+    -pin_name AM22             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ddr_SHIELD1  \
+    -pin_name AM20             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ddr_WE_N  \
+    -pin_name AL24          \
+    -fixed true             \
+    -DIRECTION OUTPUT
+
+set_io -port_name ddr_ACT_N  \
+    -pin_name AE23           \
+    -fixed true              \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ddr_RESET_N  \
+    -pin_name AG22             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+
+
+set_io -port_name REF_CLK_PAD_N  \
+    -pin_name W28                \
+    -DIRECTION INPUT
+
+
+set_io -port_name REF_CLK_PAD_P  \
+    -pin_name W27                \
+    -DIRECTION INPUT
+
+

@@ -1,0 +1,46 @@
+# Microsemi Physical design constraints file
+
+# Version: PolarFire v2.0 12.200.0.20
+
+# Design Name: U500PolarFireEvalKitFPGAChip 
+
+# Input Netlist Format: EDIF 
+
+# Family: PolarFire , Die: MPF300TS_ES , Package: FCG1152 , Speed grade: -1 
+
+# Date generated: Mon Jan  8 10:19:51 2018 
+
+
+#
+# Local clock constraints
+#
+
+
+#
+# Region constraints
+#
+
+
+#
+# Core cell constraints
+#
+
+set_location -inst_name pf_xcvr_ref_clk/transceiver_refclk_0/I_IO -fixed true -x 2468 -y 236
+set_location -inst_name pf_tx_pll/transmit_pll_0/txpll_isnt_0     -fixed true -x 2466 -y 239
+
+set_location -inst_name pf_glitchless_mux/pf_glitchless_mux_0/I_NGMUX_1 -fixed true -x 2466 -y 163
+set_location -inst_name pf_glitchless_mux/pf_glitchless_mux_0/I_NGMUX   -fixed true -x 2465 -y 163
+
+set_location -inst_name hart_clk_ccc/hart_clk_ccc_0/pll_inst_0              -fixed true -x 1 -y 377
+set_location -inst_name iofpga/chiplink_rx_pll/chiplink_rx_pll_0/pll_inst_0 -fixed true -x 0 -y 377
+
+set_location -inst_name iofpga/pf_ddr4/island/blackbox/CCC_0/pll_inst_0 -fixed true -x 2460 -y 377
+
+
+set_location -inst_name iofpga/pf_ddr4/island/blackbox/DDRPHY_BLK_0/IOD_BCLK_TRAINING/I_IOD_0 -fixed true -x 2388 -y 378
+set_location -inst_name iofpga/pf_ddr4/island/blackbox/DDRPHY_BLK_0/LANE_0_CTRL/I_LANECTRL -fixed true -x 1967 -y 378
+set_location -inst_name iofpga/pf_ddr4/island/blackbox/DDRPHY_BLK_0/LANE_0_IOD_READ_TRAINING/I_IOD_0 -fixed true -x 1956 -y 378
+set_location -inst_name iofpga/pf_ddr4/island/blackbox/DDRPHY_BLK_0/LANE_1_IOD_READ_TRAINING/I_IOD_0 -fixed true -x 1812 -y 378
+set_location -inst_name iofpga/pf_ddr4/island/blackbox/CCC_0/pll_inst_0 -fixed true -x 2460 -y 377
+set_location -inst_name iofpga/pf_ddr4/island/blackbox/DDRPHY_BLK_0/LANE_1_CTRL/I_LANECTRL -fixed true -x 1823 -y 378
+

@@ -1,0 +1,319 @@
+# Microsemi I/O Physical Design Constraints file
+
+# User I/O Constraints file 
+
+# Version: PolarFire v2.0 12.200.0.20
+
+# Family: PolarFire , Die: MPF300TS_ES , Package: FCG1152
+
+set_io -port_name {ddr_A[0]}  \
+    -pin_name AL27            \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[1]}  \
+    -pin_name AL26            \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[2]}  \
+    -pin_name AM27            \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[3]}  \
+    -pin_name AN27            \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[4]}  \
+    -pin_name AN26            \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[5]}  \
+    -pin_name AP25            \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[6]}  \
+    -pin_name AL25            \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[7]}  \
+    -pin_name AK25            \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[8]}  \
+    -pin_name AJ23            \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[9]}  \
+    -pin_name AH23            \
+    -fixed true               \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[10]}  \
+    -pin_name AJ25             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[11]}  \
+    -pin_name AJ24             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[12]}  \
+    -pin_name AL22             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[13]}  \
+    -pin_name AK23             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[14]}  \
+    -pin_name AL24             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_A[15]}  \
+    -pin_name AL23             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_BA[0]}  \
+    -pin_name AE25             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_BA[1]}  \
+    -pin_name AD23             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_BA[2]}  \
+    -pin_name AD25             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ddr_CAS_N  \
+    -pin_name AF25           \
+    -fixed true              \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ddr_CK0  \
+    -pin_name AP26         \
+    -fixed true            \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ddr_CK0_N  \
+    -pin_name AP27           \
+    -fixed true              \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ddr_CKE  \
+    -pin_name AF22         \
+    -fixed true            \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ddr_CS_N  \
+    -pin_name AE22          \
+    -fixed true             \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_DM[0]}  \
+    -pin_name AN23             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_DM[1]}  \
+    -pin_name AL20             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name {ddr_DQS[0]}  \
+    -pin_name AP23              \
+    -fixed true                 \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQS[1]}  \
+    -pin_name AH22              \
+    -fixed true                 \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQS_N[0]}  \
+    -pin_name AP24                \
+    -fixed true                   \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQS_N[1]}  \
+    -pin_name AJ21                \
+    -fixed true                   \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[0]}  \
+    -pin_name AN22             \
+    -fixed true                \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[1]}  \
+    -pin_name AN21             \
+    -fixed true                \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[2]}  \
+    -pin_name AM24             \
+    -fixed true                \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[3]}  \
+    -pin_name AN24             \
+    -fixed true                \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[4]}  \
+    -pin_name AP21             \
+    -fixed true                \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[5]}  \
+    -pin_name AP20             \
+    -fixed true                \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[6]}  \
+    -pin_name AP19             \
+    -fixed true                \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[7]}  \
+    -pin_name AN19             \
+    -fixed true                \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[8]}  \
+    -pin_name AM21             \
+    -fixed true                \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[9]}  \
+    -pin_name AK22             \
+    -fixed true                \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[10]}  \
+    -pin_name AK21              \
+    -fixed true                 \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[11]}  \
+    -pin_name AK20              \
+    -fixed true                 \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[12]}  \
+    -pin_name AJ20              \
+    -fixed true                 \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[13]}  \
+    -pin_name AH21              \
+    -fixed true                 \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[14]}  \
+    -pin_name AG21              \
+    -fixed true                 \
+    -DIRECTION INOUT
+
+
+set_io -port_name {ddr_DQ[15]}  \
+    -pin_name AM19              \
+    -fixed true                 \
+    -DIRECTION INOUT
+
+
+set_io -port_name ddr_ODT  \
+    -pin_name AF23         \
+    -fixed true            \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ddr_RAS_N  \
+    -pin_name AE23           \
+    -fixed true              \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ddr_RESET_N  \
+    -pin_name AG22             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ddr_SHIELD0  \
+    -pin_name AM22             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ddr_SHIELD1  \
+    -pin_name AM20             \
+    -fixed true                \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ddr_WE_N  \
+    -pin_name AF24          \
+    -fixed true             \
+    -DIRECTION OUTPUT
+

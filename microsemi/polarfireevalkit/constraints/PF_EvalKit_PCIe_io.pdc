@@ -1,0 +1,133 @@
+# Microsemi I/O Physical Design Constraints file
+
+# User I/O Constraints file 
+
+# Version: PolarFire v2.1 12.200.10.7
+
+# Family: PolarFire , Die: MPF300TS_ES , Package: FCG1152
+
+# Date generated: Fri Feb  9 16:31:44 2018 
+
+# 
+# User Locked I/O Bank Settings
+# 
+
+# 
+# Unlocked I/O Bank Settings
+# The I/O Bank Settings can be locked by directly editing this file
+# or by making changes in the I/O Attribute Editor
+# 
+
+# 
+# User Locked I/O settings
+# 
+
+
+
+# 
+# Dedicated Peripheral I/O Settings
+# 
+
+
+# 
+# Unlocked I/O settings
+# The I/Os in this section are unplaced or placed but are not locked
+# the other listed attributes have been applied
+# 
+
+
+#
+#Ports using Dedicated Pins
+
+#
+
+set_io -port_name pcie_PCIESS_LANE_RXD0_N  \
+    -pin_name V30                          \
+    -DIRECTION INPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_RXD0_P  \
+    -pin_name V29                          \
+    -DIRECTION INPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_RXD1_N  \
+    -pin_name W32                          \
+    -DIRECTION INPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_RXD1_P  \
+    -pin_name W31                          \
+    -DIRECTION INPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_RXD2_N  \
+    -pin_name Y30                          \
+    -DIRECTION INPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_RXD2_P  \
+    -pin_name Y29                          \
+    -DIRECTION INPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_RXD3_N  \
+    -pin_name AB30                         \
+    -DIRECTION INPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_RXD3_P  \
+    -pin_name AB29                         \
+    -DIRECTION INPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_TXD0_N  \
+    -pin_name V34                          \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_TXD0_P  \
+    -pin_name V33                          \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_TXD1_N  \
+    -pin_name Y34                          \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_TXD1_P  \
+    -pin_name Y33                          \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_TXD2_N  \
+    -pin_name AA32                         \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_TXD2_P  \
+    -pin_name AA31                         \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_TXD3_N  \
+    -pin_name AB34                         \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name pcie_PCIESS_LANE_TXD3_P  \
+    -pin_name AB33                         \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name ref_clk_pad_n  \
+    -pin_name W28                \
+    -DIRECTION INPUT
+
+
+set_io -port_name ref_clk_pad_p  \
+    -pin_name W27                \
+    -DIRECTION INPUT
+
+
