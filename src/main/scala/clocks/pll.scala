@@ -1,5 +1,5 @@
 // See LICENSE for license details.
-package sifive.fpgashells.ip.clocks
+package sifive.fpgashells.clocks
 
 import Chisel._
 import chisel3.core.{Input, Output, attach}
@@ -9,6 +9,12 @@ import chisel3.experimental.{Analog}
 //========================================================================
 // This file contains PLL parameters for Xilinx FPGAs
 //========================================================================
+case class InClockParameters(
+        freqMHz:  Double ,
+        freqPPM: Double = 10000, 
+        jitter: Double = 50, 
+        feedback:         Boolean = false
+        )
 
 case class OutClockParameters(
         freqMHz:      Double ,
@@ -20,16 +26,14 @@ case class OutClockParameters(
         phaseErrorDeg: Double = 0
         )
 
-case class InClockParameters(
-        freqMHz:  Double ,
-        freqPPM: Double = 10000, 
-        jitter: Double = 50, 
-        feedback:         Boolean = false
-        )
-
-
 case class PLLParameters( 
         name: String,
         input: InClockParameters,
         req: Seq[OutClockParameters]
         )
+
+trait PLL {
+  def getClocks: Seq[Clock]
+  def getLocked: Bool
+  def getClockNames: Seq[String]
+}

@@ -7,7 +7,7 @@ import chisel3.experimental.{Analog}
 import freechips.rocketchip.util.{ElaborationArtefacts}
 
 import sifive.blocks.devices.pinctrl.{BasePin}
-import sifive.fpgashells.ip.clocks._
+import sifive.fpgashells.clocks._
 
 //========================================================================
 // This file contains common devices used by our Xilinx FPGA flows and some
@@ -99,7 +99,7 @@ object PowerOnResetFPGAOnly {
 // vc707_sys_clock_mmcm
 //-------------------------------------------------------------------------
 //IP : xilinx mmcm with "NO_BUFFER" input clock
-
+/*
 class vc707_sys_clock_mmcm0 extends BlackBox {
   val io = new Bundle {
     val clk_in1   = Bool(INPUT)
@@ -163,7 +163,8 @@ class vc707_sys_clock_mmcm0 extends BlackBox {
     CONFIG.CLKOUT7_PHASE_ERROR {91.235}] [get_ips vc707_sys_clock_mmcm0] """
   )
 }
-
+*/
+/*
 class vc707_sys_clock_mmcm1 extends BlackBox {
   val io = new Bundle {
     val clk_in1   = Bool(INPUT)
@@ -210,14 +211,10 @@ class vc707_sys_clock_mmcm1 extends BlackBox {
     [get_ips vc707_sys_clock_mmcm1] """
   )
 }
+*/
 
-trait PLL {
-  def getClocks: Seq[Clock]
-  def getLocked: Bool
-  def getClockNames: Seq[String]
-}
 
-class vc707_sys_clock_mmcm2(c : PLLParameters) extends BlackBox with PLL {
+class Series7MMCM(c : PLLParameters) extends BlackBox with PLL {
   val io = new Bundle {
     val clk_in1   = Bool(INPUT)
     val clk_out1  = if (c.req.size >= 1) Some(Clock(OUTPUT)) else None
@@ -231,10 +228,14 @@ class vc707_sys_clock_mmcm2(c : PLLParameters) extends BlackBox with PLL {
     val locked    = Bool(OUTPUT)
   }
   
+  val moduleName = c.name
+  override def desiredName = c.name
+
   def getClocks = Seq() ++ io.clk_out1 ++ io.clk_out2 ++ 
                            io.clk_out3 ++ io.clk_out4 ++ 
                            io.clk_out5 ++ io.clk_out6 ++ 
                            io.clk_out7
+  
   def getLocked = io.locked
   def getClockNames = Seq.tabulate (c.req.size) { i =>
     s"${c.name}/inst/mmcm_adv_inst/CLKOUT${i}" 
@@ -243,35 +244,35 @@ class vc707_sys_clock_mmcm2(c : PLLParameters) extends BlackBox with PLL {
     var elaborateArtefactsString= "";
     var elaborateArtefactsString_temp= ""; //containg ctrl generate parameters
     for (i <- 0 until 7) {
-        elaborateArtefactsString_temp += (if (i < c.req.size) 
-                {s""" CONFIG.CLKOUT${(i+1).toString}_USED {true} 
-                    |""".stripMargin} 
-                else 
-                {s""" CONFIG.CLKOUT${(i+1).toString}_USED {false} 
-                    |""".stripMargin});
+      elaborateArtefactsString_temp += (if (i < c.req.size) 
+          {s""" CONFIG.CLKOUT${(i+1).toString}_USED {true} \\
+          |""".stripMargin} 
+          else 
+          {s""" CONFIG.CLKOUT${(i+1).toString}_USED {false} \\
+          |""".stripMargin});
     }
 
     for (i <- 0 until c.req.size) {
-        val freq = c.req(i).freqMHz.toString();
-        //val jitter = ((c.req(i).freqPPM/1E+6)*(1/(c.req(i).freqMHz*1E+6))).toInt.toString;
-        val phase =  c.req(i).phaseDeg.toString();
-        //val phaseError =  (c.req(i).phasePPM/1E+6)*c.req(i).phaseDeg).toString();
-        val jitter = c.req(i).jitter.toString();
-        val phaseError =  c.req(i).phaseErrorDeg.toString();
-        val dutyCycle =  c.req(i).dutyCycle.toString();
+      val freq = c.req(i).freqMHz.toString();
+      //val jitter = ((c.req(i).freqPPM/1E+6)*(1/(c.req(i).freqMHz*1E+6))).toInt.toString;
+      val phase =  c.req(i).phaseDeg.toString();
+      //val phaseError =  (c.req(i).phasePPM/1E+6)*c.req(i).phaseDeg).toString();
+      val jitter = c.req(i).jitter.toString();
+      val phaseError =  c.req(i).phaseErrorDeg.toString();
+      val dutyCycle =  c.req(i).dutyCycle.toString();
 
 
-        elaborateArtefactsString_temp += 
-          s""" CONFIG.CLKOUT${(i+1).toString}_REQUESTED_OUT_FREQ {${freq}} \\
-             | CONFIG.CLKOUT${(i+1).toString}_JITTER {${jitter}} \\
-             | CONFIG.CLKOUT${(i+1).toString}_REQUESTED_PHASE {${phase}} \\
-             | CONFIG.CLKOUT${(i+1).toString}_PHASE_ERROR {${phaseError}} \\
-             | CONFIG.CLKOUT${(i+1).toString}_REQUESTED_DUTY_CYCLE {${dutyCycle}} \\
-             |""".stripMargin
-        }
+      elaborateArtefactsString_temp += 
+        s""" CONFIG.CLKOUT${(i+1).toString}_REQUESTED_OUT_FREQ {${freq}} \\
+        | CONFIG.CLKOUT${(i+1).toString}_JITTER {${jitter}} \\
+        | CONFIG.CLKOUT${(i+1).toString}_REQUESTED_PHASE {${phase}} \\
+        | CONFIG.CLKOUT${(i+1).toString}_PHASE_ERROR {${phaseError}} \\
+        | CONFIG.CLKOUT${(i+1).toString}_REQUESTED_DUTY_CYCLE {${dutyCycle}} \\
+        |""".stripMargin
+    }
     elaborateArtefactsString += (
-         s"""create_ip -name clk_wiz -vendor xilinx.com -library ip -module_name \\
-            | vc707_sys_clock_mmcm2 -dir $$ipdir -force 
+        s"""create_ip -name clk_wiz -vendor xilinx.com -library ip -module_name \\
+        | ${moduleName} -dir $$ipdir -force 
             | set_property -dict [list \\
             | CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \\
             | CONFIG.PRIM_SOURCE {No_buffer} \\
@@ -279,15 +280,16 @@ class vc707_sys_clock_mmcm2(c : PLLParameters) extends BlackBox with PLL {
             | CONFIG.PRIM_IN_FREQ {${c.input.freqMHz.toString}} \\
             | CONFIG.CLKIN1_JITTER_PS {${c.input.jitter}} \\
             | ${elaborateArtefactsString_temp}
-            | ] [get_ips vc707_sys_clock_mmcm2]""").stripMargin;
+            | ] [get_ips ${moduleName}]""").stripMargin;
 
     //| CONFIG.CLKIN1_JITTER_PS {${1E+12*(c.input.freqPPM/1E+6)*(1/(c.input.freqMHz*1E+6))}} \\
 
   ElaborationArtefacts.add(
-    "vc707_sys_clock_mmcm2.vivado.tcl",
+    s"${moduleName}.vivado.tcl",
     elaborateArtefactsString);
     }
 
+/*
 class vc707_sys_clock_mmcm3 extends BlackBox {
   val io = new Bundle {
     val clk_in1   = Bool(INPUT)
@@ -317,6 +319,7 @@ class vc707_sys_clock_mmcm3 extends BlackBox {
     CONFIG.CLKOUT1_PHASE_ERROR {98.575}] [get_ips vc707_sys_clock_mmcm3] """
   )
 }
+*/
 
 //-------------------------------------------------------------------------
 // vc707reset
