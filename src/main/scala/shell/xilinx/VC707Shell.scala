@@ -18,7 +18,7 @@ import sifive.fpgashells.devices.xilinx.xilinxvc707mig._
 import sifive.fpgashells.devices.xilinx.xilinxvc707pciex1._
 import sifive.fpgashells.ip.xilinx.{IBUFDS, PowerOnResetFPGAOnly, sdio_spi_bridge, vc707_sys_clock_mmcm0, 
                                     vc707_sys_clock_mmcm1, vc707_sys_clock_mmcm2 , vc707reset}
-
+import sifive.fpgashells.ip.clocks._
 //-------------------------------------------------------------------------
 // VC707Shell
 //-------------------------------------------------------------------------
@@ -480,18 +480,31 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
   //-----------------------------------------------------------------------
 
   //25MHz and multiples
-  val vc707_sys_clock_mmcm0 = Module(new vc707_sys_clock_mmcm2)
+  val vc707_sys_clock_mmcm0 = Module(new vc707_sys_clock_mmcm2(PLLParameters(
+    "vc707_sys_clock_mmcm2",
+    InClockParameters(200, 50), 
+    Seq(
+      OutClockParameters(12.5, jitter=206.01, phaseErrorDeg=105.461),
+      OutClockParameters(25, jitter=180.172, phaseErrorDeg=105.461),
+      OutClockParameters(37.5, jitter=166.503, phaseErrorDeg=105.461),
+      OutClockParameters(50, jitter=157.99, phaseErrorDeg=105.461),
+      OutClockParameters(100, jitter=136.686, phaseErrorDeg=105.461),
+      OutClockParameters(150.00, jitter=126.399, phaseErrorDeg=105.461),
+      OutClockParameters(100, 180, jitter=206.01, phaseErrorDeg=136.686)))))
   vc707_sys_clock_mmcm0.io.clk_in1 := sys_clock.asUInt
   vc707_sys_clock_mmcm0.io.reset   := reset
-  val clk12_5              = vc707_sys_clock_mmcm0.io.clk_out1
-  val clk25                = vc707_sys_clock_mmcm0.io.clk_out2
-  val clk37_5              = vc707_sys_clock_mmcm0.io.clk_out3
-  val clk50                = vc707_sys_clock_mmcm0.io.clk_out4
-  val clk100               = vc707_sys_clock_mmcm0.io.clk_out5
-  val clk150               = vc707_sys_clock_mmcm0.io.clk_out6
-  val clk75                = vc707_sys_clock_mmcm0.io.clk_out7
-  val clk100_180           = vc707_sys_clock_mmcm0.io.clk_out7
+  /*
+  val clk12_5              = vc707_sys_clock_mmcm0.getClocks(0) // io.clk_out1.get
+  val clk25                = vc707_sys_clock_mmcm0.io.clk_out2.get
+  val clk37_5              = vc707_sys_clock_mmcm0.io.clk_out3.get
+  val clk50                = vc707_sys_clock_mmcm0.io.clk_out4.get
+  val clk100               = vc707_sys_clock_mmcm0.io.clk_out5.get
+  val clk150               = vc707_sys_clock_mmcm0.io.clk_out6.get
+  val clk75                = vc707_sys_clock_mmcm0.io.clk_out7.get
+  val clk100_180           = vc707_sys_clock_mmcm0.io.clk_out7.get
+  */
   val vc707_sys_clock_mmcm0_locked = vc707_sys_clock_mmcm0.io.locked
+  val Seq(clk12_5, clk25, clk37_5, clk50, clk100, clk150, clk100_180) = vc707_sys_clock_mmcm0.getClocks
 
   //65MHz and multiples
   val vc707_sys_clock_mmcm1 = Module(new vc707_sys_clock_mmcm1)

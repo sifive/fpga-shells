@@ -7,12 +7,12 @@ import chisel3.experimental.{Analog}
 import freechips.rocketchip.util.{ElaborationArtefacts}
 
 import sifive.blocks.devices.pinctrl.{BasePin}
+import sifive.fpgashells.ip.clocks._
 
 //========================================================================
 // This file contains common devices used by our Xilinx FPGA flows and some
 // BlackBox modules used in the Xilinx FPGA flows
 //========================================================================
-
 
 //-------------------------------------------------------------------------
 // mmcm
@@ -93,6 +93,7 @@ object PowerOnResetFPGAOnly {
     por.io.power_on_reset
   }
 }
+
 
 //-------------------------------------------------------------------------
 // vc707_sys_clock_mmcm
@@ -210,71 +211,82 @@ class vc707_sys_clock_mmcm1 extends BlackBox {
   )
 }
 
-class vc707_sys_clock_mmcm2 extends BlackBox {
+trait PLL {
+  def getClocks: Seq[Clock]
+  def getLocked: Bool
+  def getClockNames: Seq[String]
+}
+
+class vc707_sys_clock_mmcm2(c : PLLParameters) extends BlackBox with PLL {
   val io = new Bundle {
     val clk_in1   = Bool(INPUT)
-    val clk_out1  = Clock(OUTPUT)
-    val clk_out2  = Clock(OUTPUT)
-    val clk_out3  = Clock(OUTPUT)
-    val clk_out4  = Clock(OUTPUT)
-    val clk_out5  = Clock(OUTPUT)
-    val clk_out6  = Clock(OUTPUT)
-    val clk_out7  = Clock(OUTPUT)
+    val clk_out1  = if (c.req.size >= 1) Some(Clock(OUTPUT)) else None
+    val clk_out2  = if (c.req.size >= 2) Some(Clock(OUTPUT)) else None
+    val clk_out3  = if (c.req.size >= 3) Some(Clock(OUTPUT)) else None
+    val clk_out4  = if (c.req.size >= 4) Some(Clock(OUTPUT)) else None
+    val clk_out5  = if (c.req.size >= 5) Some(Clock(OUTPUT)) else None
+    val clk_out6  = if (c.req.size >= 6) Some(Clock(OUTPUT)) else None
+    val clk_out7  = if (c.req.size >= 7) Some(Clock(OUTPUT)) else None
     val reset     = Bool(INPUT)
     val locked    = Bool(OUTPUT)
   }
   
+  def getClocks = Seq() ++ io.clk_out1 ++ io.clk_out2 ++ 
+                           io.clk_out3 ++ io.clk_out4 ++ 
+                           io.clk_out5 ++ io.clk_out6 ++ 
+                           io.clk_out7
+  def getLocked = io.locked
+  def getClockNames = Seq.tabulate (c.req.size) { i =>
+    s"${c.name}/inst/mmcm_adv_inst/CLKOUT${i}" 
+  }
+ 
+    var elaborateArtefactsString= "";
+    var elaborateArtefactsString_temp= ""; //containg ctrl generate parameters
+    for (i <- 0 until 7) {
+        elaborateArtefactsString_temp += (if (i < c.req.size) 
+                {s""" CONFIG.CLKOUT${(i+1).toString}_USED {true} 
+                    |""".stripMargin} 
+                else 
+                {s""" CONFIG.CLKOUT${(i+1).toString}_USED {false} 
+                    |""".stripMargin});
+    }
+
+    for (i <- 0 until c.req.size) {
+        val freq = c.req(i).freqMHz.toString();
+        //val jitter = ((c.req(i).freqPPM/1E+6)*(1/(c.req(i).freqMHz*1E+6))).toInt.toString;
+        val phase =  c.req(i).phaseDeg.toString();
+        //val phaseError =  (c.req(i).phasePPM/1E+6)*c.req(i).phaseDeg).toString();
+        val jitter = c.req(i).jitter.toString();
+        val phaseError =  c.req(i).phaseErrorDeg.toString();
+        val dutyCycle =  c.req(i).dutyCycle.toString();
+
+
+        elaborateArtefactsString_temp += 
+          s""" CONFIG.CLKOUT${(i+1).toString}_REQUESTED_OUT_FREQ {${freq}} \\
+             | CONFIG.CLKOUT${(i+1).toString}_JITTER {${jitter}} \\
+             | CONFIG.CLKOUT${(i+1).toString}_REQUESTED_PHASE {${phase}} \\
+             | CONFIG.CLKOUT${(i+1).toString}_PHASE_ERROR {${phaseError}} \\
+             | CONFIG.CLKOUT${(i+1).toString}_REQUESTED_DUTY_CYCLE {${dutyCycle}} \\
+             |""".stripMargin
+        }
+    elaborateArtefactsString += (
+         s"""create_ip -name clk_wiz -vendor xilinx.com -library ip -module_name \\
+            | vc707_sys_clock_mmcm2 -dir $$ipdir -force 
+            | set_property -dict [list \\
+            | CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \\
+            | CONFIG.PRIM_SOURCE {No_buffer} \\
+            | CONFIG.NUM_OUT_CLKS {${c.req.size.toString}} \\
+            | CONFIG.PRIM_IN_FREQ {${c.input.freqMHz.toString}} \\
+            | CONFIG.CLKIN1_JITTER_PS {${c.input.jitter}} \\
+            | ${elaborateArtefactsString_temp}
+            | ] [get_ips vc707_sys_clock_mmcm2]""").stripMargin;
+
+    //| CONFIG.CLKIN1_JITTER_PS {${1E+12*(c.input.freqPPM/1E+6)*(1/(c.input.freqMHz*1E+6))}} \\
+
   ElaborationArtefacts.add(
     "vc707_sys_clock_mmcm2.vivado.tcl",
-    """create_ip -name clk_wiz -vendor xilinx.com -library ip -module_name vc707_sys_clock_mmcm2 -dir $ipdir -force
-    set_property -dict [list \
-    CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \
-    CONFIG.PRIM_SOURCE {No_buffer} \
-    CONFIG.CLKOUT1_USED {true} \
-    CONFIG.CLKOUT2_USED {true} \
-    CONFIG.CLKOUT3_USED {true} \
-    CONFIG.CLKOUT4_USED {true} \
-    CONFIG.CLKOUT5_USED {true} \
-    CONFIG.CLKOUT6_USED {true} \
-    CONFIG.CLKOUT7_USED {true} \
-    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {12.5} \
-    CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {25} \
-    CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {37.5} \
-    CONFIG.CLKOUT4_REQUESTED_OUT_FREQ {50} \
-    CONFIG.CLKOUT5_REQUESTED_OUT_FREQ {100} \
-    CONFIG.CLKOUT6_REQUESTED_OUT_FREQ {150.000} \
-    CONFIG.CLKOUT7_REQUESTED_OUT_FREQ {100} \
-    CONFIG.CLKOUT7_REQUESTED_PHASE {180} \
-    CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \
-    CONFIG.PRIM_IN_FREQ {200.000} \
-    CONFIG.CLKIN1_JITTER_PS {50.0} \
-    CONFIG.MMCM_DIVCLK_DIVIDE {2} \
-    CONFIG.MMCM_CLKFBOUT_MULT_F {9.0} \
-    CONFIG.MMCM_CLKIN1_PERIOD {5.0} \
-    CONFIG.MMCM_CLKOUT0_DIVIDE_F {72.000} \
-    CONFIG.MMCM_CLKOUT1_DIVIDE {36} \
-    CONFIG.MMCM_CLKOUT2_DIVIDE {24} \
-    CONFIG.MMCM_CLKOUT3_DIVIDE {18} \
-    CONFIG.MMCM_CLKOUT4_DIVIDE {9} \
-    CONFIG.MMCM_CLKOUT5_DIVIDE {6} \
-    CONFIG.MMCM_CLKOUT6_DIVIDE {9} \
-    CONFIG.NUM_OUT_CLKS {7} \
-    CONFIG.CLKOUT1_JITTER {206.010} \
-    CONFIG.CLKOUT1_PHASE_ERROR {105.461} \
-    CONFIG.CLKOUT2_JITTER {180.172} \
-    CONFIG.CLKOUT2_PHASE_ERROR {105.461} \
-    CONFIG.CLKOUT3_JITTER {166.503} \
-    CONFIG.CLKOUT3_PHASE_ERROR {105.461} \
-    CONFIG.CLKOUT4_JITTER {157.199} \
-    CONFIG.CLKOUT4_PHASE_ERROR {105.461} \
-    CONFIG.CLKOUT5_JITTER {136.686} \
-    CONFIG.CLKOUT5_PHASE_ERROR {105.461} \
-    CONFIG.CLKOUT6_JITTER {126.399} \
-    CONFIG.CLKOUT6_PHASE_ERROR {105.461} \
-    CONFIG.CLKOUT7_JITTER {206.010} \
-    CONFIG.CLKOUT7_PHASE_ERROR {136.686}] [get_ips vc707_sys_clock_mmcm2] """
-  )
-}
+    elaborateArtefactsString);
+    }
 
 class vc707_sys_clock_mmcm3 extends BlackBox {
   val io = new Bundle {
