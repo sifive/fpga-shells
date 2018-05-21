@@ -485,37 +485,28 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
     "vc707_sys_clock_mmcm2",
     InClockParameters(200, 50), 
     Seq(
-      OutClockParameters(12.5, jitter=206.01, phaseErrorDeg=105.461),
-      OutClockParameters(25, jitter=180.172, phaseErrorDeg=105.461),
-      OutClockParameters(37.5, jitter=166.503, phaseErrorDeg=105.461),
-      OutClockParameters(50, jitter=157.99, phaseErrorDeg=105.461),
-      OutClockParameters(100, jitter=136.686, phaseErrorDeg=105.461),
-      OutClockParameters(150.00, jitter=126.399, phaseErrorDeg=105.461),
-      OutClockParameters(100, 180, jitter=206.01, phaseErrorDeg=136.686)))))
+      OutClockParameters(12.5),
+      OutClockParameters(25),
+      OutClockParameters(37.5),
+      OutClockParameters(50),
+      OutClockParameters(100),
+      OutClockParameters(150.00),
+      OutClockParameters(100, 180)))))
+  
   vc707_sys_clock_mmcm0.io.clk_in1 := sys_clock.asUInt
   vc707_sys_clock_mmcm0.io.reset   := reset
-  /*
-  val clk12_5              = vc707_sys_clock_mmcm0.getClocks(0) // io.clk_out1.get
-  val clk25                = vc707_sys_clock_mmcm0.io.clk_out2.get
-  val clk37_5              = vc707_sys_clock_mmcm0.io.clk_out3.get
-  val clk50                = vc707_sys_clock_mmcm0.io.clk_out4.get
-  val clk100               = vc707_sys_clock_mmcm0.io.clk_out5.get
-  val clk150               = vc707_sys_clock_mmcm0.io.clk_out6.get
-  val clk75                = vc707_sys_clock_mmcm0.io.clk_out7.get
-  val clk100_180           = vc707_sys_clock_mmcm0.io.clk_out7.get
-  */
   val vc707_sys_clock_mmcm0_locked = vc707_sys_clock_mmcm0.io.locked
   val Seq(clk12_5, clk25, clk37_5, clk50, clk100, clk150, clk100_180) = vc707_sys_clock_mmcm0.getClocks
 
-  
   //65MHz and multiples
   //val vc707_sys_clock_mmcm1 = Module(new vc707_sys_clock_mmcm1)
   val vc707_sys_clock_mmcm1 = Module(new Series7MMCM(PLLParameters(
     "vc707_sys_clock_mmcm1",
-    InClockParameters(200, 50, jitter=50), 
+    InClockParameters(200, 50), 
     Seq(
-      OutClockParameters(32.5, jitter=135.973, phaseErrorDeg=87.159),
-      OutClockParameters(65, 180, jitter=117.878, phaseErrorDeg=87.159)))))
+      OutClockParameters(32.5),
+      OutClockParameters(65, 180)))))
+  
   vc707_sys_clock_mmcm1.io.clk_in1 := sys_clock.asUInt
   vc707_sys_clock_mmcm1.io.reset   := reset
   val clk32_5              = vc707_sys_clock_mmcm1.io.clk_out1
