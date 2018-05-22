@@ -31,7 +31,10 @@ class PolarFireCCC(c : PLLParameters)(implicit val p:Parameters) extends BlackBo
                            io.OUT2_FABCLK_0 ++ io.OUT3_FABCLK_0 
   
   def getClockNames = Seq.tabulate (c.req.size) { i =>
-    s"${c.name}/inst/mmcm_adv_inst/CLKOUT${i}" 
+    s"${c.name}/hart_clk_ccc_0/pll_inst_0/OUT${i}"  //we might have to prepend
+                                                    //iofpga to the begning of the name
+                                                    //depending on where the
+                                                    //clk is being instantiated
   }
   
   var elaborateArtefactsString = ""
