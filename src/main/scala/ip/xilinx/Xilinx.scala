@@ -188,6 +188,139 @@ class vc707reset() extends BlackBox
 }
 
 //-------------------------------------------------------------------------
+// vcu118_sys_clock_mmcm
+//-------------------------------------------------------------------------
+//IP : xilinx mmcm with "NO_BUFFER" input clock
+
+class vcu118_sys_clock_mmcm0 extends BlackBox {
+  val io = new Bundle {
+    val clk_in1   = Bool(INPUT)
+    val clk_out1  = Clock(OUTPUT)
+    val clk_out2  = Clock(OUTPUT)
+    val clk_out3  = Clock(OUTPUT)
+    val clk_out4  = Clock(OUTPUT)
+    val clk_out5  = Clock(OUTPUT)
+    val clk_out6  = Clock(OUTPUT)
+    val clk_out7  = Clock(OUTPUT)
+    val reset     = Bool(INPUT)
+    val locked    = Bool(OUTPUT)
+  }
+  
+  ElaborationArtefacts.add(
+    "vcu118_sys_clock_mmcm0.vivado.tcl",
+    """create_ip -name clk_wiz -vendor xilinx.com -library ip -module_name vcu118_sys_clock_mmcm0 -dir $ipdir -force
+    set_property -dict [list \
+    CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \
+    CONFIG.PRIM_SOURCE {No_buffer} \
+    CONFIG.CLKOUT2_USED {true} \
+    CONFIG.CLKOUT3_USED {true} \
+    CONFIG.CLKOUT4_USED {true} \
+    CONFIG.CLKOUT5_USED {true} \
+    CONFIG.CLKOUT6_USED {true} \
+    CONFIG.CLKOUT7_USED {true} \
+    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {12.5} \
+    CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {25} \
+    CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {37.5} \
+    CONFIG.CLKOUT4_REQUESTED_OUT_FREQ {50} \
+    CONFIG.CLKOUT5_REQUESTED_OUT_FREQ {100} \
+    CONFIG.CLKOUT6_REQUESTED_OUT_FREQ {150.000} \
+    CONFIG.CLKOUT7_REQUESTED_OUT_FREQ {75} \
+    CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \
+    CONFIG.PRIM_IN_FREQ {250.000} \
+    CONFIG.CLKIN1_JITTER_PS {50.0} \
+    CONFIG.MMCM_DIVCLK_DIVIDE {5} \
+    CONFIG.MMCM_CLKFBOUT_MULT_F {24.000} \
+    CONFIG.MMCM_CLKIN1_PERIOD {4.000} \
+    CONFIG.MMCM_CLKOUT0_DIVIDE_F {96.000} \
+    CONFIG.MMCM_CLKOUT1_DIVIDE {48} \
+    CONFIG.MMCM_CLKOUT2_DIVIDE {32} \
+    CONFIG.MMCM_CLKOUT3_DIVIDE {24} \
+    CONFIG.MMCM_CLKOUT4_DIVIDE {12} \
+    CONFIG.MMCM_CLKOUT5_DIVIDE {8} \
+    CONFIG.MMCM_CLKOUT6_DIVIDE {16} \
+    CONFIG.NUM_OUT_CLKS {7} \
+    CONFIG.CLKOUT1_JITTER {213.008} \
+    CONFIG.CLKOUT1_PHASE_ERROR {154.678} \
+    CONFIG.CLKOUT2_JITTER {179.547} \
+    CONFIG.CLKOUT2_PHASE_ERROR {154.678} \
+    CONFIG.CLKOUT3_JITTER {164.187} \
+    CONFIG.CLKOUT3_PHASE_ERROR {154.678} \
+    CONFIG.CLKOUT4_JITTER {154.688} \
+    CONFIG.CLKOUT4_PHASE_ERROR {154.678} \
+    CONFIG.CLKOUT5_JITTER {135.165} \
+    CONFIG.CLKOUT5_PHASE_ERROR {154.678} \
+    CONFIG.CLKOUT6_JITTER {126.046} \
+    CONFIG.CLKOUT6_PHASE_ERROR {154.678} \
+    CONFIG.CLKOUT7_JITTER {142.781} \
+    CONFIG.CLKOUT7_PHASE_ERROR {154.678}] [get_ips vcu118_sys_clock_mmcm0] """
+  )
+}
+
+class vcu118_sys_clock_mmcm1 extends BlackBox {
+  val io = new Bundle {
+    val clk_in1   = Bool(INPUT)
+    val clk_out1  = Clock(OUTPUT)
+    val clk_out2  = Clock(OUTPUT)
+    val reset     = Bool(INPUT)
+    val locked    = Bool(OUTPUT)
+  }
+  
+  ElaborationArtefacts.add(
+    "vcu118_sys_clock_mmcm1.vivado.tcl",
+    """create_ip -name clk_wiz -vendor xilinx.com -library ip -module_name vcu118_sys_clock_mmcm1 -dir $ipdir -force
+    set_property -dict [list \
+    CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \
+    CONFIG.PRIM_SOURCE {No_buffer} \
+    CONFIG.CLKOUT2_USED {true} \
+    CONFIG.CLKOUT3_USED {false} \
+    CONFIG.CLKOUT4_USED {false} \
+    CONFIG.CLKOUT5_USED {false} \
+    CONFIG.CLKOUT6_USED {false} \
+    CONFIG.CLKOUT7_USED {false} \
+    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {32.5} \
+    CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {65} \
+    CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \
+    CONFIG.PRIM_IN_FREQ {250.000} \
+    CONFIG.CLKIN1_JITTER_PS {50.0} \
+    CONFIG.MMCM_DIVCLK_DIVIDE {25} \
+    CONFIG.MMCM_CLKFBOUT_MULT_F {117.000} \
+    CONFIG.MMCM_CLKIN1_PERIOD {4.000} \
+    CONFIG.MMCM_CLKOUT0_DIVIDE_F {36.000} \
+    CONFIG.MMCM_CLKOUT1_DIVIDE {18} \
+    CONFIG.MMCM_CLKOUT2_DIVIDE {1} \
+    CONFIG.MMCM_CLKOUT3_DIVIDE {1} \
+    CONFIG.MMCM_CLKOUT4_DIVIDE {1} \
+    CONFIG.MMCM_CLKOUT5_DIVIDE {1} \
+    CONFIG.MMCM_CLKOUT6_DIVIDE {1} \
+    CONFIG.NUM_OUT_CLKS {2} \
+    CONFIG.CLKOUT1_JITTER {257.594} \
+    CONFIG.CLKOUT1_PHASE_ERROR {366.693} \
+    CONFIG.CLKOUT2_JITTER {232.023} \
+    CONFIG.CLKOUT2_PHASE_ERROR {366.693}] \
+    [get_ips vcu118_sys_clock_mmcm1] """
+  )
+}
+
+//-------------------------------------------------------------------------
+// vcu118reset
+//-------------------------------------------------------------------------
+
+class vcu118reset() extends BlackBox
+{
+  val io = new Bundle{
+    val areset = Bool(INPUT)
+    val clock1 = Clock(INPUT)
+    val reset1 = Bool(OUTPUT)
+    val clock2 = Clock(INPUT)
+    val reset2 = Bool(OUTPUT)
+    val clock3 = Clock(INPUT)
+    val reset3 = Bool(OUTPUT)
+    val clock4 = Clock(INPUT)
+    val reset4 = Bool(OUTPUT)
+  }
+}
+
+//-------------------------------------------------------------------------
 // sdio_spi_bridge
 //-------------------------------------------------------------------------
 
