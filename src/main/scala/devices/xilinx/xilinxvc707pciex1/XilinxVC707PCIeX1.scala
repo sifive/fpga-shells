@@ -44,7 +44,7 @@ class XilinxVC707PCIeX1(implicit p: Parameters) extends LazyModule with HasCross
       := AXI4Buffer()
       := AXI4UserYanker(capMaxFlight = Some(2))
       := TLToAXI4()
-      := TLFragmenter(4, p(CacheBlockBytes)))
+      := TLFragmenter(4, p(CacheBlockBytes), holdFirstDeny = true))
 
   val master: TLOutwardNode =
     (TLWidthWidget(8)
