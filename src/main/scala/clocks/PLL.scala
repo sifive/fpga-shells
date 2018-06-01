@@ -42,12 +42,12 @@ trait PLLInstance {
   def getClockNames: Seq[String]
 }
 
-class PLLFactory(maxOutputs: Int, gen: PLLParameters => PLLInstance)(implicit p: Parameters) extends LazyModule with PLL
+class PLLFactory(maxOutputs: Int, gen: PLLParameters => PLLInstance)(implicit p: Parameters) extends LazyModule with LazyScope with PLL
 {
   private var pllNodes: Seq[PLLNode] = Nil
 
   def apply(feedback: Boolean = false)(implicit valName: ValName): PLLNode = {
-    val node = PLLNode(feedback)
+    val node = this { PLLNode(feedback) }
     pllNodes = node +: pllNodes
     node
   }
@@ -87,6 +87,6 @@ class PLLFactory(maxOutputs: Int, gen: PLLParameters => PLLInstance)(implicit p:
 
     // Ensure there are no clock groups with the same name
     require (sdcGroups.size == pllNodes.map(_.edges.out.size).sum)
-    println(sdcGroups)
+    println(s"SDC groups: ${sdcGroups}")
   }
 }
