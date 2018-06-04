@@ -42,10 +42,13 @@ class XilinxVC707MIGIsland(c : XilinxVC707MIGParams)(implicit p: Parameters) ext
       supportsRead  = TransferSizes(1, 128))),
     beatBytes = 8)))
 
-  lazy val module = new LazyModuleImp(this) {
+  lazy val module = new LazyRawModuleImp(this) {
     val io = IO(new Bundle {
       val port = new XilinxVC707MIGIO(depth)
     })
+
+    childClock := io.port.ui_clk
+    childReset := io.port.ui_clk_sync_rst
 
     //MIG black box instantiation
     val blackbox = Module(new vc707mig(depth))
@@ -164,9 +167,5 @@ class XilinxVC707MIG(c : XilinxVC707MIGParams)(implicit p: Parameters) extends L
     })
 
     io.port <> island.module.io.port
-
-    // Shove the island
-    island.module.clock := io.port.ui_clk
-    island.module.reset := io.port.ui_clk_sync_rst
   }
 }
