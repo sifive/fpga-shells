@@ -99,9 +99,9 @@ object PowerOnResetFPGAOnly {
 // vc707_sys_clock_mmcm
 //-------------------------------------------------------------------------
 //IP : xilinx mmcm with "NO_BUFFER" input clock
-class Series7MMCM(c : PLLParameters) extends BlackBox with PLL {
+class Series7MMCM(c : PLLParameters) extends BlackBox with PLLInstance {
   val io = new Bundle {
-    val clk_in1   = Bool(INPUT)
+    val clk_in1   = Clock(INPUT)
     val clk_out1  = if (c.req.size >= 1) Some(Clock(OUTPUT)) else None
     val clk_out2  = if (c.req.size >= 2) Some(Clock(OUTPUT)) else None
     val clk_out3  = if (c.req.size >= 3) Some(Clock(OUTPUT)) else None
@@ -121,6 +121,7 @@ class Series7MMCM(c : PLLParameters) extends BlackBox with PLL {
                            io.clk_out5 ++ io.clk_out6 ++ 
                            io.clk_out7
   
+  def getInput = io.clk_in1
   def getLocked = io.locked
   def getClockNames = Seq.tabulate (c.req.size) { i =>
     s"${c.name}/inst/mmcm_adv_inst/CLKOUT${i}" 

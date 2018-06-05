@@ -495,7 +495,7 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
       OutClockParameters(150.00),
       OutClockParameters(100, 180)))))
   
-  vc707_sys_clock_mmcm0.io.clk_in1 := sys_clock.asUInt
+  vc707_sys_clock_mmcm0.io.clk_in1 := sys_clock
   vc707_sys_clock_mmcm0.io.reset   := reset
   val vc707_sys_clock_mmcm0_locked = vc707_sys_clock_mmcm0.io.locked
   val Seq(clk12_5, clk25, clk37_5, clk50, clk100, clk150, clk100_180) = vc707_sys_clock_mmcm0.getClocks
@@ -509,7 +509,7 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
       OutClockParameters(32.5),
       OutClockParameters(65, 180)))))
   
-  vc707_sys_clock_mmcm1.io.clk_in1 := sys_clock.asUInt
+  vc707_sys_clock_mmcm1.io.clk_in1 := sys_clock
   vc707_sys_clock_mmcm1.io.reset   := reset
   val clk32_5              = vc707_sys_clock_mmcm1.io.clk_out1
   val clk65                = vc707_sys_clock_mmcm1.io.clk_out2
