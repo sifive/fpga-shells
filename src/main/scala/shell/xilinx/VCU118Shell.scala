@@ -7,16 +7,16 @@ import chisel3.experimental.{RawModule, Analog, withClockAndReset}
 
 import freechips.rocketchip.config._
 import freechips.rocketchip.devices.debug._
-import freechips.rocketchip.util.{SyncResetSynchronizerShiftReg, ElaborationArtefacts, HeterogeneousBag}
+import freechips.rocketchip.util.{SyncResetSynchronizerShiftReg}
 
 import sifive.blocks.devices.gpio._
 import sifive.blocks.devices.spi._
 import sifive.blocks.devices.uart._
 
 import sifive.fpgashells.devices.xilinx.xilinxvcu118mig._
-import sifive.fpgashells.ip.xilinx.{IBUFDS, PowerOnResetFPGAOnly, sdio_spi_bridge, Series7MMCM, vcu118reset}
+import sifive.fpgashells.ip.xilinx.{IBUFDS, PowerOnResetFPGAOnly, sdio_spi_bridge, vcu118_sys_clock_mmcm0,
+                                    vcu118_sys_clock_mmcm1, vcu118reset}
 
-import sifive.fpgashells.clocks._
 //-------------------------------------------------------------------------
 // VCU118Shell
 //-------------------------------------------------------------------------
@@ -29,52 +29,12 @@ trait HasDDR3 { this: VCU118Shell =>
   def connectMIG(dut: HasMemoryXilinxVCU118MIGModuleImp): Unit = {
     // Clock & Reset
     dut.xilinxvcu118mig.c0_sys_clk_i := sys_clock.asUInt
-    mig_clock                        := dut.xilinxvcu118mig.c0_ddr4_ui_clk
-    mig_sys_reset                    := dut.xilinxvcu118mig.c0_ddr4_ui_clk_sync_rst
+    mig_clock                    := dut.xilinxvcu118mig.c0_ddr4_ui_clk
+    mig_sys_reset                := dut.xilinxvcu118mig.c0_ddr4_ui_clk_sync_rst
     dut.xilinxvcu118mig.c0_ddr4_aresetn   := mig_resetn
-    dut.xilinxvcu118mig.sys_rst      := sys_reset
+    dut.xilinxvcu118mig.sys_rst   := sys_reset
 
     ddr <> dut.xilinxvcu118mig
-  }
-}
-
-trait HasDebugJTAG { this: VCU118Shell =>
-  // JTAG
-  val jtag_TCK             = IO(Input(Clock()))
-  val jtag_TMS             = IO(Input(Bool()))
-  val jtag_TDI             = IO(Input(Bool()))
-  val jtag_TDO             = IO(Output(Bool()))
-
-  def connectDebugJTAG(dut: HasPeripheryDebugModuleImp): SystemJTAGIO = {
-  
-    ElaborationArtefacts.add(
-    """debugjtag.vivado.tcl""",
-    """set vcu118debugjtag_vivado_tcl_dir [file dirname [file normalize [info script]]]
-       add_files -fileset [current_fileset -constrset] [glob -directory $vcu118debugjtag_vivado_tcl_dir {*.vcu118debugjtag.xdc}]"""
-    )
-
-    ElaborationArtefacts.add(
-    """vcu118debugjtag.xdc""",
-    """set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets jtag_TCK]
-       set_property -dict { PACKAGE_PIN P29  IOSTANDARD LVCMOS12  PULLUP TRUE } [get_ports {jtag_TCK}]
-       set_property -dict { PACKAGE_PIN L31  IOSTANDARD LVCMOS12  PULLUP TRUE } [get_ports {jtag_TMS}]
-       set_property -dict { PACKAGE_PIN M31  IOSTANDARD LVCMOS12  PULLUP TRUE } [get_ports {jtag_TDI}]
-       set_property -dict { PACKAGE_PIN R29  IOSTANDARD LVCMOS12  PULLUP TRUE } [get_ports {jtag_TDO}]
-       create_clock -add -name JTCK        -period 100   -waveform {0 50} [get_ports {jtag_TCK}];"""
-    )
-   
-    val djtag     = dut.debug.systemjtag.get
-
-    djtag.jtag.TCK := jtag_TCK
-    djtag.jtag.TMS := jtag_TMS
-    djtag.jtag.TDI := jtag_TDI
-    jtag_TDO       := djtag.jtag.TDO.data
-
-    djtag.mfr_id   := p(JtagDTMKey).idcodeManufId.U(11.W)
-
-    djtag.reset    := PowerOnResetFPGAOnly(dut_clock)
-    dut_ndreset    := dut.debug.ndreset
-    djtag
   }
 }
 
@@ -104,6 +64,12 @@ abstract class VCU118Shell(implicit val p: Parameters) extends RawModule {
   val sdio_clk             = IO(Output(Bool()))
   val sdio_cmd             = IO(Analog(1.W))
   val sdio_dat             = IO(Analog(4.W))
+
+  // JTAG
+  val jtag_TCK             = IO(Input(Clock()))
+  val jtag_TMS             = IO(Input(Bool()))
+  val jtag_TDI             = IO(Input(Bool()))
+  val jtag_TDO             = IO(Output(Bool()))
 
   //Buttons
   //val btn_0                = IO(Analog(1.W))
@@ -180,31 +146,20 @@ abstract class VCU118Shell(implicit val p: Parameters) extends RawModule {
   //-----------------------------------------------------------------------
 
   //25MHz and multiples
-  val vcu118_sys_clock_mmcm0 = Module(new Series7MMCM(PLLParameters(
-    "vcu118_sys_clock_mmcm0",
-    InClockParameters(250, 50), 
-    Seq(
-      OutClockParameters(12.5),
-      OutClockParameters(25),
-      OutClockParameters(37.5),
-      OutClockParameters(50),
-      OutClockParameters(100),
-      OutClockParameters(150.00),
-      OutClockParameters(100, 180)))))
-  
+  val vcu118_sys_clock_mmcm0 = Module(new vcu118_sys_clock_mmcm0)
   vcu118_sys_clock_mmcm0.io.clk_in1 := sys_clock.asUInt
   vcu118_sys_clock_mmcm0.io.reset   := reset
+  val clk12_5              = vcu118_sys_clock_mmcm0.io.clk_out1
+  val clk25                = vcu118_sys_clock_mmcm0.io.clk_out2
+  val clk37_5              = vcu118_sys_clock_mmcm0.io.clk_out3
+  val clk50                = vcu118_sys_clock_mmcm0.io.clk_out4
+  val clk100               = vcu118_sys_clock_mmcm0.io.clk_out5
+  val clk150               = vcu118_sys_clock_mmcm0.io.clk_out6
+  val clk75                = vcu118_sys_clock_mmcm0.io.clk_out7
   val vcu118_sys_clock_mmcm0_locked = vcu118_sys_clock_mmcm0.io.locked
-  val Seq(clk12_5, clk25, clk37_5, clk50, clk100, clk150, clk100_180) = vcu118_sys_clock_mmcm0.getClocks
 
   //65MHz and multiples
-  val vcu118_sys_clock_mmcm1 = Module(new Series7MMCM(PLLParameters(
-    "vcu118_sys_clock_mmcm1",
-    InClockParameters(250, 50), 
-    Seq(
-      OutClockParameters(32.5),
-      OutClockParameters(65, 180)))))
-  
+  val vcu118_sys_clock_mmcm1 = Module(new vcu118_sys_clock_mmcm1)
   vcu118_sys_clock_mmcm1.io.clk_in1 := sys_clock.asUInt
   vcu118_sys_clock_mmcm1.io.reset   := reset
   val clk32_5              = vcu118_sys_clock_mmcm1.io.clk_out1
@@ -246,7 +201,24 @@ abstract class VCU118Shell(implicit val p: Parameters) extends RawModule {
   mig_mmcm_locked      := UInt("b1")
   mmcm_lock_pcie       := UInt("b1")
  
+  //---------------------------------------------------------------------
+  // Debug JTAG
+  //---------------------------------------------------------------------
 
+  def connectDebugJTAG(dut: HasPeripheryDebugModuleImp): SystemJTAGIO = {
+    val djtag     = dut.debug.systemjtag.get
+
+    djtag.jtag.TCK := jtag_TCK
+    djtag.jtag.TMS := jtag_TMS
+    djtag.jtag.TDI := jtag_TDI
+    jtag_TDO       := djtag.jtag.TDO.data
+
+    djtag.mfr_id   := p(JtagDTMKey).idcodeManufId.U(11.W)
+
+    djtag.reset    := PowerOnResetFPGAOnly(dut_clock)
+    dut_ndreset    := dut.debug.ndreset
+    djtag
+  }
 
   //-----------------------------------------------------------------------
   // UART

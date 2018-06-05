@@ -1,7 +1,15 @@
-#---------------Physical Constraints-----------------
+#-------------- MCS Generation ----------------------
+set_property BITSTREAM.CONFIG.EXTMASTERCCLK_EN div-1  [current_design]
+set_property BITSTREAM.CONFIG.SPI_FALL_EDGE YES       [current_design]
+set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 8          [current_design]
+set_property BITSTREAM.GENERAL.COMPRESS TRUE          [current_design]
+set_property BITSTREAM.CONFIG.UNUSEDPIN Pulldown      [current_design]
+set_property CFGBVS GND                               [current_design]
+set_property CONFIG_VOLTAGE 1.8                       [current_design]
+set_property CONFIG_MODE SPIx8                        [current_design]
 
-#get_port_part_pins
-#clk_n clk_p dip_switches_tri_i_0 dip_switches_tri_i_1 dip_switches_tri_i_2 dip_switches_tri_i_3 dip_switches_tri_i_4 dip_switches_tri_i_5 dip_switches_tri_i_6 dip_switches_tri_i_7 iic_main_scl_i iic_main_sda_i lcd_7bits_tri_o_0 lcd_7bits_tri_o_1 lcd_7bits_tri_o_2 lcd_7bits_tri_o_3 lcd_7bits_tri_o_4 lcd_7bits_tri_o_5 lcd_7bits_tri_o_6 leds_8bits_tri_o_0 leds_8bits_tri_o_1 leds_8bits_tri_o_2 leds_8bits_tri_o_3 leds_8bits_tri_o_4 leds_8bits_tri_o_5 leds_8bits_tri_o_6 leds_8bits_tri_o_7 linear_flash_addr_1 linear_flash_addr_10 linear_flash_addr_11 linear_flash_addr_12 linear_flash_addr_13 linear_flash_addr_14 linear_flash_addr_15 linear_flash_addr_16 linear_flash_addr_17 linear_flash_addr_18 linear_flash_addr_19 linear_flash_addr_2 linear_flash_addr_20 linear_flash_addr_21 linear_flash_addr_22 linear_flash_addr_23 linear_flash_addr_24 linear_flash_addr_25 linear_flash_addr_26 linear_flash_addr_3 linear_flash_addr_4 linear_flash_addr_5 linear_flash_addr_6 linear_flash_addr_7 linear_flash_addr_8 linear_flash_addr_9 linear_flash_adv_ldn linear_flash_ce_n linear_flash_dq_i_0 linear_flash_dq_i_1 linear_flash_dq_i_10 linear_flash_dq_i_11 linear_flash_dq_i_12 linear_flash_dq_i_13 linear_flash_dq_i_14 linear_flash_dq_i_15 linear_flash_dq_i_2 linear_flash_dq_i_3 linear_flash_dq_i_4 linear_flash_dq_i_5 linear_flash_dq_i_6 linear_flash_dq_i_7 linear_flash_dq_i_8 linear_flash_dq_i_9 linear_flash_oen linear_flash_wen mdc mdio_i phy_rst_out push_buttons_5bits_tri_i_0 push_buttons_5bits_tri_i_1 push_buttons_5bits_tri_i_2 push_buttons_5bits_tri_i_3 push_buttons_5bits_tri_i_4 reset rotary_inca_push_incb_tri_i_0 rotary_inca_push_incb_tri_i_1 rotary_inca_push_incb_tri_i_2 rs232_uart_rxd rs232_uart_txd sfp_rxn sfp_rxp sfp_sgmii_txn sfp_sgmii_txp sgmii_mgt_clkn sgmii_mgt_clkp sgmii_rxn sgmii_rxp sgmii_txn sgmii_txp sma_lvds_rxn sma_lvds_rxp sma_lvds_txn sma_lvds_txp sma_mgt_clkn sma_mgt_clkp sma_sfp_rxn sma_sfp_rxp sma_sfp_txn sma_sfp_txp
+
+#---------------Physical Constraints-----------------
 
 set_property PACKAGE_PIN E12 [get_ports sys_diff_clock_clk_p]
 set_property IOSTANDARD DIFF_SSTL12 [get_ports sys_diff_clock_clk_p]
@@ -146,8 +154,15 @@ set_property IOSTANDARD LVCMOS18 [get_ports uart_rtsn]
 set_property IOB TRUE [get_ports uart_rtsn]
 
 # Platform specific constraints
-set_property IOB TRUE [get_cells "U500VC707System/uarts_0/txm/out_reg"]
+set_property IOB TRUE [get_cells "U500VCU118System/uarts_0/txm/out_reg"]
 set_property IOB TRUE [get_cells "uart_rxd_sync/sync_1"]
+
+# JTAG
+set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets jtag_TCK_IBUF]
+set_property -dict { PACKAGE_PIN P29  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TCK}]
+set_property -dict { PACKAGE_PIN L31  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TMS}]
+set_property -dict { PACKAGE_PIN M31  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDI}]
+set_property -dict { PACKAGE_PIN R29  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDO}]
 
 # SDIO
 set_property -dict { PACKAGE_PIN AV15  IOSTANDARD LVCMOS18  IOB TRUE } [get_ports {sdio_clk}]
@@ -157,12 +172,16 @@ set_property -dict { PACKAGE_PIN AV16  IOSTANDARD LVCMOS18  IOB TRUE  PULLUP TRU
 set_property -dict { PACKAGE_PIN AU16  IOSTANDARD LVCMOS18  IOB TRUE  PULLUP TRUE } [get_ports {sdio_dat[2]}]
 set_property -dict { PACKAGE_PIN AY14  IOSTANDARD LVCMOS18  IOB TRUE  PULLUP TRUE } [get_ports {sdio_dat[3]}]
 
-#-------------- MCS ----------------------
-set_property BITSTREAM.CONFIG.EXTMASTERCCLK_EN div-1  [current_design]
-set_property BITSTREAM.CONFIG.SPI_FALL_EDGE YES       [current_design]
-set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 8          [current_design]
-set_property BITSTREAM.GENERAL.COMPRESS TRUE          [current_design]
-set_property BITSTREAM.CONFIG.UNUSEDPIN Pulldown      [current_design]
-set_property CFGBVS GND                               [current_design]
-set_property CONFIG_VOLTAGE 1.8                       [current_design]
-set_property CONFIG_MODE SPIx8                        [current_design]
+set_clock_groups -asynchronous \
+  -group { pll_clk* } \
+  -group { \
+	clk_out1_vcu118_sys_clock_mmcm0 \
+	clk_out2_vcu118_sys_clock_mmcm0 \
+	clk_out3_vcu118_sys_clock_mmcm0 \
+	clk_out4_vcu118_sys_clock_mmcm0 \
+	clk_out5_vcu118_sys_clock_mmcm0 \
+	clk_out6_vcu118_sys_clock_mmcm0 \
+	clk_out7_vcu118_sys_clock_mmcm0 } \
+  -group { \
+	clk_out1_vcu118_sys_clock_mmcm1 \
+	clk_out2_vcu118_sys_clock_mmcm1 }
