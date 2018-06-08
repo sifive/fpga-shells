@@ -112,7 +112,7 @@ class Series7MMCM(c : PLLParameters) extends BlackBox with PLL {
     val reset     = Bool(INPUT)
     val locked    = Bool(OUTPUT)
   }
-  
+
   val moduleName = c.name
   override def desiredName = c.name
 
@@ -120,52 +120,35 @@ class Series7MMCM(c : PLLParameters) extends BlackBox with PLL {
                            io.clk_out3 ++ io.clk_out4 ++ 
                            io.clk_out5 ++ io.clk_out6 ++ 
                            io.clk_out7
-  
+  def getInput = io.clk_in1
+  def getReset = Some(io.reset)
   def getLocked = io.locked
   def getClockNames = Seq.tabulate (c.req.size) { i =>
     s"${c.name}/inst/mmcm_adv_inst/CLKOUT${i}" 
   }
- 
-  var elaborateArtefactsString = ""
-  var elaborateArtefactsString_temp = ""
-  for (i <- 0 until 7) {
-    elaborateArtefactsString_temp += (
-      if (i < c.req.size) 
-        {s""" CONFIG.CLKOUT${(i+1).toString}_USED {true} \\
-        |""".stripMargin} 
-      else 
-        {s""" CONFIG.CLKOUT${(i+1).toString}_USED {false} \\
-        |""".stripMargin})
-  }
 
-  for (i <- 0 until c.req.size) {
-    val freq = c.req(i).freqMHz.toString()
-    val phase =  c.req(i).phaseDeg.toString()
-    val dutyCycle = c.req(i).dutyCycle.toString()
+  val used = Seq.tabulate(7) { i =>
+    s" CONFIG.CLKOUT${i+1}_USED {${i < c.req.size}} \\\n"
+  }.mkString
 
+  val outputs = c.req.zipWithIndex.map { case (r, i) =>
+    s""" CONFIG.CLKOUT${i+1}_REQUESTED_OUT_FREQ {${r.freqMHz}} \\
+       | CONFIG.CLKOUT${i+1}_REQUESTED_PHASE {${r.phaseDeg}} \\
+       | CONFIG.CLKOUT${i+1}_REQUESTED_DUTY_CYCLE {${r.dutyCycle}} \\
+       |""".stripMargin
+  }.mkString
 
-    elaborateArtefactsString_temp += 
-      s""" CONFIG.CLKOUT${(i+1).toString}_REQUESTED_OUT_FREQ {${freq}} \\
-      | CONFIG.CLKOUT${(i+1).toString}_REQUESTED_PHASE {${phase}} \\
-      | CONFIG.CLKOUT${(i+1).toString}_REQUESTED_DUTY_CYCLE {${dutyCycle}} \\
-      |""".stripMargin
-    }
-    
-    elaborateArtefactsString += (
-      s"""create_ip -name clk_wiz -vendor xilinx.com -library ip -module_name \\
-      | ${moduleName} -dir $$ipdir -force 
-      | set_property -dict [list \\
-      | CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \\
-      | CONFIG.PRIM_SOURCE {No_buffer} \\
-      | CONFIG.NUM_OUT_CLKS {${c.req.size.toString}} \\
-      | CONFIG.PRIM_IN_FREQ {${c.input.freqMHz.toString}} \\
-      | CONFIG.CLKIN1_JITTER_PS {${c.input.jitter}} \\
-      | ${elaborateArtefactsString_temp}
-      | ] [get_ips ${moduleName}]""").stripMargin
-
-  ElaborationArtefacts.add(
-    s"${moduleName}.vivado.tcl",
-    elaborateArtefactsString)
+  ElaborationArtefacts.add(s"${moduleName}.vivado.tcl",
+    s"""create_ip -name clk_wiz -vendor xilinx.com -library ip -module_name \\
+       | ${moduleName} -dir $$ipdir -force
+       |set_property -dict [list \\
+       | CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \\
+       | CONFIG.PRIM_SOURCE {No_buffer} \\
+       | CONFIG.NUM_OUT_CLKS {${c.req.size.toString}} \\
+       | CONFIG.PRIM_IN_FREQ {${c.input.freqMHz.toString}} \\
+       | CONFIG.CLKIN1_JITTER_PS {${c.input.jitter}} \\
+       |${used}${outputs}] [get_ips ${moduleName}]
+       |""".stripMargin)
 }
 
 //-------------------------------------------------------------------------
