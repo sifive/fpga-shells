@@ -62,6 +62,23 @@ object IBUFG {
   }
 }
 
+/** IBUF -- Input Buffer */
+
+class IBUF extends BlackBox {
+  val io = IO(new Bundle {
+    val O = Output(Bool())
+    val I = Input(Bool())
+  })
+}
+
+object IBUF {
+  def apply(pin: Bool): Bool = {
+    val pad = Module (new IBUF)
+    pad.io.I := pin
+    pad.io.O
+  }
+}
+
 /** IBUFDS_GTE2 -- Differential Signaling Input Buffer */
 
 class IBUFDS_GTE2(
