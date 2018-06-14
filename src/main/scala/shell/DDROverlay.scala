@@ -14,10 +14,8 @@ case class DDROverlayParams(
 
 case object DDROverlayKey extends Field[Seq[DesignOverlay[DDROverlayParams, TLInwardNode]]](Nil)
 
-abstract class DDROverlay[IO <: Data](
-  val shell: Shell,
-  val params: DDROverlayParams)
-    extends OverlayGenerator[TLInwardNode, IO]
+abstract class DDROverlay[IO <: Data](val params: DDROverlayParams)
+  extends IOOverlay[IO, TLInwardNode]
 {
   implicit val p = params.p
 }

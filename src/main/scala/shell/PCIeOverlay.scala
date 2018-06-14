@@ -14,10 +14,8 @@ case class PCIeOverlayParams(
 
 case object PCIeOverlayKey extends Field[Seq[DesignOverlay[PCIeOverlayParams, (TLNode, IntOutwardNode)]]](Nil)
 
-abstract class PCIeOverlay[IO <: Data](
-  val shell: Shell,
-  val params: PCIeOverlayParams)
-    extends OverlayGenerator[(TLNode, IntOutwardNode), IO]
+abstract class PCIeOverlay[IO <: Data](val params: PCIeOverlayParams)
+  extends IOOverlay[IO, (TLNode, IntOutwardNode)]
 {
   implicit val p = params.p
 }

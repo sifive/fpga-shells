@@ -82,7 +82,7 @@ class PLLFactory(scope: LazyScope, maxOutputs: Int, gen: PLLParameters => PLLIns
       pll.getReset.foreach { _ := in.reset }
       (out.flatMap(_.member) zip pll.getClocks) foreach { case (o, i) =>
         o.clock := i
-        o.reset := pll.getLocked || in.reset
+        o.reset := !pll.getLocked || in.reset
       }
 
       val groupLabels = edgeOut.flatMap(e => Seq.fill(e.members.size) { e.sink.name })

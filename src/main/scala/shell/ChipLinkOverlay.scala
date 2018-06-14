@@ -17,12 +17,11 @@ case class ChipLinkOverlayParams(
 
 case object ChipLinkOverlayKey extends Field[Seq[DesignOverlay[ChipLinkOverlayParams, TLNode]]](Nil)
 
-class ChipLinkOverlay(
-  val shell: Shell,
+abstract class ChipLinkOverlay(
   val params: ChipLinkOverlayParams,
   val rxPhase: Double,
   val txPhase: Double)
-    extends OverlayGenerator[TLNode, WideDataLayerPort]
+    extends IOOverlay[WideDataLayerPort, TLNode]
 {
   implicit val p = params.p
   val freqMHz  = params.txData.portParams.head.take.get.freqMHz
@@ -39,17 +38,18 @@ class ChipLinkOverlay(
   rxO := params.wrangler := rxGroup := rxPLL := rxI
   txClock := params.wrangler := params.txGroup
 
-  def nodes = linkBridge.child.node
-  def io = new WideDataLayerPort(ChipLinkParams(Nil,Nil))
-  def constrainIO(chiplink: WideDataLayerPort) {
-    val io = ioSink.io
+  def designOutput = linkBridge.child.node
+  def ioFactory = new WideDataLayerPort(ChipLinkParams(Nil,Nil))
+
+  shell { InModuleBody {
+    val sink = ioSink.io
     val (tx, _) = txClock.in(0)
     val (rxIn, _) = rxI.out(0)
     val (rxOut, _) = rxO.in(0)
-    chiplink <> io.port
-    rxIn.clock := chiplink.b2c.clk
+    io <> sink.port
+    rxIn.clock := io.b2c.clk
     // reset definition is per-board
-    io.port.b2c.clk := rxOut.clock
-    chiplink.c2b.clk := tx.clock
-  }
+    sink.port.b2c.clk := rxOut.clock
+    io.c2b.clk := tx.clock
+  } }
 }

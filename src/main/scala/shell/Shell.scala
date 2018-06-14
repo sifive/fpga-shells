@@ -3,6 +3,7 @@ package sifive.fpgashells.shell
 
 import chisel3._
 import chisel3.core.DataMirror
+import chisel3.experimental.IO
 import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.util._
@@ -73,43 +74,63 @@ object IOPin
   }
 }
 
-abstract class OverlayGenerator[Nodes, IO <: Data]
+// Overlays are declared by the Shell and placed somewhere by the Design
+// ... they inject diplomatic code both where they were placed and in the shell
+// ... they are instantiated with DesignInput and return DesignOutput
+trait Overlay[DesignOutput]
 {
-  def nodes: Nodes
-  def io: IO
-  def constrainIO(io: IO): Unit
-}
-
-trait DesignOverlay[P, Nodes] {
+  def designOutput: DesignOutput
   def name: String
-  def apply(params: P): Nodes
+  def shell: Shell
 }
 
-class ShellOverlay[P, Nodes, IO <: Data](gen: P => OverlayGenerator[Nodes,IO])(implicit valName: ValName)
-  extends DesignOverlay[P,Nodes]
+// An IOOverlay is an Overlay with a public shell-level IO
+trait IOOverlay[IO <: Data, DesignOutput] extends Overlay[DesignOutput]
 {
-  private var haveGen: Option[OverlayGenerator[Nodes,IO]] = None
-  def io = haveGen.map(_.io)
-  def constrainIO(x: Option[IO]) {
-    (x zip haveGen) foreach { case (io, gen) =>
-      gen.constrainIO(io)
-    }
-  }
+  def ioFactory: IO
 
-  /* Implement design-facing Overlay: */
-  def name = valName.name
-  def apply(params: P) = {
-    require (haveGen.isEmpty, s"Overlay ${name} has already been applied to the shell; cannot apply again")
-    val it = gen(params)
-    haveGen = Some(it)
-    it.nodes
-  }
+  val io = shell { InModuleBody {
+    val port = IO(ioFactory)
+    port.suggestName(name)
+    port
+  } }
+}
+
+// DesignOverlays provide the method used to instantiate and place an Overlay
+trait DesignOverlay[DesignInput, DesignOutput] {
+  def isPlaced: Boolean
+  def name: String
+  def apply(input: DesignInput): DesignOutput
 }
 
 abstract class Shell()(implicit p: Parameters) extends LazyModule with LazyScope
 {
-  def Overlay[P, Nodes, IO <: Data](gen: P => OverlayGenerator[Nodes,IO])(implicit valName: ValName) =
-    new ShellOverlay[P,Nodes,IO](gen)
+  private var overlays = Parameters.empty
+  def designParameters: Parameters = overlays ++ p
+
+  def Overlay[DesignInput, DesignOutput, T <: Overlay[DesignOutput]](
+    key: Field[Seq[DesignOverlay[DesignInput, DesignOutput]]])(
+    gen: (this.type, String, DesignInput) => T)(
+    implicit valName: ValName): ModuleValue[Option[T]] =
+  {
+    val self = this.asInstanceOf[this.type]
+    val thunk = new ModuleValue[Option[T]] with DesignOverlay[DesignInput, DesignOutput] {
+      var placement: Option[T] = None
+      def getWrappedValue = placement
+      def isPlaced = !placement.isEmpty
+      def name = valName.name
+      def apply(input: DesignInput): DesignOutput = {
+        require (placement.isEmpty, s"Overlay ${name} has already been placed by the design; cannot place again")
+        val it = gen(self, valName.name, input)
+        placement = Some(it)
+        it.designOutput
+      }
+    }
+    overlays = overlays ++ Parameters((site, here, up) => {
+      case x: Field[_] if x eq key => thunk +: up(key)
+    })
+    thunk
+  }
 
   def portOf(x: IOPin) = s"[ get_ports { ${x.name} } ]"
   def clockOf(x: IOPin) =  s"[ get_clocks -of_objects ${portOf(x)} ]"

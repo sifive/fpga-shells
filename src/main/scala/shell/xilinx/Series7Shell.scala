@@ -50,22 +50,23 @@ abstract class XilinxShell()(implicit p: Parameters) extends Shell
 abstract class Series7Shell()(implicit p: Parameters) extends XilinxShell
 {
   val pllFactory = new PLLFactory(this, 7, p => Module(new Series7MMCM(p)))
+  override def designParameters = super.designParameters.alterPartial {
+    case PLLFactoryKey => pllFactory
+  }
 }
 
 class VC707Shell()(implicit p: Parameters) extends Series7Shell
 {
-  val sysClock = ClockSourceNode(freqMHz = 200, jitterPS = 50)
-  val chiplinkFMC = Overlay { x: ChipLinkOverlayParams => new ChipLinkVC707Overlay(this, x) }
-  val migDDR      = Overlay { x: DDROverlayParams      => new DDRVC707Overlay     (this, x) }
-  val pcieFMC     = Overlay { x: PCIeOverlayParams     => new PCIeVC707Overlay    (this, x) }
+  val chiplink = Overlay(ChipLinkOverlayKey)(new ChipLinkVC707Overlay(_, _, _))
+  val ddr      = Overlay(DDROverlayKey)     (new DDRVC707Overlay     (_, _, _))
+  val pcie     = Overlay(PCIeOverlayKey)    (new PCIeVC707Overlay    (_, _, _))
 
-  val topDesign = LazyModule(p(DesignKey)(p.alterPartial {
-    case PLLFactoryKey      => pllFactory
-    case ClockInputKey      => Seq(sysClock)
-    case ChipLinkOverlayKey => Seq(chiplinkFMC)
-    case DDROverlayKey      => Seq(migDDR)
-    case PCIeOverlayKey     => Seq(pcieFMC)
-  }))
+  val sysClock = ClockSourceNode(freqMHz = 200, jitterPS = 50)
+  override def designParameters = super.designParameters.alterPartial {
+    case ClockInputKey => Seq(sysClock)
+  }
+
+  val topDesign = LazyModule(p(DesignKey)(designParameters))
 
   lazy val module = new LazyRawModuleImp(this) {
     val sys_diff_clock_clk = IO(Input(new LVDSClock))
@@ -75,14 +76,5 @@ class VC707Shell()(implicit p: Parameters) extends Series7Shell
     setBoardPin(sys_diff_clock_clk.p, "clk_p")
     setBoardPin(sys_diff_clock_clk.n, "clk_n")
     setBoardPin(reset, "reset")
-
-    val chiplink = chiplinkFMC.io.map(IO)
-    chiplinkFMC.constrainIO(chiplink)
-
-    val ddr = migDDR.io.map(IO)
-    migDDR.constrainIO(ddr)
-
-    val pcie = pcieFMC.io.map(IO)
-    pcieFMC.constrainIO(pcie)
   }
 }

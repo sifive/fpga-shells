@@ -12,8 +12,8 @@ import sifive.fpgashells.shell._
 import sifive.fpgashells.devices.xilinx.xilinxvc707mig._
 
 case object VC707DDRSize extends Field[BigInt](0x40000000L) // 1GB
-class DDRVC707Overlay(override val shell: VC707Shell, params: DDROverlayParams)(implicit valName: ValName)
-    extends DDROverlay[XilinxVC707MIGPads](shell, params)
+class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverlayParams)
+  extends DDROverlay[XilinxVC707MIGPads](params)
 {
   val size = p(VC707DDRSize)
 
@@ -24,20 +24,21 @@ class DDRVC707Overlay(override val shell: VC707Shell, params: DDROverlayParams)(
   val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
   areset := params.wrangler := ddrUI
 
-  def nodes = migBridge.child.node
-  def io = new XilinxVC707MIGPads(size)
-  def constrainIO(ddr: XilinxVC707MIGPads) = {
+  def designOutput = migBridge.child.node
+  def ioFactory = new XilinxVC707MIGPads(size)
+
+  shell { InModuleBody {
     val (sys, _) = shell.sysClock.out(0)
     val (ui, _) = ddrUI.out(0)
     val (ar, _) = areset.in(0)
     val port = topIONode.io.port
-    ddr <> port
+    io <> port
     ui.clock := port.ui_clk
-    ui.reset := port.mmcm_locked
+    ui.reset := !port.mmcm_locked || port.ui_clk_sync_rst
     port.sys_clk_i := sys.clock.asUInt
     port.sys_rst := sys.reset
     port.aresetn := ar.reset
-  }
+  } }
 
-  shell.pllFactory.describeGroup("ddr", "[get_clocks {clk_pll_i}]")
+  shell.pllFactory.describeGroup(name, "[get_clocks {clk_pll_i}]")
 }
