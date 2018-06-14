@@ -7,7 +7,7 @@ import freechips.rocketchip.config.Parameters
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
 import freechips.rocketchip.interrupts._
-import freechips.rocketchip.subsystem.{HasCrossing, AsynchronousCrossing, CacheBlockBytes}
+import freechips.rocketchip.subsystem.{SubsystemClockCrossing, HasCrossing, AsynchronousCrossing, CacheBlockBytes}
 import sifive.fpgashells.ip.xilinx.vc707axi_to_pcie_x1.{VC707AXIToPCIeX1, VC707AXIToPCIeX1IOClocksReset, VC707AXIToPCIeX1IOSerial}
 import sifive.fpgashells.ip.xilinx.ibufds_gte2.IBUFDS_GTE2
 
@@ -27,8 +27,9 @@ class XilinxVC707PCIeX1IO extends Bundle
   val axi_ctl_aresetn = Bool(INPUT)
 }
 
-class XilinxVC707PCIeX1(implicit p: Parameters) extends LazyModule with HasCrossing {
-  val crossing = AsynchronousCrossing(8)
+class XilinxVC707PCIeX1(implicit p: Parameters, val crossing: SubsystemClockCrossing = AsynchronousCrossing(8))
+  extends LazyModule with HasCrossing
+{
   val axi_to_pcie_x1 = LazyModule(new VC707AXIToPCIeX1)
 
   val slave: TLInwardNode =
