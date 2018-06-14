@@ -115,5 +115,5 @@ if {[get_filesets -quiet constrs_1] eq ""} {
 }
 
 set obj [current_fileset -constrset]
-add_files -quiet -norecurse -fileset $obj [glob -directory $constraintsdir -nocomplain {*.xdc}]
-add_files -quiet -norecurse -fileset $obj [glob -directory $constraintsdir -nocomplain {*.tcl}]
+add_files -quiet -norecurse -fileset $obj [lsort [glob -directory $constraintsdir -nocomplain {*.xdc}]]
+add_files -quiet -norecurse -fileset $obj [lsort [glob -directory $constraintsdir -nocomplain {*.tcl}]]
