@@ -138,6 +138,32 @@ class Series7MMCM(c : PLLParameters) extends BlackBox with PLL {
        |""".stripMargin
   }.mkString
 
+  val checks = c.req.zipWithIndex.map { case (r, i) =>
+    val f = if (i == 0) "_F" else ""
+    val phaseMin = r.phaseDeg - r.phaseErrorDeg
+    val phaseMax = r.phaseDeg + r.phaseErrorDeg
+    val freqMin = r.freqMHz * (1 - r.freqErrorPPM / 1000000)
+    val freqMax = r.freqMHz * (1 + r.freqErrorPPM / 1000000)
+    s"""set jitter [get_property CONFIG.CLKOUT${i+1}_JITTER [get_ips ${moduleName}]]
+       |if {$$jitter > ${r.jitterPS}} {
+       |  puts "Output jitter $$jitter ps exceeds required limit of ${r.jitterPS}"
+       |  exit 1
+       |}
+       |set phase [get_property CONFIG.MMCM_CLKOUT${i}_PHASE [get_ips ${moduleName}]]
+       |if {$$phase < ${phaseMin} || $$phase > ${phaseMax}} {
+       |  puts "Achieved phase $$phase degrees is outside tolerated range ${phaseMin}-${phaseMax}"
+       |  exit 1
+       |}
+       |set div2 [get_property CONFIG.MMCM_CLKOUT${i}_DIVIDE${f} [get_ips ${moduleName}]]
+       |set freq [expr { ${c.input.freqMHz} * $$mult / $$div1 / $$div2 }]
+       |if {$$freq < ${freqMin} || $$freq > ${freqMax}} {
+       |  puts "Achieved frequency $$freq MHz is outside tolerated range ${freqMin}-${freqMax}"
+       |  exit 1
+       |}
+       |puts "Achieve frequency $$freq MHz phase $$phase degrees jitter $$jitter ps"
+       |""".stripMargin
+  }.mkString
+
   ElaborationArtefacts.add(s"${moduleName}.vivado.tcl",
     s"""create_ip -name clk_wiz -vendor xilinx.com -library ip -module_name \\
        | ${moduleName} -dir $$ipdir -force
@@ -148,7 +174,9 @@ class Series7MMCM(c : PLLParameters) extends BlackBox with PLL {
        | CONFIG.PRIM_IN_FREQ {${c.input.freqMHz.toString}} \\
        | CONFIG.CLKIN1_JITTER_PS {${c.input.jitter}} \\
        |${used}${outputs}] [get_ips ${moduleName}]
-       |""".stripMargin)
+       |set mult [get_property CONFIG.MMCM_CLKFBOUT_MULT_F [get_ips ${moduleName}]]
+       |set div1 [get_property CONFIG.MMCM_DIVCLK_DIVIDE [get_ips ${moduleName}]]
+       |${checks}""".stripMargin)
 }
 
 //-------------------------------------------------------------------------
