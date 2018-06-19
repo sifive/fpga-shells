@@ -177,8 +177,10 @@ class PolarFirePCIeX4(implicit p:Parameters) extends LazyModule
         "device_type"        -> Seq(ResourceString("pci")),
         "interrupt-map-mask" -> Seq(0, 0, 0, 7).flatMap(ofInt),
         "interrupt-map"      -> Seq(1, 2, 3, 4).flatMap(ofMap),
-        "ranges"             -> resources("ranges").map { case Binding(_, ResourceAddress(address, perms)) =>
-                                                               ResourceMapping(address, BigInt(0x02000000) << 64, perms) },
+        "ranges"             -> resources("ranges").map(x =>
+                                  (x: @unchecked) match { case Binding(_, ResourceAddress(address, perms)) =>
+                                                               ResourceMapping(address,
+                                                                 BigInt(0x02000000) << 64, perms) }),
         "interrupt-controller" -> Seq(ResourceMap(labels = Seq(intc), value = Map(
           "interrupt-controller" -> Nil,
           "#address-cells"       -> ofInt(0),
