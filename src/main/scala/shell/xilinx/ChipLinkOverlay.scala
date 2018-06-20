@@ -2,12 +2,7 @@
 package sifive.fpgashells.shell.xilinx
 
 import chisel3._
-import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
-import freechips.rocketchip.util._
-import freechips.rocketchip.tilelink._
-import sifive.blocks.devices.chiplink._
-import sifive.fpgashells.clocks._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 
@@ -23,7 +18,7 @@ abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams)
     val oddr = Module(new ODDR())
     oddr.suggestName(s"${name}_tx_oddr")
     io.c2b.clk := oddr.io.Q.asClock
-    oddr.io.C  := tx.clock.asUInt
+    oddr.io.C  := tx.clock
     oddr.io.CE := true.B
     oddr.io.D1 := true.B
     oddr.io.D2 := false.B
@@ -59,31 +54,5 @@ abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams)
     IOPin.of(io).filter(p => p.isOutput && !(p.element eq io.c2b.clk)).foreach { e =>
       shell.setIOTiming(e, s"${name}_c2b_clock", timing)
     }
-  } }
-}
-
-class ChipLinkVC707Overlay(val shell: VC707Shell, val name: String, params: ChipLinkOverlayParams)
-  extends ChipLinkXilinxOverlay(params)
-{
-  shell { InModuleBody {
-    val dir1 = Seq("AF39", "AJ41", "AJ40", /* clk, rst, send */
-                   "AD40", "AD41", "AF41", "AG41", "AK39", "AL39", "AJ42", "AK42",
-                   "AL41", "AL42", "AF42", "AG42", "AD38", "AE38", "AC40", "AC41",
-                   "AD42", "AE42", "AJ38", "AK38", "AB41", "AB42", "Y42",  "AA42",
-                   "Y39",  "AA39", "W40",  "Y40",  "AB38", "AB39", "AC38", "AC39")
-    val dir2 = Seq("U39", "R37", "T36", /* clk, rst, send */
-                   "U37", "U38", "U36", "T37", "U32", "U33", "V33", "V34",
-                   "P35", "P36", "W32", "W33", "R38", "R39", "U34", "T35",
-                   "R33", "R34", "N33", "N34", "P32", "P33", "V35", "V36",
-                   "W36", "W37", "T32", "R32", "V39", "V40", "P37", "P38")
-    val dirB2C = Seq(IOPin(io.b2c.clk), IOPin(io.b2c.rst), IOPin(io.b2c.send)) ++
-                 IOPin.of(io.b2c.data)
-    val dirC2B = Seq(IOPin(io.c2b.clk), IOPin(io.c2b.rst), IOPin(io.c2b.send)) ++
-                 IOPin.of(io.c2b.data)
-    (dirB2C zip dir1) foreach { case (io, pin) => shell.setPackagePin(io, pin) }
-    (dirC2B zip dir2) foreach { case (io, pin) => shell.setPackagePin(io, pin) }
-
-    val (rxIn, _) = rxI.out(0)
-    rxIn.reset := shell.sysClock.out(0)._1.reset
   } }
 }
