@@ -39,9 +39,9 @@ extends BlackBox(
   )
 ) {
   val io = IO(new Bundle {
-    val O         = Bool(OUTPUT)
-    val I         = Bool(INPUT)
-    val IB        = Bool(INPUT)
+    val O  = Output(Clock())
+    val I  = Input(Clock())
+    val IB = Input(Clock())
   })
 }
 
@@ -266,7 +266,7 @@ extends BlackBox(
 ) {
   val io = IO(new Bundle {
     val Q = Output(Bool())
-    val C = Input(Bool())
+    val C = Input(Clock())
     val CE = Input(Bool())
     val D1 = Input(Bool())
     val D2 = Input(Bool())
