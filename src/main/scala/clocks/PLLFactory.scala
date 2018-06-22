@@ -4,7 +4,7 @@ package sifive.fpgashells.clocks
 import chisel3._
 import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
-import freechips.rocketchip.util._
+import sifive.fpgashells.shell._
 import scala.collection.immutable.ListMap
 
 case class PLLNode(val feedback: Boolean)(implicit valName: ValName)
@@ -40,7 +40,7 @@ trait PLLInstance {
 }
 
 case object PLLFactoryKey extends Field[PLLFactory]
-class PLLFactory(scope: LazyScope, maxOutputs: Int, gen: PLLParameters => PLLInstance)
+class PLLFactory(scope: IOShell, maxOutputs: Int, gen: PLLParameters => PLLInstance)
 {
   private var pllNodes: Seq[PLLNode] = Nil
 
@@ -48,11 +48,6 @@ class PLLFactory(scope: LazyScope, maxOutputs: Int, gen: PLLParameters => PLLIns
     val node = scope { PLLNode(feedback) }
     pllNodes = node +: pllNodes
     node
-  }
-
-  private var extraGroups = ListMap[String, String]()
-  def describeGroup(name: String, expr: String) {
-    extraGroups = extraGroups + (name -> expr)
   }
 
   scope { InModuleBody {
@@ -86,16 +81,11 @@ class PLLFactory(scope: LazyScope, maxOutputs: Int, gen: PLLParameters => PLLIns
       }
 
       val groupLabels = edgeOut.flatMap(e => Seq.fill(e.members.size) { e.sink.name })
-      groupLabels zip pll.getClockNames
+      groupLabels zip pll.getClocks.map(x => IOPin(x))
     }.groupBy(_._1).mapValues(_.map(_._2))
 
     // Ensure there are no clock groups with the same name
     require (sdcGroups.size == pllNodes.map(_.edges.out.size).sum)
-    val groups = sdcGroups.map { case (group, clocks) =>
-      ("  -group [get_clocks -of_objects [get_pins {" +: clocks).mkString(" \\\n    ") + " } ] ]" }
-    val extra = extraGroups.map { case (group, expr) => s"  -group ${expr}" }
-    val sdc = ("set_clock_groups -asynchronous" +: (groups.toList ++ extra)).mkString(" \\\n") + "\n"
-    println(sdc)
-    ElaborationArtefacts.add("design.sdc", sdc)
+    sdcGroups.foreach { case (_, clockPins) => scope.sdc.addGroup(pins = clockPins) }
   } }
 }

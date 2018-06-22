@@ -20,7 +20,7 @@ abstract class LEDXilinxOverlay(params: LEDOverlayParams, boardPins: Seq[String]
     val boardIOs = ios.take(cutAt)
     val packageIOs = ios.drop(cutAt)
 
-    (boardPins   zip boardIOs)   foreach { case (pin, io) => shell.setBoardPin  (io, pin) }
-    (packagePins zip packageIOs) foreach { case (pin, io) => shell.setPackagePin(io, pin) }
+    (boardPins   zip boardIOs)   foreach { case (pin, io) => shell.xdc.addBoardPin  (io, pin) }
+    (packagePins zip packageIOs) foreach { case (pin, io) => shell.xdc.addPackagePin(io, pin) }
   } }
 }

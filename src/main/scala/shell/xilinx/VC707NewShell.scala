@@ -22,8 +22,8 @@ class SysClockVC707Overlay(val shell: VC707Shell, val name: String, params: Cloc
     val (c, _) = node.out(0)
     c.reset := shell.pllReset
 
-    shell.setBoardPin(io.p, "clk_p")
-    shell.setBoardPin(io.n, "clk_n")
+    shell.xdc.addBoardPin(io.p, "clk_p")
+    shell.xdc.addBoardPin(io.n, "clk_n")
   } }
 }
 
@@ -39,9 +39,9 @@ class ChipLinkVC707Overlay(val shell: VC707Shell, val name: String, params: Chip
   val ereset_n = shell { InModuleBody {
     val ereset_n = IO(Input(Bool()))
     ereset_n.suggestName("ereset_n")
-    shell.setPackagePin(ereset_n, "AF40")
-    shell.setIOStandard(ereset_n, "LVCMOS18")
-    shell.setTermination(ereset_n, "NONE")
+    shell.xdc.addPackagePin(ereset_n, "AF40")
+    shell.xdc.addIOStandard(ereset_n, "LVCMOS18")
+    shell.xdc.addTermination(ereset_n, "NONE")
     ereset_n
   } }
 
@@ -60,8 +60,8 @@ class ChipLinkVC707Overlay(val shell: VC707Shell, val name: String, params: Chip
                  IOPin.of(io.b2c.data)
     val dirC2B = Seq(IOPin(io.c2b.clk), IOPin(io.c2b.rst), IOPin(io.c2b.send)) ++
                  IOPin.of(io.c2b.data)
-    (dirB2C zip dir1) foreach { case (io, pin) => shell.setPackagePin(io, pin) }
-    (dirC2B zip dir2) foreach { case (io, pin) => shell.setPackagePin(io, pin) }
+    (dirB2C zip dir1) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
+    (dirC2B zip dir2) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
 
     val (rxIn, _) = rxI.out(0)
     rxIn.reset := shell.pllReset
@@ -98,7 +98,7 @@ class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverla
     port.aresetn := ar.reset
   } }
 
-  shell.pllFactory.describeGroup(name, "[get_clocks {clk_pll_i}]")
+  shell.sdc.addGroup(clocks = Seq("clk_pll_i"))
 }
 
 class PCIeVC707Overlay(val shell: VC707Shell, val name: String, params: PCIeOverlayParams)
@@ -130,18 +130,17 @@ class PCIeVC707Overlay(val shell: VC707Shell, val name: String, params: PCIeOver
     port.axi_aresetn := ar.reset
     port.axi_ctl_aresetn := ar.reset
 
-    shell.setPackagePin(io.REFCLK_rxp, "A10")
-    shell.setPackagePin(io.REFCLK_rxn, "A9")
-    shell.setPackagePin(io.pci_exp_txp, "H4")
-    shell.setPackagePin(io.pci_exp_txn, "H3")
-    shell.setPackagePin(io.pci_exp_rxp, "G6")
-    shell.setPackagePin(io.pci_exp_rxn, "G5")
+    shell.xdc.addPackagePin(io.REFCLK_rxp, "A10")
+    shell.xdc.addPackagePin(io.REFCLK_rxn, "A9")
+    shell.xdc.addPackagePin(io.pci_exp_txp, "H4")
+    shell.xdc.addPackagePin(io.pci_exp_txn, "H3")
+    shell.xdc.addPackagePin(io.pci_exp_rxp, "G6")
+    shell.xdc.addPackagePin(io.pci_exp_rxn, "G5")
 
-    shell.addConstraint(s"create_clock -name ${name}_ref_clk -period 10 ${shell.portOf(io.REFCLK_rxp)}")
-    shell.addConstraint(s"set_input_jitter ${shell.clockOf(io.REFCLK_rxp)} 0.5")
+    shell.sdc.addClock(s"${name}_ref_clk", io.REFCLK_rxp, 100)
   } }
 
-  shell.pllFactory.describeGroup(name, "[get_clocks -include_generated_clocks -of_objects [get_pins -hier -filter {name =~ *pcie*TXOUTCLK}]]")
+  shell.sdc.addGroup(clocks = Seq("txoutclk", "userclk1"))
 }
 
 class VC707Shell()(implicit p: Parameters) extends Series7Shell
@@ -161,7 +160,7 @@ class VC707Shell()(implicit p: Parameters) extends Series7Shell
 
   override lazy val module = new LazyRawModuleImp(this) {
     val reset = IO(Input(Bool()))
-    setBoardPin(reset, "reset")
+    xdc.addBoardPin(reset, "reset")
 
     val reset_ibuf = Module(new IBUF)
     reset_ibuf.io.I := reset

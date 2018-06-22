@@ -25,10 +25,10 @@ abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams)
     oddr.io.R  := tx.reset
     oddr.io.S  := false.B
 
-    IOPin.of(io).foreach { shell.setIOStandard(_, "LVCMOS18") }
-    IOPin.of(io).filterNot(_.element eq io.b2c.clk).foreach { shell.setIOB(_) }
-    IOPin.of(io).filter(_.isOutput).foreach { shell.setSlew(_, "FAST") }
-    IOPin.of(io).filter(_.isInput).foreach { shell.setTermination(_, "NONE") }
+    IOPin.of(io).foreach { shell.xdc.addIOStandard(_, "LVCMOS18") }
+    IOPin.of(io).filterNot(_.element eq io.b2c.clk).foreach { shell.xdc.addIOB(_) }
+    IOPin.of(io).filter(_.isOutput).foreach { shell.xdc.addSlew(_, "FAST") }
+    IOPin.of(io).filter(_.isInput).foreach { shell.xdc.addTermination(_, "NONE") }
 
     val timing = IOTiming(
       /* The data signals coming from Aloe have: clock - 1.2 <= transition <= clock + 0.8
@@ -46,13 +46,13 @@ abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams)
       minOutput = -1.25,
       maxOutput =  2.45)
 
-    shell.addConstraint(s"create_clock -name ${name}_b2c_clock -period ${1000/rxEdge.clock.freqMHz} ${shell.portOf(io.b2c.clk)}")
-    shell.addConstraint(s"create_generated_clock -name ${name}_c2b_clock -divide_by 1 -source [ get_pins {${name}_tx_oddr/C} ] ${shell.portOf(io.c2b.clk)}")
+    shell.sdc.addClock(s"${name}_b2c_clock", io.b2c.clk, rxEdge.clock.freqMHz)
+    shell.sdc.addDerivedClock(s"${name}_c2b_clock", oddr.io.C, io.c2b.clk)
     IOPin.of(io).filter(p => p.isInput  && !(p.element eq io.b2c.clk)).foreach { e =>
-      shell.setIOTiming(e, s"${name}_b2c_clock", timing)
+      shell.sdc.addIOTiming(e, s"${name}_b2c_clock", timing)
     }
     IOPin.of(io).filter(p => p.isOutput && !(p.element eq io.c2b.clk)).foreach { e =>
-      shell.setIOTiming(e, s"${name}_c2b_clock", timing)
+      shell.sdc.addIOTiming(e, s"${name}_c2b_clock", timing)
     }
   } }
 }

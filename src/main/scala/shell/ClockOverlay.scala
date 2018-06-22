@@ -30,7 +30,6 @@ abstract class LVDSClockInputOverlay(
 
   shell { InModuleBody {
     val edge = node.edges.out.head
-    shell.addConstraint(s"create_clock -name ${name} -period ${1000/edge.clock.freqMHz} ${shell.portOf(io.p)}")
-    shell.addConstraint(s"set_input_jitter ${shell.clockOf(io.p)} 0.5")
+    shell.sdc.addClock(name, io.p, edge.clock.freqMHz)
   } }
 }

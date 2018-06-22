@@ -4,7 +4,6 @@ package sifive.fpgashells.shell
 import chisel3._
 import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
-import freechips.rocketchip.util._
 
 case object DesignKey extends Field[Parameters => LazyModule]
 
@@ -55,13 +54,6 @@ abstract class Shell()(implicit p: Parameters) extends LazyModule with LazyScope
       }
     })
     thunk
-  }
-
-  private var constraints: Seq[() => String] = Nil
-  ElaborationArtefacts.add("constraints.tcl", constraints.map(_()).reverse.mkString("\n") + "\n")
-
-  def addConstraint(command: => String) {
-    constraints = (() => command) +: constraints
   }
 
   // feel free to override this if necessary

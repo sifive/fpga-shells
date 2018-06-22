@@ -3,34 +3,52 @@ package sifive.fpgashells.shell.xilinx
 
 import chisel3._
 import freechips.rocketchip.config._
+import freechips.rocketchip.util._
 import sifive.fpgashells.clocks._
 import sifive.fpgashells.ip.xilinx._
 import sifive.fpgashells.shell._
 
-abstract class XilinxShell()(implicit p: Parameters) extends IOShell
+class XDC(val name: String)
 {
-  def setBoardPin(io: IOPin, pin: String) {
-    addConstraint(s"set_property BOARD_PIN {${pin}} ${portOf(io)}")
+  private var constraints: Seq[() => String] = Nil
+  protected def addConstraint(command: => String) { constraints = (() => command) +: constraints }
+  ElaborationArtefacts.add(name, constraints.map(_()).reverse.mkString("\n") + "\n")
+
+  def addBoardPin(io: IOPin, pin: String) {
+    addConstraint(s"set_property BOARD_PIN {${pin}} ${io.sdcPin}")
   }
-  def setPackagePin(io: IOPin, pin: String) {
-    addConstraint(s"set_property PACKAGE_PIN ${pin} ${portOf(io)}")
+  def addPackagePin(io: IOPin, pin: String) {
+    addConstraint(s"set_property PACKAGE_PIN ${pin} ${io.sdcPin}")
   }
-  def setIOStandard(io: IOPin, standard: String) {
-    addConstraint(s"set_property IOSTANDARD ${standard} ${portOf(io)}")
+  def addIOStandard(io: IOPin, standard: String) {
+    addConstraint(s"set_property IOSTANDARD ${standard} ${io.sdcPin}")
   }
-  def setIOB(io: IOPin) {
+  def addIOB(io: IOPin) {
     if (io.isOutput) {
-      addConstraint(s"set_property IOB TRUE [ get_cells -of_objects [ all_fanin -flat -startpoints_only ${portOf(io)} ] ]")
+      addConstraint(s"set_property IOB TRUE [ get_cells -of_objects [ all_fanin -flat -startpoints_only ${io.sdcPin}]]")
     } else {
-      addConstraint(s"set_property IOB TRUE [ get_cells -of_objects [ all_fanout -flat -endpoints_only ${portOf(io)} ] ]")
+      addConstraint(s"set_property IOB TRUE [ get_cells -of_objects [ all_fanout -flat -endpoints_only ${io.sdcPin}]]")
     }
   }
-  def setSlew(io: IOPin, speed: String) {
-    addConstraint(s"set_property SLEW ${speed} ${portOf(io)}")
+  def addSlew(io: IOPin, speed: String) {
+    addConstraint(s"set_property SLEW ${speed} ${io.sdcPin}")
   }
-  def setTermination(io: IOPin, kind: String) {
-    addConstraint(s"set_property OFFCHIP_TERM ${kind} ${portOf(io)}")
+  def addTermination(io: IOPin, kind: String) {
+    addConstraint(s"set_property OFFCHIP_TERM ${kind} ${io.sdcPin}")
   }
+}
+
+abstract class XilinxShell()(implicit p: Parameters) extends IOShell
+{
+  val sdc = new SDC("shell.sdc")
+  val xdc = new XDC("shell.xdc")
+
+  ElaborationArtefacts.add("shell.vivado.tcl",
+    """set shell_vivado_tcl [file normalize [info script]]
+      |set shell_vivado_idx [string last ".shell.vivado.tcl" $shell_vivado_tcl]
+      |add_files -fileset [current_fileset -constrset] [string replace $shell_vivado_tcl $shell_vivado_idx 999 ".shell.sdc"]
+      |add_files -fileset [current_fileset -constrset] [string replace $shell_vivado_tcl $shell_vivado_idx 999 ".shell.xdc"]
+      |""".stripMargin)
 }
 
 abstract class Series7Shell()(implicit p: Parameters) extends XilinxShell
