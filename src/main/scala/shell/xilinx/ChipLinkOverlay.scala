@@ -7,7 +7,7 @@ import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 
 abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams)
-  extends ChipLinkOverlay(params, rxPhase=270, txPhase=210)
+  extends ChipLinkOverlay(params, rxPhase=280, txPhase=220)
 {
   def shell: XilinxShell
 
@@ -32,21 +32,21 @@ abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams)
 
     val timing = IOTiming(
       /* The data signals coming from Aloe have: clock - 1.2 <= transition <= clock + 0.8
-       * Let's add 0.6ns of safety for trace jitter+skew on both sides:
-       *   min = hold           = - 1.2 - 0.6
-       *   max = period - setup =   0.8 + 0.6
+       * Let's add 0.3ns of safety for trace jitter+skew on both sides:
+       *   min = hold           = - 1.2 - 0.3
+       *   max = period - setup =   0.8 + 0.3
        */
-      minInput  = -1.8,
-      maxInput  =  1.4,
+      minInput  = -1.5,
+      maxInput  =  1.1,
       /* The data signals going to Aloe must have: clock - 1.85 <= NO transition <= clock + 0.65
-       * Let's add 0.6ns of safey for trace jitter+skew on both sides:
-       *   min = -hold = -0.65 - 0.6
-       *   max = setup =  1.85 + 0.6
+       * Let's add 0.3ns of safey for trace jitter+skew on both sides:
+       *   min = -hold = -0.65 - 0.3
+       *   max = setup =  1.85 + 0.3
        */
-      minOutput = -1.25,
-      maxOutput =  2.45)
+      minOutput = -0.95,
+      maxOutput =  2.15)
 
-    shell.sdc.addClock(s"${name}_b2c_clock", io.b2c.clk, rxEdge.clock.freqMHz)
+    shell.sdc.addClock(s"${name}_b2c_clock", io.b2c.clk, rxEdge.clock.freqMHz, 0.3)
     shell.sdc.addDerivedClock(s"${name}_c2b_clock", oddr.io.C, io.c2b.clk)
     IOPin.of(io).filter(p => p.isInput  && !(p.element eq io.b2c.clk)).foreach { e =>
       shell.sdc.addIOTiming(e, s"${name}_b2c_clock", timing)
