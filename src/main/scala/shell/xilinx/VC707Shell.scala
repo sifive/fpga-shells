@@ -603,4 +603,8 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
     ip_sdio_spi.io.spi_dq_o := sd_spi_dq_o.asUInt
   }
 
+  ElaborationArtefacts.add("old-shell.vivado.tcl",
+    """source [file join $boarddir tcl clocks.tcl]
+      |source [file join $boarddir tcl ios.tcl]
+      |""".stripMargin)
 }
