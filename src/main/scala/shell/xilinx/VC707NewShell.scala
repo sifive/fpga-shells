@@ -68,7 +68,7 @@ class ChipLinkVC707Overlay(val shell: VC707Shell, val name: String, params: Chip
   } }
 }
 
-case object VC707DDRSize extends Field[BigInt](0x40000000L) // 1GB
+case object VC707DDRSize extends Field[BigInt](0x40000000L * 4) // 1GB
 class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverlayParams)
   extends DDROverlay[XilinxVC707MIGPads](params)
 {
@@ -95,7 +95,7 @@ class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverla
     ui.reset := !port.mmcm_locked || port.ui_clk_sync_rst
     port.sys_clk_i := sys.clock.asUInt
     port.sys_rst := sys.reset // pllReset
-    port.aresetn := ar.reset
+    port.aresetn := !ar.reset
   } }
 
   shell.sdc.addGroup(clocks = Seq("clk_pll_i"))
@@ -127,8 +127,8 @@ class PCIeVC707Overlay(val shell: VC707Shell, val name: String, params: PCIeOver
     io <> port
     axi.clock := port.axi_aclk_out
     axi.reset := !port.mmcm_lock
-    port.axi_aresetn := ar.reset
-    port.axi_ctl_aresetn := ar.reset
+    port.axi_aresetn := !ar.reset
+    port.axi_ctl_aresetn := !ar.reset
 
     shell.xdc.addPackagePin(io.REFCLK_rxp, "A10")
     shell.xdc.addPackagePin(io.REFCLK_rxn, "A9")
@@ -164,6 +164,9 @@ class VC707Shell()(implicit p: Parameters) extends Series7Shell
 
     val reset_ibuf = Module(new IBUF)
     reset_ibuf.io.I := reset
-    pllReset := reset_ibuf.io.O || chiplink.map(!_.ereset_n).getOrElse(false.B)
+    pllReset :=
+      reset_ibuf.io.O ||
+      sys_clock.map(_.reset:Bool).getOrElse(false.B) ||
+      chiplink.map(!_.ereset_n).getOrElse(false.B)
   }
 }

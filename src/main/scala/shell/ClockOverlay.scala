@@ -31,5 +31,6 @@ abstract class LVDSClockInputOverlay(
   shell { InModuleBody {
     val edge = node.edges.out.head
     shell.sdc.addClock(name, io.p, edge.clock.freqMHz)
+    shell.sdc.addGroup(clocks = Seq(name))
   } }
 }

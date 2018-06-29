@@ -33,10 +33,11 @@ abstract class ChipLinkOverlay(
   val rxI     = shell { ClockSourceNode(freqMHz = freqMHz, jitterPS = 100) }
   val rxGroup = shell { ClockGroup() }
   val rxO     = shell { ClockSinkNode(freqMHz = freqMHz, phaseDeg = rxPhase) }
+  val txTap   = shell { ClockIdentityNode() }
   val txClock = shell { ClockSinkNode(freqMHz = freqMHz, phaseDeg = phaseDeg + txPhase) }
 
   rxO := params.wrangler := rxGroup := rxPLL := rxI
-  txClock := params.wrangler := params.txGroup
+  txClock := params.wrangler := txTap := params.txGroup
 
   def designOutput = linkBridge.child.node
   def ioFactory = new WideDataLayerPort(ChipLinkParams(Nil,Nil))

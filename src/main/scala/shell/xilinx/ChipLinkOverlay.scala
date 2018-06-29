@@ -3,6 +3,7 @@ package sifive.fpgashells.shell.xilinx
 
 import chisel3._
 import freechips.rocketchip.diplomacy._
+import freechips.rocketchip.util._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 
@@ -13,6 +14,7 @@ abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams)
 
   shell { InModuleBody {
     val (tx, _) = txClock.in(0)
+    val (tap, _) = txTap.out(0)
     val rxEdge = rxI.edges.out(0)
 
     val oddr = Module(new ODDR())
@@ -22,13 +24,15 @@ abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams)
     oddr.io.CE := true.B
     oddr.io.D1 := true.B
     oddr.io.D2 := false.B
-    oddr.io.R  := tx.reset
     oddr.io.S  := false.B
+    // We can't use tx.reset here as it waits for all PLLs to lock,
+    // including RX, which depends on this clock being driven.
+    // tap.reset only waits for the TX PLL to lock.
+    oddr.io.R  := ResetCatchAndSync(tx.clock, tap.reset)
 
     IOPin.of(io).foreach { shell.xdc.addIOStandard(_, "LVCMOS18") }
     IOPin.of(io).filterNot(_.element eq io.b2c.clk).foreach { shell.xdc.addIOB(_) }
     IOPin.of(io).filter(_.isOutput).foreach { shell.xdc.addSlew(_, "FAST") }
-    IOPin.of(io).filter(_.isInput).foreach { shell.xdc.addTermination(_, "NONE") }
 
     val timing = IOTiming(
       /* The data signals coming from Aloe have: clock - 1.2 <= transition <= clock + 0.8
