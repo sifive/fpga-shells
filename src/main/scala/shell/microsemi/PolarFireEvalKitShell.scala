@@ -499,9 +499,9 @@ abstract class PolarFireEvalKitShell(implicit val p: Parameters) extends RawModu
   val ddr3_clk_ccc = Module(new PolarFireCCC(
    PLLParameters(
     name = "ddr3_clk_ccc",
-    InClockParameters(50),
+    PLLInClockParameters(50),
     Seq(
-      OutClockParameters(111.111)))))
+      PLLOutClockParameters(111.111)))))
  
   ddr3_clk_ccc.io.REF_CLK_0 := ref_clk0
   val ddr3_clk_in = ddr3_clk_ccc.io.OUT0_FABCLK_0.get
@@ -513,11 +513,11 @@ abstract class PolarFireEvalKitShell(implicit val p: Parameters) extends RawModu
   //-----------------------------------------------------------------------
   val hart_clk_ccc = Module(new PolarFireCCC(PLLParameters(
     name = "hart_clk_ccc",
-    InClockParameters(166.666),
+    PLLInClockParameters(166.666),
     Seq(
-      OutClockParameters(25),
-      OutClockParameters(125),
-      OutClockParameters(150)))))
+      PLLOutClockParameters(25),
+      PLLOutClockParameters(125),
+      PLLOutClockParameters(150)))))
 
   val hart_clk_25   = hart_clk_ccc.io.OUT0_FABCLK_0.get
   val hart_clk_125  = hart_clk_ccc.io.OUT1_FABCLK_0.get

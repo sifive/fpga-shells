@@ -29,7 +29,4 @@ trait HasSystemXilinxVC707PCIeX1ModuleImp extends LazyModuleImp
   val xilinxvc707pcie = IO(new XilinxVC707PCIeX1IO)
 
   xilinxvc707pcie <> outer.xilinxvc707pcie.module.io.port
-
-  outer.xilinxvc707pcie.module.clock := outer.xilinxvc707pcie.module.io.port.axi_aclk_out
-  outer.xilinxvc707pcie.module.reset := ~xilinxvc707pcie.axi_aresetn
 }
