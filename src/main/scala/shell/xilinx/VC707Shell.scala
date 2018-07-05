@@ -604,7 +604,8 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
   }
 
   ElaborationArtefacts.add("old-shell.vivado.tcl",
-    """source [file join $boarddir tcl clocks.tcl]
-      |source [file join $boarddir tcl ios.tcl]
+    """set obj [current_fileset -constrset]
+      |add_files -quiet -norecurse -fileset $obj [file join $boarddir tcl ios.tcl]
+      |add_files -quiet -norecurse -fileset $obj [file join $boarddir tcl clocks.tcl]
       |""".stripMargin)
 }
