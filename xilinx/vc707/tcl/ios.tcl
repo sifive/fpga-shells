@@ -23,7 +23,6 @@ set_property BOARD_PIN {push_buttons_5bits_tri_i_0}  [get_ports btn_0]
 set_property BOARD_PIN {push_buttons_5bits_tri_i_1}  [get_ports btn_1]
 set_property BOARD_PIN {push_buttons_5bits_tri_i_2}  [get_ports btn_2]
 set_property BOARD_PIN {push_buttons_5bits_tri_i_3}  [get_ports btn_3]
-set_property BOARD_PIN {push_buttons_5bits_tri_i_4}  [get_ports btn_5]
 
 set_property BOARD_PIN {dip_switches_tri_i_0} [get_ports sw_0]
 set_property BOARD_PIN {dip_switches_tri_i_1} [get_ports sw_1]
@@ -36,20 +35,16 @@ set_property BOARD_PIN {dip_switches_tri_i_7} [get_ports sw_7]
 
 set_property PACKAGE_PIN AU33 [get_ports uart_rx]
 set_property IOSTANDARD LVCMOS18 [get_ports uart_rx]
-set_property IOB TRUE [get_ports uart_rx]
+set_property IOB TRUE [get_cells -of_objects [all_fanout -flat -endpoints_only [get_ports uart_rx]]]
 set_property PACKAGE_PIN AT32 [get_ports uart_ctsn]
 set_property IOSTANDARD LVCMOS18 [get_ports uart_ctsn]
 set_property IOB TRUE [get_ports uart_ctsn]
 set_property PACKAGE_PIN AU36 [get_ports uart_tx]
 set_property IOSTANDARD LVCMOS18 [get_ports uart_tx]
-set_property IOB TRUE [get_ports uart_tx]
+set_property IOB TRUE  [get_cells -of_objects [all_fanin -flat -startpoints_only [get_ports uart_tx]]]
 set_property PACKAGE_PIN AR34 [get_ports uart_rtsn]
 set_property IOSTANDARD LVCMOS18 [get_ports uart_rtsn]
 set_property IOB TRUE [get_ports uart_rtsn]
-
-# Platform specific constraints
-set_property IOB TRUE [get_cells "U500VC707System/uarts_0/txm/out_reg"]
-set_property IOB TRUE [get_cells "uart_rxd_sync/sync_1"]
 
 # PCI Express
 #FMC 1 refclk
