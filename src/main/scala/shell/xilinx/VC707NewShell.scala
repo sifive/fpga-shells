@@ -16,7 +16,7 @@ import sifive.fpgashells.devices.xilinx.xilinxvc707pciex1._
 class SysClockVC707Overlay(val shell: VC707Shell, val name: String, params: ClockInputOverlayParams)
   extends LVDSClockInputXilinxOverlay(params)
 {
-  val node = shell { ClockSourceNode(freqMHz = 200, jitterPS = 50)(ValName(name)) }
+  val node = shell { ClockSourceNode(name, freqMHz = 200, jitterPS = 50)(ValName(name)) }
 
   shell { InModuleBody {
     val (c, _) = node.out(0)
@@ -74,10 +74,11 @@ class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverla
 {
   val size = p(VC707DDRSize)
 
+  val sdcClockName = "clk_pll_i"
   val migBridge = BundleBridge(new XilinxVC707MIG(XilinxVC707MIGParams(
     address = AddressSet.misaligned(params.baseAddress, size))))
   val topIONode = shell { migBridge.ioNode.sink }
-  val ddrUI     = shell { ClockSourceNode(freqMHz = 200) }
+  val ddrUI     = shell { ClockSourceNode(sdcClockName, freqMHz = 200) }
   val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
   areset := params.wrangler := ddrUI
 
@@ -98,15 +99,16 @@ class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverla
     port.aresetn := !ar.reset
   } }
 
-  shell.sdc.addGroup(clocks = Seq("clk_pll_i"))
+  shell.sdc.addGroup(clocks = Seq(sdcClockName))
 }
 
 class PCIeVC707Overlay(val shell: VC707Shell, val name: String, params: PCIeOverlayParams)
   extends PCIeOverlay[XilinxVC707PCIeX1Pads](params)
 {
+  val sdcClockName = "userclk1"
   val pcieBridge = BundleBridge(new XilinxVC707PCIeX1)
   val topIONode = shell { pcieBridge.ioNode.sink }
-  val axiClk    = shell { ClockSourceNode(freqMHz = 125) }
+  val axiClk    = shell { ClockSourceNode(sdcClockName, freqMHz = 125) }
   val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
   areset := params.wrangler := axiClk
 
@@ -140,7 +142,7 @@ class PCIeVC707Overlay(val shell: VC707Shell, val name: String, params: PCIeOver
     shell.sdc.addClock(s"${name}_ref_clk", io.REFCLK_rxp, 100)
   } }
 
-  shell.sdc.addGroup(clocks = Seq("txoutclk", "userclk1"))
+  shell.sdc.addGroup(clocks = Seq(sdcClockName))
 }
 
 class VC707Shell()(implicit p: Parameters) extends Series7Shell

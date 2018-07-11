@@ -27,10 +27,13 @@ abstract class ChipLinkOverlay(
   val freqMHz  = params.txData.portParams.head.take.get.freqMHz
   val phaseDeg = params.txData.portParams.head.phaseDeg
 
+  val sdcRxClockName = s"${name}_b2c_clock"
+  val sdcTxClockName = s"${name}_c2b_clock"
+
   val linkBridge = BundleBridge(new ChipLink(params.params))
   val rxPLL   = p(PLLFactoryKey)(feedback = true)
   val ioSink  = shell { linkBridge.ioNode.sink }
-  val rxI     = shell { ClockSourceNode(freqMHz = freqMHz, jitterPS = 100) }
+  val rxI     = shell { ClockSourceNode(sdcRxClockName, freqMHz = freqMHz, jitterPS = 100) }
   val rxGroup = shell { ClockGroup() }
   val rxO     = shell { ClockSinkNode(freqMHz = freqMHz, phaseDeg = rxPhase) }
   val txTap   = shell { ClockIdentityNode() }
