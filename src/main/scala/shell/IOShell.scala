@@ -26,8 +26,6 @@ case class IOPin(element: Element, index: Int = 0)
     if (path.contains("/")) s"[get_pins {${path}}]" else s"[get_ports {${path}}]"
   }
 
-  def sdcClock = s"[get_clocks -of_objects ${sdcPin}]"
-
   def isOutput = {
     import chisel3.core.ActualDirection._
     DataMirror.directionOf(element) match {
@@ -100,16 +98,14 @@ class SDC(val name: String)
     addRawClock(s"create_generated_clock -name ${name} -divide_by 1 -source ${source.sdcPin} ${sink.sdcPin}")
   }
 
-  def addGroup(clocks: => Seq[String] = Nil, pins: => Seq[IOPin] = Nil) {
+  def addGroup(clocks: => Seq[String] = Nil) {
     def thunk = {
       val clocksList = clocks
-      val (pinsList, portsList) = pins.map(_.name).partition(_.contains("/"))
-      val sep = " \\\n      "
-      val clocksStr = (" [get_clocks {" +: clocksList).mkString(sep) + " \\\n    }]"
-      val pinsStr   = (" [get_clocks -of_objects [get_pins {"  +: pinsList ).mkString(sep) + " \\\n    }]]"
-      val portsStr  = (" [get_clocks -of_objects [get_ports {" +: portsList).mkString(sep) + " \\\n    }]]"
-      val str = s"  -group [list${if (clocksList.isEmpty) "" else clocksStr}${if (pinsList.isEmpty) "" else pinsStr}${if (portsList.isEmpty) "" else portsStr}]"
-      if (clocksList.isEmpty && pinsList.isEmpty && portsList.isEmpty) "" else str
+      if (clocksList.isEmpty) {
+        ""
+      } else {
+        (s"  -group {" +: clocksList).mkString(" \\\n      ") + " \\\n    }"
+      }
     }
     addRawGroup(thunk)
   }

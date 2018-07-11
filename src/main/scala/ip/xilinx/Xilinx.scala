@@ -124,7 +124,7 @@ class Series7MMCM(c : PLLParameters) extends BlackBox with PLLInstance {
   def getReset = Some(io.reset)
   def getLocked = io.locked
   def getClockNames = Seq.tabulate (c.req.size) { i =>
-    s"${c.name}/inst/mmcm_adv_inst/CLKOUT${i}" 
+    s"clk_out${i+1}_${c.name}"
   }
 
   val used = Seq.tabulate(7) { i =>

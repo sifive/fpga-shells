@@ -92,12 +92,12 @@ class PLLFactory(scope: IOShell, maxOutputs: Int, gen: PLLParameters => PLLInsta
       }
 
       val groupLabels = edgeOut.flatMap(e => Seq.fill(e.members.size) { e.sink.name })
-      groupLabels zip pll.getClocks.map(x => IOPin(x))
+      groupLabels zip pll.getClockNames
     }.groupBy(_._1).mapValues(_.map(_._2))
 
     // Ensure there are no clock groups with the same name
     require (sdcGroups.size == pllNodes.map(_.edges.out.size).sum)
-    sdcGroups.foreach { case (_, clockPins) => scope.sdc.addGroup(pins = clockPins) }
+    sdcGroups.foreach { case (_, clockNames) => scope.sdc.addGroup(clockNames) }
   } }
 
   private def names(group: Int, clock: Int) = "WTF"
