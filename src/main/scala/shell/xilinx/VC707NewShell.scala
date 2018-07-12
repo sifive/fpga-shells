@@ -27,6 +27,25 @@ class SysClockVC707Overlay(val shell: VC707Shell, val name: String, params: Cloc
   } }
 }
 
+class UARTVC707Overlay(val shell: VC707Shell, val name: String, params: UARTOverlayParams)
+  extends UARTXilinxOverlay(params)
+{
+  shell { InModuleBody {
+    val packageIOs = IOPin.of(io)
+
+    val packagePinsWithPackageIOs = Seq(("AT32", IOPin(io.ctsn)),
+                                        ("AR34", IOPin(io.rtsn)),
+                                        ("AU33", IOPin(io.rxd)),
+                                        ("AU36", IOPin(io.txd)))
+
+    packagePinsWithPackageIOs foreach { case (pin, io) => {
+      shell.xdc.addPackagePin(io, pin)
+      shell.xdc.addIOStandard(io, "LVCMOS18")
+      shell.xdc.addIOB(io)
+    } }
+  } }
+}
+
 class LEDVC707Overlay(val shell: VC707Shell, val name: String, params: LEDOverlayParams)
   extends LEDXilinxOverlay(params, boardPins = Seq.tabulate(8) { i => s"leds_8bits_tri_o_$i" })
 
@@ -155,6 +174,7 @@ class VC707Shell()(implicit p: Parameters) extends Series7Shell
   val chiplink  = Overlay(ChipLinkOverlayKey)  (new ChipLinkVC707Overlay(_, _, _))
   val ddr       = Overlay(DDROverlayKey)       (new DDRVC707Overlay     (_, _, _))
   val pcie      = Overlay(PCIeOverlayKey)      (new PCIeVC707Overlay    (_, _, _))
+  val uart      = Overlay(UARTOverlayKey)      (new UARTVC707Overlay    (_, _, _))
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
