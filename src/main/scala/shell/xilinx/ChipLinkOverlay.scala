@@ -51,7 +51,7 @@ abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams)
       maxOutput =  2.15)
 
     shell.sdc.addClock(sdcRxClockName, io.b2c.clk, rxEdge.clock.freqMHz, 0.3)
-    shell.sdc.addDerivedClock(sdcTxClockName, oddr.io.C, io.c2b.clk)
+    shell.sdc.addDerivedClock(sdcTxClockName, oddr.io.C.sdcPin, io.c2b.clk)
     IOPin.of(io).filter(p => p.isInput  && !(p.element eq io.b2c.clk)).foreach { e =>
       shell.sdc.addIOTiming(e, sdcRxClockName, timing)
     }

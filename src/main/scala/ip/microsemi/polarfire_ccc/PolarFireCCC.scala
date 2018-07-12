@@ -20,7 +20,7 @@ class PolarFireCCCIOPads(c : PLLParameters) extends Bundle {
 
 //scalastyle:off
 //turn off linter: blackbox name must match verilog module
-class PolarFireCCC(c : PLLParameters)(implicit val p:Parameters) extends BlackBox with PLLInstance {
+class PolarFireCCC(c : PLLParameters) extends BlackBox with PLLInstance {
   val moduleName = c.name
   override def desiredName = c.name
 
@@ -33,10 +33,7 @@ class PolarFireCCC(c : PLLParameters)(implicit val p:Parameters) extends BlackBo
                            io.OUT2_FABCLK_0 ++ io.OUT3_FABCLK_0 
   
   def getClockNames = Seq.tabulate (c.req.size) { i =>
-    s"${c.name}/hart_clk_ccc_0/pll_inst_0/OUT${i}"  //we might have to prepend
-                                                    //iofpga to the begning of the name
-                                                    //depending on where the
-                                                    //clk is being instantiated
+    s"${c.name}/${c.name}_0/pll_inst_0/OUT${i}"
   }
   
   var elaborateArtefactsString = ""
@@ -65,7 +62,9 @@ class PolarFireCCC(c : PLLParameters)(implicit val p:Parameters) extends BlackBo
          |""".stripMargin
   }
 
-  elaborateArtefactsString_temp += s""" "PLL_FEEDBACK_MODE_0:${if (c.input.feedback) "External" else "Post-VCO"}" \\""" 
+  // !!! work-around libero bug
+  //elaborateArtefactsString_temp += s""" "PLL_FEEDBACK_MODE_0:${if (c.input.feedback) "External" else "Post-VCO"}" \\""" 
+  elaborateArtefactsString_temp += s""" "PLL_FEEDBACK_MODE_0:Post-VCO" \\""" 
 
   elaborateArtefactsString += 
     s""" create_design -id Actel:SgCore:PF_CCC:1.0.112 -design_name {${moduleName}} -config_file {} -params {} -inhibit_configurator 0

@@ -34,3 +34,20 @@ abstract class LVDSClockInputOverlay(
     shell.sdc.addGroup(clocks = Seq(name))
   } }
 }
+
+abstract class ClockInputOverlay(
+  val params: ClockInputOverlayParams)
+    extends IOOverlay[Clock, ClockSourceNode]
+{
+  implicit val p = params.p
+  def node: ClockSourceNode
+
+  def ioFactory = Input(Clock())
+  def designOutput = node
+
+  shell { InModuleBody {
+    val edge = node.edges.out.head
+    shell.sdc.addClock(name, io:Clock, edge.clock.freqMHz)
+    shell.sdc.addGroup(clocks = Seq(name))
+  } }
+}

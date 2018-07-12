@@ -24,3 +24,21 @@ abstract class LVDSClockInputXilinxOverlay(params: ClockInputOverlayParams)
     PowerOnResetFPGAOnly(ibufds.io.O)
   } }
 }
+
+abstract class ClockInputXilinxOverlay(params: ClockInputOverlayParams)
+  extends ClockInputOverlay(params)
+{
+  def shell: XilinxShell
+
+  val reset = shell { InModuleBody {
+    val ibufds = Module(new IBUFG)
+    ibufds.suggestName(s"${name}_ibufg")
+
+    val (c, _) = node.out(0)
+    ibufds.io.I  := io
+    c.clock := ibufds.io.O
+    c.reset := false.B
+
+    PowerOnResetFPGAOnly(ibufds.io.O)
+  } }
+}

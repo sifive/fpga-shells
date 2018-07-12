@@ -34,6 +34,10 @@ set FPExpressDir "$chisel_build_dir/FlashProExpress"
 puts "FlashPro Express folder: $FPExpressDir"
 file mkdir $FPExpressDir
 
+set scriptdir [file dirname [info script]]
+set commondir [file dirname $scriptdir]
+set boarddir [file join [ file dirname $commondir] $chisel_board]
+
 ###########################################
 set CoreJTAGDebugver {2.0.100}
 set PF_DDR3ver {2.1.101}
@@ -61,17 +65,7 @@ set xcvrrefclk_refclk_mode "diff"
 #########ORIGINAl SETTINGS#############
 
 #Device Selection
-set family {PolarFire}
-set die {MPF300TS_ES}
-set package {FCG1152}
-set speed {-1}
-set die_voltage {1.0}
-set part_range {EXT}
-
-#Device Settings
-set IOTech {LVCMOS 1.8V}
-set ResProbe {1}
-set ResSPI {0}
+source [file join $boarddir tcl board.tcl]
 
 #Analysis operating conditions
 set TEMPR {EXT}
@@ -100,6 +94,7 @@ new_project -ondemand_build_dh 1 -location "$Proj" -name "$Prjname" -project_des
 import_files \
          -convert_EDN_to_HDL 0 \
          -hdl_source "$chisel_build_dir/$chisel_project.$chisel_config.v" \
+         -hdl_source "../../fpga-shells/xilinx/common/vsrc/PowerOnResetFPGAOnly.v" \
          -hdl_source "../../rocket-chip/src/main/resources/vsrc/AsyncResetReg.v" \
          -hdl_source "../../rocket-chip/src/main/resources/vsrc/plusarg_reader.v"
 
@@ -118,7 +113,6 @@ foreach f $tclfiles {
 #
 build_design_hierarchy         
 
-#set_root -module {U500PolarFireEvalKitFPGAChip::work}
 set proj_root $chisel_model
 append proj_root "::work"
 puts "project root: $proj_root"
@@ -131,29 +125,27 @@ puts "-----------------------------------------------------------------"
 puts "------------------ Applying design constraints ------------------"
 puts "-----------------------------------------------------------------"
 
-import_files \
-         -io_pdc ../../fpga-shells/microsemi/$chisel_board/constraints/pin_constraints.pdc
-		 
-import_files \
-         -fp_pdc ../../fpga-shells/microsemi/$chisel_board/constraints/floor_plan.pdc 
+set sdc    $chisel_project.$chisel_config.shell.sdc
+set io_pdc $chisel_project.$chisel_config.shell.io.pdc
 
-import_files \
-         -convert_EDN_to_HDL 0 \
-         -sdc ../../fpga-shells/microsemi/$chisel_board/constraints/false_paths.sdc 
+import_files -fp_pdc [file join $boarddir constraints floor_plan.pdc]
+import_files -io_pdc [file join $boarddir constraints pin_constraints.pdc]
+import_files                    -io_pdc [file join $chisel_build_dir $io_pdc]
+import_files -convert_EDN_to_HDL 0 -sdc [file join $chisel_build_dir $sdc]
 
 organize_tool_files -tool {PLACEROUTE} \
-         -file $Proj/constraint/io/pin_constraints.pdc \
          -file $Proj/constraint/fp/floor_plan.pdc \
-         -file $Proj/constraint/false_paths.sdc \
+         -file $Proj/constraint/io/pin_constraints.pdc \
+         -file $Proj/constraint/io/$io_pdc \
+         -file $Proj/constraint/$sdc \
          -module $proj_root -input_type {constraint} 
 
 organize_tool_files -tool {VERIFYTIMING} \
-         -file $Proj/constraint/false_paths.sdc \
+         -file $Proj/constraint/$sdc \
          -module $proj_root -input_type {constraint} 
          
 run_tool -name {CONSTRAINT_MANAGEMENT} 
 derive_constraints_sdc
-
 
 #
 # Synthesis
@@ -187,31 +179,3 @@ export_prog_job \
     -export_dir $FPExpressDir \
     -bitstream_file_type {TRUSTED_FACILITY} \
     -bitstream_file_components {}
-
-
-#proc export_programming_job_g5 { name location components } {
-#                export_prog_job \
-#                                                -job_file_name $name \
-#                                                -export_dir $location \
-#                                                -bitstream_file_type {TRUSTED_FACILITY} \
-#                                                -bitstream_file_components $components
-#}
- 
-#Export programming job file
-#export_programming_job_g5 "PF_JOB" "./srcs" {FABRIC SNVM}
-
-#export_bitstream_file \
-#         -file_name $Proj \
-#         -export_dir $Proj/designer/$Proj/export \
-#         -format {STP}
-         
-         
-#         -master_file 0 \
-#         -master_file_components {} \
-#         -encrypted_uek1_file 0 \
-#         -encrypted_uek1_file_components {} \
-#         -encrypted_uek2_file 0 \
-#         -encrypted_uek2_file_components {} \
-#         -trusted_facility_file 1 \
-#         -trusted_facility_file_components {FABRIC SNVM}
-
