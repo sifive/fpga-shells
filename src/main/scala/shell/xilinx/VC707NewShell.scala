@@ -2,10 +2,11 @@
 package sifive.fpgashells.shell.xilinx
 
 import chisel3._
-import chisel3.experimental.IO
+import chisel3.experimental.{IO, withClockAndReset}
 import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
+import freechips.rocketchip.util.SyncResetSynchronizerShiftReg
 import sifive.fpgashells.clocks._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
@@ -31,6 +32,13 @@ class UARTVC707Overlay(val shell: VC707Shell, val name: String, params: UARTOver
   extends UARTXilinxOverlay(params)
 {
   shell { InModuleBody {
+    // TODO: use proper clock/reset
+    require (shell.sys_clock.isDefined, "Use of UARTVC707Overlay depends on SysClockVC707Overlay")
+    val test_clock = shell.sys_clock.get.node.out(0)._1
+    withClockAndReset(test_clock.clock, test_clock.reset) {
+      uartSink.io.rxd := SyncResetSynchronizerShiftReg(io.rxd, 2, init = true.B, name=Some("uart_rxd_sync  "))
+    }
+
     val packageIOs = IOPin.of(io)
 
     val packagePinsWithPackageIOs = Seq(("AT32", IOPin(io.ctsn)),
