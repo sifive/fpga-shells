@@ -86,7 +86,7 @@ class VeraShell()(implicit p: Parameters) extends PolarFireShell
 
     pllReset :=
       !pf_user_reset_n ||
-      sys_clock.map(_.reset:Bool).getOrElse(false.B) ||
+      !initMonitor.io.DEVICE_INIT_DONE ||
       chiplink.map(!_.ereset_n).getOrElse(false.B)
   }
 }

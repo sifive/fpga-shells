@@ -3,9 +3,11 @@ package sifive.fpgashells.shell.microsemi
 
 import chisel3._
 import freechips.rocketchip.config._
+import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.util._
 import sifive.fpgashells.clocks._
 import sifive.fpgashells.ip.microsemi.polarfireccc._
+import sifive.fpgashells.ip.microsemi.polarfireinitmonitor._
 import sifive.fpgashells.shell._
 
 class IO_PDC(val name: String)
@@ -28,6 +30,7 @@ abstract class MicrosemiShell()(implicit p: Parameters) extends IOShell
 
 abstract class PolarFireShell()(implicit p: Parameters) extends MicrosemiShell
 {
+  val initMonitor = InModuleBody { Module(new PolarFireInitMonitor) }
   val pllFactory = new PLLFactory(this, 7, p => Module(new PolarFireCCC(p)))
   override def designParameters = super.designParameters.alterPartial {
     case PLLFactoryKey => pllFactory

@@ -11,11 +11,9 @@ abstract class ClockInputMicrosemiOverlay(params: ClockInputOverlayParams)
 {
   def shell: MicrosemiShell
 
-  val reset = shell { InModuleBody {
+  shell { InModuleBody {
     val (c, _) = node.out(0)
     c.clock := io
     c.reset := false.B
-
-    PowerOnResetFPGAOnly(io)
   } }
 }
