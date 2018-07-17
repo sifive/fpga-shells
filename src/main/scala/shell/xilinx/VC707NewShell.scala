@@ -52,14 +52,18 @@ class SDIOVC707Overlay(val shell: VC707Shell, val name: String, params: SDIOOver
     // SDIO <> SPI Bridge
     //-------------------------------------------------------------------
 
-    val ip_sdio_spi = Module(new sdio_spi_bridge())
+    val ip_sdio_spi = Module(new sdio_spi_bridge_new_shell())
 
     // TODO fix clocking
     ip_sdio_spi.io.clk   := test_clock.clock
     ip_sdio_spi.io.reset := test_clock.reset
 
     // SDIO
-    attach(io.sdio_dat, ip_sdio_spi.io.sd_dat)
+    attach(io.sdio_dat_0, ip_sdio_spi.io.sd_dat_0)
+    attach(io.sdio_dat_1, ip_sdio_spi.io.sd_dat_1)
+    attach(io.sdio_dat_2, ip_sdio_spi.io.sd_dat_2)
+    attach(io.sdio_dat_3, ip_sdio_spi.io.sd_dat_3)
+
     attach(io.sdio_cmd, ip_sdio_spi.io.sd_cmd)
     io.sdio_clk := ip_sdio_spi.io.spi_sck
 
@@ -68,6 +72,23 @@ class SDIOVC707Overlay(val shell: VC707Shell, val name: String, params: SDIOOver
     ip_sdio_spi.io.spi_cs   := sd_spi_cs
     sd_spi_dq_i             := ip_sdio_spi.io.spi_dq_i.toBools
     ip_sdio_spi.io.spi_dq_o := sd_spi_dq_o.asUInt
+
+    val packagePinsWithPackageIOs = Seq(("AN30", IOPin(io.sdio_clk)),
+                                        ("AP30", IOPin(io.sdio_cmd)),
+                                        ("AR30", IOPin(io.sdio_dat_0)),
+                                        ("AU31", IOPin(io.sdio_dat_1)),
+                                        ("AV31", IOPin(io.sdio_dat_2)),
+                                        ("AT30", IOPin(io.sdio_dat_3)))
+
+    packagePinsWithPackageIOs foreach { case (pin, io) => {
+      shell.xdc.addPackagePin(io, pin)
+      shell.xdc.addIOStandard(io, "LVCMOS18")
+      shell.xdc.addIOB(io)
+    } }
+    packagePinsWithPackageIOs drop 1 foreach { case (pin, io) => {
+      shell.xdc.addPullup(io)
+    } }
+
   } }
 }
 

@@ -15,7 +15,10 @@ case object SDIOOverlayKey extends Field[Seq[DesignOverlay[SDIOOverlayParams, TL
 class FPGASDIOPortIO extends Bundle {
   val sdio_clk = Output(Bool())
   val sdio_cmd = Analog(1.W)
-  val sdio_dat = Analog(4.W)
+  val sdio_dat_0 = Analog(1.W)
+  val sdio_dat_1 = Analog(1.W)
+  val sdio_dat_2 = Analog(1.W)
+  val sdio_dat_3 = Analog(1.W)
 }
 
 abstract class SDIOOverlay(
