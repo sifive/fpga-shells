@@ -2,7 +2,7 @@
 package sifive.fpgashells.shell.xilinx
 
 import chisel3._
-import chisel3.experimental.{IO, withClockAndReset}
+import chisel3.experimental.{attach, IO, withClockAndReset}
 import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
@@ -25,6 +25,49 @@ class SysClockVC707Overlay(val shell: VC707Shell, val name: String, params: Cloc
 
     shell.xdc.addBoardPin(io.p, "clk_p")
     shell.xdc.addBoardPin(io.n, "clk_n")
+  } }
+}
+
+class SDIOVC707Overlay(val shell: VC707Shell, val name: String, params: SDIOOverlayParams)
+  extends SDIOXilinxOverlay(params)
+{
+  shell { InModuleBody {
+    // TODO: use proper clock/reset
+    require (shell.sys_clock.isDefined, "Use of SDIOVC707Overlay depends on SysClockVC707Overlay")
+    val test_clock = shell.sys_clock.get.node.out(0)._1
+
+    val sd_spi_sck = spiSink.io.port.sck
+    val sd_spi_cs = spiSink.io.port.cs(0)
+
+    val sd_spi_dq_i = Wire(Vec(4, Bool()))
+    val sd_spi_dq_o = Wire(Vec(4, Bool()))
+
+    spiSink.io.port.dq.zipWithIndex.foreach {
+      case(pin, idx) =>
+        sd_spi_dq_o(idx) := pin.o
+        pin.i := sd_spi_dq_i(idx)
+    }
+
+    //-------------------------------------------------------------------
+    // SDIO <> SPI Bridge
+    //-------------------------------------------------------------------
+
+    val ip_sdio_spi = Module(new sdio_spi_bridge())
+
+    // TODO fix clocking
+    ip_sdio_spi.io.clk   := test_clock.clock
+    ip_sdio_spi.io.reset := test_clock.reset
+
+    // SDIO
+    attach(io.sdio_dat, ip_sdio_spi.io.sd_dat)
+    attach(io.sdio_cmd, ip_sdio_spi.io.sd_cmd)
+    io.sdio_clk := ip_sdio_spi.io.spi_sck
+
+    // SPI
+    ip_sdio_spi.io.spi_sck  := sd_spi_sck
+    ip_sdio_spi.io.spi_cs   := sd_spi_cs
+    sd_spi_dq_i             := ip_sdio_spi.io.spi_dq_i.toBools
+    ip_sdio_spi.io.spi_dq_o := sd_spi_dq_o.asUInt
   } }
 }
 
@@ -183,6 +226,7 @@ class VC707Shell()(implicit p: Parameters) extends Series7Shell
   val ddr       = Overlay(DDROverlayKey)       (new DDRVC707Overlay     (_, _, _))
   val pcie      = Overlay(PCIeOverlayKey)      (new PCIeVC707Overlay    (_, _, _))
   val uart      = Overlay(UARTOverlayKey)      (new UARTVC707Overlay    (_, _, _))
+  val sdio      = Overlay(SDIOOverlayKey)      (new SDIOVC707Overlay    (_, _, _))
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
