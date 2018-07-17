@@ -17,6 +17,28 @@ class FPGAUARTPortIO extends UARTPortIO {
   val ctsn = Input(Bool())
 }
 
+class UARTReplacementBundle extends Bundle with HasUARTTopBundleContents
+
+class BundleBridgeUART[D <: Data, T <: LazyModule](lm: => T { val module: { val io: D }})(implicit p: Parameters) extends LazyModule
+{
+  val child = LazyModule(lm)
+  val ioNode = BundleBridgeSource(() => new UARTReplacementBundle())
+  override lazy val desiredName = s"BundleBridge_${child.desiredName}"
+
+  lazy val module = new LazyModuleImp(this) {
+    val (io, _) = ioNode.out(0)
+    io <> child.module.io
+  }
+}
+
+object BundleBridgeUART
+{
+  def apply[D <: Data, T <: LazyModule](lm: => T { val module: { val io: D }})(implicit p: Parameters, valName: ValName) =
+    LazyModule(new BundleBridgeUART(lm))
+}
+
+
+
 abstract class UARTOverlay(
   val params: UARTOverlayParams)
     extends IOOverlay[FPGAUARTPortIO, TLUART]
@@ -29,10 +51,10 @@ abstract class UARTOverlay(
   val uartParam = p(PeripheryUARTKey).map(_.copy(divisorInit = divinit))
   val use_name = Some(s"uart_0")
 
-//  val uartSource = BundleBridge()
-//  val uartSink = shell { uartSource }
+  val uartSource = BundleBridgeUART(new TLUART(params.beatBytes, uartParam(0)).suggestName(use_name))
+  val uartSink = shell { uartSource.ioNode.sink }
 
-  val designOutput =   LazyModule(new TLUART(params.beatBytes, uartParam(0)).suggestName(use_name))
+  val designOutput = uartSource.child
 
 
 
@@ -43,7 +65,7 @@ abstract class UARTOverlay(
 
 
   shell { InModuleBody {
-//    io.txd := designOutput.module.io.port.txd
+    io.txd := uartSink.io.port.txd
 
     // Some FPGAs have this, we don't use it.
     io.rtsn := false.B
