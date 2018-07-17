@@ -56,14 +56,6 @@ abstract class UARTOverlay(
 
   val designOutput = uartSource.child
 
-
-
-
-
-
-
-
-
   shell { InModuleBody {
     io.txd := uartSink.io.port.txd
 
