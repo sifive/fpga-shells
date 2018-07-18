@@ -12,10 +12,6 @@ import freechips.rocketchip.interrupts.IntSyncCrossingSink
 trait HasSystemPolarFireEvalKitPCIeX4 { this: BaseSubsystem =>
   val pf_eval_kit_pcie = LazyModule(new PolarFireEvalKitPCIeX4)
   private val name = Some("polarfirepcie")
-//  sbus.fromSyncFIFOMaster(BufferParams.none) := pf_eval_kit_pcie.crossTLOut := pf_eval_kit_pcie.master
-//  pf_eval_kit_pcie.slave := pf_eval_kit_pcie.crossTLIn := sbus.toFixedWidthSlaves
-//  pf_eval_kit_pcie.control := pf_eval_kit_pcie.crossTLIn := sbus.toFixedWidthSlaves
-//  ibus.fromSync := pf_eval_kit_pcie.crossIntOut := pf_eval_kit_pcie.intnode
 
   sbus.fromMaster(name) { pf_eval_kit_pcie.crossTLOut } := pf_eval_kit_pcie.master
   pf_eval_kit_pcie.slave := sbus.toFixedWidthSlave(name) { pf_eval_kit_pcie.crossTLIn }
@@ -24,18 +20,18 @@ trait HasSystemPolarFireEvalKitPCIeX4 { this: BaseSubsystem =>
 }
 
 trait HasSystemPolarFireEvalKitPCIeX4Bundle {
-  val pf_eval_kit_pcie: PolarFireEvalKitPCIeX4IO
-  def connectPolarFireEvalKitPCIeX4ToPads(pads: PolarFireEvalKitPCIeX4Pads) {
-    pads <> pf_eval_kit_pcie
+  val pf_eval_kit_pcie: PolarFirePCIeX4Bundle
+  def connectPolarFireEvalKitPCIeX4ToPads(pads: PolarFirePCIeX4Pads) {
+    pads <> pf_eval_kit_pcie.pads
   }
 }
 
 trait HasSystemPolarFireEvalKitPCIeX4ModuleImp extends LazyModuleImp
     with HasSystemPolarFireEvalKitPCIeX4Bundle {
   val outer: HasSystemPolarFireEvalKitPCIeX4
-  val pf_eval_kit_pcie = IO(new PolarFireEvalKitPCIeX4IO)
+  val pf_eval_kit_pcie = IO(new PolarFirePCIeX4Bundle)
 
-  pf_eval_kit_pcie <> outer.pf_eval_kit_pcie.module.io.port
+  pf_eval_kit_pcie <> outer.pf_eval_kit_pcie.module.io
 
-  outer.pf_eval_kit_pcie.module.clock := outer.pf_eval_kit_pcie.module.io.port.AXI_CLK
+  outer.pf_eval_kit_pcie.module.clock := outer.pf_eval_kit_pcie.module.io.extra.AXI_CLK
 }

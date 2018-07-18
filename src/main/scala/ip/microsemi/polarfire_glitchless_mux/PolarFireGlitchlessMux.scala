@@ -9,8 +9,7 @@ import freechips.rocketchip.config._
 
 // Black Box forMicrosemi PolarFire glitchless mux Actel:SgCore:PF_NGMUX:1.0.101
 
-trait PolarFireGlitchlessMuxIOPads extends Bundle {
-
+trait PolarFireGlitchlessMuxIOPads {
     val CLK_OUT = Clock(OUTPUT)
     val CLK0    = Clock(INPUT)
     val CLK1    = Clock(INPUT)
@@ -23,19 +22,14 @@ class PolarFireGlitchlessMux(implicit val p:Parameters) extends BlackBox
 {
   override def desiredName = "pf_glitchless_mux"
 
-  val io = new PolarFireGlitchlessMuxIOPads {
-  }
+  val io = new Bundle with PolarFireGlitchlessMuxIOPads
   
-  ElaborationArtefacts.add(
-    "Libero.polarfire_glitchless_mux.tcl",
-    """ 
-create_design -id Actel:SgCore:PF_NGMUX:1.0.101 -design_name {pf_glitchless_mux} -config_file {} -params {} -inhibit_configurator 0
-open_smartdesign -design {pf_glitchless_mux}
-configure_design -component {pf_glitchless_mux} -library {} 
-fix_vlnv_instance -component {pf_glitchless_mux} -library {} -name {pf_glitchless_mux_0} 
-open_smartdesign -design {pf_glitchless_mux}
-configure_design -component {pf_glitchless_mux} -library {} 
-"""
-  )
+  ElaborationArtefacts.add(s"${desiredName}.libero.tcl",
+    s"""create_design -id Actel:SgCore:PF_NGMUX:1.0.101 -design_name {${desiredName}} -config_file {} -params {} -inhibit_configurator 0
+       |open_smartdesign -design {${desiredName}}
+       |configure_design -component {${desiredName}} -library {}
+       |fix_vlnv_instance -component {${desiredName}} -library {} -name {${desiredName}_0}
+       |open_smartdesign -design {${desiredName}}
+       |configure_design -component {${desiredName}} -library {}
+       |""".stripMargin)
 }
-//scalastyle:on

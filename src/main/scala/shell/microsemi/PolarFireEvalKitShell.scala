@@ -75,32 +75,32 @@ trait HasDDR4 { this: PolarFireEvalKitShell =>
 }
 
 trait HasPCIe { this: PolarFireEvalKitShell =>
-  val pcie = IO(new PolarFireEvalKitPCIeX4Pads)
+  val pcie = IO(new PolarFirePCIeX4Pads)
 
   def connectPCIe(dut: HasSystemPolarFireEvalKitPCIeX4ModuleImp): Unit = {
     // Clock & Reset
 //    dut.pf_eval_kit_pcie.APB_S_PCLK     := hart_clk
-    dut.pf_eval_kit_pcie.APB_S_PCLK     := dut_clock
-    dut.pf_eval_kit_pcie.APB_S_PRESET_N := UInt("b1")
+    dut.pf_eval_kit_pcie.extra.APB_S_PCLK     := dut_clock
+    dut.pf_eval_kit_pcie.extra.APB_S_PRESET_N := UInt("b1")
     
 //    dut.pf_eval_kit_pcie.AXI_CLK        := hart_clk_150
-    dut.pf_eval_kit_pcie.AXI_CLK        := dut_clock
-    dut.pf_eval_kit_pcie.AXI_CLK_STABLE := hart_clk_lock
+    dut.pf_eval_kit_pcie.extra.AXI_CLK        := dut_clock
+    dut.pf_eval_kit_pcie.extra.AXI_CLK_STABLE := hart_clk_lock
     
-    dut.pf_eval_kit_pcie.PCIE_1_TL_CLK_125MHz   := pcie_tl_clk
+    dut.pf_eval_kit_pcie.extra.PCIE_1_TL_CLK_125MHz   := pcie_tl_clk
     
-    dut.pf_eval_kit_pcie.PCIE_1_TX_PLL_REF_CLK  := pf_tx_pll_refclk_to_lane
+    dut.pf_eval_kit_pcie.extra.PCIE_1_TX_PLL_REF_CLK  := pf_tx_pll_refclk_to_lane
 
-    dut.pf_eval_kit_pcie.PCIE_1_TX_BIT_CLK := pf_tx_pll_bitclk
+    dut.pf_eval_kit_pcie.extra.PCIE_1_TX_BIT_CLK := pf_tx_pll_bitclk
     
-    dut.pf_eval_kit_pcie.PCIESS_LANE0_CDR_REF_CLK_0 := pcie_refclk
-    dut.pf_eval_kit_pcie.PCIESS_LANE1_CDR_REF_CLK_0 := pcie_refclk
-    dut.pf_eval_kit_pcie.PCIESS_LANE2_CDR_REF_CLK_0 := pcie_refclk
-    dut.pf_eval_kit_pcie.PCIESS_LANE3_CDR_REF_CLK_0 := pcie_refclk
+    dut.pf_eval_kit_pcie.extra.PCIESS_LANE0_CDR_REF_CLK_0 := pcie_refclk
+    dut.pf_eval_kit_pcie.extra.PCIESS_LANE1_CDR_REF_CLK_0 := pcie_refclk
+    dut.pf_eval_kit_pcie.extra.PCIESS_LANE2_CDR_REF_CLK_0 := pcie_refclk
+    dut.pf_eval_kit_pcie.extra.PCIESS_LANE3_CDR_REF_CLK_0 := pcie_refclk
 
-    dut.pf_eval_kit_pcie.PCIE_1_TX_PLL_LOCK := pf_tx_pll_lock
+    dut.pf_eval_kit_pcie.extra.PCIE_1_TX_PLL_LOCK := pf_tx_pll_lock
 
-    pcie <> dut.pf_eval_kit_pcie
+    pcie <> dut.pf_eval_kit_pcie.pads
   }
 }
 /*

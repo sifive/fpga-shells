@@ -17,7 +17,6 @@ class PolarFireCCCIOPads(c : PLLParameters) extends Bundle {
 }
 
 class PolarFireCCC(c : PLLParameters) extends BlackBox with PLLInstance {
-  val moduleName = c.name
   override def desiredName = c.name
 
   val io = new PolarFireCCCIOPads(c)
@@ -46,16 +45,16 @@ class PolarFireCCC(c : PLLParameters) extends BlackBox with PLLInstance {
   // val feedback = if (c.input.feedback) "External" else "Post-VCO"
   val feedback = "Post-VCO"
 
-  ElaborationArtefacts.add(s"${moduleName}.libero.tcl",
-    s"""create_design -id Actel:SgCore:PF_CCC:1.0.112 -design_name {${moduleName}} -config_file {} -params {} -inhibit_configurator 0
-       |open_smartdesign -design {${moduleName}}
-       |configure_design -component {${moduleName}} -library {}
-       |configure_vlnv_instance -component {${moduleName}} -library {} -name {${moduleName}_0}  -validate_rules 0 -params { \\
+  ElaborationArtefacts.add(s"${desiredName}.libero.tcl",
+    s"""create_design -id Actel:SgCore:PF_CCC:1.0.112 -design_name {${desiredName}} -config_file {} -params {} -inhibit_configurator 0
+       |open_smartdesign -design {${desiredName}}
+       |configure_design -component {${desiredName}} -library {}
+       |configure_vlnv_instance -component {${desiredName}} -library {} -name {${desiredName}_0}  -validate_rules 0 -params { \\
        | PLL_IN_FREQ_0:${c.input.freqMHz} \\
        | PLL_FEEDBACK_MODE_0:${feedback} \\
        |${used}${outputs}}
-       |fix_vlnv_instance -component {${moduleName}} -library {} -name {${moduleName}_0}
-       |open_smartdesign -design {${moduleName}}
-       |configure_design -component {${moduleName}} -library {}
+       |fix_vlnv_instance -component {${desiredName}} -library {} -name {${desiredName}_0}
+       |open_smartdesign -design {${desiredName}}
+       |configure_design -component {${desiredName}} -library {}
        |""".stripMargin)
 }

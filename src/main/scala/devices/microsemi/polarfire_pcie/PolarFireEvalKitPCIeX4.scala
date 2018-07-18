@@ -3,7 +3,6 @@ package sifive.fpgashells.devices.microsemi.polarfireevalkitpciex4
 
 import Chisel._
 import freechips.rocketchip.amba.axi4._
-//import freechips.rocketchip.coreplex.CacheBlockBytes
 import freechips.rocketchip.config.Parameters
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
@@ -12,24 +11,6 @@ import freechips.rocketchip.util._
 import freechips.rocketchip.subsystem.{HasCrossing, SynchronousCrossing, CacheBlockBytes}
 
 import sifive.fpgashells.ip.microsemi.polarfirepcierootport._
-
-trait PolarFireEvalKitPCIeRefClk extends Bundle{
-//TODO: bring reference clock connection in here
-//  val REFCLK_rxp = Bool(INPUT)
-//  val REFCLK_rxn = Bool(INPUT)
-}
-
-class PolarFireEvalKitPCIeX4Pads extends Bundle 
-  with PolarFirePCIeIOSerial
-  with PolarFireEvalKitPCIeRefClk
-
-class PolarFireEvalKitPCIeX4IO extends Bundle
-    with PolarFireEvalKitPCIeRefClk
-    with PolarFirePCIeIOSerial
-    with PolarFirePCIeIODebug
-    with PolarFirePCIeIOClocksReset {
-  val axi_ctl_aresetn = Bool(INPUT)
-}
 
 class PolarFireEvalKitPCIeX4(implicit p: Parameters) extends LazyModule with HasCrossing {
   val crossing = SynchronousCrossing()
@@ -64,12 +45,10 @@ class PolarFireEvalKitPCIeX4(implicit p: Parameters) extends LazyModule with Has
   }
 
   lazy val module = new LazyModuleImp(this) {
-    val io = IO(new Bundle {
-      val port = new PolarFireEvalKitPCIeX4IO
-    })
+    val io = IO(new PolarFirePCIeX4Bundle)
 
-    io.port <> axi_to_pcie.module.io.port
-    TLScope.module.clock := io.port.PCIE_1_TL_CLK_125MHz
-    TLScope.module.reset := ResetCatchAndSync(io.port.PCIE_1_TL_CLK_125MHz, reset)
+    io <> axi_to_pcie.module.io
+    TLScope.module.clock := io.extra.PCIE_1_TL_CLK_125MHz
+    TLScope.module.reset := ResetCatchAndSync(io.extra.PCIE_1_TL_CLK_125MHz, reset)
   }
 }
