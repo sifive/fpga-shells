@@ -12,10 +12,15 @@ abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams)
 {
   def shell: XilinxShell
 
+  override def fpgaReset = true
+
   shell { InModuleBody {
     val (tx, _) = txClock.in(0)
-    val (tap, _) = txTap.out(0)
+    val (rx, _) = rxI.out(0)
     val rxEdge = rxI.edges.out(0)
+
+    // Provide reset pulse to initialize b2c_reset (before RX PLL locks)
+    ioSink.io.fpga_reset.foreach { _ := PowerOnResetFPGAOnly(rx.clock) }
 
     val oddr = Module(new ODDR())
     oddr.suggestName(s"${name}_tx_oddr")
@@ -27,28 +32,34 @@ abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams)
     oddr.io.S  := false.B
     // We can't use tx.reset here as it waits for all PLLs to lock,
     // including RX, which depends on this clock being driven.
-    // tap.reset only waits for the TX PLL to lock.
-    oddr.io.R  := ResetCatchAndSync(tx.clock, tap.reset)
+    oddr.io.R  := ResetCatchAndSync(tx.clock, PowerOnResetFPGAOnly(tx.clock))
+
+    val ibufg = Module(new IBUFG)
+    ibufg.suggestName(s"${name}_rx_ibufg")
+    ibufg.io.I := io.b2c.clk
+    rx.clock := ibufg.io.O
 
     IOPin.of(io).foreach { shell.xdc.addIOStandard(_, "LVCMOS18") }
     IOPin.of(io).filterNot(_.element eq io.b2c.clk).foreach { shell.xdc.addIOB(_) }
     IOPin.of(io).filter(_.isOutput).foreach { shell.xdc.addSlew(_, "FAST") }
 
+    // Add 0.3ns of safety for trace jitter+skew on both sides
+    val rxMargin = 0.3
+    val txMargin = 0.3
+
     val timing = IOTiming(
       /* The data signals coming from Aloe have: clock - 1.2 <= transition <= clock + 0.8
-       * Let's add 0.3ns of safety for trace jitter+skew on both sides:
-       *   min = hold           = - 1.2 - 0.3
-       *   max = period - setup =   0.8 + 0.3
+       *   min = hold           = - 1.2
+       *   max = period - setup =   0.8
        */
-      minInput  = -1.5,
-      maxInput  =  1.1,
+      minInput  = -1.2 - rxMargin,
+      maxInput  =  0.8 + rxMargin,
       /* The data signals going to Aloe must have: clock - 1.85 <= NO transition <= clock + 0.65
-       * Let's add 0.3ns of safey for trace jitter+skew on both sides:
-       *   min = -hold = -0.65 - 0.3
-       *   max = setup =  1.85 + 0.3
+       *   min = -hold = -0.65
+       *   max = setup =  1.85
        */
-      minOutput = -0.95,
-      maxOutput =  2.15)
+      minOutput = -0.65 - txMargin,
+      maxOutput =  1.85 + txMargin)
 
     shell.sdc.addClock(sdcRxClockName, io.b2c.clk, rxEdge.clock.freqMHz, 0.3)
     shell.sdc.addDerivedClock(sdcTxClockName, oddr.io.C.sdcPin, io.c2b.clk)

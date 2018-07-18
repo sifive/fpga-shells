@@ -59,12 +59,12 @@ class ChipLinkVC707Overlay(val shell: VC707Shell, val name: String, params: Chip
     (IOPin.of(io.b2c) zip dir1) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
     (IOPin.of(io.c2b) zip dir2) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
 
-    val (rxIn, _) = rxI.out(0)
-    rxIn.reset := shell.pllReset
+    val (rx, _) = rxI.out(0)
+    rx.reset := shell.pllReset
   } }
 }
 
-case object VC707DDRSize extends Field[BigInt](0x40000000L * 4) // 1GB
+case object VC707DDRSize extends Field[BigInt](0x40000000L) // 1GB
 class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverlayParams)
   extends DDROverlay[XilinxVC707MIGPads](params)
 {
@@ -164,7 +164,7 @@ class VC707Shell()(implicit p: Parameters) extends Series7Shell
     reset_ibuf.io.I := reset
     pllReset :=
       reset_ibuf.io.O ||
-      sys_clock.map(_.reset:Bool).getOrElse(false.B) ||
+      sys_clock.map(s => PowerOnResetFPGAOnly(s.node.out(0)._1.clock)).getOrElse(false.B) ||
       chiplink.map(!_.ereset_n).getOrElse(false.B)
   }
 }

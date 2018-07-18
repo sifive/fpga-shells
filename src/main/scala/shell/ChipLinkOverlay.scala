@@ -27,33 +27,28 @@ abstract class ChipLinkOverlay(
   val freqMHz  = params.txData.portParams.head.take.get.freqMHz
   val phaseDeg = params.txData.portParams.head.phaseDeg
 
-  val sdcRxClockName = s"${name}_b2c_clock"
-  val sdcTxClockName = s"${name}_c2b_clock"
+  val sdcRxClockName = s"${name}_b2c_clk"
+  val sdcTxClockName = s"${name}_c2b_clk"
 
-  val linkBridge = BundleBridge(new ChipLink(params.params))
+  def fpgaReset = false
+  val linkBridge = BundleBridge(new ChipLink(params.params.copy(fpgaReset = fpgaReset)))
   val rxPLL   = p(PLLFactoryKey)(feedback = true)
   val ioSink  = shell { linkBridge.ioNode.sink }
   val rxI     = shell { ClockSourceNode(sdcRxClockName, freqMHz = freqMHz, jitterPS = 100) }
   val rxGroup = shell { ClockGroup() }
   val rxO     = shell { ClockSinkNode(freqMHz = freqMHz, phaseDeg = rxPhase) }
-  val txTap   = shell { ClockIdentityNode() }
   val txClock = shell { ClockSinkNode(freqMHz = freqMHz, phaseDeg = phaseDeg + txPhase) }
 
   rxO := params.wrangler := rxGroup := rxPLL := rxI
-  txClock := params.wrangler := txTap := params.txGroup
+  txClock := params.wrangler := params.txGroup
 
   def designOutput = linkBridge.child.node
   def ioFactory = new WideDataLayerPort(ChipLinkParams(Nil,Nil))
 
   shell { InModuleBody {
     val sink = ioSink.io
-    val (tx, _) = txClock.in(0)
-    val (rxIn, _) = rxI.out(0)
     val (rxOut, _) = rxO.in(0)
     io <> sink.port
-    rxIn.clock := io.b2c.clk
-    // reset definition is per-board
     sink.port.b2c.clk := rxOut.clock
-    io.c2b.clk := tx.clock
   } }
 }
