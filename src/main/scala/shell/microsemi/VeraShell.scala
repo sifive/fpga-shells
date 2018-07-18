@@ -37,7 +37,7 @@ class LEDVeraOverlay(val shell: VeraShell, val name: String, params: LEDOverlayP
   extends LEDMicrosemiOverlay(params, Seq("AK17", "AN17", "AM17", "AL18"))
 
 class ChipLinkVeraOverlay(val shell: VeraShell, val name: String, params: ChipLinkOverlayParams)
-  extends ChipLinkMicrosemiOverlay(params)
+  extends ChipLinkPolarFireOverlay(params)
 {
   val ereset_n = shell { InModuleBody {
     val ereset_n = IO(Input(Bool()))
@@ -64,8 +64,8 @@ class ChipLinkVeraOverlay(val shell: VeraShell, val name: String, params: ChipLi
     (dirB2C zip dir1) foreach { case (io, pin) => shell.io_pdc.addPin(io, pin) }
     (dirC2B zip dir2) foreach { case (io, pin) => shell.io_pdc.addPin(io, pin) }
 
-    val (rxIn, _) = rxI.out(0)
-    rxIn.reset := shell.pllReset
+    val (rx, _) = rxI.out(0)
+    rx.reset := shell.pllReset
   } }
 }
 

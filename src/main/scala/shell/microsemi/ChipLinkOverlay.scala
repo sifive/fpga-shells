@@ -7,54 +7,64 @@ import freechips.rocketchip.util._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.microsemi._
 
-class HackyHelper extends Module {
-  val io = IO(new Bundle {
-    val in = Input(Clock())
-    val out = Output(Clock())
-  })
-  io.out := io.in
-}
-
-abstract class ChipLinkMicrosemiOverlay(params: ChipLinkOverlayParams)
-  extends ChipLinkOverlay(params, rxPhase=240, txPhase=31.5)
+abstract class ChipLinkPolarFireOverlay(params: ChipLinkOverlayParams)
+  extends ChipLinkOverlay(params, rxPhase=22.5 + 0*45, txPhase=270)
 {
-  def shell: MicrosemiShell
+  def shell: PolarFireShell
+
+  override def fpgaReset = true
 
   shell { InModuleBody {
     val (tx, _) = txClock.in(0)
-    val (tap, _) = txTap.out(0)
+    val (rx, _) = rxI.out(0)
     val rxEdge = rxI.edges.out(0)
 
-    // !!! add back an ODDR
-    val helper = Module(new HackyHelper)
-    helper.io.in := tx.clock
-    io.c2b.clk := helper.io.out
+    // Provide reset pulse to initialize b2c_reset (before RX PLL locks)
+    ioSink.io.fpga_reset.foreach { _ := !shell.initMonitor.io.DEVICE_INIT_DONE }
 
+    // !!! add a DDR pad
+    io.c2b.clk := tx.clock
+
+    val clkint = Module(new CLKINT)
+    clkint.suggestName(s"${name}_rx_clkint")
+    clkint.io.A := io.b2c.clk
+    rx.clock := clkint.io.Y
+
+    // Consume as much slack for safey for trace jitter+skew on both sides as possible
+    val txMargin = 1.5
+    val rxMargin = 0.0 // <- we badly need a PLL with external feedback!
+
+    // At 125MHz, 6 corner analysis yields these worst min/max corners:
+    //    RX min_slow_lv_lt: 0.038ns slack + 0!!! margin
+    //       max_fast_hv_lt: 0.089ns slack + 0!!! margin
+    //    TX min_fast_hv_lt: 0.086ns slack + 1.5 margin
+    //       max_slow_lv_lt: 0.024ns slack + 1.5 margin
+
+    // We have to add a these constants to work around some Libero timing analysis bug
     val periodNs = 1000.0 / rxEdge.clock.freqMHz
+    val rxHack = (rxPhase - 202.5) / 45
+
     val timing = IOTiming(
       /* The data signals coming from Aloe have: clock - 1.2 <= transition <= clock + 0.8
-       * Let's add 0.3ns of safety for trace jitter+skew on both sides:
-       *   min = hold           = - 1.2 - 0.3
-       *   max = period - setup =   0.8 + 0.3
-       * !!! We have to add a period+5 to work around some Libero bug !!!
+       *   min = hold           = - 1.2
+       *   max = period - setup =   0.8
        */
-      minInput  = -1.5 + 5 + periodNs,
-      maxInput  =  1.1 + 5 + periodNs,
+      minInput  = -1.2 - rxMargin + periodNs*2 + rxHack,
+      maxInput  =  0.8 + rxMargin + periodNs*2 + rxHack,
       /* The data signals going to Aloe must have: clock - 1.85 <= NO transition <= clock + 0.65
-       * Let's add 0.3ns of safey for trace jitter+skew on both sides:
-       *   min = -hold = -0.65 - 0.3
-       *   max = setup =  1.85 + 0.3
+       *   min = -hold = -0.65
+       *   max = setup =  1.85
        */
-      minOutput = -0.95,
-      maxOutput =  2.15)
+      minOutput = -0.65 - txMargin + periodNs,
+      maxOutput =  1.85 + txMargin + periodNs)
 
-    shell.sdc.addClock(s"${name}_b2c_clock", io.b2c.clk, rxEdge.clock.freqMHz)
-    shell.sdc.addDerivedClock(s"${name}_c2b_clock", "rxPLL/rxPLL_0/pll_inst_0/OUT0", io.c2b.clk)
+    shell.sdc.addClock(sdcRxClockName, io.b2c.clk, rxEdge.clock.freqMHz)
+    shell.sdc.addDerivedClock(sdcTxClockName, "[ get_pins {corePLL/corePLL_0/pll_inst_0/OUT1} ]", io.c2b.clk)
     IOPin.of(io).filter(p => p.isInput  && !(p.element eq io.b2c.clk)).foreach { e =>
-      shell.sdc.addIOTiming(e, s"${name}_b2c_clock", timing)
+      shell.sdc.addIOTiming(e, sdcRxClockName, timing)
     }
     IOPin.of(io).filter(p => p.isOutput && !(p.element eq io.c2b.clk)).foreach { e =>
-      shell.sdc.addIOTiming(e, s"${name}_c2b_clock", timing)
+      shell.sdc.addIOTiming(e, sdcTxClockName, timing)
     }
   } }
 }

@@ -13,7 +13,11 @@ abstract class ClockInputMicrosemiOverlay(params: ClockInputOverlayParams)
 
   shell { InModuleBody {
     val (c, _) = node.out(0)
-    c.clock := io
+    val clkint = Module(new CLKINT)
+    clkint.suggestName(s"${name}_clkint")
+
+    clkint.io.A := io
+    c.clock := clkint.io.Y
     c.reset := false.B
   } }
 }
