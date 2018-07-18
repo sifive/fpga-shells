@@ -73,19 +73,19 @@ class SDIOVC707Overlay(val shell: VC707Shell, val name: String, params: SDIOOver
     sd_spi_dq_i             := ip_sdio_spi.io.spi_dq_i.toBools
     ip_sdio_spi.io.spi_dq_o := sd_spi_dq_o.asUInt
 
-    val packagePinsWithPackageIOs = Seq(("AN30", IOPin(io.sdio_clk)),
-                                        ("AP30", IOPin(io.sdio_cmd)),
-                                        ("AR30", IOPin(io.sdio_dat_0)),
-                                        ("AU31", IOPin(io.sdio_dat_1)),
-                                        ("AV31", IOPin(io.sdio_dat_2)),
-                                        ("AT30", IOPin(io.sdio_dat_3)))
+    val packagePinsWithPackageIOs = Seq(("AN30", IOPin(io.sdio_clk), false),
+                                        ("AP30", IOPin(io.sdio_cmd), true),
+                                        ("AR30", IOPin(io.sdio_dat_0), true),
+                                        ("AU31", IOPin(io.sdio_dat_1), true),
+                                        ("AV31", IOPin(io.sdio_dat_2), true),
+                                        ("AT30", IOPin(io.sdio_dat_3), true))
 
-    packagePinsWithPackageIOs foreach { case (pin, io) => {
+    packagePinsWithPackageIOs foreach { case (pin, io, simpleIOB) => {
       shell.xdc.addPackagePin(io, pin)
       shell.xdc.addIOStandard(io, "LVCMOS18")
-      shell.xdc.addIOB(io)
+      shell.xdc.addIOB(io, simpleIOB)
     } }
-    packagePinsWithPackageIOs drop 1 foreach { case (pin, io) => {
+    packagePinsWithPackageIOs drop 1 foreach { case (pin, io, simpleIOB) => {
       shell.xdc.addPullup(io)
     } }
 
@@ -105,15 +105,15 @@ class UARTVC707Overlay(val shell: VC707Shell, val name: String, params: UARTOver
 
     val packageIOs = IOPin.of(io)
 
-    val packagePinsWithPackageIOs = Seq(("AT32", IOPin(io.ctsn)),
-                                        ("AR34", IOPin(io.rtsn)),
-                                        ("AU33", IOPin(io.rxd)),
-                                        ("AU36", IOPin(io.txd)))
+    val packagePinsWithPackageIOs = Seq(("AT32", IOPin(io.ctsn), true),
+                                        ("AR34", IOPin(io.rtsn), true),
+                                        ("AU33", IOPin(io.rxd), false),
+                                        ("AU36", IOPin(io.txd), false))
 
-    packagePinsWithPackageIOs foreach { case (pin, io) => {
+    packagePinsWithPackageIOs foreach { case (pin, io, simpleIOB) => {
       shell.xdc.addPackagePin(io, pin)
       shell.xdc.addIOStandard(io, "LVCMOS18")
-      shell.xdc.addIOB(io)
+      shell.xdc.addIOB(io, simpleIOB)
     } }
   } }
 }
