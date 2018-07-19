@@ -159,7 +159,7 @@ class ChipLinkVC707Overlay(val shell: VC707Shell, val name: String, params: Chip
   } }
 }
 
-case object VC707DDRSize extends Field[BigInt](0x40000000L * 4) // 1GB
+case object VC707DDRSize extends Field[BigInt](0x40000000L * 4) // 4GB
 class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverlayParams)
   extends DDROverlay[XilinxVC707MIGPads](params)
 {
