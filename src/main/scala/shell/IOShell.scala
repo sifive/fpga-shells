@@ -53,7 +53,7 @@ object IOPin
 {
   def of(x: Data): Seq[IOPin] = {
     val elts = x match {
-      case a: Aggregate => getDataElements(a)
+      case a: Aggregate => getDataElements(a).reverse // because Chisel has it backwards
       case e: Element => Seq(e)
     }
     elts.flatMap { elt =>

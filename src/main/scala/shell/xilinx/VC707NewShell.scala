@@ -139,12 +139,8 @@ class ChipLinkVC707Overlay(val shell: VC707Shell, val name: String, params: Chip
                    "P35", "P36", "W32", "W33", "R38", "R39", "U34", "T35",
                    "R33", "R34", "N33", "N34", "P32", "P33", "V35", "V36",
                    "W36", "W37", "T32", "R32", "V39", "V40", "P37", "P38")
-    val dirB2C = Seq(IOPin(io.b2c.clk), IOPin(io.b2c.rst), IOPin(io.b2c.send)) ++
-                 IOPin.of(io.b2c.data)
-    val dirC2B = Seq(IOPin(io.c2b.clk), IOPin(io.c2b.rst), IOPin(io.c2b.send)) ++
-                 IOPin.of(io.c2b.data)
-    (dirB2C zip dir1) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
-    (dirC2B zip dir2) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
+    (IOPin.of(io.b2c) zip dir1) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
+    (IOPin.of(io.c2b) zip dir2) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
 
     val (rxIn, _) = rxI.out(0)
     rxIn.reset := shell.pllReset
