@@ -7,11 +7,10 @@ import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
 import sifive.blocks.devices.spi._
 
-case class SDIOOverlayParams(beatBytes: Int)(implicit val p: Parameters)
+case class SDIOOverlayParams(beatBytes: Int, spiParam: SPIParams, devName: Option[String])(implicit val p: Parameters)
 case object SDIOOverlayKey extends Field[Seq[DesignOverlay[SDIOOverlayParams, TLSPI]]](Nil)
 
-// Tack on cts, rts signals available on some FPGAs. They are currently unused
-// by our designs.
+// SDIO Port. Not sure how generic this is, it might need to move.
 class FPGASDIOPortIO extends Bundle {
   val sdio_clk = Output(Bool())
   val sdio_cmd = Analog(1.W)
@@ -29,13 +28,8 @@ abstract class SDIOOverlay(
 
   def ioFactory = new FPGASDIOPortIO
 
-  val spiParams = p(PeripherySPIKey)
-  val use_name = Some(s"spi_0")
-
-  val spiSource = BundleBridge(new TLSPI(params.beatBytes, spiParams(0)).suggestName(use_name))
-
+  val spiSource = BundleBridge(new TLSPI(params.beatBytes, params.spiParam).suggestName(params.devName))
   val spiSink = shell { spiSource.ioNode.sink }
 
   val designOutput = spiSource.child
-
 }
