@@ -8,7 +8,7 @@ import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.microsemi._
 
 abstract class ChipLinkPolarFireOverlay(params: ChipLinkOverlayParams)
-  extends ChipLinkOverlay(params, rxPhase=22.5 + 0*45, txPhase=270)
+  extends ChipLinkOverlay(params, rxPhase=240, txPhase=31.5)
 {
   def shell: PolarFireShell
 
@@ -42,21 +42,21 @@ abstract class ChipLinkPolarFireOverlay(params: ChipLinkOverlayParams)
 
     // We have to add a these constants to work around some Libero timing analysis bug
     val periodNs = 1000.0 / rxEdge.clock.freqMHz
-    val rxHack = (rxPhase - 202.5) / 45
+    val rxHack = 5
 
     val timing = IOTiming(
       /* The data signals coming from Aloe have: clock - 1.2 <= transition <= clock + 0.8
        *   min = hold           = - 1.2
        *   max = period - setup =   0.8
        */
-      minInput  = -1.2 - rxMargin + periodNs*2 + rxHack,
-      maxInput  =  0.8 + rxMargin + periodNs*2 + rxHack,
+      minInput  = -1.2 - rxMargin + periodNs + rxHack,
+      maxInput  =  0.8 + rxMargin + periodNs + rxHack,
       /* The data signals going to Aloe must have: clock - 1.85 <= NO transition <= clock + 0.65
        *   min = -hold = -0.65
        *   max = setup =  1.85
        */
-      minOutput = -0.65 - txMargin + periodNs,
-      maxOutput =  1.85 + txMargin + periodNs)
+      minOutput = -0.65 - txMargin,
+      maxOutput =  1.85 + txMargin)
 
     shell.sdc.addClock(sdcRxClockName, io.b2c.clk, rxEdge.clock.freqMHz)
     shell.sdc.addDerivedClock(sdcTxClockName, "[ get_pins {corePLL/corePLL_0/pll_inst_0/OUT1} ]", io.c2b.clk)
