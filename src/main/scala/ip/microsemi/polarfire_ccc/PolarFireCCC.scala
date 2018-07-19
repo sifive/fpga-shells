@@ -46,7 +46,7 @@ class PolarFireCCC(c : PLLParameters) extends BlackBox with PLLInstance {
   val feedback = "Post-VCO"
 
   ElaborationArtefacts.add(s"${desiredName}.libero.tcl",
-    s"""create_design -id Actel:SgCore:PF_CCC:1.0.112 -design_name {${desiredName}} -config_file {} -params {} -inhibit_configurator 0
+    s"""create_design -id Actel:SgCore:PF_CCC:1.0.113 -design_name {${desiredName}} -config_file {} -params {} -inhibit_configurator 0
        |open_smartdesign -design {${desiredName}}
        |configure_design -component {${desiredName}} -library {}
        |configure_vlnv_instance -component {${desiredName}} -library {} -name {${desiredName}_0}  -validate_rules 0 -params { \\

@@ -156,7 +156,7 @@ class polarfire_pcie_rp() extends BlackBox
 
   ElaborationArtefacts.add(s"${desiredName}.libero.tcl",
     s"""new_file -type {SmartDesign} -name ${desiredName}
-       |add_vlnv_instance -component {${desiredName}} -library {} -vendor {Actel} -lib {SgCore} -name {PF_PCIE} -version {1.0.234} -instance_name {PF_PCIE_0} -promote_all 0 -file_name {}
+       |add_vlnv_instance -component {${desiredName}} -library {} -vendor {Actel} -lib {SgCore} -name {PF_PCIE} -version {1.0.242} -instance_name {PF_PCIE_0} -promote_all 0 -file_name {}
        |configure_vlnv_instance -component {${desiredName}} -library {} -name {PF_PCIE_0} -validate_rules 0 -params { \\
        |  "EXPOSE_ALL_DEBUG_PORTS:false" \\
        |  "SD_EXPORT_HIDDEN_PORTS:false" \\
@@ -167,6 +167,7 @@ class polarfire_pcie_rp() extends BlackBox
        |  "UI_GPSS1_LANE2_IS_USED:false" \\
        |  "UI_GPSS1_LANE3_IS_USED:false" \\
        |  "UI_IS_CONFIGURED:true" \\
+       |  "UI_LOW_AXI_CLOCK:false" \\
        |  "UI_PCIE_0_BAR_MODE:Custom" \\
        |  "UI_PCIE_0_CDR_REF_CLK_NUMBER:1" \\
        |  "UI_PCIE_0_CDR_REF_CLK_SOURCE:Dedicated" \\
@@ -275,7 +276,7 @@ class polarfire_pcie_rp() extends BlackBox
        |  "UI_PCIE_1_MASTER_SIZE_BAR_3_TABLE:4 KB" \\
        |  "UI_PCIE_1_MASTER_SIZE_BAR_4_TABLE:4 KB" \\
        |  "UI_PCIE_1_MASTER_SIZE_BAR_5_TABLE:4 KB" \\
-       |  "UI_PCIE_1_MASTER_SOURCE_ADDRESS_BAR_0_TABLE:0x100000" \\
+       |  "UI_PCIE_1_MASTER_SOURCE_ADDRESS_BAR_0_TABLE:0x100000000" \\
        |  "UI_PCIE_1_MASTER_SOURCE_ADDRESS_BAR_1_TABLE:0x0000" \\
        |  "UI_PCIE_1_MASTER_SOURCE_ADDRESS_BAR_2_TABLE:0x0000" \\
        |  "UI_PCIE_1_MASTER_SOURCE_ADDRESS_BAR_3_TABLE:0x0000" \\
@@ -313,9 +314,9 @@ class polarfire_pcie_rp() extends BlackBox
        |  "UI_PCIE_1_SLAVE_SIZE_TABLE_5:4 KB" \\
        |  "UI_PCIE_1_SLAVE_SIZE_TABLE_6:4 KB" \\
        |  "UI_PCIE_1_SLAVE_SIZE_TABLE_7:4 KB" \\
-       |  "UI_PCIE_1_SLAVE_SOURCE_ADDRESS_TABLE_0:0x30000" \\
-       |  "UI_PCIE_1_SLAVE_SOURCE_ADDRESS_TABLE_1:0x40000" \\
-       |  "UI_PCIE_1_SLAVE_SOURCE_ADDRESS_TABLE_2:0x80000" \\
+       |  "UI_PCIE_1_SLAVE_SOURCE_ADDRESS_TABLE_0:0x30000000" \\
+       |  "UI_PCIE_1_SLAVE_SOURCE_ADDRESS_TABLE_1:0x40000000" \\
+       |  "UI_PCIE_1_SLAVE_SOURCE_ADDRESS_TABLE_2:0x80000000" \\
        |  "UI_PCIE_1_SLAVE_SOURCE_ADDRESS_TABLE_3:0x0000" \\
        |  "UI_PCIE_1_SLAVE_SOURCE_ADDRESS_TABLE_4:0x0000" \\
        |  "UI_PCIE_1_SLAVE_SOURCE_ADDRESS_TABLE_5:0x0000" \\
@@ -329,9 +330,9 @@ class polarfire_pcie_rp() extends BlackBox
        |  "UI_PCIE_1_SLAVE_STATE_TABLE_5:Disabled" \\
        |  "UI_PCIE_1_SLAVE_STATE_TABLE_6:Disabled" \\
        |  "UI_PCIE_1_SLAVE_STATE_TABLE_7:Disabled" \\
-       |  "UI_PCIE_1_SLAVE_TRANS_ADDRESS_TABLE_0:0x30000" \\
-       |  "UI_PCIE_1_SLAVE_TRANS_ADDRESS_TABLE_1:0x40000" \\
-       |  "UI_PCIE_1_SLAVE_TRANS_ADDRESS_TABLE_2:0x2080000" \\
+       |  "UI_PCIE_1_SLAVE_TRANS_ADDRESS_TABLE_0:0x30000000" \\
+       |  "UI_PCIE_1_SLAVE_TRANS_ADDRESS_TABLE_1:0x40000000" \\
+       |  "UI_PCIE_1_SLAVE_TRANS_ADDRESS_TABLE_2:0x2080000000" \\
        |  "UI_PCIE_1_SLAVE_TRANS_ADDRESS_TABLE_3:0x0000" \\
        |  "UI_PCIE_1_SLAVE_TRANS_ADDRESS_TABLE_4:0x0000" \\
        |  "UI_PCIE_1_SLAVE_TRANS_ADDRESS_TABLE_5:0x0000" \\
@@ -433,7 +434,7 @@ class PolarFirePCIeX4(implicit p:Parameters) extends LazyModule
 
   val intnode = IntSourceNode(IntSourcePortSimple(resources = device.int))
 
-  lazy val module = new LazyModuleImp(this) {
+  lazy val module = new LazyRawModuleImp(this) {
     // Must have exactly the right number of idBits
     require (slave.edges.in(0).bundle.idBits == 4)
     require (master.edges.out(0).bundle.dataBits == 64)

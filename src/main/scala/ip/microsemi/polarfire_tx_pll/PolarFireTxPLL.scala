@@ -24,7 +24,7 @@ class PolarFireTxPLL(implicit val p:Parameters) extends BlackBox
   val io = new Bundle with PolarFireTxPLLIOPads
 
   ElaborationArtefacts.add(s"${desiredName}.libero.tcl",
-    s"""create_design -id Actel:SgCore:PF_TX_PLL:1.0.109 -design_name {${desiredName}} -config_file {} -params {} -inhibit_configurator 0
+    s"""create_design -id Actel:SgCore:PF_TX_PLL:1.0.112 -design_name {${desiredName}} -config_file {} -params {} -inhibit_configurator 0
        |open_smartdesign -design {${desiredName}}
        |configure_design -component {${desiredName}} -library {}
        |configure_vlnv_instance -component {${desiredName}} -library {} -name {${desiredName}_0} -params {"TxPLL_REF:100" "TxPLL_OUT:2500"} -validate_rules 0

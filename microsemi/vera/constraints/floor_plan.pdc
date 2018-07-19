@@ -1,6 +1,4 @@
 # Constraints
 
-# Hopefully unnecessary in Libero 2.2:
-set_location -inst_name corePLL/corePLL_0/pll_inst_0 -fixed true -x 1 -y 377
-set_location -inst_name rxPLL/rxPLL_0/pll_inst_0     -fixed true -x 0 -y 377
+# Hopefully not needed in a future libero:
 set_location -inst_name transmit_pll/transmit_pll_0/txpll_isnt_0     -fixed true -x 2466 -y 239
