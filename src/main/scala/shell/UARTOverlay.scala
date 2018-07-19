@@ -7,7 +7,7 @@ import freechips.rocketchip.diplomacy._
 import sifive.blocks.devices.uart._
 import freechips.rocketchip.subsystem.{BaseSubsystem, PeripheryBus, PeripheryBusKey}
 
-case class UARTOverlayParams(beatBytes: Int)(implicit val p: Parameters)
+case class UARTOverlayParams(beatBytes: Int, uartParams: UARTParams, devName: Option[String])(implicit val p: Parameters)
 case object UARTOverlayKey extends Field[Seq[DesignOverlay[UARTOverlayParams, TLUART]]](Nil)
 
 // Tack on cts, rts signals available on some FPGAs. They are currently unused
@@ -47,11 +47,7 @@ abstract class UARTOverlay(
 
   def ioFactory = new FPGAUARTPortIO
 
-  private val divinit = (p(PeripheryBusKey).frequency / 115200).toInt
-  val uartParam = p(PeripheryUARTKey).map(_.copy(divisorInit = divinit))
-  val use_name = Some(s"uart_0")
-
-  val uartSource = BundleBridgeUART(new TLUART(params.beatBytes, uartParam(0)).suggestName(use_name))
+  val uartSource = BundleBridgeUART(new TLUART(params.beatBytes, params.uartParams).suggestName(params.devName))
   val uartSink = shell { uartSource.ioNode.sink }
 
   val designOutput = uartSource.child
