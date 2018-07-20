@@ -97,9 +97,9 @@ class UARTVC707Overlay(val shell: VC707Shell, val name: String, params: UARTOver
 {
   shell { InModuleBody {
     // TODO: use proper clock/reset
-    require (shell.sys_clock.isDefined, "Use of UARTVC707Overlay depends on SysClockVC707Overlay")
-    val test_clock = shell.sys_clock.get.node.out(0)._1
-    withClockAndReset(test_clock.clock, test_clock.reset) {
+//    require (shell.sys_clock.isDefined, "Use of UARTVC707Overlay depends on SysClockVC707Overlay")
+//    val test_clock = shell.sys_clock.get.node.out(0)._1
+    withClockAndReset(uartSink.io.uartClock, uartSink.io.uartReset) {
       uartSink.io.port.rxd := SyncResetSynchronizerShiftReg(io.rxd, 2, init = true.B, name=Some("uart_rxd_sync  "))
     }
 

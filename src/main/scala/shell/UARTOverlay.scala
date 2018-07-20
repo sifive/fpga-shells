@@ -17,7 +17,10 @@ class FPGAUARTPortIO extends UARTPortIO {
   val ctsn = Input(Bool())
 }
 
-class UARTReplacementBundle extends Bundle with HasUARTTopBundleContents
+class UARTReplacementBundle extends Bundle with HasUARTTopBundleContents {
+  val uartClock = Output(Clock())
+  val uartReset = Output(Bool())
+}
 
 class BundleBridgeUART[D <: Data, T <: LazyModule](lm: => T { val module: { val io: D }})(implicit p: Parameters) extends LazyModule
 {
@@ -28,6 +31,8 @@ class BundleBridgeUART[D <: Data, T <: LazyModule](lm: => T { val module: { val 
   lazy val module = new LazyModuleImp(this) {
     val (io, _) = ioNode.out(0)
     io <> child.module.io
+    io.uartClock := clock
+    io.uartReset := reset
   }
 }
 
