@@ -159,6 +159,26 @@ class ChipLinkVC707Overlay(val shell: VC707Shell, val name: String, params: Chip
   } }
 }
 
+class JTAGDebugVC707Overlay(val shell: VC707Shell, val name: String, params: JTAGDebugOverlayParams)
+  extends JTAGDebugXilinxOverlay(params)
+{
+  shell { InModuleBody {
+    val packageIOs = IOPin.of(io)
+    shell.xdc.JTAGMisc()
+
+    val packagePinsWithPackageIOs = Seq(("R32", IOPin(io.jtag_TCK), true),
+                                        ("W36", IOPin(io.jtag_TMS), true),
+                                        ("W37", IOPin(io.jtag_TDI), true),
+                                        ("V40", IOPin(io.jtag_TDO), true))
+
+    packagePinsWithPackageIOs foreach { case (pin, io, simpleIOB) => {
+      shell.xdc.addPackagePin(io, pin)
+      shell.xdc.addIOStandard(io, "LVCMOS18")
+      shell.xdc.addPullup(io)
+    } }
+  } }
+}
+
 case object VC707DDRSize extends Field[BigInt](0x40000000L * 4) // 4GB
 class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverlayParams)
   extends DDROverlay[XilinxVC707MIGPads](params)
@@ -248,6 +268,7 @@ class VC707Shell()(implicit p: Parameters) extends Series7Shell
   val pcie      = Overlay(PCIeOverlayKey)      (new PCIeVC707Overlay    (_, _, _))
   val uart      = Overlay(UARTOverlayKey)      (new UARTVC707Overlay    (_, _, _))
   val sdio      = Overlay(SDIOOverlayKey)      (new SDIOVC707Overlay    (_, _, _))
+  val jtag      = Overlay(JTAGDebugOverlayKey)      (new JTAGDebugVC707Overlay    (_, _, _))
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
