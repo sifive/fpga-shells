@@ -165,7 +165,17 @@ run_tool -name {SYNTHESIZE}
 puts "-----------------------------------------------------------------"
 puts "------------------------ Place and Route ------------------------"
 puts "-----------------------------------------------------------------"
-configure_tool -name {PLACEROUTE} -params {EFFORT_LEVEL:true} -params {REPAIR_MIN_DELAY:true} -params {TDPR:true}
+configure_tool -name {PLACEROUTE}			\
+	-params {EFFORT_LEVEL:true}			\
+	-params {REPAIR_MIN_DELAY:true}			\
+	-params {TDPR:true}				\
+	-params {MULTI_PASS_LAYOUT:true}		\
+	-params {MULTI_PASS_CRITERIA:VIOLATOINS}	\
+	-params {DELAY_ANALYSIS:max}			\
+	-params {SLACK_CRITERIA:WORST_SLACK}		\
+	-params {STOP_ON_FIRST_PASS:true}		\
+	-params {NUM_MULTI_PASSES:5}			\
+	-params {START_SEED_INDEX:42}
 run_tool -name {PLACEROUTE}
 
 #
@@ -213,10 +223,16 @@ foreach report [lsort $reports] {
       puts "pass"
       break
     }
-    if { "$what" == "Path 1" } {
-      puts "failed"
-      set ok false
-      break
+    if { [string range "$what" 0 10] == "Slack (ns):" } {
+      set slack [string trim [string range "$what" 11 end]]
+      if { "$slack" >= 0 } {
+        puts "pass ($slack)"
+        break
+      } else {
+        puts "failed ($slack)"
+        set ok false
+        break
+      }
     }
     set eof true
   }
