@@ -8,7 +8,7 @@ import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 
 abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams)
-  extends ChipLinkOverlay(params, rxPhase=280, txPhase=220)
+  extends ChipLinkOverlay(params, rxPhase=293, txPhase=223)
 {
   def shell: XilinxShell
 
@@ -18,9 +18,10 @@ abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams)
     val (tx, _) = txClock.in(0)
     val (rx, _) = rxI.out(0)
     val rxEdge = rxI.edges.out(0)
+    val txReset = PowerOnResetFPGAOnly(tx.clock)
 
     // Provide reset pulse to initialize b2c_reset (before RX PLL locks)
-    ioSink.io.fpga_reset.foreach { _ := PowerOnResetFPGAOnly(rx.clock) }
+    ioSink.io.fpga_reset.foreach { _ := txReset }
 
     val oddr = Module(new ODDR())
     oddr.suggestName(s"${name}_tx_oddr")
@@ -32,7 +33,7 @@ abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams)
     oddr.io.S  := false.B
     // We can't use tx.reset here as it waits for all PLLs to lock,
     // including RX, which depends on this clock being driven.
-    oddr.io.R  := ResetCatchAndSync(tx.clock, PowerOnResetFPGAOnly(tx.clock))
+    oddr.io.R  := ResetCatchAndSync(tx.clock, txReset)
 
     val ibufg = Module(new IBUFG)
     ibufg.suggestName(s"${name}_rx_ibufg")
@@ -44,8 +45,8 @@ abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams)
     IOPin.of(io).filter(_.isOutput).foreach { shell.xdc.addSlew(_, "FAST") }
 
     // Add 0.3ns of safety for trace jitter+skew on both sides
-    val rxMargin = 0.3
-    val txMargin = 0.3
+    val rxMargin = 0.15
+    val txMargin = 0.2
 
     val timing = IOTiming(
       /* The data signals coming from Aloe have: clock - 1.2 <= transition <= clock + 0.8
