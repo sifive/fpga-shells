@@ -119,7 +119,7 @@ class UARTVCU118Overlay(val shell: VCU118Shell, val name: String, params: UARTOv
 }
 
 class LEDVCU118Overlay(val shell: VCU118Shell, val name: String, params: LEDOverlayParams)
-  extends LEDXilinxOverlay(params, boardPins = Seq.tabulate(8) { i => s"GPIO_LED_$i_LS" })
+  extends LEDXilinxOverlay(params, boardPins = Seq.tabulate(8) { i => s"GPIO_LED_${i}_LS" })
 
 class SwitchVCU118Overlay(val shell: VCU118Shell, val name: String, params: SwitchOverlayParams)
   extends SwitchXilinxOverlay(params, boardPins = Seq.tabulate(4) { i => s"GPIO_DIP_SW$i" })
