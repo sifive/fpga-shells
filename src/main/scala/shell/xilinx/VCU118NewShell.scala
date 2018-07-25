@@ -147,12 +147,8 @@ class ChipLinkVCU118Overlay(val shell: VCU118Shell, val name: String, params: Ch
                    "AU11", "AV11", "AW13", "AY13", "AN16", "AP16", "AP13", "AR13",
                    "AT12", "AU12", "AK15", "AL15", "AL14", "AM14", "AV10", "AW10",
                    "AN15", "AP15", "AK12", "AL12", "AM13", "AM12", "AJ13", "AJ12")
-    val dirB2C = Seq(IOPin(io.b2c.clk), IOPin(io.b2c.rst), IOPin(io.b2c.send)) ++
-                 IOPin.of(io.b2c.data)
-    val dirC2B = Seq(IOPin(io.c2b.clk), IOPin(io.c2b.rst), IOPin(io.c2b.send)) ++
-                 IOPin.of(io.c2b.data)
-    (dirB2C zip dir1) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
-    (dirC2B zip dir2) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
+    (IOPin.of(io.b2c) zip dir1) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
+    (IOPin.of(io.c2b) zip dir2) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
 
     val (rxIn, _) = rxI.out(0)
     rxIn.reset := shell.pllReset
