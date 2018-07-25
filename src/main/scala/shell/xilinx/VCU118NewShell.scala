@@ -138,15 +138,15 @@ class ChipLinkVCU118Overlay(val shell: VCU118Shell, val name: String, params: Ch
 
   shell { InModuleBody {
     val dir1 = Seq("BC9", "AV8", "AV9", /* clk, rst, send */
-                   "AY9", "BA9", "BF10", "BF9", "BC11", "BD11", "BD12", "BE12",
+                   "AY9",  "BA9",  "BF10", "BF9",  "BC11", "BD11", "BD12", "BE12",
                    "BF12", "BF11", "BE14", "BF14", "BD13", "BE13", "BC15", "BD15",
-                   "BE15", "BF15", "BA14", "BB14", "BB13", "BB12", "BA16",  "BA15",
-                   "BC14",  "BC13", "AY8",  "AY7",  "AW8", "AW7", "BB16", "BC16")
+                   "BE15", "BF15", "BA14", "BB14", "BB13", "BB12", "BA16", "BA15",
+                   "BC14", "BC13", "AY8",  "AY7",  "AW8",  "AW7",  "BB16", "BC16")
     val dir2 = Seq("AV14", "AK13", "AK14", /* clk, rst, send */
                    "AR14", "AT14", "AP12", "AR12", "AW12", "AY12", "AW11", "AY10",
                    "AU11", "AV11", "AW13", "AY13", "AN16", "AP16", "AP13", "AR13",
                    "AT12", "AU12", "AK15", "AL15", "AL14", "AM14", "AV10", "AW10",
-                   "AN15", "AP15", "AK12", "AL12", "AK14", "AK13", "AJ13", "AJ12")
+                   "AN15", "AP15", "AK12", "AL12", "AM13", "AM12", "AJ13", "AJ12")
     val dirB2C = Seq(IOPin(io.b2c.clk), IOPin(io.b2c.rst), IOPin(io.b2c.send)) ++
                  IOPin.of(io.b2c.data)
     val dirC2B = Seq(IOPin(io.c2b.clk), IOPin(io.c2b.rst), IOPin(io.c2b.send)) ++
