@@ -17,6 +17,9 @@ class FPGAUARTPortIO extends UARTPortIO {
   val ctsn = Input(Bool())
 }
 
+
+// HACK that'll go away with new BundleBridge API
+
 class UARTReplacementBundle extends Bundle with HasUARTTopBundleContents {
   val uartClock = Output(Clock())
   val uartReset = Output(Bool())

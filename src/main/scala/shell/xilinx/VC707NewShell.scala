@@ -32,10 +32,6 @@ class SDIOVC707Overlay(val shell: VC707Shell, val name: String, params: SDIOOver
   extends SDIOXilinxOverlay(params)
 {
   shell { InModuleBody {
-    // TODO: use proper clock/reset
-    require (shell.sys_clock.isDefined, "Use of SDIOVC707Overlay depends on SysClockVC707Overlay")
-    val test_clock = shell.sys_clock.get.node.out(0)._1
-
     val sd_spi_sck = spiSink.io.port.sck
     val sd_spi_cs = spiSink.io.port.cs(0)
 
@@ -54,9 +50,8 @@ class SDIOVC707Overlay(val shell: VC707Shell, val name: String, params: SDIOOver
 
     val ip_sdio_spi = Module(new sdio_spi_bridge_new_shell())
 
-    // TODO fix clocking
-    ip_sdio_spi.io.clk   := test_clock.clock
-    ip_sdio_spi.io.reset := test_clock.reset
+    ip_sdio_spi.io.clk   := spiSink.io.sdioClock
+    ip_sdio_spi.io.reset := spiSink.io.sdioReset
 
     // SDIO
     attach(io.sdio_dat_0, ip_sdio_spi.io.sd_dat_0)
@@ -96,9 +91,6 @@ class UARTVC707Overlay(val shell: VC707Shell, val name: String, params: UARTOver
   extends UARTXilinxOverlay(params)
 {
   shell { InModuleBody {
-    // TODO: use proper clock/reset
-//    require (shell.sys_clock.isDefined, "Use of UARTVC707Overlay depends on SysClockVC707Overlay")
-//    val test_clock = shell.sys_clock.get.node.out(0)._1
     withClockAndReset(uartSink.io.uartClock, uartSink.io.uartReset) {
       uartSink.io.port.rxd := SyncResetSynchronizerShiftReg(io.rxd, 2, init = true.B, name=Some("uart_rxd_sync  "))
     }

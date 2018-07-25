@@ -20,6 +20,34 @@ class FPGASDIOPortIO extends Bundle {
   val sdio_dat_3 = Analog(1.W)
 }
 
+// HACK that'll go away with new BundleBridge API
+
+class SDIOReplacementBundle(val c: SPIParams) extends Bundle {
+  val port = new SPIPortIO(c)
+  val sdioClock = Output(Clock())
+  val sdioReset = Output(Bool())
+}
+
+class BundleBridgeSDIO[D <: Data, T <: LazyModule](lm: => T { val module: { val io: D }}, spiParam: SPIParams)(implicit p: Parameters) extends LazyModule
+{
+  val child = LazyModule(lm)
+  val ioNode = BundleBridgeSource(() => new SDIOReplacementBundle(spiParam))
+  override lazy val desiredName = s"BundleBridge_${child.desiredName}"
+
+  lazy val module = new LazyModuleImp(this) {
+    val (io, _) = ioNode.out(0)
+    io <> child.module.io
+    io.sdioClock := clock
+    io.sdioReset := reset
+  }
+}
+
+object BundleBridgeSDIO
+{
+  def apply[D <: Data, T <: LazyModule](lm: => T { val module: { val io: D }}, spiParam: SPIParams)(implicit p: Parameters, valName: ValName) =
+    LazyModule(new BundleBridgeSDIO(lm, spiParam))
+}
+
 abstract class SDIOOverlay(
   val params: SDIOOverlayParams)
     extends IOOverlay[FPGASDIOPortIO, TLSPI]
@@ -28,7 +56,7 @@ abstract class SDIOOverlay(
 
   def ioFactory = new FPGASDIOPortIO
 
-  val spiSource = BundleBridge(new TLSPI(params.beatBytes, params.spiParam).suggestName(params.devName))
+  val spiSource = BundleBridgeSDIO(new TLSPI(params.beatBytes, params.spiParam).suggestName(params.devName), params.spiParam)
   val spiSink = shell { spiSource.ioNode.sink }
 
   val designOutput = spiSource.child
