@@ -117,7 +117,7 @@ class SwitchVC707Overlay(val shell: VC707Shell, val name: String, params: Switch
   extends SwitchXilinxOverlay(params, boardPins = Seq.tabulate(8) { i => s"dip_switches_tri_i_$i" })
 
 class ChipLinkVC707Overlay(val shell: VC707Shell, val name: String, params: ChipLinkOverlayParams)
-  extends ChipLinkXilinxOverlay(params)
+  extends ChipLinkXilinxOverlay(params, rxPhase=280, txPhase=220, rxMargin=0.3, txMargin=0.3)
 {
   val ereset_n = shell { InModuleBody {
     val ereset_n = IO(Input(Bool()))
