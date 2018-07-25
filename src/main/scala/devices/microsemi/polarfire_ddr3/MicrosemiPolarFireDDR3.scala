@@ -149,7 +149,7 @@ class PolarFireEvalKitDDR3(c : PolarFireEvalKitDDR3Params)(implicit p: Parameter
   val island  = LazyModule(new PolarFireEvalKitDDR3Island(c))
 
   val node: TLInwardNode =
-    island.node := island.crossAXI4In := yank.node := deint.node := indexer.node := toaxi4.node := buffer.node
+    island.crossAXI4In(island.node) := yank.node := deint.node := indexer.node := toaxi4.node := buffer.node
 
   lazy val module = new LazyModuleImp(this) {
     val io = IO(new Bundle {

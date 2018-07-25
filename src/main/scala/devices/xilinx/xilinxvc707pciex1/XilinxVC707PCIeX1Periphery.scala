@@ -4,16 +4,16 @@ package sifive.fpgashells.devices.xilinx.xilinxvc707pciex1
 import Chisel._
 import freechips.rocketchip.diplomacy.{LazyModule, LazyModuleImp, BufferParams}
 import freechips.rocketchip.subsystem.BaseSubsystem
-import freechips.rocketchip.tilelink.{TLAsyncCrossingSource, TLAsyncCrossingSink}
+import freechips.rocketchip.tilelink._
 import freechips.rocketchip.interrupts.IntSyncCrossingSink
 
 trait HasSystemXilinxVC707PCIeX1 { this: BaseSubsystem =>
   val xilinxvc707pcie = LazyModule(new XilinxVC707PCIeX1)
-  private val name = Some("xilinxvc707pcie")
-  sbus.fromMaster(name) { xilinxvc707pcie.crossTLOut } := xilinxvc707pcie.master
-  xilinxvc707pcie.slave := sbus.toFixedWidthSlave(name) { xilinxvc707pcie.crossTLIn }
-  xilinxvc707pcie.control := sbus.toFixedWidthSlave(name) { xilinxvc707pcie.crossTLIn }
-  ibus.fromSync := xilinxvc707pcie.crossIntOut := xilinxvc707pcie.intnode
+  private val cname = "xilinxvc707pcie"
+  sbus.coupleFrom(s"master_named_$cname") { _ :=* TLFIFOFixer(TLFIFOFixer.all) :=* xilinxvc707pcie.crossTLOut(xilinxvc707pcie.master) }
+  sbus.coupleTo(s"slave_named_$cname") { xilinxvc707pcie.crossTLIn(xilinxvc707pcie.slave) :*= TLWidthWidget(sbus.beatBytes) :*= _ }
+  sbus.coupleTo(s"controller_named_$cname") { xilinxvc707pcie.crossTLIn(xilinxvc707pcie.control) :*= TLWidthWidget(sbus.beatBytes) :*= _ }
+  ibus.fromSync := xilinxvc707pcie.crossIntOut(xilinxvc707pcie.intnode)
 }
 
 trait HasSystemXilinxVC707PCIeX1Bundle {

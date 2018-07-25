@@ -5,22 +5,16 @@ import Chisel._
 //import freechips.rocketchip.coreplex.{HasInterruptBus, HasSystemBus}
 import freechips.rocketchip.diplomacy.{LazyModule, LazyModuleImp, BufferParams}
 import freechips.rocketchip.subsystem.BaseSubsystem
-import freechips.rocketchip.tilelink.{TLAsyncCrossingSource, TLAsyncCrossingSink}
-import freechips.rocketchip.interrupts.IntSyncCrossingSink
+import freechips.rocketchip.tilelink._
 
 //trait HasSystemPolarFireEvalKitPCIeX4 extends HasSystemBus with HasInterruptBus {
 trait HasSystemPolarFireEvalKitPCIeX4 { this: BaseSubsystem =>
   val pf_eval_kit_pcie = LazyModule(new PolarFireEvalKitPCIeX4)
-  private val name = Some("polarfirepcie")
-//  sbus.fromSyncFIFOMaster(BufferParams.none) := pf_eval_kit_pcie.crossTLOut := pf_eval_kit_pcie.master
-//  pf_eval_kit_pcie.slave := pf_eval_kit_pcie.crossTLIn := sbus.toFixedWidthSlaves
-//  pf_eval_kit_pcie.control := pf_eval_kit_pcie.crossTLIn := sbus.toFixedWidthSlaves
-//  ibus.fromSync := pf_eval_kit_pcie.crossIntOut := pf_eval_kit_pcie.intnode
-
-  sbus.fromMaster(name) { pf_eval_kit_pcie.crossTLOut } := pf_eval_kit_pcie.master
-  pf_eval_kit_pcie.slave := sbus.toFixedWidthSlave(name) { pf_eval_kit_pcie.crossTLIn }
-  pf_eval_kit_pcie.control := sbus.toFixedWidthSlave(name) { pf_eval_kit_pcie.crossTLIn }
-  ibus.fromSync := pf_eval_kit_pcie.crossIntOut := pf_eval_kit_pcie.intnode
+  private val cname = "polarfirepcie"
+  sbus.coupleFrom(s"master_named_$cname") { _ :=* TLFIFOFixer(TLFIFOFixer.all) :=* pf_eval_kit_pcie.crossTLOut(pf_eval_kit_pcie.master) }
+  sbus.coupleTo(s"slave_named_$cname") { pf_eval_kit_pcie.crossTLIn(pf_eval_kit_pcie.slave) :*= TLWidthWidget(sbus.beatBytes) :*= _ }
+  sbus.coupleTo(s"controller_named_$cname") { pf_eval_kit_pcie.crossTLIn(pf_eval_kit_pcie.control) :*= TLWidthWidget(sbus.beatBytes) :*= _ }
+  ibus.fromSync := pf_eval_kit_pcie.crossIntOut(pf_eval_kit_pcie.intnode)
 }
 
 trait HasSystemPolarFireEvalKitPCIeX4Bundle {

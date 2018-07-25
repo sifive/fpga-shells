@@ -159,7 +159,7 @@ class XilinxVC707MIG(c : XilinxVC707MIGParams)(implicit p: Parameters) extends L
   val island  = LazyModule(new XilinxVC707MIGIsland(c))
 
   val node: TLInwardNode =
-    island.node := island.crossAXI4In := yank.node := deint.node := indexer.node := toaxi4.node := buffer.node
+    island.crossAXI4In(island.node) := yank.node := deint.node := indexer.node := toaxi4.node := buffer.node
 
   lazy val module = new LazyModuleImp(this) {
     val io = IO(new Bundle {
