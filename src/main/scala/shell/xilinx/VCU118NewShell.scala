@@ -277,6 +277,7 @@ class VCU118Shell()(implicit p: Parameters) extends Series7Shell
   override lazy val module = new LazyRawModuleImp(this) {
     val reset = IO(Input(Bool()))
     xdc.addPackagePin(reset, "L19")
+    xdc.addIOStandard(reset, "LVCMOS12")
 
     val reset_ibuf = Module(new IBUF)
     reset_ibuf.io.I := reset
