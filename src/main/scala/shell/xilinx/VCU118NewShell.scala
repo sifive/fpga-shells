@@ -265,24 +265,24 @@ class VCU118Shell()(implicit p: Parameters) extends Series7Shell
   val sys_clock = Overlay(ClockInputOverlayKey)(new SysClockVCU118Overlay(_, _, _))
   val led       = Overlay(LEDOverlayKey)       (new LEDVCU118Overlay     (_, _, _))
   val switch    = Overlay(SwitchOverlayKey)    (new SwitchVCU118Overlay  (_, _, _))
-//  val chiplink  = Overlay(ChipLinkOverlayKey)  (new ChipLinkVCU118Overlay(_, _, _))
-  val ddr       = Overlay(DDROverlayKey)       (new DDRVCU118Overlay     (_, _, _))
+  val chiplink  = Overlay(ChipLinkOverlayKey)  (new ChipLinkVCU118Overlay(_, _, _))
+//  val ddr       = Overlay(DDROverlayKey)       (new DDRVCU118Overlay     (_, _, _))
 //  val pcie      = Overlay(PCIeOverlayKey)      (new PCIeVCU118Overlay    (_, _, _))
   val uart      = Overlay(UARTOverlayKey)      (new UARTVCU118Overlay    (_, _, _))
   val sdio      = Overlay(SDIOOverlayKey)      (new SDIOVCU118Overlay    (_, _, _))
-  val jtag      = Overlay(JTAGDebugOverlayKey)      (new JTAGDebugVCU118Overlay    (_, _, _))
+//  val jtag      = Overlay(JTAGDebugOverlayKey)      (new JTAGDebugVCU118Overlay    (_, _, _))
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
   override lazy val module = new LazyRawModuleImp(this) {
     val reset = IO(Input(Bool()))
-    xdc.addBoardPin(reset, "reset")
+    xdc.addPackagePin(reset, "L19")
 
     val reset_ibuf = Module(new IBUF)
     reset_ibuf.io.I := reset
     pllReset :=
       reset_ibuf.io.O ||
-      sys_clock.map(_.reset:Bool).getOrElse(false.B) // ||
-//      chiplink.map(!_.ereset_n).getOrElse(false.B)
+      sys_clock.map(_.reset:Bool).getOrElse(false.B) ||
+      chiplink.map(!_.ereset_n).getOrElse(false.B)
   }
 }
