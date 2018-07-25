@@ -130,23 +130,23 @@ class ChipLinkVCU118Overlay(val shell: VCU118Shell, val name: String, params: Ch
   val ereset_n = shell { InModuleBody {
     val ereset_n = IO(Input(Bool()))
     ereset_n.suggestName("ereset_n")
-    shell.xdc.addPackagePin(ereset_n, "AF40")
+    shell.xdc.addPackagePin(ereset_n, "BC8")
     shell.xdc.addIOStandard(ereset_n, "LVCMOS18")
     shell.xdc.addTermination(ereset_n, "NONE")
     ereset_n
   } }
 
   shell { InModuleBody {
-    val dir1 = Seq("AF39", "AJ41", "AJ40", /* clk, rst, send */
-                   "AD40", "AD41", "AF41", "AG41", "AK39", "AL39", "AJ42", "AK42",
-                   "AL41", "AL42", "AF42", "AG42", "AD38", "AE38", "AC40", "AC41",
-                   "AD42", "AE42", "AJ38", "AK38", "AB41", "AB42", "Y42",  "AA42",
-                   "Y39",  "AA39", "W40",  "Y40",  "AB38", "AB39", "AC38", "AC39")
-    val dir2 = Seq("U39", "R37", "T36", /* clk, rst, send */
-                   "U37", "U38", "U36", "T37", "U32", "U33", "V33", "V34",
-                   "P35", "P36", "W32", "W33", "R38", "R39", "U34", "T35",
-                   "R33", "R34", "N33", "N34", "P32", "P33", "V35", "V36",
-                   "W36", "W37", "T32", "R32", "V39", "V40", "P37", "P38")
+    val dir1 = Seq("BC9", "AV8", "AV9", /* clk, rst, send */
+                   "AY9", "BA9", "BF10", "BF9", "BC11", "BD11", "BD12", "BE12",
+                   "BF12", "BF11", "BE14", "BF14", "BD13", "BE13", "BC15", "BD15",
+                   "BE15", "BF15", "BA14", "BB14", "BB13", "BB12", "BA16",  "BA15",
+                   "BC14",  "BC13", "AY8",  "AY7",  "AW8", "AW7", "BB16", "BC16")
+    val dir2 = Seq("AV14", "AK13", "AK14", /* clk, rst, send */
+                   "AR14", "AT14", "AP12", "AR12", "AW12", "AY12", "AW11", "AY10",
+                   "AU11", "AV11", "AW13", "AY13", "AN16", "AP16", "AP13", "AR13",
+                   "AT12", "AU12", "AK15", "AL15", "AL14", "AM14", "AV10", "AW10",
+                   "AN15", "AP15", "AK12", "AL12", "AK14", "AK13", "AJ13", "AJ12")
     val dirB2C = Seq(IOPin(io.b2c.clk), IOPin(io.b2c.rst), IOPin(io.b2c.send)) ++
                  IOPin.of(io.b2c.data)
     val dirC2B = Seq(IOPin(io.c2b.clk), IOPin(io.c2b.rst), IOPin(io.c2b.send)) ++
