@@ -170,6 +170,7 @@ class Series7MMCM(c : PLLParameters) extends BlackBox with PLLInstance {
        |set_property -dict [list \\
        | CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \\
        | CONFIG.PRIM_SOURCE {No_buffer} \\
+       | CONFIG.USE_PHASE_ALIGNMENT {${c.input.feedback}} \\
        | CONFIG.NUM_OUT_CLKS {${c.req.size.toString}} \\
        | CONFIG.PRIM_IN_FREQ {${c.input.freqMHz.toString}} \\
        | CONFIG.CLKIN1_JITTER_PS {${c.input.jitter}} \\
