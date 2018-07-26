@@ -354,8 +354,6 @@ class sdio_spi_bridge() extends BlackBox
 class sdio_spi_bridge_new_shell() extends BlackBox
 {
   val io = new Bundle{
-    val clk      = Clock(INPUT)
-    val reset    = Bool(INPUT)
     val sd_cmd   = Analog(1.W)
     val sd_dat_0  = Analog(1.W)
     val sd_dat_1  = Analog(1.W)

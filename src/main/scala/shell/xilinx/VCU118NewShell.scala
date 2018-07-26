@@ -32,13 +32,13 @@ class SDIOVCU118Overlay(val shell: VCU118Shell, val name: String, params: SDIOOv
   extends SDIOXilinxOverlay(params)
 {
   shell { InModuleBody {
-    val sd_spi_sck = spiSink.io.port.sck
-    val sd_spi_cs = spiSink.io.port.cs(0)
+    val sd_spi_sck = spiSink.io.sck
+    val sd_spi_cs = spiSink.io.cs(0)
 
     val sd_spi_dq_i = Wire(Vec(4, Bool()))
     val sd_spi_dq_o = Wire(Vec(4, Bool()))
 
-    spiSink.io.port.dq.zipWithIndex.foreach {
+    spiSink.io.dq.zipWithIndex.foreach {
       case(pin, idx) =>
         sd_spi_dq_o(idx) := pin.o
         pin.i := sd_spi_dq_i(idx)
@@ -49,9 +49,6 @@ class SDIOVCU118Overlay(val shell: VCU118Shell, val name: String, params: SDIOOv
     //-------------------------------------------------------------------
 
     val ip_sdio_spi = Module(new sdio_spi_bridge_new_shell())
-
-    ip_sdio_spi.io.clk   := spiSink.io.sdioClock
-    ip_sdio_spi.io.reset := spiSink.io.sdioReset
 
     // SDIO
     attach(io.sdio_dat_0, ip_sdio_spi.io.sd_dat_0)

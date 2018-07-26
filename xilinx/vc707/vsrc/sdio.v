@@ -57,8 +57,6 @@ module sdio_spi_bridge (
 endmodule
 
 module sdio_spi_bridge_new_shell (
-  input wire clk,
-  input wire reset,
   // SDIO
   inout  wire       sd_cmd,
   inout  wire       sd_dat_0,
@@ -76,10 +74,9 @@ module sdio_spi_bridge_new_shell (
 );
 
   wire mosi, miso;
-  reg miso_sync [1:0];
 
   assign mosi = spi_dq_o[0];
-  assign spi_dq_i = {2'b00, miso_sync[1], 1'b0};
+  assign spi_dq_i = {2'b00, miso, 1'b0};
 
   assign sd_sck = spi_sck;
 
@@ -104,15 +101,6 @@ module sdio_spi_bridge_new_shell (
     .T(1'b0)
   );
 
-  always @(posedge clk) begin
-    if (reset) begin
-       miso_sync[0] <= 1'b0;
-       miso_sync[1] <= 1'b0;
-    end else begin
-       miso_sync[0] <= miso;
-       miso_sync[1] <= miso_sync[0];
-    end
-  end
 endmodule
 
 
