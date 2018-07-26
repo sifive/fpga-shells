@@ -20,7 +20,7 @@ class FPGAUARTPortIO extends UARTPortIO {
 
 // HACK that'll go away with new BundleBridge API
 
-class UARTReplacementBundle extends Bundle with HasUARTTopBundleContents {
+class UARTReplacementBundle extends Bundle with HasUARTTopBundleContents /*{
   val uartClock = Output(Clock())
   val uartReset = Output(Bool())
 }
@@ -45,7 +45,7 @@ object BundleBridgeUART
     LazyModule(new BundleBridgeUART(lm))
 }
 
-
+*/
 
 abstract class UARTOverlay(
   val params: UARTOverlayParams)
@@ -55,13 +55,21 @@ abstract class UARTOverlay(
 
   def ioFactory = new FPGAUARTPortIO
 
-  val uartSource = BundleBridgeUART(new TLUART(params.beatBytes, params.uartParams).suggestName(params.devName))
-  val uartSink = shell { uartSource.ioNode.sink }
+  val tluart = LazyModule(new TLUART(params.beatBytes, params.uartParams).suggestName(params.devName))
+  val uartSource = BundleBridgeSource(() => new UARTReplacementBundle())
+  val uartSink = shell { uartSource.sink }
 
-  val designOutput = uartSource.child
+  val designOutput = tluart
+
+  InModuleBody {
+    val (io, _) = uartSource.out(0)
+    io <> tluart.module.io
+    tluart.module.io.port.rxd := RegNext(RegNext(io.port.rxd))
+  }
 
   shell { InModuleBody {
     io.txd := uartSink.io.port.txd
+    uartSink.io.port.rxd := io.rxd
 
     // Some FPGAs have this, we don't use it.
     io.rtsn := false.B

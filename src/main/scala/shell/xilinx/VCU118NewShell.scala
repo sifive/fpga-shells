@@ -88,10 +88,6 @@ class UARTVCU118Overlay(val shell: VCU118Shell, val name: String, params: UARTOv
   extends UARTXilinxOverlay(params)
 {
   shell { InModuleBody {
-    withClockAndReset(uartSink.io.uartClock, uartSink.io.uartReset) {
-      uartSink.io.port.rxd := SyncResetSynchronizerShiftReg(io.rxd, 2, init = true.B, name=Some("uart_rxd_sync  "))
-    }
-
     val packageIOs = IOPin.of(io)
 
     val packagePinsWithPackageIOs = Seq(("AY25", IOPin(io.ctsn), true),

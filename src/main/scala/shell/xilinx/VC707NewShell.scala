@@ -88,10 +88,6 @@ class UARTVC707Overlay(val shell: VC707Shell, val name: String, params: UARTOver
   extends UARTXilinxOverlay(params)
 {
   shell { InModuleBody {
-    withClockAndReset(uartSink.io.uartClock, uartSink.io.uartReset) {
-      uartSink.io.port.rxd := SyncResetSynchronizerShiftReg(io.rxd, 2, init = true.B, name=Some("uart_rxd_sync  "))
-    }
-
     val packageIOs = IOPin.of(io)
 
     val packagePinsWithPackageIOs = Seq(("AT32", IOPin(io.ctsn), true),
