@@ -17,35 +17,7 @@ class FPGAUARTPortIO extends UARTPortIO {
   val ctsn = Input(Bool())
 }
 
-
-// HACK that'll go away with new BundleBridge API
-
-class UARTReplacementBundle extends Bundle with HasUARTTopBundleContents /*{
-  val uartClock = Output(Clock())
-  val uartReset = Output(Bool())
-}
-
-class BundleBridgeUART[D <: Data, T <: LazyModule](lm: => T { val module: { val io: D }})(implicit p: Parameters) extends LazyModule
-{
-  val child = LazyModule(lm)
-  val ioNode = BundleBridgeSource(() => new UARTReplacementBundle())
-  override lazy val desiredName = s"BundleBridge_${child.desiredName}"
-
-  lazy val module = new LazyModuleImp(this) {
-    val (io, _) = ioNode.out(0)
-    io <> child.module.io
-    io.uartClock := clock
-    io.uartReset := reset
-  }
-}
-
-object BundleBridgeUART
-{
-  def apply[D <: Data, T <: LazyModule](lm: => T { val module: { val io: D }})(implicit p: Parameters, valName: ValName) =
-    LazyModule(new BundleBridgeUART(lm))
-}
-
-*/
+class UARTReplacementBundle extends Bundle with HasUARTTopBundleContents
 
 abstract class UARTOverlay(
   val params: UARTOverlayParams)
