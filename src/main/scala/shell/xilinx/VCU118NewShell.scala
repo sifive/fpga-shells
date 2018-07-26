@@ -88,8 +88,6 @@ class UARTVCU118Overlay(val shell: VCU118Shell, val name: String, params: UARTOv
   extends UARTXilinxOverlay(params)
 {
   shell { InModuleBody {
-    val packageIOs = IOPin.of(io)
-
     val packagePinsWithPackageIOs = Seq(("AY25", IOPin(io.ctsn), true),
                                         ("BB22", IOPin(io.rtsn), true),
                                         ("AW25", IOPin(io.rxd), false),
@@ -144,11 +142,8 @@ class JTAGDebugVCU118Overlay(val shell: VCU118Shell, val name: String, params: J
   extends JTAGDebugXilinxOverlay(params)
 {
   shell { InModuleBody {
-    val packageIOs = IOPin.of(io)
-
-    // TODO: abstract properly
-    shell.xdc.JTAGMisc()
-
+    shell.sdc.addClock("JTCK", IOPin(io.jtag_TCK), 10)
+    shell.xdc.clockDedicatedRouteFalse(IOPin(io.jtag_TCK))
     val packagePinsWithPackageIOs = Seq(("P29", IOPin(io.jtag_TCK), true),
                                         ("L31", IOPin(io.jtag_TMS), true),
                                         ("M31", IOPin(io.jtag_TDI), true),

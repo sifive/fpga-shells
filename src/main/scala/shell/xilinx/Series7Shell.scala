@@ -41,10 +41,8 @@ class XDC(val name: String)
   def addTermination(io: IOPin, kind: String) {
     addConstraint(s"set_property OFFCHIP_TERM ${kind} ${io.sdcPin}")
   }
-  def JTAGMisc() {
-    // TODO: fix
-    addConstraint(s"set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets jtag_jtag_TCK]")
-    addConstraint(s"create_clock -add -name JTCK        -period 100   -waveform {0 50} [get_ports {jtag_jtag_TCK}]")
+  def clockDedicatedRouteFalse(io: IOPin) {
+    addConstraint(s"set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets ${io.sdcPin}]")
   }
 }
 

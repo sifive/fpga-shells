@@ -88,8 +88,6 @@ class UARTVC707Overlay(val shell: VC707Shell, val name: String, params: UARTOver
   extends UARTXilinxOverlay(params)
 {
   shell { InModuleBody {
-    val packageIOs = IOPin.of(io)
-
     val packagePinsWithPackageIOs = Seq(("AT32", IOPin(io.ctsn), true),
                                         ("AR34", IOPin(io.rtsn), true),
                                         ("AU33", IOPin(io.rxd), false),
@@ -140,13 +138,13 @@ class ChipLinkVC707Overlay(val shell: VC707Shell, val name: String, params: Chip
   } }
 }
 
+// TODO: JTAG is untested
 class JTAGDebugVC707Overlay(val shell: VC707Shell, val name: String, params: JTAGDebugOverlayParams)
   extends JTAGDebugXilinxOverlay(params)
 {
   shell { InModuleBody {
-    val packageIOs = IOPin.of(io)
-    shell.xdc.JTAGMisc()
-
+    shell.sdc.addClock("JTCK", IOPin(io.jtag_TCK), 10)
+    shell.xdc.clockDedicatedRouteFalse(IOPin(io.jtag_TCK))
     val packagePinsWithPackageIOs = Seq(("R32", IOPin(io.jtag_TCK), true),
                                         ("W36", IOPin(io.jtag_TMS), true),
                                         ("W37", IOPin(io.jtag_TDI), true),
