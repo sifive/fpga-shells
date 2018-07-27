@@ -124,38 +124,166 @@ class JTAGDebugVCU118Overlay(val shell: VCU118Shell, val name: String, params: J
   } }
 }
 
-//case object VCU118DDRSize extends Field[BigInt](0x40000000L * 2) // 2GB
-//class DDRVCU118Overlay(val shell: VCU118Shell, val name: String, params: DDROverlayParams)
-//  extends DDROverlay[XilinxVCU118MIGPads](params)
-//{
-//  val size = p(VCU118DDRSize)
-//
-//  val migBridge = BundleBridge(new XilinxVCU118MIG(XilinxVCU118MIGParams(
-//    address = AddressSet.misaligned(params.baseAddress, size))))
-//  val topIONode = shell { migBridge.ioNode.sink }
-//  val ddrUI     = shell { ClockSourceNode(freqMHz = 200) }
-//  val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
-//  areset := params.wrangler := ddrUI
-//
-//  def designOutput = migBridge.child.node
-//  def ioFactory = new XilinxVCU118MIGPads(size)
-//
-//  shell { InModuleBody {
-//    require (shell.sys_clock.isDefined, "Use of DDRVCU118Overlay depends on SysClockVCU118Overlay")
-//    val (sys, _) = shell.sys_clock.get.node.out(0)
-//    val (ui, _) = ddrUI.out(0)
-//    val (ar, _) = areset.in(0)
-//    val port = topIONode.io.port
-//    io <> port
-//    ui.clock := port.c0_ddr4_ui_clk
-//    ui.reset := /*!port.mmcm_locked ||*/ port.c0_ddr4_ui_clk_sync_rst
-//    port.c0_sys_clk_i := sys.clock.asUInt
-//    port.sys_rst := sys.reset // pllReset
-//    port.c0_ddr4_aresetn := !ar.reset
-//  } }
-//
-//  shell.sdc.addGroup(clocks = Seq("clk_pll_i"))
-//}
+case object VCU118DDRSize extends Field[BigInt](0x40000000L * 2) // 2GB
+class DDRVCU118Overlay(val shell: VCU118Shell, val name: String, params: DDROverlayParams)
+  extends DDROverlay[XilinxVCU118MIGPads](params)
+{
+  val size = p(VCU118DDRSize)
+
+  val migBridge = BundleBridge(new XilinxVCU118MIG(XilinxVCU118MIGParams(
+    address = AddressSet.misaligned(params.baseAddress, size))))
+  val topIONode = shell { migBridge.ioNode.sink }
+  val ddrUI     = shell { ClockSourceNode(freqMHz = 200) }
+  val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
+  areset := params.wrangler := ddrUI
+
+  def designOutput = migBridge.child.node
+  def ioFactory = new XilinxVCU118MIGPads(size)
+
+  shell { InModuleBody {
+    require (shell.sys_clock.isDefined, "Use of DDRVCU118Overlay depends on SysClockVCU118Overlay")
+    val (sys, _) = shell.sys_clock.get.node.out(0)
+    val (ui, _) = ddrUI.out(0)
+    val (ar, _) = areset.in(0)
+    val port = topIONode.io.port
+    io <> port
+    ui.clock := port.c0_ddr4_ui_clk
+    ui.reset := /*!port.mmcm_locked ||*/ port.c0_ddr4_ui_clk_sync_rst
+    port.c0_sys_clk_i := sys.clock.asUInt
+    port.sys_rst := sys.reset // pllReset
+    port.c0_ddr4_aresetn := !ar.reset
+
+//# DDR4 C0
+val allddrpins = Seq(
+"D14",
+"B15",
+"B16",
+"C14",
+"C15",
+"A13",
+"A14",
+"A15",
+"A16",
+"B12",
+"C12",
+"B13",
+"C13",
+"D15",
+"H14",
+"H15",
+"F15",
+"H13",
+"G15",
+"G13",
+"N20",
+"E13",
+"E14",
+"F14",
+"A10",
+"F13",
+"C8 ",
+"F11",
+"E11",
+"F10",
+"F9 ",
+"H12",
+"G12",
+"E9 ",
+"D9 ",
+"R19",
+"P19",
+"M18",
+"M17",
+"N19",
+"N18",
+"N17",
+"M16",
+"L16",
+"K16",
+"L18",
+"K18",
+"J17",
+"H17",
+"H19",
+"H18",
+"F19",
+"F18",
+"E19",
+"E18",
+"G20",
+"F20",
+"E17",
+"D16",
+"D17",
+"C17",
+"C19",
+"C18",
+"D20",
+"D19",
+"C20",
+"B20",
+"N23",
+"M23",
+"R21",
+"P21",
+"R22",
+"P22",
+"T23",
+"R23",
+"K24",
+"J24",
+"M21",
+"L21",
+"K21",
+"J21",
+"K22",
+"J22",
+"H23",
+"H22",
+"E23",
+"E22",
+"F21",
+"E21",
+"F24",
+"F23",
+
+"D10",
+"P16",
+"J19",
+"E16",
+"A18",
+"M22",
+"L20",
+"G23",
+
+"D11",
+"P17",
+"K19",
+"F16",
+"A19",
+"N22",
+"M20",
+"H24",
+
+
+"G11",
+"R18",
+"K17",
+"G18",
+"B18",
+"P20",
+"L23",
+"G22")
+
+
+
+    (IOPin.of(io) zip allddrpins) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
+
+
+  } }
+
+  shell.sdc.addGroup(clocks = Seq("clk_pll_i"))
+}
 
 //class PCIeVCU118Overlay(val shell: VCU118Shell, val name: String, params: PCIeOverlayParams)
 //  extends PCIeOverlay[XilinxVCU118PCIeX1Pads](params)
@@ -209,7 +337,7 @@ class VCU118Shell()(implicit p: Parameters) extends Series7Shell
   val led       = Overlay(LEDOverlayKey)       (new LEDVCU118Overlay     (_, _, _))
   val switch    = Overlay(SwitchOverlayKey)    (new SwitchVCU118Overlay  (_, _, _))
   val chiplink  = Overlay(ChipLinkOverlayKey)  (new ChipLinkVCU118Overlay(_, _, _))
-//  val ddr       = Overlay(DDROverlayKey)       (new DDRVCU118Overlay     (_, _, _))
+  val ddr       = Overlay(DDROverlayKey)       (new DDRVCU118Overlay     (_, _, _))
 //  val pcie      = Overlay(PCIeOverlayKey)      (new PCIeVCU118Overlay    (_, _, _))
   val uart      = Overlay(UARTOverlayKey)      (new UARTVCU118Overlay    (_, _, _))
   val sdio      = Overlay(SDIOOverlayKey)      (new SDIOVCU118Overlay    (_, _, _))
