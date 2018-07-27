@@ -343,7 +343,6 @@ class sdio_spi_bridge() extends BlackBox
     val reset    = Bool(INPUT)
     val sd_cmd   = Analog(1.W)
     val sd_dat   = Analog(4.W)
-
     val spi_sck  = Bool(INPUT)
     val spi_cs   = Bool(INPUT)
     val spi_dq_o = Bits(INPUT,4)
