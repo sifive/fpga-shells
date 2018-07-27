@@ -49,19 +49,19 @@ class SDIOVC707Overlay(val shell: VC707Shell, val name: String, params: SDIOOver
     io.sdio_cmd := sd_spi_dq_o(0)
     sd_spi_dq_i := Seq(false.B, io.sdio_dat_0, false.B, false.B)
 
-    val packagePinsWithPackageIOs = Seq(("AN30", IOPin(io.sdio_clk), false),
-                                        ("AP30", IOPin(io.sdio_cmd), false),
-                                        ("AR30", IOPin(io.sdio_dat_0), false),
-                                        ("AU31", IOPin(io.sdio_dat_1), false),
-                                        ("AV31", IOPin(io.sdio_dat_2), false),
-                                        ("AT30", IOPin(io.sdio_dat_3), false))
+    val packagePinsWithPackageIOs = Seq(("AN30", IOPin(io.sdio_clk)),
+                                        ("AP30", IOPin(io.sdio_cmd)),
+                                        ("AR30", IOPin(io.sdio_dat_0)),
+                                        ("AU31", IOPin(io.sdio_dat_1)),
+                                        ("AV31", IOPin(io.sdio_dat_2)),
+                                        ("AT30", IOPin(io.sdio_dat_3)))
 
-    packagePinsWithPackageIOs foreach { case (pin, io, simpleIOB) => {
+    packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
       shell.xdc.addIOStandard(io, "LVCMOS18")
-      shell.xdc.addIOB(io, simpleIOB)
+      shell.xdc.addIOB(io)
     } }
-    packagePinsWithPackageIOs drop 1 foreach { case (pin, io, simpleIOB) => {
+    packagePinsWithPackageIOs drop 1 foreach { case (pin, io) => {
       shell.xdc.addPullup(io)
     } }
 
@@ -72,15 +72,15 @@ class UARTVC707Overlay(val shell: VC707Shell, val name: String, params: UARTOver
   extends UARTXilinxOverlay(params)
 {
   shell { InModuleBody {
-    val packagePinsWithPackageIOs = Seq(("AT32", IOPin(io.ctsn), false),
-                                        ("AR34", IOPin(io.rtsn), false),
-                                        ("AU33", IOPin(io.rxd), false),
-                                        ("AU36", IOPin(io.txd), false))
+    val packagePinsWithPackageIOs = Seq(("AT32", IOPin(io.ctsn)),
+                                        ("AR34", IOPin(io.rtsn)),
+                                        ("AU33", IOPin(io.rxd)),
+                                        ("AU36", IOPin(io.txd)))
 
-    packagePinsWithPackageIOs foreach { case (pin, io, simpleIOB) => {
+    packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
       shell.xdc.addIOStandard(io, "LVCMOS18")
-      shell.xdc.addIOB(io, simpleIOB)
+      shell.xdc.addIOB(io)
     } }
   } }
 }
@@ -129,12 +129,12 @@ class JTAGDebugVC707Overlay(val shell: VC707Shell, val name: String, params: JTA
   shell { InModuleBody {
     shell.sdc.addClock("JTCK", IOPin(io.jtag_TCK), 10)
     shell.xdc.clockDedicatedRouteFalse(IOPin(io.jtag_TCK))
-    val packagePinsWithPackageIOs = Seq(("R32", IOPin(io.jtag_TCK), true),
-                                        ("W36", IOPin(io.jtag_TMS), true),
-                                        ("W37", IOPin(io.jtag_TDI), true),
-                                        ("V40", IOPin(io.jtag_TDO), true))
+    val packagePinsWithPackageIOs = Seq(("R32", IOPin(io.jtag_TCK)),
+                                        ("W36", IOPin(io.jtag_TMS)),
+                                        ("W37", IOPin(io.jtag_TDI)),
+                                        ("V40", IOPin(io.jtag_TDO)))
 
-    packagePinsWithPackageIOs foreach { case (pin, io, simpleIOB) => {
+    packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
       shell.xdc.addIOStandard(io, "LVCMOS18")
       shell.xdc.addPullup(io)

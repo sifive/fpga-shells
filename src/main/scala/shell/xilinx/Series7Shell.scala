@@ -26,10 +26,8 @@ class XDC(val name: String)
   def addPullup(io: IOPin) {
     addConstraint(s"set_property PULLUP TRUE ${io.sdcPin}")
   }
-  def addIOB(io: IOPin, simpleConstr: Boolean = false) {
-    if (simpleConstr) {
-      addConstraint(s"set_property IOB TRUE ${io.sdcPin}")
-    } else if (io.isOutput) {
+  def addIOB(io: IOPin) {
+    if (io.isOutput) {
       addConstraint(s"set_property IOB TRUE [ get_cells -of_objects [ all_fanin -flat -startpoints_only ${io.sdcPin}]]")
     } else {
       addConstraint(s"set_property IOB TRUE [ get_cells -of_objects [ all_fanout -flat -endpoints_only ${io.sdcPin}]]")
