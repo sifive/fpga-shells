@@ -122,6 +122,7 @@ class ChipLinkVCU118Overlay(val shell: VCU118Shell, val name: String, params: Ch
   } }
 }
 
+// TODO: JTAG is untested
 class JTAGDebugVCU118Overlay(val shell: VCU118Shell, val name: String, params: JTAGDebugOverlayParams)
   extends JTAGDebugXilinxOverlay(params)
 {
@@ -141,38 +142,38 @@ class JTAGDebugVCU118Overlay(val shell: VCU118Shell, val name: String, params: J
   } }
 }
 
-case object VCU118DDRSize extends Field[BigInt](0x40000000L * 2) // 2GB
-class DDRVCU118Overlay(val shell: VCU118Shell, val name: String, params: DDROverlayParams)
-  extends DDROverlay[XilinxVCU118MIGPads](params)
-{
-  val size = p(VCU118DDRSize)
-
-  val migBridge = BundleBridge(new XilinxVCU118MIG(XilinxVCU118MIGParams(
-    address = AddressSet.misaligned(params.baseAddress, size))))
-  val topIONode = shell { migBridge.ioNode.sink }
-  val ddrUI     = shell { ClockSourceNode(freqMHz = 200) }
-  val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
-  areset := params.wrangler := ddrUI
-
-  def designOutput = migBridge.child.node
-  def ioFactory = new XilinxVCU118MIGPads(size)
-
-  shell { InModuleBody {
-    require (shell.sys_clock.isDefined, "Use of DDRVCU118Overlay depends on SysClockVCU118Overlay")
-    val (sys, _) = shell.sys_clock.get.node.out(0)
-    val (ui, _) = ddrUI.out(0)
-    val (ar, _) = areset.in(0)
-    val port = topIONode.io.port
-    io <> port
-    ui.clock := port.c0_ddr4_ui_clk
-    ui.reset := /*!port.mmcm_locked ||*/ port.c0_ddr4_ui_clk_sync_rst
-    port.c0_sys_clk_i := sys.clock.asUInt
-    port.sys_rst := sys.reset // pllReset
-    port.c0_ddr4_aresetn := !ar.reset
-  } }
-
-  shell.sdc.addGroup(clocks = Seq("clk_pll_i"))
-}
+//case object VCU118DDRSize extends Field[BigInt](0x40000000L * 2) // 2GB
+//class DDRVCU118Overlay(val shell: VCU118Shell, val name: String, params: DDROverlayParams)
+//  extends DDROverlay[XilinxVCU118MIGPads](params)
+//{
+//  val size = p(VCU118DDRSize)
+//
+//  val migBridge = BundleBridge(new XilinxVCU118MIG(XilinxVCU118MIGParams(
+//    address = AddressSet.misaligned(params.baseAddress, size))))
+//  val topIONode = shell { migBridge.ioNode.sink }
+//  val ddrUI     = shell { ClockSourceNode(freqMHz = 200) }
+//  val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
+//  areset := params.wrangler := ddrUI
+//
+//  def designOutput = migBridge.child.node
+//  def ioFactory = new XilinxVCU118MIGPads(size)
+//
+//  shell { InModuleBody {
+//    require (shell.sys_clock.isDefined, "Use of DDRVCU118Overlay depends on SysClockVCU118Overlay")
+//    val (sys, _) = shell.sys_clock.get.node.out(0)
+//    val (ui, _) = ddrUI.out(0)
+//    val (ar, _) = areset.in(0)
+//    val port = topIONode.io.port
+//    io <> port
+//    ui.clock := port.c0_ddr4_ui_clk
+//    ui.reset := /*!port.mmcm_locked ||*/ port.c0_ddr4_ui_clk_sync_rst
+//    port.c0_sys_clk_i := sys.clock.asUInt
+//    port.sys_rst := sys.reset // pllReset
+//    port.c0_ddr4_aresetn := !ar.reset
+//  } }
+//
+//  shell.sdc.addGroup(clocks = Seq("clk_pll_i"))
+//}
 
 //class PCIeVCU118Overlay(val shell: VCU118Shell, val name: String, params: PCIeOverlayParams)
 //  extends PCIeOverlay[XilinxVCU118PCIeX1Pads](params)
@@ -230,7 +231,7 @@ class VCU118Shell()(implicit p: Parameters) extends Series7Shell
 //  val pcie      = Overlay(PCIeOverlayKey)      (new PCIeVCU118Overlay    (_, _, _))
   val uart      = Overlay(UARTOverlayKey)      (new UARTVCU118Overlay    (_, _, _))
   val sdio      = Overlay(SDIOOverlayKey)      (new SDIOVCU118Overlay    (_, _, _))
-//  val jtag      = Overlay(JTAGDebugOverlayKey)      (new JTAGDebugVCU118Overlay    (_, _, _))
+  val jtag      = Overlay(JTAGDebugOverlayKey)      (new JTAGDebugVCU118Overlay    (_, _, _))
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
