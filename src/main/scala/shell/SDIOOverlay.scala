@@ -41,4 +41,22 @@ abstract class SDIOOverlay(
     }
   }
 
+  shell { InModuleBody {
+    val sd_spi_sck = spiSink.io.sck
+    val sd_spi_cs = spiSink.io.cs(0)
+
+    val sd_spi_dq_i = Wire(Vec(4, Bool()))
+    val sd_spi_dq_o = Wire(Vec(4, Bool()))
+
+    spiSink.io.dq.zipWithIndex.foreach {
+      case(pin, idx) =>
+        sd_spi_dq_o(idx) := pin.o
+        pin.i := sd_spi_dq_i(idx)
+    }
+
+    io.sdio_clk := sd_spi_sck
+    io.sdio_dat_3 := sd_spi_cs
+    io.sdio_cmd := sd_spi_dq_o(0)
+    sd_spi_dq_i := Seq(false.B, io.sdio_dat_0, false.B, false.B)
+  } }
 }
