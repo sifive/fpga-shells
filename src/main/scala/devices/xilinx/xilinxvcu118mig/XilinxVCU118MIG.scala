@@ -147,7 +147,7 @@ class XilinxVCU118MIG(c : XilinxVCU118MIGParams)(implicit p: Parameters) extends
   val island  = LazyModule(new XilinxVCU118MIGIsland(c))
 
   val node: TLInwardNode =
-    island.node := island.crossAXI4In := yank.node := deint.node := indexer.node := toaxi4.node := buffer.node
+    island.crossAXI4In(island.node) := yank.node := deint.node := indexer.node := toaxi4.node := buffer.node
 
   lazy val module = new LazyModuleImp(this) {
     val io = IO(new Bundle {

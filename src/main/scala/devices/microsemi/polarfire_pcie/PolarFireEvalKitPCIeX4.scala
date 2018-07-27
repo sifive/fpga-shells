@@ -9,7 +9,7 @@ import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
 import freechips.rocketchip.interrupts._
 import freechips.rocketchip.util._
-import freechips.rocketchip.subsystem.{HasCrossing, SynchronousCrossing, CacheBlockBytes}
+import freechips.rocketchip.subsystem.{HasCrossing, CacheBlockBytes}
 
 import sifive.fpgashells.ip.microsemi.polarfirepcierootport._
 
