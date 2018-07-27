@@ -222,11 +222,11 @@ abstract class VeraShell(implicit val p: Parameters) extends RawModule {
   val ref_clk_int = Module(new CLKINT)
   val hart_clk_ccc = Module(new PolarFireCCC(PLLParameters(
     name = "hart_clk_ccc",
-    InClockParameters(50),
+    PLLInClockParameters(50),
     Seq(
-      OutClockParameters(25),
-      OutClockParameters(125),
-      OutClockParameters(125, 31.5)))))
+      PLLOutClockParameters(25),
+      PLLOutClockParameters(125),
+      PLLOutClockParameters(125, 31.5)))))
   
   val hart_clk_25     = hart_clk_ccc.io.OUT0_FABCLK_0.get
   val hart_clk_125    = hart_clk_ccc.io.OUT1_FABCLK_0.get

@@ -27,8 +27,9 @@ class XilinxVC707PCIeX1IO extends Bundle
   val axi_ctl_aresetn = Bool(INPUT)
 }
 
-class XilinxVC707PCIeX1(implicit p: Parameters) extends LazyModule with HasCrossing {
-  val crossing = AsynchronousCrossing(8)
+class XilinxVC707PCIeX1(implicit p: Parameters, val crossing: ClockCrossingType = AsynchronousCrossing(8))
+  extends LazyModule with HasCrossing
+{
   val axi_to_pcie_x1 = LazyModule(new VC707AXIToPCIeX1)
 
   val slave: TLInwardNode =
@@ -55,10 +56,13 @@ class XilinxVC707PCIeX1(implicit p: Parameters) extends LazyModule with HasCross
 
   val intnode: IntOutwardNode = axi_to_pcie_x1.intnode
 
-  lazy val module = new LazyModuleImp(this) {
+  lazy val module = new LazyRawModuleImp(this) {
     val io = IO(new Bundle {
       val port = new XilinxVC707PCIeX1IO
     })
+
+    childClock := io.port.axi_aclk_out
+    childReset := ~io.port.axi_aresetn
 
     io.port <> axi_to_pcie_x1.module.io.port
 

@@ -45,8 +45,8 @@ abstract class VCU118Shell(implicit val p: Parameters) extends RawModule {
   //-----------------------------------------------------------------------
   
   // 250Mhz differential sysclk
-  val sys_diff_clock_clk_n = IO(Input(Bool()))
-  val sys_diff_clock_clk_p = IO(Input(Bool()))
+  val sys_diff_clock_clk_n = IO(Input(Clock()))
+  val sys_diff_clock_clk_p = IO(Input(Clock()))
 
   // active high reset
   val reset                = IO(Input(Bool()))
@@ -136,7 +136,7 @@ abstract class VCU118Shell(implicit val p: Parameters) extends RawModule {
   //-----------------------------------------------------------------------
 
   // Clock that drives the clock generator and the MIG
-  sys_clock := sys_clk_ibufds.io.O.asClock
+  sys_clock := sys_clk_ibufds.io.O
 
   // Allow the debug module to reset everything. Resets the MIG
   sys_reset := reset | dut_ndreset

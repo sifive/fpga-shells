@@ -29,7 +29,7 @@ set group_sys [get_clocks -quiet {sys_diff_clk                    \
                                   chiplink_c2b_clock}]
 set group_cl  [get_clocks -quiet {chiplink_b2c_clock              \
                                   clk_out*_vc707_sys_clock_mmcm3}]
-set group_pci [get_clocks -quiet -include_generated_clocks -of_objects [get_pins -hier -filter {name =~ *pcie*TXOUTCLK}]]
+set group_pci [get_clocks -quiet {userclk1 txoutclk}]
 
 set group_jtag [get_clocks -quiet {JTCK}]
 

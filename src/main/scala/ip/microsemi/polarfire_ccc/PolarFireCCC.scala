@@ -20,12 +20,14 @@ class PolarFireCCCIOPads(c : PLLParameters) extends Bundle {
 
 //scalastyle:off
 //turn off linter: blackbox name must match verilog module
-class PolarFireCCC(c : PLLParameters)(implicit val p:Parameters) extends BlackBox with PLL {
+class PolarFireCCC(c : PLLParameters)(implicit val p:Parameters) extends BlackBox with PLLInstance {
   val moduleName = c.name
   override def desiredName = c.name
 
   val io = new PolarFireCCCIOPads(c)
   
+  def getInput = io.REF_CLK_0
+  def getReset = None
   def getLocked = io.PLL_LOCK_0
   def getClocks = Seq() ++ io.OUT0_FABCLK_0 ++ io.OUT1_FABCLK_0 ++ 
                            io.OUT2_FABCLK_0 ++ io.OUT3_FABCLK_0 

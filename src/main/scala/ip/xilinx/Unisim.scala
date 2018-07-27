@@ -39,9 +39,9 @@ extends BlackBox(
   )
 ) {
   val io = IO(new Bundle {
-    val O         = Bool(OUTPUT)
-    val I         = Bool(INPUT)
-    val IB        = Bool(INPUT)
+    val O  = Output(Clock())
+    val I  = Input(Clock())
+    val IB = Input(Clock())
   })
 }
 
@@ -57,6 +57,23 @@ class IBUFG extends BlackBox {
 object IBUFG {
   def apply (pin: Clock): Clock = {
     val pad = Module (new IBUFG())
+    pad.io.I := pin
+    pad.io.O
+  }
+}
+
+/** IBUF -- Input Buffer */
+
+class IBUF extends BlackBox {
+  val io = IO(new Bundle {
+    val O = Output(Bool())
+    val I = Input(Bool())
+  })
+}
+
+object IBUF {
+  def apply(pin: Bool): Bool = {
+    val pad = Module (new IBUF)
     pad.io.I := pin
     pad.io.O
   }
@@ -249,7 +266,7 @@ extends BlackBox(
 ) {
   val io = IO(new Bundle {
     val Q = Output(Bool())
-    val C = Input(Bool())
+    val C = Input(Clock())
     val CE = Input(Bool())
     val D1 = Input(Bool())
     val D2 = Input(Bool())
