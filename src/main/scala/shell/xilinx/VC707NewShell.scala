@@ -50,11 +50,11 @@ class SDIOVC707Overlay(val shell: VC707Shell, val name: String, params: SDIOOver
     sd_spi_dq_i := Seq(false.B, io.sdio_dat_0, false.B, false.B)
 
     val packagePinsWithPackageIOs = Seq(("AN30", IOPin(io.sdio_clk), false),
-                                        ("AP30", IOPin(io.sdio_cmd), true),
-                                        ("AR30", IOPin(io.sdio_dat_0), true),
-                                        ("AU31", IOPin(io.sdio_dat_1), true),
-                                        ("AV31", IOPin(io.sdio_dat_2), true),
-                                        ("AT30", IOPin(io.sdio_dat_3), true))
+                                        ("AP30", IOPin(io.sdio_cmd), false),
+                                        ("AR30", IOPin(io.sdio_dat_0), false),
+                                        ("AU31", IOPin(io.sdio_dat_1), false),
+                                        ("AV31", IOPin(io.sdio_dat_2), false),
+                                        ("AT30", IOPin(io.sdio_dat_3), false))
 
     packagePinsWithPackageIOs foreach { case (pin, io, simpleIOB) => {
       shell.xdc.addPackagePin(io, pin)
@@ -72,8 +72,8 @@ class UARTVC707Overlay(val shell: VC707Shell, val name: String, params: UARTOver
   extends UARTXilinxOverlay(params)
 {
   shell { InModuleBody {
-    val packagePinsWithPackageIOs = Seq(("AT32", IOPin(io.ctsn), true),
-                                        ("AR34", IOPin(io.rtsn), true),
+    val packagePinsWithPackageIOs = Seq(("AT32", IOPin(io.ctsn), false),
+                                        ("AR34", IOPin(io.rtsn), false),
                                         ("AU33", IOPin(io.rxd), false),
                                         ("AU36", IOPin(io.txd), false))
 
