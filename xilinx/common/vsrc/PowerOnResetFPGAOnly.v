@@ -1,8 +1,7 @@
 // See LICENSE file for license details.
-
-module PowerOnResetFPGAOnly(
-  input  clock,
-  output power_on_reset
+(* keep_hierarchy = "yes" *) module PowerOnResetFPGAOnly(
+  input clock,
+  (* dont_touch = "true" *) output power_on_reset
 );
   reg reset;
   assign power_on_reset = reset;
