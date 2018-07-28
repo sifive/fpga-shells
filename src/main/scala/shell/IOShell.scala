@@ -74,10 +74,12 @@ class SDC(val name: String)
 {
   private var clocks:  Seq[() => String] = Nil
   private var groups:  Seq[() => String] = Nil
+  private var falses:  Seq[() => String] = Nil
   private var timings: Seq[() => String] = Nil
 
   protected def addRawClock (command: => String) { clocks  = (() => command) +: clocks  }
   protected def addRawGroup (command: => String) { groups  = (() => command) +: groups  }
+  protected def addRawFalse (command: => String) { falses  = (() => command) +: falses  }
   protected def addRawTiming(command: => String) { timings = (() => command) +: timings }
   addRawGroup("set_clock_groups -asynchronous")
 
@@ -87,6 +89,8 @@ class SDC(val name: String)
        |${flatten(clocks)}
        |# ------------------------- Clock Groups -------------------
        |${if (groups.size == 1) "" else flatten(groups, " \\\n")}
+       |# ------------------------- False Paths --------------------
+       |${flatten(falses)}
        |# ------------------------- IO Timings ---------------------
        |${flatten(timings)}
        |""".stripMargin)
@@ -112,6 +116,10 @@ class SDC(val name: String)
       if (clocksList.isEmpty && pinsList.isEmpty && portsList.isEmpty) "" else str
     }
     addRawGroup(thunk)
+  }
+
+  def addAsyncPath(through: => Seq[IOPin]) {
+    addRawFalse("set_false_path" + through.map(x => s" -through ${x.sdcPin}").mkString)
   }
 
   def addInputDelay(port: => IOPin, clock: => String, min: => Double, max: => Double) {
