@@ -217,15 +217,21 @@ class VC707Shell()(implicit p: Parameters) extends Series7Shell
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
+  // Place the sys_clock at the Shell if the user didn't ask for it
+  p(ClockInputOverlayKey).foreach(_(ClockInputOverlayParams()))
+
   override lazy val module = new LazyRawModuleImp(this) {
     val reset = IO(Input(Bool()))
     xdc.addBoardPin(reset, "reset")
 
     val reset_ibuf = Module(new IBUF)
     reset_ibuf.io.I := reset
+
+    val powerOnReset = PowerOnResetFPGAOnly(sys_clock.get.clock)
+    sdc.addAsyncPath(Seq(powerOnReset))
+
     pllReset :=
-      reset_ibuf.io.O ||
-      sys_clock.map(_.reset:Bool).getOrElse(false.B) ||
+      reset_ibuf.io.O || powerOnReset ||
       chiplink.map(!_.ereset_n).getOrElse(false.B)
   }
 }
