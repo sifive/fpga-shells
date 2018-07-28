@@ -169,7 +169,7 @@ class DDRVCU118Overlay(val shell: VCU118Shell, val name: String, params: DDROver
     (IOPin.of(io) zip allddrpins) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
   } }
 
-  shell.sdc.addGroup(clocks = Seq("clk_pll_i"))
+  shell.sdc.addGroup(pins = Seq(migBridge.child.island.module.blackbox.io.c0_ddr4_ui_clk))
 }
 
 
