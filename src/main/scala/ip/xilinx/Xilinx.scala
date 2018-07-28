@@ -87,11 +87,13 @@ class PowerOnResetFPGAOnly extends BlackBox {
 }
 
 object PowerOnResetFPGAOnly {
-  def apply (clk: Clock): Bool = {
+  def apply (clk: Clock, name: String): Bool = {
     val por = Module(new PowerOnResetFPGAOnly())
+    por.suggestName(name)
     por.io.clock := clk
     por.io.power_on_reset
   }
+  def apply (clk: Clock): Bool = apply(clk, "fpga_power_on")
 }
 
 
