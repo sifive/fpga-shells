@@ -12,7 +12,7 @@ import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 import sifive.blocks.devices.chiplink._
 import sifive.fpgashells.devices.xilinx.xilinxvcu118mig._
-//import sifive.fpgashells.devices.xilinx.xilinxvc707pciex1._
+import sifive.fpgashells.devices.xilinx.xdma._
 
 class SysClockVCU118Overlay(val shell: VCU118Shell, val name: String, params: ClockInputOverlayParams)
   extends LVDSClockInputXilinxOverlay(params)
@@ -172,47 +172,77 @@ class DDRVCU118Overlay(val shell: VCU118Shell, val name: String, params: DDROver
   shell.sdc.addGroup(clocks = Seq("clk_pll_i"))
 }
 
-//class PCIeVCU118Overlay(val shell: VCU118Shell, val name: String, params: PCIeOverlayParams)
-//  extends PCIeOverlay[XilinxVCU118PCIeX1Pads](params)
-//{
-//  val pcieBridge = BundleBridge(new XilinxVCU118PCIeX1)
-//  val topIONode = shell { pcieBridge.ioNode.sink }
-//  val axiClk    = shell { ClockSourceNode(freqMHz = 125) }
-//  val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
-//  areset := params.wrangler := axiClk
-//
-//  val pcie = pcieBridge.child
-//  val slaveSide = TLIdentityNode()
-//  pcie.slave   := pcie.crossTLIn := slaveSide
-//  pcie.control := pcie.crossTLIn := slaveSide
-//  val node = NodeHandle(slaveSide, pcie.crossTLOut := pcie.master)
-//  val intnode = pcie.crossIntOut := pcie.intnode
-//
-//  def designOutput = (node, intnode)
-//  def ioFactory = new XilinxVCU118PCIeX1Pads
-//
-//  shell { InModuleBody {
-//    val (axi, _) = axiClk.out(0)
-//    val (ar, _) = areset.in(0)
-//    val port = topIONode.io.port
-//    io <> port
-//    axi.clock := port.axi_aclk_out
-//    axi.reset := !port.mmcm_lock
-//    port.axi_aresetn := !ar.reset
-//    port.axi_ctl_aresetn := !ar.reset
-//
-//    shell.xdc.addPackagePin(io.REFCLK_rxp, "A10")
-//    shell.xdc.addPackagePin(io.REFCLK_rxn, "A9")
-//    shell.xdc.addPackagePin(io.pci_exp_txp, "H4")
-//    shell.xdc.addPackagePin(io.pci_exp_txn, "H3")
-//    shell.xdc.addPackagePin(io.pci_exp_rxp, "G6")
-//    shell.xdc.addPackagePin(io.pci_exp_rxn, "G5")
-//
-//    shell.sdc.addClock(s"${name}_ref_clk", io.REFCLK_rxp, 100)
-//  } }
-//
-//  shell.sdc.addGroup(clocks = Seq("txoutclk", "userclk1"))
-//}
+
+class XDMATopPads extends Bundle {
+  val refclk = Input(new LVDSClock)
+  val lanes = new XDMAPads
+}
+
+class XDMABridge extends Bundle {
+  val lanes = new XDMAPads
+  val srstn = Input(Bool())
+  val O     = Input(Clock())
+  val ODIV2 = Input(Clock())
+}
+
+class PCIeVCU118Overlay(val shell: VCU118Shell, val name: String, params: PCIeOverlayParams)
+  extends PCIeOverlay[XDMATopPads](params)
+{
+  val pcie      = LazyModule(new XDMA(XDMAParams()))
+  val bridge    = BundleBridgeSource(() => new XDMABridge)
+  val topBridge = shell { bridge.sink }
+  val axiClk    = ClockSourceNode(freqMHz = 125)
+  val areset    = ClockSinkNode(Seq(ClockSinkParameters()))
+  areset := params.wrangler := axiClk
+
+  val slaveSide = TLIdentityNode()
+  pcie.slave   := pcie.crossTLIn := slaveSide
+  pcie.control := pcie.crossTLIn := slaveSide
+  val node = NodeHandle(slaveSide, pcie.crossTLOut := pcie.master)
+  val intnode = pcie.crossIntOut := pcie.intnode
+
+  def designOutput = (node, intnode)
+  def ioFactory = new XDMATopPads
+
+  InModuleBody {
+    val (axi, _) = axiClk.out(0)
+    val (ar, _) = areset.in(0)
+    val b = bridge.out(0)._1
+
+    pcie.module.clock := ar.clock
+    pcie.module.reset := ar.reset
+
+    b.lanes <> pcie.module.io.pads
+
+    axi.clock := pcie.module.io.clocks.axi_aclk
+    axi.reset := pcie.module.io.clocks.axi_aresetn
+    pcie.module.io.clocks.sys_rst_n  := b.srstn
+    pcie.module.io.clocks.sys_clk    := b.ODIV2
+    pcie.module.io.clocks.sys_clk_gt := b.O
+
+    shell.sdc.addGroup(pins = Seq(pcie.imp.module.blackbox.io.axi_aclk))
+  }
+
+  shell { InModuleBody {
+    val b = topBridge.in(0)._1
+
+    val ibufds = Module(new IBUFDS_GTE4)
+    ibufds.suggestName(s"${name}_refclk_ibufds")
+    ibufds.io.CEB := false.B
+    ibufds.io.I   := io.refclk.p
+    ibufds.io.IB  := io.refclk.n
+    b.O     := ibufds.io.O
+    b.ODIV2 := ibufds.io.ODIV2
+    b.srstn := !shell.pllReset
+    io.lanes <> b.lanes
+
+    val pins = Seq("V38", "V39", /* refclk_[pn] */
+                   "P42", "P43", /* tx_[0-x]_[pn] */
+                   "U45", "U46") /* rx_[0-x]_[pn] */
+    (IOPin.of(io) zip pins) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
+    shell.sdc.addClock(s"${name}_ref_clk", io.refclk.p, 100)
+  } }
+}
 
 class VCU118Shell()(implicit p: Parameters) extends Series7Shell
 {
@@ -225,7 +255,7 @@ class VCU118Shell()(implicit p: Parameters) extends Series7Shell
   val switch    = Overlay(SwitchOverlayKey)    (new SwitchVCU118Overlay  (_, _, _))
   val chiplink  = Overlay(ChipLinkOverlayKey)  (new ChipLinkVCU118Overlay(_, _, _))
   val ddr       = Overlay(DDROverlayKey)       (new DDRVCU118Overlay     (_, _, _))
-//  val pcie      = Overlay(PCIeOverlayKey)      (new PCIeVCU118Overlay    (_, _, _))
+  val pcie      = Overlay(PCIeOverlayKey)      (new PCIeVCU118Overlay    (_, _, _))
   val uart      = Overlay(UARTOverlayKey)      (new UARTVCU118Overlay    (_, _, _))
   val sdio      = Overlay(SDIOOverlayKey)      (new SDIOVCU118Overlay    (_, _, _))
   val jtag      = Overlay(JTAGDebugOverlayKey)      (new JTAGDebugVCU118Overlay    (_, _, _))
