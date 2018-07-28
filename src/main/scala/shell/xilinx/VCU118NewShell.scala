@@ -74,7 +74,7 @@ class SwitchVCU118Overlay(val shell: VCU118Shell, val name: String, params: Swit
   extends SwitchXilinxOverlay(params, boardPins = Seq.tabulate(4) { i => s"GPIO_DIP_SW$i" })
 
 class ChipLinkVCU118Overlay(val shell: VCU118Shell, val name: String, params: ChipLinkOverlayParams)
-  extends ChipLinkXilinxOverlay(params, rxPhase= -120, txPhase= -120, rxMargin=0.6, txMargin=0.6)
+  extends ChipLinkXilinxOverlay(params, rxPhase= -120, txPhase= -90, rxMargin=0.6, txMargin=0.5)
 {
   val ereset_n = shell { InModuleBody {
     val ereset_n = IO(Input(Bool()))
