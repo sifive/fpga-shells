@@ -102,6 +102,24 @@ extends BlackBox(
   })
 }
 
+class IBUFDS_GTE4(
+    REFCLK_EN_TX_PATH:  Int = 0,
+    REFCLK_HROW_CK_SEL: Int = 0,
+    REFCLK_ICNTL_RX:    Int = 0)
+  extends BlackBox(Map(
+    "REFCLK_EN_TX_PATH"  -> IntParam(REFCLK_EN_TX_PATH),
+    "REFCLK_HROW_CK_SEL" -> IntParam(REFCLK_HROW_CK_SEL),
+    "REFCLK_ICNTL_RX"    -> IntParam(REFCLK_ICNTL_RX)))
+{
+  val io = IO(new Bundle {
+    val O     = Clock(OUTPUT)
+    val ODIV2 = Clock(OUTPUT)
+    val CEB   = Bool(INPUT)
+    val I     = Clock(INPUT)
+    val IB    = Clock(INPUT)
+  })
+}
+
 /** IDDR - 7 Series SelectIO DDR flop */
 
 class IDDR(
