@@ -110,6 +110,7 @@ class JTAGDebugVCU118Overlay(val shell: VCU118Shell, val name: String, params: J
 {
   shell { InModuleBody {
     shell.sdc.addClock("JTCK", IOPin(io.jtag_TCK), 10)
+    shell.sdc.addGroup(clocks = Seq("JTCK"))
     shell.xdc.clockDedicatedRouteFalse(IOPin(io.jtag_TCK))
     val packagePinsWithPackageIOs = Seq(("P29", IOPin(io.jtag_TCK)),
                                         ("L31", IOPin(io.jtag_TMS)),

@@ -110,6 +110,7 @@ class JTAGDebugVC707Overlay(val shell: VC707Shell, val name: String, params: JTA
 {
   shell { InModuleBody {
     shell.sdc.addClock("JTCK", IOPin(io.jtag_TCK), 10)
+    shell.sdc.addGroup(clocks = Seq("JTCK"))
     shell.xdc.clockDedicatedRouteFalse(IOPin(io.jtag_TCK))
     val packagePinsWithPackageIOs = Seq(("R32", IOPin(io.jtag_TCK)),
                                         ("W36", IOPin(io.jtag_TMS)),
