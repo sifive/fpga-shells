@@ -111,7 +111,7 @@ trait HasPFEvalKitChipLink { this: VeraShell =>
     val direction1Pins = if(iofpga) "chiplink_c2b"  else "chiplink_b2c"
   }
 
-  def connectChipLink(dut: { val chiplink: HeterogeneousBag[WideDataLayerPort] } , iofpga: Boolean = false): Unit = {
+  def connectChipLink(dut: { val chiplink: Seq[WideDataLayerPort] } , iofpga: Boolean = false): Unit = {
     constrainChipLink(iofpga)
 
     chiplink <> dut.chiplink(0)

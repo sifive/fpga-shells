@@ -74,22 +74,25 @@ class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverla
 {
   val size = p(VC707DDRSize)
 
-  val migBridge = BundleBridge(new XilinxVC707MIG(XilinxVC707MIGParams(
-    address = AddressSet.misaligned(params.baseAddress, size))))
-  val topIONode = shell { migBridge.ioNode.sink }
+  val migParams = XilinxVC707MIGParams(address = AddressSet.misaligned(params.baseAddress, size))
+  val mig = LazyModule(new XilinxVC707MIG(migParams))
+  val ioNode = BundleBridgeSource(() => mig.module.io.cloneType)
+  val topIONode = shell { ioNode.makeSink() }
   val ddrUI     = shell { ClockSourceNode(freqMHz = 200) }
   val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
   areset := params.wrangler := ddrUI
 
-  def designOutput = migBridge.child.node
+  def designOutput = mig.node
   def ioFactory = new XilinxVC707MIGPads(size)
+
+  InModuleBody { ioNode.bundle <> mig.module.io }
 
   shell { InModuleBody {
     require (shell.sys_clock.isDefined, "Use of DDRVC707Overlay depends on SysClockVC707Overlay")
     val (sys, _) = shell.sys_clock.get.node.out(0)
     val (ui, _) = ddrUI.out(0)
     val (ar, _) = areset.in(0)
-    val port = topIONode.io.port
+    val port = topIONode.bundle.port
     io <> port
     ui.clock := port.ui_clk
     ui.reset := !port.mmcm_locked || port.ui_clk_sync_rst
@@ -104,26 +107,28 @@ class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverla
 class PCIeVC707Overlay(val shell: VC707Shell, val name: String, params: PCIeOverlayParams)
   extends PCIeOverlay[XilinxVC707PCIeX1Pads](params)
 {
-  val pcieBridge = BundleBridge(new XilinxVC707PCIeX1)
-  val topIONode = shell { pcieBridge.ioNode.sink }
+  val pcie = LazyModule(new XilinxVC707PCIeX1)
+  val ioNode = BundleBridgeSource(() => pcie.module.io.cloneType)
+  val topIONode = shell { ioNode.makeSink() }
   val axiClk    = shell { ClockSourceNode(freqMHz = 125) }
   val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
   areset := params.wrangler := axiClk
 
-  val pcie = pcieBridge.child
   val slaveSide = TLIdentityNode()
-  pcie.slave   := pcie.crossTLIn := slaveSide
-  pcie.control := pcie.crossTLIn := slaveSide
-  val node = NodeHandle(slaveSide, pcie.crossTLOut := pcie.master)
-  val intnode = pcie.crossIntOut := pcie.intnode
+  pcie.crossTLIn(pcie.slave) := slaveSide
+  pcie.crossTLIn(pcie.control) := slaveSide
+  val node = NodeHandle(slaveSide, pcie.crossTLOut(pcie.master))
+  val intnode = pcie.crossIntOut(pcie.intnode)
 
   def designOutput = (node, intnode)
   def ioFactory = new XilinxVC707PCIeX1Pads
 
+  InModuleBody { ioNode.bundle <> pcie.module.io }
+
   shell { InModuleBody {
     val (axi, _) = axiClk.out(0)
     val (ar, _) = areset.in(0)
-    val port = topIONode.io.port
+    val port = topIONode.bundle.port
     io <> port
     axi.clock := port.axi_aclk_out
     axi.reset := !port.mmcm_lock

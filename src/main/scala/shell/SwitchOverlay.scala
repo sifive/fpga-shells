@@ -18,6 +18,6 @@ abstract class SwitchOverlay(
   def ioFactory = Input(UInt(width.W))
 
   val switchSource = shell { BundleBridgeSource(() => UInt(width.W)) }
-  val switchSink = switchSource.sink
-  val designOutput = InModuleBody { switchSink.io }
+  val switchSink = switchSource.makeSink()
+  val designOutput = InModuleBody { switchSink.bundle }
 }
