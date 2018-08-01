@@ -215,7 +215,7 @@ class PCIeVCU118Overlay(val shell: VCU118Shell, val name: String, params: PCIeOv
     b.lanes <> pcie.module.io.pads
 
     axi.clock := pcie.module.io.clocks.axi_aclk
-    axi.reset := pcie.module.io.clocks.axi_aresetn
+    axi.reset := !pcie.module.io.clocks.axi_aresetn
     pcie.module.io.clocks.sys_rst_n  := b.srstn
     pcie.module.io.clocks.sys_clk    := b.ODIV2
     pcie.module.io.clocks.sys_clk_gt := b.O
