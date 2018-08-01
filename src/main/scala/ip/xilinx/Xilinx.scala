@@ -166,17 +166,19 @@ class Series7MMCM(c : PLLParameters) extends BlackBox with PLLInstance {
        |""".stripMargin
   }.mkString
 
+
+  val aligned = if (c.input.feedback) " CONFIG.USE_PHASE_ALIGNMENT {true} \\\n" else ""
+
   ElaborationArtefacts.add(s"${moduleName}.vivado.tcl",
     s"""create_ip -name clk_wiz -vendor xilinx.com -library ip -module_name \\
        | ${moduleName} -dir $$ipdir -force
        |set_property -dict [list \\
        | CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \\
        | CONFIG.PRIM_SOURCE {No_buffer} \\
-       | CONFIG.USE_PHASE_ALIGNMENT {${c.input.feedback}} \\
        | CONFIG.NUM_OUT_CLKS {${c.req.size.toString}} \\
        | CONFIG.PRIM_IN_FREQ {${c.input.freqMHz.toString}} \\
        | CONFIG.CLKIN1_JITTER_PS {${c.input.jitter}} \\
-       |${used}${outputs}] [get_ips ${moduleName}]
+       |${used}${aligned}${outputs}] [get_ips ${moduleName}]
        |set mult [get_property CONFIG.MMCM_CLKFBOUT_MULT_F [get_ips ${moduleName}]]
        |set div1 [get_property CONFIG.MMCM_DIVCLK_DIVIDE [get_ips ${moduleName}]]
        |${checks}""".stripMargin)
