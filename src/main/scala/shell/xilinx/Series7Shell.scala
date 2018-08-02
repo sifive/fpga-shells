@@ -23,6 +23,9 @@ class XDC(val name: String)
   def addIOStandard(io: IOPin, standard: String) {
     addConstraint(s"set_property IOSTANDARD ${standard} ${io.sdcPin}")
   }
+  def addPullup(io: IOPin) {
+    addConstraint(s"set_property PULLUP TRUE ${io.sdcPin}")
+  }
   def addIOB(io: IOPin) {
     if (io.isOutput) {
       addConstraint(s"set_property IOB TRUE [ get_cells -of_objects [ all_fanin -flat -startpoints_only ${io.sdcPin}]]")
@@ -35,6 +38,9 @@ class XDC(val name: String)
   }
   def addTermination(io: IOPin, kind: String) {
     addConstraint(s"set_property OFFCHIP_TERM ${kind} ${io.sdcPin}")
+  }
+  def clockDedicatedRouteFalse(io: IOPin) {
+    addConstraint(s"set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets ${io.sdcPin}]")
   }
 }
 
