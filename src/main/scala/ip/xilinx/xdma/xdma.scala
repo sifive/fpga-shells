@@ -188,12 +188,14 @@ class XDMABlackBox(c: XDMAParams) extends BlackBox
        |  CONFIG.functional_mode		{AXI_Bridge}				\\
        |  CONFIG.device_port_type		{Root_Port_of_PCI_Express_Root_Complex}	\\
        |  CONFIG.pf0_bar0_enabled		{false}					\\
+       |  CONFIG.pf0_sub_class_interface_menu	{PCI_to_PCI_bridge}			\\
        |  CONFIG.ref_clk_freq			{100_MHz}				\\
        |  CONFIG.pl_link_cap_max_link_width	{X1}					\\
        |  CONFIG.pl_link_cap_max_link_speed	{5.0_GT/s}				\\
        |  CONFIG.axibar_num			{1}					\\
        |  CONFIG.axibar_0			{0x40000000}				\\
        |  CONFIG.axibar_highaddr_0		{0x5FFFFFFF}				\\
+       |  CONFIG.axibar2pciebar_0		{0x0000000040000000}			\\
        |] [get_ips ${desiredName}]
        |""".stripMargin)
   // axi_addr_width {32}
@@ -403,7 +405,7 @@ class DiplomaticXDMA(c: XDMAParams)(implicit p:Parameters) extends LazyModule
     // SL.R
     blackbox.io.s_axil_rready := t.r.ready
     t.r.valid := blackbox.io.s_axil_rvalid
-    // t.r.bits.id   := 0.U !!! test for compile failure
+    t.r.bits.id   := 0.U
     t.r.bits.data := blackbox.io.s_axil_rdata
     t.r.bits.resp := blackbox.io.s_axil_rresp
     t.r.bits.last := true.B
