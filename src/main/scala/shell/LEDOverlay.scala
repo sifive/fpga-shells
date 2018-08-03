@@ -18,6 +18,6 @@ abstract class LEDOverlay(
   def ioFactory = Output(UInt(width.W))
 
   val ledSource = BundleBridgeSource(() => UInt(width.W))
-  val ledSink = shell { ledSource.sink }
+  val ledSink = shell { ledSource.makeSink() }
   val designOutput = InModuleBody { ledSource.out(0)._1 }
 }

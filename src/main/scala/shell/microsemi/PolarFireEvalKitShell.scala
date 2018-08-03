@@ -372,7 +372,7 @@ trait HasPFEvalKitChipLink { this: PolarFireEvalKitShell =>
 */
   }
 
-  def connectChipLink(dut: { val chiplink: HeterogeneousBag[WideDataLayerPort] } , iofpga: Boolean = false): Unit = {
+  def connectChipLink(dut: { val chiplink: Seq[WideDataLayerPort] } , iofpga: Boolean = false): Unit = {
     constrainChipLink(iofpga)
 
     chiplink <> dut.chiplink(0)

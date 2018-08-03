@@ -23,7 +23,7 @@ class XilinxVC707MIGPads(depth : BigInt) extends VC707MIGIODDR(depth) {
 
 class XilinxVC707MIGIO(depth : BigInt) extends VC707MIGIODDR(depth) with VC707MIGIOClocksReset
 
-class XilinxVC707MIGIsland(c : XilinxVC707MIGParams, val crossing: SubsystemClockCrossing = AsynchronousCrossing(8))(implicit p: Parameters) extends LazyModule with HasCrossing {
+class XilinxVC707MIGIsland(c : XilinxVC707MIGParams, val crossing: ClockCrossingType = AsynchronousCrossing(8))(implicit p: Parameters) extends LazyModule with HasCrossing {
   val ranges = AddressRange.fromSets(c.address)
   require (ranges.size == 1, "DDR range must be contiguous")
   val offset = ranges.head.base
@@ -146,7 +146,7 @@ class XilinxVC707MIGIsland(c : XilinxVC707MIGParams, val crossing: SubsystemCloc
   }
 }
 
-class XilinxVC707MIG(c : XilinxVC707MIGParams, crossing: SubsystemClockCrossing = AsynchronousCrossing(8))(implicit p: Parameters) extends LazyModule {
+class XilinxVC707MIG(c : XilinxVC707MIGParams, crossing: ClockCrossingType = AsynchronousCrossing(8))(implicit p: Parameters) extends LazyModule {
   val ranges = AddressRange.fromSets(c.address)
   val depth = ranges.head.size
 
@@ -158,7 +158,7 @@ class XilinxVC707MIG(c : XilinxVC707MIGParams, crossing: SubsystemClockCrossing 
   val island  = LazyModule(new XilinxVC707MIGIsland(c, crossing))
 
   val node: TLInwardNode =
-    island.node := island.crossAXI4In := yank.node := deint.node := indexer.node := toaxi4.node := buffer.node
+    island.crossAXI4In(island.node) := yank.node := deint.node := indexer.node := toaxi4.node := buffer.node
 
   lazy val module = new LazyModuleImp(this) {
     val io = IO(new Bundle {

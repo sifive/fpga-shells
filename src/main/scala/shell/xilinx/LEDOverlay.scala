@@ -13,7 +13,7 @@ abstract class LEDXilinxOverlay(params: LEDOverlayParams, boardPins: Seq[String]
   val width = boardPins.size + packagePins.size
 
   shell { InModuleBody {
-    io := ledSink.io // could/should put OBUFs here?
+    io := ledSink.bundle // could/should put OBUFs here?
 
     val cutAt = boardPins.size
     val ios = IOPin.of(io)
