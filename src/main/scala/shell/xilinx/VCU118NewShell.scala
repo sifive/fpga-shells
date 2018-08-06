@@ -251,15 +251,15 @@ class VCU118Shell()(implicit p: Parameters) extends Series7Shell
   val pllReset = InModuleBody { Wire(Bool()) }
 
   // Order matters; ddr depends on sys_clock
-  val sys_clock = Overlay(ClockInputOverlayKey)(new SysClockVCU118Overlay(_, _, _))
-  val led       = Overlay(LEDOverlayKey)       (new LEDVCU118Overlay     (_, _, _))
-  val switch    = Overlay(SwitchOverlayKey)    (new SwitchVCU118Overlay  (_, _, _))
-  val chiplink  = Overlay(ChipLinkOverlayKey)  (new ChipLinkVCU118Overlay(_, _, _))
-  val ddr       = Overlay(DDROverlayKey)       (new DDRVCU118Overlay     (_, _, _))
-  val pcie      = Overlay(PCIeOverlayKey)      (new PCIeVCU118Overlay    (_, _, _))
-  val uart      = Overlay(UARTOverlayKey)      (new UARTVCU118Overlay    (_, _, _))
-  val sdio      = Overlay(SDIOOverlayKey)      (new SDIOVCU118Overlay    (_, _, _))
-  val jtag      = Overlay(JTAGDebugOverlayKey)      (new JTAGDebugVCU118Overlay    (_, _, _))
+  val sys_clock = Overlay(ClockInputOverlayKey)(new SysClockVCU118Overlay (_, _, _))
+  val led       = Overlay(LEDOverlayKey)       (new LEDVCU118Overlay      (_, _, _))
+  val switch    = Overlay(SwitchOverlayKey)    (new SwitchVCU118Overlay   (_, _, _))
+  val chiplink  = Overlay(ChipLinkOverlayKey)  (new ChipLinkVCU118Overlay (_, _, _))
+  val ddr       = Overlay(DDROverlayKey)       (new DDRVCU118Overlay      (_, _, _))
+  val pcie      = Overlay(PCIeOverlayKey)      (new PCIeVCU118Overlay     (_, _, _))
+  val uart      = Overlay(UARTOverlayKey)      (new UARTVCU118Overlay     (_, _, _))
+  val sdio      = Overlay(SDIOOverlayKey)      (new SDIOVCU118Overlay     (_, _, _))
+  val jtag      = Overlay(JTAGDebugOverlayKey) (new JTAGDebugVCU118Overlay(_, _, _))
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
