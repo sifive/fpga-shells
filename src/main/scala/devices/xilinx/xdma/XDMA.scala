@@ -20,7 +20,7 @@ class XDMA(c: XDMAParams)(implicit p: Parameters, val crossing: ClockCrossingTyp
       := AXI4Buffer()
       := AXI4UserYanker()
       := AXI4Deinterleaver(p(CacheBlockBytes))
-      := AXI4IdIndexer(idBits=4)
+      := AXI4IdIndexer(idBits=c.sIDBits)
       := TLToAXI4(adapterName = Some("pcie-slave")))
 
   val control: TLInwardNode =
@@ -31,7 +31,7 @@ class XDMA(c: XDMAParams)(implicit p: Parameters, val crossing: ClockCrossingTyp
       := TLFragmenter(4, p(CacheBlockBytes), holdFirstDeny = true))
 
   val master: TLOutwardNode =
-    (TLWidthWidget(8)
+    (TLWidthWidget(XDMABlackBox.busConfig(c)._1)
       := AXI4ToTL()
       := AXI4UserYanker(capMaxFlight=Some(16))
       := AXI4Fragmenter()
@@ -42,7 +42,7 @@ class XDMA(c: XDMAParams)(implicit p: Parameters, val crossing: ClockCrossingTyp
 
   lazy val module = new LazyModuleImp(this) {
     val io = IO(new Bundle {
-      val pads = new XDMAPads
+      val pads = new XDMAPads(c.lanes)
       val clocks = new XDMAClocks
     })
 
