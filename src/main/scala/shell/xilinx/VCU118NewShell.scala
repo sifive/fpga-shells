@@ -2,11 +2,12 @@
 package sifive.fpgashells.shell.xilinx
 
 import chisel3._
-import chisel3.experimental.{attach, IO, withClockAndReset}
+import chisel3.util._
+import chisel3.experimental.{IO, withClockAndReset}
 import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
-import freechips.rocketchip.util.SyncResetSynchronizerShiftReg
+import freechips.rocketchip.util._
 import sifive.fpgashells.clocks._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
@@ -223,11 +224,24 @@ class PCIeVCU118Overlay(val shell: VCU118Shell, val name: String, params: PCIeOv
     pcie.module.io.clocks.sys_clk    := b.ODIV2
     pcie.module.io.clocks.sys_clk_gt := b.O
 
-    shell.sdc.addGroup(pins = Seq(pcie.imp.module.blackbox.io.axi_aclk))
+    shell.sdc.addGroup(clocks = Seq(s"${name}_ref_clk"), pins = Seq(pcie.imp.module.blackbox.io.axi_aclk))
+    shell.sdc.addGroup(clocks = Seq("sys_clock"))
   }
 
   shell { InModuleBody {
     val b = topBridge.in(0)._1
+    val sys = shell.sys_clock.get.clock
+
+    // debounce sys_rst_n for two seconds
+    val slowTicks = 250 * 1000 * 1000 * 2
+    val slowBits = log2Ceil(slowTicks+1)
+    val increment = Wire(Bool())
+    val incremented = Wire(UInt(slowBits.W))
+    val debounced = withClockAndReset(sys, shell.pllReset) {
+      AsyncResetReg(incremented, 0, increment, Some("debounce"))
+    }
+    increment := debounced =/= slowTicks.U
+    incremented := debounced + 1.U
 
     val ibufds = Module(new IBUFDS_GTE4)
     ibufds.suggestName(s"${name}_refclk_ibufds")
@@ -236,7 +250,7 @@ class PCIeVCU118Overlay(val shell: VCU118Shell, val name: String, params: PCIeOv
     ibufds.io.IB  := io.refclk.n
     b.O     := ibufds.io.O
     b.ODIV2 := ibufds.io.ODIV2
-    b.srstn := !shell.pllReset
+    b.srstn := AsyncResetReg(!increment, sys, shell.pllReset, false, Some("deglitch"))
     io.lanes <> b.lanes
 
     // Work-around incorrectly pre-assigned pins
