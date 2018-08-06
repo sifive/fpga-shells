@@ -157,10 +157,10 @@ class DDRVCU118Overlay(val shell: VCU118Shell, val name: String, params: DDROver
     port.sys_rst := sys.reset // pllReset
     port.c0_ddr4_aresetn := !ar.reset
 
-    val allddrpins = Seq( "D14", "B15", "B16", "C14", "C15", "A13", "A14",
+    val allddrpins = Seq(  "D14", "B15", "B16", "C14", "C15", "A13", "A14",
       "A15", "A16", "B12", "C12", "B13", "C13", "D15", "H14", "H15", "F15",
-      "H13", "G15", "G13", "N20", "E13", "E14", "F14", "A10", "F13", "C8 ",
-      "F11", "E11", "F10", "F9 ", "H12", "G12", "E9 ", "D9 ", "R19", "P19",
+      "H13", "G15", "G13", "N20", "E13", "E14", "F14", "A10", "F13", "C8",
+      "F11", "E11", "F10", "F9",  "H12", "G12", "E9",  "D9",  "R19", "P19",
       "M18", "M17", "N19", "N18", "N17", "M16", "L16", "K16", "L18", "K18",
       "J17", "H17", "H19", "H18", "F19", "F18", "E19", "E18", "G20", "F20",
       "E17", "D16", "D17", "C17", "C19", "C18", "D20", "D19", "C20", "B20",
