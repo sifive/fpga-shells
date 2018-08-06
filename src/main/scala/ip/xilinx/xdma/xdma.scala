@@ -2,6 +2,7 @@
 package sifive.fpgashells.ip.xilinx.xdma
 
 import chisel3._
+import chisel3.util._
 import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.amba.axi4._
@@ -161,26 +162,77 @@ trait HasXDMABus {
 }
 
 class XDMABlackBoxIO(
-  val lanes: Int = 1,
-  val mbus:  XDMABusParams = XDMABusParams(4, 32, 8),
-  val sbus:  XDMABusParams = XDMABusParams(4, 32, 8),
-  val slbus: XDMABusParams = XDMABusParams(0, 32, 4)) extends Bundle
+  val lanes: Int,
+  val mbus:  XDMABusParams,
+  val sbus:  XDMABusParams,
+  val slbus: XDMABusParams) extends Bundle
   with HasXDMAPads
   with HasXDMAClocks
   with HasXDMAJunk
   with HasXDMABus
 
-class XDMAPads(val lanes: Int = 1) extends Bundle with HasXDMAPads
+class XDMAPads(val lanes: Int) extends Bundle with HasXDMAPads
 class XDMAClocks() extends Bundle with HasXDMAClocks
 
 case class XDMAParams(
-  name: String = "xdma_0")
+  name:     String = "xdma_0",
+  bars:     Seq[AddressSet] = Seq(AddressSet(0x40000000L, 0x1FFFFFFFL)),
+  control:  BigInt = 0x2000000000L,
+  lanes:    Int    = 1,
+  gen:      Int    = 1,
+  addrBits: Int    = 32,
+  mIDBits:  Int    = 4,
+  sIDBits:  Int    = 4)
+{
+  require (!bars.isEmpty)
+  require (control >> 32 << 32 == control)
+  require (lanes >= 1 && lanes <= 16 && isPow2(lanes))
+  require (gen >= 1  && gen <= 3)
+  require (addrBits == 32 || addrBits == 64)
+  require (mIDBits >= 1 && mIDBits <= 8)
+  require (sIDBits >= 1 && sIDBits <= 8)
+  bars.foreach { a => require (a.max >> addrBits == 0) }
+}
+
+object XDMABlackBox
+{
+  def busConfig(c: XDMAParams) = {
+    val bandwidth = c.lanes * 250 << (c.gen-1) // MB/s
+    val busBytesAt250MHz = bandwidth / 250
+    val busBytes = busBytesAt250MHz max 8
+    val minMHz = 250.0 * busBytesAt250MHz / busBytes
+    val axiMHz = minMHz max 62.5
+    (busBytes, axiMHz)
+  }
+}
 
 class XDMABlackBox(c: XDMAParams) extends BlackBox
 {
   override def desiredName = c.name
 
-  val io = IO(new XDMABlackBoxIO())
+  val (busBytes, axiMHz) = XDMABlackBox.busConfig(c)
+  val mbus  = XDMABusParams(c.mIDBits, c.addrBits, busBytes)
+  val sbus  = XDMABusParams(c.sIDBits, c.addrBits, busBytes)
+  val slbus = XDMABusParams(0, 32, 4)
+
+  val io = IO(new XDMABlackBoxIO(c.lanes, mbus, sbus, slbus))
+  val pcieGTs = c.gen match {
+    case 1 => "2.5_GT/s"
+    case 2 => "5.0_GT/s"
+    case 3 => "8.0_GT/s"
+    case _ => "wrong"
+  }
+
+  // 62.5, 125, 250 (no trailing zeros)
+  val formatter = new java.text.DecimalFormat("0.###")
+  val axiMHzStr = formatter.format(axiMHz)
+
+  val bars = c.bars.zipWithIndex.map { case (a, i) =>
+    f"""  CONFIG.axibar_${i}			{0x${a.base}%X}				\\
+       |  CONFIG.axibar_highaddr_${i}		{0x${a.max}%X}				\\
+       |  CONFIG.axibar2pciebar_${i}		{0x${a.base}%X}				\\
+       |""".stripMargin
+  }
 
   ElaborationArtefacts.add(s"${desiredName}.vivado.tcl",
     s"""create_ip -vendor xilinx.com -library ip -version 4.1 -name xdma -module_name ${desiredName} -dir $$ipdir -force
@@ -190,22 +242,22 @@ class XDMABlackBox(c: XDMAParams) extends BlackBox
        |  CONFIG.pf0_bar0_enabled		{false}					\\
        |  CONFIG.pf0_sub_class_interface_menu	{PCI_to_PCI_bridge}			\\
        |  CONFIG.ref_clk_freq			{100_MHz}				\\
-       |  CONFIG.pl_link_cap_max_link_width	{X1}					\\
-       |  CONFIG.pl_link_cap_max_link_speed	{5.0_GT/s}				\\
-       |  CONFIG.axibar_num			{1}					\\
-       |  CONFIG.axibar_0			{0x40000000}				\\
-       |  CONFIG.axibar_highaddr_0		{0x5FFFFFFF}				\\
-       |  CONFIG.axibar2pciebar_0		{0x0000000040000000}			\\
-       |] [get_ips ${desiredName}]
+       |  CONFIG.pl_link_cap_max_link_width	{X${c.lanes}}				\\
+       |  CONFIG.pl_link_cap_max_link_speed	{${pcieGTs}}				\\
+       |  CONFIG.axisten_freq			{${axiMHzStr}}				\\
+       |  CONFIG.axi_addr_width			{${c.addrBits}}				\\
+       |  CONFIG.axi_data_width			{${busBytes*8}_bit}			\\
+       |  CONFIG.axi_id_width			{${c.mIDBits}}				\\
+       |  CONFIG.s_axi_id_width			{${c.sIDBits}}				\\
+       |  CONFIG.axibar_num			{${c.bars.size}}			\\
+       |${bars.mkString}] [get_ips ${desiredName}]
        |""".stripMargin)
-  // axi_addr_width {32}
-  // axi_data_width {64}
-  // axi_id_width   {4}
-  // s_axi_id_width {4}
 }
 
 class DiplomaticXDMA(c: XDMAParams)(implicit p:Parameters) extends LazyModule
 {
+  val (busBytes, _) = XDMABlackBox.busConfig(c)
+
   val device = new SimpleDevice("pci", Seq("xlnx,axi-pcie-host-1.00.a")) {
     override def describe(resources: ResourceBindings): Description = {
       val Description(name, mapping) = super.describe(resources)
@@ -232,16 +284,16 @@ class DiplomaticXDMA(c: XDMAParams)(implicit p:Parameters) extends LazyModule
 
   val slave = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
     slaves = Seq(AXI4SlaveParameters(
-      address       = List(AddressSet(0x40000000L, 0x1fffffffL)),
+      address       = c.bars,
       resources     = Seq(Resource(device, "ranges")),
       executable    = true,
       supportsWrite = TransferSizes(1, 128),
       supportsRead  = TransferSizes(1, 128))),
-    beatBytes = 8)))
+    beatBytes = busBytes)))
 
   val control = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
     slaves = Seq(AXI4SlaveParameters(
-      address       = List(AddressSet(0x2000000000L, 0x3ffffffL)), // when truncated to 32-bits, is 0
+      address       = List(AddressSet(c.control, 0x3ffffffL)), // when truncated to 32-bits, is 0
       resources     = device.reg("control"),
       supportsWrite = TransferSizes(1, 4),
       supportsRead  = TransferSizes(1, 4),
@@ -251,7 +303,7 @@ class DiplomaticXDMA(c: XDMAParams)(implicit p:Parameters) extends LazyModule
   val master = AXI4MasterNode(Seq(AXI4MasterPortParameters(
     masters = Seq(AXI4MasterParameters(
       name    = "XDMA_PCIe",
-      id      = IdRange(0, 16),
+      id      = IdRange(0, 1 << c.mIDBits),
       aligned = false)))))
 
   val intnode = IntSourceNode(IntSourcePortSimple(resources = device.int))
@@ -259,11 +311,13 @@ class DiplomaticXDMA(c: XDMAParams)(implicit p:Parameters) extends LazyModule
   lazy val module = new LazyRawModuleImp(this) {
     // The master on the control port must be AXI-lite
     require (control.edges.in(0).master.endId == 1)
-    // Must have exactly the right number of idBits
-    require (slave.edges.in(0).bundle.idBits == 4)
+    // Must have the right number of slave idBits
+    require (slave.edges.in(0).bundle.idBits <= c.sIDBits)
+    // Must have the right bus width
+    require (master.edges.out(0).slave.beatBytes == busBytes)
 
     val io = IO(new Bundle {
-      val pads   = new XDMAPads
+      val pads   = new XDMAPads(c.lanes)
       val clocks = new XDMAClocks
     })
 
