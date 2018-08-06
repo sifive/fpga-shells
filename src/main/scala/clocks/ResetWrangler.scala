@@ -33,11 +33,12 @@ class ResetWrangler(debounceNs: Double = 100000)(implicit p: Parameters) extends
     }
     increment := debounced =/= slowTicks.U
     incremented := debounced + 1.U
+    val deglitched = AsyncResetReg(increment, slowIn.clock, causes, true, Some("deglitch"))
 
     // catch and sync increment to each domain
     (in zip out) foreach { case (i, o) =>
       o.clock := i.clock
-      o.reset := ResetCatchAndSync(o.clock, increment)
+      o.reset := ResetCatchAndSync(o.clock, deglitched)
     }
   }
 }
