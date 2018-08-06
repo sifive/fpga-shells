@@ -44,6 +44,8 @@ trait HasXDMABus {
 
   // I
   val interrupt_out = Output(Bool())
+  val interrupt_out_msi_vec0to31  = Output(Bool())
+  val interrupt_out_msi_vec32to63 = Output(Bool())
 
   // M.AW
   val m_axib_awready = Input(Bool())
@@ -244,6 +246,7 @@ class XDMABlackBox(c: XDMAParams) extends BlackBox
        |  CONFIG.ref_clk_freq			{100_MHz}				\\
        |  CONFIG.pl_link_cap_max_link_width	{X${c.lanes}}				\\
        |  CONFIG.pl_link_cap_max_link_speed	{${pcieGTs}}				\\
+       |  CONFIG.msi_rx_pin_en			{true}					\\
        |  CONFIG.axisten_freq			{${axiMHzStr}}				\\
        |  CONFIG.axi_addr_width			{${c.addrBits}}				\\
        |  CONFIG.axi_data_width			{${busBytes*8}_bit}			\\
@@ -258,7 +261,7 @@ class DiplomaticXDMA(c: XDMAParams)(implicit p:Parameters) extends LazyModule
 {
   val (busBytes, _) = XDMABlackBox.busConfig(c)
 
-  val device = new SimpleDevice("pci", Seq("xlnx,axi-pcie-host-1.00.a")) {
+  val device = new SimpleDevice("pci", Seq("xlnx,xdma-host-3.00")) {
     override def describe(resources: ResourceBindings): Description = {
       val Description(name, mapping) = super.describe(resources)
       val intc = "pcie_intc"
@@ -269,6 +272,7 @@ class DiplomaticXDMA(c: XDMAParams)(implicit p:Parameters) extends LazyModule
         "#size-cells"        -> ofInt(2),
         "#interrupt-cells"   -> ofInt(1),
         "device_type"        -> Seq(ResourceString("pci")),
+        "interrupt-names"    -> Seq("misc", "msi0", "msi1").map(ResourceString.apply _),
         "interrupt-map-mask" -> Seq(0, 0, 0, 7).flatMap(ofInt),
         "interrupt-map"      -> Seq(1, 2, 3, 4).flatMap(ofMap),
         "ranges"             -> resources("ranges").map(x =>
@@ -306,7 +310,7 @@ class DiplomaticXDMA(c: XDMAParams)(implicit p:Parameters) extends LazyModule
       id      = IdRange(0, 1 << c.mIDBits),
       aligned = false)))))
 
-  val intnode = IntSourceNode(IntSourcePortSimple(resources = device.int))
+  val intnode = IntSourceNode(IntSourcePortSimple(num = 3, resources = device.int))
 
   lazy val module = new LazyRawModuleImp(this) {
     // The master on the control port must be AXI-lite
@@ -343,6 +347,8 @@ class DiplomaticXDMA(c: XDMAParams)(implicit p:Parameters) extends LazyModule
 
     // I
     i(0) := blackbox.io.interrupt_out
+    i(1) := blackbox.io.interrupt_out_msi_vec0to31
+    i(2) := blackbox.io.interrupt_out_msi_vec32to63
 
     // M.AW
     blackbox.io.m_axib_awready := m.aw.ready
