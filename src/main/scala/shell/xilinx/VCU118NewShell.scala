@@ -82,6 +82,7 @@ class ChipLinkVCU118Overlay(val shell: VCU118Shell, val name: String, params: Ch
     shell.xdc.addPackagePin(ereset_n, "BC8")
     shell.xdc.addIOStandard(ereset_n, "LVCMOS18")
     shell.xdc.addTermination(ereset_n, "NONE")
+    shell.xdc.addPullup(ereset_n)
     ereset_n
   } }
 
