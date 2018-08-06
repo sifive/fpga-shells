@@ -18,29 +18,29 @@ class XDC(val name: String)
     addConstraint(s"set_property BOARD_PIN {${pin}} ${io.sdcPin}")
   }
   def addPackagePin(io: IOPin, pin: String) {
-    addConstraint(s"set_property PACKAGE_PIN ${pin} ${io.sdcPin}")
+    addConstraint(s"set_property PACKAGE_PIN {${pin}} ${io.sdcPin}")
   }
   def addIOStandard(io: IOPin, standard: String) {
-    addConstraint(s"set_property IOSTANDARD ${standard} ${io.sdcPin}")
+    addConstraint(s"set_property IOSTANDARD {${standard}} ${io.sdcPin}")
   }
   def addPullup(io: IOPin) {
-    addConstraint(s"set_property PULLUP TRUE ${io.sdcPin}")
+    addConstraint(s"set_property PULLUP {TRUE} ${io.sdcPin}")
   }
   def addIOB(io: IOPin) {
     if (io.isOutput) {
-      addConstraint(s"set_property IOB TRUE [ get_cells -of_objects [ all_fanin -flat -startpoints_only ${io.sdcPin}]]")
+      addConstraint(s"set_property IOB {TRUE} [ get_cells -of_objects [ all_fanin -flat -startpoints_only ${io.sdcPin}]]")
     } else {
-      addConstraint(s"set_property IOB TRUE [ get_cells -of_objects [ all_fanout -flat -endpoints_only ${io.sdcPin}]]")
+      addConstraint(s"set_property IOB {TRUE} [ get_cells -of_objects [ all_fanout -flat -endpoints_only ${io.sdcPin}]]")
     }
   }
   def addSlew(io: IOPin, speed: String) {
-    addConstraint(s"set_property SLEW ${speed} ${io.sdcPin}")
+    addConstraint(s"set_property SLEW {${speed}} ${io.sdcPin}")
   }
   def addTermination(io: IOPin, kind: String) {
-    addConstraint(s"set_property OFFCHIP_TERM ${kind} ${io.sdcPin}")
+    addConstraint(s"set_property OFFCHIP_TERM {${kind}} ${io.sdcPin}")
   }
   def clockDedicatedRouteFalse(io: IOPin) {
-    addConstraint(s"set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets ${io.sdcPin}]")
+    addConstraint(s"set_property CLOCK_DEDICATED_ROUTE {FALSE} [get_nets ${io.sdcPin}]")
   }
 }
 
