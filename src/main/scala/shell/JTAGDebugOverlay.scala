@@ -29,11 +29,11 @@ abstract class JTAGDebugOverlay(
   def ioFactory = new FPGAJTAGIO
 
   val jtagDebugSource = BundleBridgeSource(() => new FPGAJTAGIO)
-  val jtagDebugSink = shell { jtagDebugSource.sink }
+  val jtagDebugSink = shell { jtagDebugSource.makeSink }
 
-  val designOutput = InModuleBody { jtagDebugSource.out(0)._1 }
+  val designOutput = InModuleBody { jtagDebugSource.bundle}
 
   shell { InModuleBody {
-    io <> jtagDebugSink.io
+    io <> jtagDebugSink.bundle
   } }
 }

@@ -6,8 +6,10 @@ import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
 import sifive.blocks.devices.uart._
 import freechips.rocketchip.subsystem.{BaseSubsystem, PeripheryBus, PeripheryBusKey}
+import freechips.rocketchip.tilelink.TLBusWrapper
+import freechips.rocketchip.interrupts.IntInwardNode
 
-case class UARTOverlayParams(beatBytes: Int, uartParams: UARTParams, devName: Option[String])(implicit val p: Parameters)
+case class UARTOverlayParams(beatBytes: Int, uartParams: UARTParams, divInit: Int, controlBus: TLBusWrapper, intNode: IntInwardNode, mclock: Option[ModuleValue[Clock]])(implicit val p: Parameters)
 case object UARTOverlayKey extends Field[Seq[DesignOverlay[UARTOverlayParams, TLUART]]](Nil)
 
 // Tack on cts, rts signals available on some FPGAs. They are currently unused
@@ -17,7 +19,7 @@ class FPGAUARTPortIO extends UARTPortIO {
   val ctsn = Input(Bool())
 }
 
-class UARTReplacementBundle extends Bundle with HasUARTTopBundleContents
+//class UARTReplacementBundle extends Bundle with HasUARTTopBundleContents
 
 abstract class UARTOverlay(
   val params: UARTOverlayParams)
@@ -27,21 +29,23 @@ abstract class UARTOverlay(
 
   def ioFactory = new FPGAUARTPortIO
 
-  val tluart = LazyModule(new TLUART(params.beatBytes, params.uartParams).suggestName(params.devName))
-  val uartSource = BundleBridgeSource(() => new UARTReplacementBundle())
-  val uartSink = shell { uartSource.sink }
+  val tluart = UART.attach(AttachedUARTParams(params.uartParams, params.divInit), params.controlBus, params.intNode, params.mclock)
+  val tluartsink = tluart.ioNode.makeSink
+  val uartSource = BundleBridgeSource(() => new UARTPortIO())
+  val uartSink = shell { uartSource.makeSink }
 
   val designOutput = tluart
 
   InModuleBody {
     val (io, _) = uartSource.out(0)
-    io <> tluart.module.io
-    tluart.module.io.port.rxd := RegNext(RegNext(io.port.rxd))
+    val tluartport = tluartsink.bundle
+    io <> tluartport
+    tluartport.rxd := RegNext(RegNext(io.rxd))
   }
 
   shell { InModuleBody {
-    io.txd := uartSink.io.port.txd
-    uartSink.io.port.rxd := io.rxd
+    io.txd := uartSink.bundle.txd
+    uartSink.bundle.rxd := io.rxd
 
     // Some FPGAs have this, we don't use it.
     io.rtsn := false.B

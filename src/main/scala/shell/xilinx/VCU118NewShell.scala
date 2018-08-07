@@ -131,22 +131,25 @@ class DDRVCU118Overlay(val shell: VCU118Shell, val name: String, params: DDROver
 {
   val size = p(VCU118DDRSize)
 
-  val migBridge = BundleBridge(new XilinxVCU118MIG(XilinxVCU118MIGParams(
-    address = AddressSet.misaligned(params.baseAddress, size))))
-  val topIONode = shell { migBridge.ioNode.sink }
+  val migParams = XilinxVCU118MIGParams(address = AddressSet.misaligned(params.baseAddress, size))
+  val mig = LazyModule(new XilinxVCU118MIG(migParams))
+  val ioNode = BundleBridgeSource(() => mig.module.io.cloneType)
+  val topIONode = shell { ioNode.makeSink() }
   val ddrUI     = shell { ClockSourceNode(freqMHz = 200) }
   val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
   areset := params.wrangler := ddrUI
 
-  def designOutput = migBridge.child.node
+  def designOutput = mig.node
   def ioFactory = new XilinxVCU118MIGPads(size)
+
+  InModuleBody { ioNode.bundle <> mig.module.io }
 
   shell { InModuleBody {
     require (shell.sys_clock.isDefined, "Use of DDRVCU118Overlay depends on SysClockVCU118Overlay")
     val (sys, _) = shell.sys_clock.get.node.out(0)
     val (ui, _) = ddrUI.out(0)
     val (ar, _) = areset.in(0)
-    val port = topIONode.io.port
+    val port = topIONode.bundle.port
     io <> port
     ui.clock := port.c0_ddr4_ui_clk
     ui.reset := /*!port.mmcm_locked ||*/ port.c0_ddr4_ui_clk_sync_rst
@@ -170,7 +173,7 @@ class DDRVCU118Overlay(val shell: VCU118Shell, val name: String, params: DDROver
     (IOPin.of(io) zip allddrpins) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
   } }
 
-  shell.sdc.addGroup(pins = Seq(migBridge.child.island.module.blackbox.io.c0_ddr4_ui_clk))
+  shell.sdc.addGroup(pins = Seq(mig.island.module.blackbox.io.c0_ddr4_ui_clk))
 }
 
 
@@ -191,16 +194,16 @@ class PCIeVCU118Overlay(val shell: VCU118Shell, val name: String, params: PCIeOv
 {
   val pcie      = LazyModule(new XDMA(XDMAParams()))
   val bridge    = BundleBridgeSource(() => new XDMABridge)
-  val topBridge = shell { bridge.sink }
+  val topBridge = shell { bridge.makeSink }
   val axiClk    = ClockSourceNode(freqMHz = 125)
   val areset    = ClockSinkNode(Seq(ClockSinkParameters()))
   areset := params.wrangler := axiClk
 
   val slaveSide = TLIdentityNode()
-  pcie.slave   := pcie.crossTLIn := slaveSide
-  pcie.control := pcie.crossTLIn := slaveSide
-  val node = NodeHandle(slaveSide, pcie.crossTLOut := pcie.master)
-  val intnode = pcie.crossIntOut := pcie.intnode
+  pcie.crossTLIn(pcie.slave) := slaveSide
+  pcie.crossTLIn(pcie.control) := slaveSide
+  val node = NodeHandle(slaveSide, pcie.crossTLOut(pcie.master))
+  val intnode = pcie.crossIntOut(pcie.intnode)
 
   def designOutput = (node, intnode)
   def ioFactory = new XDMATopPads
