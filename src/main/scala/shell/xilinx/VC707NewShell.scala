@@ -2,10 +2,11 @@
 package sifive.fpgashells.shell.xilinx
 
 import chisel3._
-import chisel3.experimental.IO
+import chisel3.experimental.{attach, IO, withClockAndReset}
 import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
+import freechips.rocketchip.util.SyncResetSynchronizerShiftReg
 import sifive.fpgashells.clocks._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
@@ -27,6 +28,45 @@ class SysClockVC707Overlay(val shell: VC707Shell, val name: String, params: Cloc
   } }
 }
 
+class SDIOVC707Overlay(val shell: VC707Shell, val name: String, params: SDIOOverlayParams)
+  extends SDIOXilinxOverlay(params)
+{
+  shell { InModuleBody {
+    val packagePinsWithPackageIOs = Seq(("AN30", IOPin(io.sdio_clk)),
+                                        ("AP30", IOPin(io.sdio_cmd)),
+                                        ("AR30", IOPin(io.sdio_dat_0)),
+                                        ("AU31", IOPin(io.sdio_dat_1)),
+                                        ("AV31", IOPin(io.sdio_dat_2)),
+                                        ("AT30", IOPin(io.sdio_dat_3)))
+
+    packagePinsWithPackageIOs foreach { case (pin, io) => {
+      shell.xdc.addPackagePin(io, pin)
+      shell.xdc.addIOStandard(io, "LVCMOS18")
+      shell.xdc.addIOB(io)
+    } }
+    packagePinsWithPackageIOs drop 1 foreach { case (pin, io) => {
+      shell.xdc.addPullup(io)
+    } }
+  } }
+}
+
+class UARTVC707Overlay(val shell: VC707Shell, val name: String, params: UARTOverlayParams)
+  extends UARTXilinxOverlay(params)
+{
+  shell { InModuleBody {
+    val packagePinsWithPackageIOs = Seq(("AT32", IOPin(io.ctsn)),
+                                        ("AR34", IOPin(io.rtsn)),
+                                        ("AU33", IOPin(io.rxd)),
+                                        ("AU36", IOPin(io.txd)))
+
+    packagePinsWithPackageIOs foreach { case (pin, io) => {
+      shell.xdc.addPackagePin(io, pin)
+      shell.xdc.addIOStandard(io, "LVCMOS18")
+      shell.xdc.addIOB(io)
+    } }
+  } }
+}
+
 class LEDVC707Overlay(val shell: VC707Shell, val name: String, params: LEDOverlayParams)
   extends LEDXilinxOverlay(params, boardPins = Seq.tabulate(8) { i => s"leds_8bits_tri_o_$i" })
 
@@ -34,7 +74,7 @@ class SwitchVC707Overlay(val shell: VC707Shell, val name: String, params: Switch
   extends SwitchXilinxOverlay(params, boardPins = Seq.tabulate(8) { i => s"dip_switches_tri_i_$i" })
 
 class ChipLinkVC707Overlay(val shell: VC707Shell, val name: String, params: ChipLinkOverlayParams)
-  extends ChipLinkXilinxOverlay(params)
+  extends ChipLinkXilinxOverlay(params, rxPhase=280, txPhase=220, rxMargin=0.3, txMargin=0.3)
 {
   val ereset_n = shell { InModuleBody {
     val ereset_n = IO(Input(Bool()))
@@ -56,19 +96,36 @@ class ChipLinkVC707Overlay(val shell: VC707Shell, val name: String, params: Chip
                    "P35", "P36", "W32", "W33", "R38", "R39", "U34", "T35",
                    "R33", "R34", "N33", "N34", "P32", "P33", "V35", "V36",
                    "W36", "W37", "T32", "R32", "V39", "V40", "P37", "P38")
-    val dirB2C = Seq(IOPin(io.b2c.clk), IOPin(io.b2c.rst), IOPin(io.b2c.send)) ++
-                 IOPin.of(io.b2c.data)
-    val dirC2B = Seq(IOPin(io.c2b.clk), IOPin(io.c2b.rst), IOPin(io.c2b.send)) ++
-                 IOPin.of(io.c2b.data)
-    (dirB2C zip dir1) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
-    (dirC2B zip dir2) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
+    (IOPin.of(io.b2c) zip dir1) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
+    (IOPin.of(io.c2b) zip dir2) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
 
     val (rxIn, _) = rxI.out(0)
     rxIn.reset := shell.pllReset
   } }
 }
 
-case object VC707DDRSize extends Field[BigInt](0x40000000L * 4) // 1GB
+// TODO: JTAG is untested
+class JTAGDebugVC707Overlay(val shell: VC707Shell, val name: String, params: JTAGDebugOverlayParams)
+  extends JTAGDebugXilinxOverlay(params)
+{
+  shell { InModuleBody {
+    shell.sdc.addClock("JTCK", IOPin(io.jtag_TCK), 10)
+    shell.sdc.addGroup(clocks = Seq("JTCK"))
+    shell.xdc.clockDedicatedRouteFalse(IOPin(io.jtag_TCK))
+    val packagePinsWithPackageIOs = Seq(("R32", IOPin(io.jtag_TCK)),
+                                        ("W36", IOPin(io.jtag_TMS)),
+                                        ("W37", IOPin(io.jtag_TDI)),
+                                        ("V40", IOPin(io.jtag_TDO)))
+
+    packagePinsWithPackageIOs foreach { case (pin, io) => {
+      shell.xdc.addPackagePin(io, pin)
+      shell.xdc.addIOStandard(io, "LVCMOS18")
+      shell.xdc.addPullup(io)
+    } }
+  } }
+}
+
+case object VC707DDRSize extends Field[BigInt](0x40000000L * 4) // 4GB
 class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverlayParams)
   extends DDROverlay[XilinxVC707MIGPads](params)
 {
@@ -160,8 +217,14 @@ class VC707Shell()(implicit p: Parameters) extends Series7Shell
   val chiplink  = Overlay(ChipLinkOverlayKey)  (new ChipLinkVC707Overlay(_, _, _))
   val ddr       = Overlay(DDROverlayKey)       (new DDRVC707Overlay     (_, _, _))
   val pcie      = Overlay(PCIeOverlayKey)      (new PCIeVC707Overlay    (_, _, _))
+  val uart      = Overlay(UARTOverlayKey)      (new UARTVC707Overlay    (_, _, _))
+  val sdio      = Overlay(SDIOOverlayKey)      (new SDIOVC707Overlay    (_, _, _))
+  val jtag      = Overlay(JTAGDebugOverlayKey)      (new JTAGDebugVC707Overlay    (_, _, _))
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
+
+  // Place the sys_clock at the Shell if the user didn't ask for it
+  p(ClockInputOverlayKey).foreach(_(ClockInputOverlayParams()))
 
   override lazy val module = new LazyRawModuleImp(this) {
     val reset = IO(Input(Bool()))
@@ -169,9 +232,12 @@ class VC707Shell()(implicit p: Parameters) extends Series7Shell
 
     val reset_ibuf = Module(new IBUF)
     reset_ibuf.io.I := reset
+
+    val powerOnReset = PowerOnResetFPGAOnly(sys_clock.get.clock)
+    sdc.addAsyncPath(Seq(powerOnReset))
+
     pllReset :=
-      reset_ibuf.io.O ||
-      sys_clock.map(_.reset:Bool).getOrElse(false.B) ||
+      reset_ibuf.io.O || powerOnReset ||
       chiplink.map(!_.ereset_n).getOrElse(false.B)
   }
 }

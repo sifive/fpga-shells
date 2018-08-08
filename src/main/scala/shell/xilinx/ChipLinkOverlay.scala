@@ -7,8 +7,8 @@ import freechips.rocketchip.util._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 
-abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams)
-  extends ChipLinkOverlay(params, rxPhase=280, txPhase=220)
+abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams, rxPhase: Double, txPhase: Double, rxMargin: Double, txMargin: Double)
+  extends ChipLinkOverlay(params, rxPhase, txPhase)
 {
   def shell: XilinxShell
 
@@ -17,7 +17,10 @@ abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams)
     val (tap, _) = txTap.out(0)
     val rxEdge = rxI.edges.out(0)
 
-    val oddr = Module(new ODDR())
+    val oddr = Module(new ODDR(
+       DDR_CLK_EDGE = "SAME_EDGE",
+       SRTYPE       = "ASYNC"
+      ))
     oddr.suggestName(s"${name}_tx_oddr")
     io.c2b.clk := oddr.io.Q.asClock
     oddr.io.C  := tx.clock
@@ -36,19 +39,17 @@ abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams)
 
     val timing = IOTiming(
       /* The data signals coming from Aloe have: clock - 1.2 <= transition <= clock + 0.8
-       * Let's add 0.3ns of safety for trace jitter+skew on both sides:
-       *   min = hold           = - 1.2 - 0.3
-       *   max = period - setup =   0.8 + 0.3
+       *   min = hold           = - 1.2
+       *   max = period - setup =   0.8
        */
-      minInput  = -1.5,
-      maxInput  =  1.1,
+      minInput  = -1.2 - rxMargin,
+      maxInput  =  0.8 + rxMargin,
       /* The data signals going to Aloe must have: clock - 1.85 <= NO transition <= clock + 0.65
-       * Let's add 0.3ns of safey for trace jitter+skew on both sides:
-       *   min = -hold = -0.65 - 0.3
-       *   max = setup =  1.85 + 0.3
+       *   min = -hold = -0.65
+       *   max = setup =  1.85
        */
-      minOutput = -0.95,
-      maxOutput =  2.15)
+      minOutput = -0.65 - txMargin,
+      maxOutput =  1.85 + txMargin)
 
     shell.sdc.addClock(s"${name}_b2c_clock", io.b2c.clk, rxEdge.clock.freqMHz, 0.3)
     shell.sdc.addDerivedClock(s"${name}_c2b_clock", oddr.io.C, io.c2b.clk)

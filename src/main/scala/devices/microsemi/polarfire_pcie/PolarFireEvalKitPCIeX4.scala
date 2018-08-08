@@ -9,7 +9,7 @@ import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
 import freechips.rocketchip.interrupts._
 import freechips.rocketchip.util._
-import freechips.rocketchip.subsystem.{HasCrossing, CacheBlockBytes}
+import freechips.rocketchip.subsystem.{CrossesToOnlyOneClockDomain, CacheBlockBytes}
 
 import sifive.fpgashells.ip.microsemi.polarfirepcierootport._
 
@@ -31,7 +31,7 @@ class PolarFireEvalKitPCIeX4IO extends Bundle
   val axi_ctl_aresetn = Bool(INPUT)
 }
 
-class PolarFireEvalKitPCIeX4(implicit p: Parameters) extends LazyModule with HasCrossing {
+class PolarFireEvalKitPCIeX4(implicit p: Parameters) extends LazyModule with CrossesToOnlyOneClockDomain {
   val crossing = SynchronousCrossing()
   val axi_to_pcie = LazyModule(new PolarFirePCIeX4)
 
