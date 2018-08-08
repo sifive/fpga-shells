@@ -182,7 +182,9 @@ case class XDMAParams(
   gen:      Int    = 1,
   addrBits: Int    = 32,
   mIDBits:  Int    = 4,
-  sIDBits:  Int    = 4)
+  sIDBits:  Int    = 4,
+  pcie_blk_locn : Option[String] = None
+  )
 {
   require (!bars.isEmpty)
   require (control >> 32 << 32 == control)
@@ -234,6 +236,10 @@ class XDMABlackBox(c: XDMAParams) extends BlackBox
        |""".stripMargin
   }
 
+  val pcie_blk_locn = c.pcie_blk_locn.map { a =>
+    s"""  CONFIG.pcie_blk_locn {${a}} """.stripMargin
+  }
+
   ElaborationArtefacts.add(s"${desiredName}.vivado.tcl",
     s"""create_ip -vendor xilinx.com -library ip -version 4.1 -name xdma -module_name ${desiredName} -dir $$ipdir -force
        |set_property -dict [list 							\\
@@ -250,7 +256,8 @@ class XDMABlackBox(c: XDMAParams) extends BlackBox
        |  CONFIG.axi_id_width			{${c.mIDBits}}				\\
        |  CONFIG.s_axi_id_width			{${c.sIDBits}}				\\
        |  CONFIG.axibar_num			{${c.bars.size}}			\\
-       |${bars.mkString}] [get_ips ${desiredName}]
+       |${bars.mkString} \\
+       |${pcie_blk_locn.mkString} ] [get_ips ${desiredName}]
        |""".stripMargin)
 }
 

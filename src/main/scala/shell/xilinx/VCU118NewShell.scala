@@ -190,7 +190,7 @@ class XDMABridge(val numLanes: Int) extends Bundle {
 class PCIeVCU118Overlay(val shell: VCU118Shell, val name: String, params: PCIeOverlayParams)
   extends PCIeOverlay[XDMATopPads](params)
 {
-  val config = XDMAParams(lanes = 1, gen = 1, addrBits = 32)
+  val config = XDMAParams(lanes = 1, gen = 1, addrBits = 32)/*, pcie_blk_locn = Some("X1Y2"))
 
   val pcie      = LazyModule(new XDMA(config))
   val bridge    = BundleBridgeSource(() => new XDMABridge(config.lanes))
@@ -256,16 +256,35 @@ class PCIeVCU118Overlay(val shell: VCU118Shell, val name: String, params: PCIeOv
     // Work-around incorrectly pre-assigned pins
     IOPin.of(io).foreach { shell.xdc.addPackagePin(_, "") }
 
+    // FMC+ J22
     // We need some way to connect both of these to reach x8
+    //Lanes 00-03 Bank 126
+    //Lanes 04-07 Bank 121 
     val ref126 = Seq("V38",  "V39")  /* [pn] GBT0 Bank 126 */
     val ref121 = Seq("AK38", "AK39") /* [pn] GBT0 Bank 121 */
-    val ref = ref126
+    // PCIe Edge connector U2
+    //Lanes 00-03 Bank 227
+    //Lanes 04-07 Bank 226
+    //Lanes 08-11 Bank 225
+    //Lanes 12-15 Bank 224
+    // FMC+ J22
+    val ref227 = Seq("AC9", "AC8")  /* [pn]  Bank 227 PCIE_CLK2_*/
+    val ref = ref227
 
-    // Bank 126 (DP5, DP6, DP4, DP7), Bank 121 (DP3, DP2, DP1, DP0)
-    val rxp = Seq("U45", "R45", "W45", "N45", "AJ45", "AL45", "AN45", "AR45") /* [0-7] */
-    val rxn = Seq("U46", "R46", "W46", "N46", "AJ46", "AL46", "AN46", "AR46") /* [0-7] */
-    val txp = Seq("P42", "M42", "T42", "K42", "AL40", "AM42", "AP42", "AT42") /* [0-7] */
-    val txn = Seq("P43", "M43", "T43", "K43", "AL41", "AM43", "AP43", "AT43") /* [0-7] */
+    /*
+    //FMC+ J22 Bank 126 (DP5, DP6, DP4, DP7), Bank 121 (DP3, DP2, DP1, DP0)
+    val rxp = Seq("U45", "R45", "W45", "N45", "AJ45", "AL45", "AN45", "AR45") // [0-7]
+    val rxn = Seq("U46", "R46", "W46", "N46", "AJ46", "AL46", "AN46", "AR46") // [0-7]
+    val txp = Seq("P42", "M42", "T42", "K42", "AL40", "AM42", "AP42", "AT42") // [0-7]
+    val txn = Seq("P43", "M43", "T43", "K43", "AL41", "AM43", "AP43", "AT43") // [0-7]
+    */
+
+    // PCIe Edge connector U2 : Bank 227, 226 
+    val rxp = Seq("AA4", "AB2", "AC4", "AD2", "AE4", "AF2", "AG4", "AH2") // [0-7]
+    val rxn = Seq("AA3", "AB1", "AC3", "AD1", "AE3", "AF1", "AG3", "AH1") // [0-7]
+    val txp = Seq("Y7", "AB7", "AD7", "AF7", "AH7", "AK7", "AM7", "AN5") // [0-7]
+    val txn = Seq("Y6", "AB6", "AD6", "AF6", "AH6", "AK6", "AM6", "AN4") // [0-7]
+    
 
     def bind(io: Seq[IOPin], pad: Seq[String]) {
       (io zip pad) foreach { case (io, pad) => shell.xdc.addPackagePin(io, pad) }
