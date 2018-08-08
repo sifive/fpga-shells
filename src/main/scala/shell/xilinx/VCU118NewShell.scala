@@ -77,13 +77,20 @@ class ChipLinkVCU118Overlay(val shell: VCU118Shell, val name: String, params: Ch
   extends ChipLinkXilinxOverlay(params, rxPhase= -120, txPhase= -90, rxMargin=0.6, txMargin=0.5)
 {
   val ereset_n = shell { InModuleBody {
-    val ereset_n = IO(Input(Bool()))
+    val ereset_n = IO(Analog())
     ereset_n.suggestName("ereset_n")
     shell.xdc.addPackagePin(ereset_n, "BC8")
     shell.xdc.addIOStandard(ereset_n, "LVCMOS18")
     shell.xdc.addTermination(ereset_n, "NONE")
     shell.xdc.addPullup(ereset_n)
-    ereset_n
+
+    val iobuf = Module(new IOBUF)
+    iobuf.suggestName("chiplink_ereset_iobuf")
+    attach(ereset_n, iobuf.io.IO)
+    iobuf.io.T := true.B // !oe
+    iobuf.io.I := false.B
+
+    iobuf.io.O
   } }
 
   shell { InModuleBody {
