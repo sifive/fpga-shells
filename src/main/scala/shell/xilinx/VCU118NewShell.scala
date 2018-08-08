@@ -200,7 +200,7 @@ class XDMABridge(val numLanes: Int) extends Bundle {
 class PCIeVCU118Overlay(val shell: VCU118Shell, val name: String, params: PCIeOverlayParams)
   extends PCIeOverlay[XDMATopPads](params)
 {
-  val config = XDMAParams(lanes = 1, gen = 1, addrBits = 32)
+  val config = XDMAParams(lanes = 4, gen = 3, addrBits = 64)
 
   val pcie      = LazyModule(new XDMA(config))
   val bridge    = BundleBridgeSource(() => new XDMABridge(config.lanes))
@@ -234,7 +234,7 @@ class PCIeVCU118Overlay(val shell: VCU118Shell, val name: String, params: PCIeOv
     pcie.module.io.clocks.sys_clk    := b.ODIV2
     pcie.module.io.clocks.sys_clk_gt := b.O
 
-    shell.sdc.addGroup(pins = Seq(pcie.imp.module.blackbox.io.axi_aclk))
+    shell.sdc.addGroup(clocks = Seq(s"${name}_ref_clk", "pipe_clk"), pins = Seq(pcie.imp.module.blackbox.io.axi_aclk))
   }
 
   shell { InModuleBody {
