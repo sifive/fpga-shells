@@ -23,7 +23,7 @@ class XilinxVCU118MIGPads(depth : BigInt) extends VCU118MIGIODDR(depth) {
 
 class XilinxVCU118MIGIO(depth : BigInt) extends VCU118MIGIODDR(depth) with VCU118MIGIOClocksReset
 
-class XilinxVCU118MIGIsland(c : XilinxVCU118MIGParams)(implicit p: Parameters) extends LazyModule with HasCrossing {
+class XilinxVCU118MIGIsland(c : XilinxVCU118MIGParams)(implicit p: Parameters) extends LazyModule with CrossesToOnlyOneClockDomain {
   val ranges = AddressRange.fromSets(c.address)
   require (ranges.size == 1, "DDR range must be contiguous")
   val offset = ranges.head.base

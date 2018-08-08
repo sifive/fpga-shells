@@ -7,11 +7,11 @@ import freechips.rocketchip.config.Parameters
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
 import freechips.rocketchip.interrupts._
-import freechips.rocketchip.subsystem.{HasCrossing, CacheBlockBytes}
+import freechips.rocketchip.subsystem.{CrossesToOnlyOneClockDomain, CacheBlockBytes}
 import sifive.fpgashells.ip.xilinx.xdma._
 
 class XDMA(c: XDMAParams)(implicit p: Parameters, val crossing: ClockCrossingType = AsynchronousCrossing(8))
-  extends LazyModule with HasCrossing
+  extends LazyModule with CrossesToOnlyOneClockDomain
 {
   val imp = LazyModule(new DiplomaticXDMA(c))
 

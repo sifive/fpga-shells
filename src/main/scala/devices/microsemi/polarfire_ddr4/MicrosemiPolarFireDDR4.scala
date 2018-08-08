@@ -23,7 +23,7 @@ class PolarFireEvalKitDDR4Pads(depth : BigInt) extends PolarFireEvalKitDDR4IODDR
 
 class PolarFireEvalKitDDR4IO(depth : BigInt) extends PolarFireEvalKitDDR4IODDR(depth) with PolarFireEvalKitDDR4IOClocksReset
 
-class PolarFireEvalKitDDR4Island(c : PolarFireEvalKitDDR4Params)(implicit p: Parameters) extends LazyModule with HasCrossing {
+class PolarFireEvalKitDDR4Island(c : PolarFireEvalKitDDR4Params)(implicit p: Parameters) extends LazyModule with CrossesToOnlyOneClockDomain {
   val ranges = AddressRange.fromSets(c.address)
   require (ranges.size == 1, "DDR range must be contiguous")
   val offset = ranges.head.base

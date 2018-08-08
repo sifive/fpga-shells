@@ -23,7 +23,7 @@ class XilinxVC707MIGPads(depth : BigInt) extends VC707MIGIODDR(depth) {
 
 class XilinxVC707MIGIO(depth : BigInt) extends VC707MIGIODDR(depth) with VC707MIGIOClocksReset
 
-class XilinxVC707MIGIsland(c : XilinxVC707MIGParams, val crossing: ClockCrossingType = AsynchronousCrossing(8))(implicit p: Parameters) extends LazyModule with HasCrossing {
+class XilinxVC707MIGIsland(c : XilinxVC707MIGParams, val crossing: ClockCrossingType = AsynchronousCrossing(8))(implicit p: Parameters) extends LazyModule with CrossesToOnlyOneClockDomain {
   val ranges = AddressRange.fromSets(c.address)
   require (ranges.size == 1, "DDR range must be contiguous")
   val offset = ranges.head.base
