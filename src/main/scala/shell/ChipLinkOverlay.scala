@@ -33,24 +33,18 @@ abstract class ChipLinkOverlay(
   val rxI     = shell { ClockSourceNode(freqMHz = freqMHz, jitterPS = 100) }
   val rxGroup = shell { ClockGroup() }
   val rxO     = shell { ClockSinkNode(freqMHz = freqMHz, phaseDeg = rxPhase) }
-  val txTap   = shell { ClockIdentityNode() }
   val txClock = shell { ClockSinkNode(freqMHz = freqMHz, phaseDeg = phaseDeg + txPhase) }
 
   rxO := params.wrangler := rxGroup := rxPLL := rxI
-  txClock := params.wrangler := txTap := params.txGroup
+  txClock := params.wrangler := params.txGroup
 
   def designOutput = link.node
   def ioFactory = new WideDataLayerPort(ChipLinkParams(Nil,Nil))
 
   shell { InModuleBody {
-    val (tx, _) = txClock.in(0)
-    val (rxIn, _) = rxI.out(0)
     val (rxOut, _) = rxO.in(0)
     val port = ioSink.bundle
     io <> port
-    rxIn.clock := io.b2c.clk
-    // reset definition is per-board
     port.b2c.clk := rxOut.clock
-    io.c2b.clk := tx.clock
   } }
 }
