@@ -31,7 +31,7 @@ class XDMA(c: XDMAParams)(implicit p: Parameters, val crossing: ClockCrossingTyp
       := TLFragmenter(4, p(CacheBlockBytes), holdFirstDeny = true))
 
   val master: TLOutwardNode =
-    (TLWidthWidget(XDMABlackBox.busConfig(c)._1)
+    (TLWidthWidget(c.busBytes)
       := AXI4ToTL()
       := AXI4UserYanker(capMaxFlight=Some(16))
       := AXI4Fragmenter()

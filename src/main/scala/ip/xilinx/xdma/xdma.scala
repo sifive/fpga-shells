@@ -194,27 +194,20 @@ case class XDMAParams(
   require (mIDBits >= 1 && mIDBits <= 8)
   require (sIDBits >= 1 && sIDBits <= 8)
   bars.foreach { a => require (a.max >> addrBits == 0) }
-}
 
-object XDMABlackBox
-{
-  def busConfig(c: XDMAParams) = {
-    val bandwidth = c.lanes * 250 << (c.gen-1) // MB/s
-    val busBytesAt250MHz = bandwidth / 250
-    val busBytes = busBytesAt250MHz max 8
-    val minMHz = 250.0 * busBytesAt250MHz / busBytes
-    val axiMHz = minMHz max 62.5
-    (busBytes, axiMHz)
-  }
+  private val bandwidth = lanes * 250 << (gen-1) // MB/s
+  private val busBytesAt250MHz = bandwidth / 250
+  val busBytes = busBytesAt250MHz max 8
+  private val minMHz = 250.0 * busBytesAt250MHz / busBytes
+  val axiMHz = minMHz max 62.5
 }
 
 class XDMABlackBox(c: XDMAParams) extends BlackBox
 {
   override def desiredName = c.name
 
-  val (busBytes, axiMHz) = XDMABlackBox.busConfig(c)
-  val mbus  = XDMABusParams(c.mIDBits, c.addrBits, busBytes)
-  val sbus  = XDMABusParams(c.sIDBits, c.addrBits, busBytes)
+  val mbus  = XDMABusParams(c.mIDBits, c.addrBits, c.busBytes)
+  val sbus  = XDMABusParams(c.sIDBits, c.addrBits, c.busBytes)
   val slbus = XDMABusParams(0, 32, 4)
 
   val io = IO(new XDMABlackBoxIO(c.lanes, mbus, sbus, slbus))
@@ -227,7 +220,7 @@ class XDMABlackBox(c: XDMAParams) extends BlackBox
 
   // 62.5, 125, 250 (no trailing zeros)
   val formatter = new java.text.DecimalFormat("0.###")
-  val axiMHzStr = formatter.format(axiMHz)
+  val axiMHzStr = formatter.format(c.axiMHz)
 
   val bars = c.bars.zipWithIndex.map { case (a, i) =>
     f"""  CONFIG.axibar_${i}			{0x${a.base}%X}				\\
@@ -249,7 +242,7 @@ class XDMABlackBox(c: XDMAParams) extends BlackBox
        |  CONFIG.msi_rx_pin_en			{true}					\\
        |  CONFIG.axisten_freq			{${axiMHzStr}}				\\
        |  CONFIG.axi_addr_width			{${c.addrBits}}				\\
-       |  CONFIG.axi_data_width			{${busBytes*8}_bit}			\\
+       |  CONFIG.axi_data_width			{${c.busBytes*8}_bit}			\\
        |  CONFIG.axi_id_width			{${c.mIDBits}}				\\
        |  CONFIG.s_axi_id_width			{${c.sIDBits}}				\\
        |  CONFIG.axibar_num			{${c.bars.size}}			\\
@@ -259,8 +252,6 @@ class XDMABlackBox(c: XDMAParams) extends BlackBox
 
 class DiplomaticXDMA(c: XDMAParams)(implicit p:Parameters) extends LazyModule
 {
-  val (busBytes, _) = XDMABlackBox.busConfig(c)
-
   val device = new SimpleDevice("pci", Seq("xlnx,xdma-host-3.00")) {
     override def describe(resources: ResourceBindings): Description = {
       val Description(name, mapping) = super.describe(resources)
@@ -293,7 +284,7 @@ class DiplomaticXDMA(c: XDMAParams)(implicit p:Parameters) extends LazyModule
       executable    = true,
       supportsWrite = TransferSizes(1, 128),
       supportsRead  = TransferSizes(1, 128))),
-    beatBytes = busBytes)))
+    beatBytes = c.busBytes)))
 
   val control = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
     slaves = Seq(AXI4SlaveParameters(
@@ -318,7 +309,7 @@ class DiplomaticXDMA(c: XDMAParams)(implicit p:Parameters) extends LazyModule
     // Must have the right number of slave idBits
     require (slave.edges.in(0).bundle.idBits <= c.sIDBits)
     // Must have the right bus width
-    require (master.edges.out(0).slave.beatBytes == busBytes)
+    require (master.edges.out(0).slave.beatBytes == c.busBytes)
 
     val io = IO(new Bundle {
       val pads   = new XDMAPads(c.lanes)

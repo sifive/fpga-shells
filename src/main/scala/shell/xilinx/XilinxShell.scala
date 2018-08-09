@@ -3,6 +3,7 @@ package sifive.fpgashells.shell.xilinx
 
 import chisel3._
 import freechips.rocketchip.config._
+import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.util._
 import sifive.fpgashells.clocks._
 import sifive.fpgashells.ip.xilinx._
@@ -48,6 +49,7 @@ abstract class XilinxShell()(implicit p: Parameters) extends IOShell
 {
   val sdc = new SDC("shell.sdc")
   val xdc = new XDC("shell.xdc")
+  def pllReset: ModuleValue[Bool]
 
   ElaborationArtefacts.add("shell.vivado.tcl",
     """set shell_vivado_tcl [file normalize [info script]]
@@ -58,6 +60,14 @@ abstract class XilinxShell()(implicit p: Parameters) extends IOShell
 }
 
 abstract class Series7Shell()(implicit p: Parameters) extends XilinxShell
+{
+  val pllFactory = new PLLFactory(this, 7, p => Module(new Series7MMCM(p)))
+  override def designParameters = super.designParameters.alterPartial {
+    case PLLFactoryKey => pllFactory
+  }
+}
+
+abstract class UltraScaleShell()(implicit p: Parameters) extends XilinxShell
 {
   val pllFactory = new PLLFactory(this, 7, p => Module(new Series7MMCM(p)))
   override def designParameters = super.designParameters.alterPartial {
