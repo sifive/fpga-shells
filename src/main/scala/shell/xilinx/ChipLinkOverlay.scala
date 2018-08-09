@@ -39,6 +39,7 @@ abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams, rxPhase: Dou
     ibufg.suggestName(s"${name}_rx_ibufg")
     ibufg.io.I := io.b2c.clk
     rx.clock := ibufg.io.O
+    rx.reset := shell.pllReset
 
     IOPin.of(io).foreach { shell.xdc.addIOStandard(_, "LVCMOS18") }
     IOPin.of(io).filterNot(_.element eq io.b2c.clk).foreach { shell.xdc.addIOB(_) }

@@ -20,9 +20,6 @@ class SysClockVC707Overlay(val shell: VC707Shell, val name: String, params: Cloc
   val node = shell { ClockSourceNode(freqMHz = 200, jitterPS = 50)(ValName(name)) }
 
   shell { InModuleBody {
-    val (c, _) = node.out(0)
-    c.reset := shell.pllReset
-
     shell.xdc.addBoardPin(io.p, "clk_p")
     shell.xdc.addBoardPin(io.n, "clk_n")
   } }
@@ -98,9 +95,6 @@ class ChipLinkVC707Overlay(val shell: VC707Shell, val name: String, params: Chip
                    "W36", "W37", "T32", "R32", "V39", "V40", "P37", "P38")
     (IOPin.of(io.b2c) zip dir1) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
     (IOPin.of(io.c2b) zip dir2) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
-
-    val (rxIn, _) = rxI.out(0)
-    rxIn.reset := shell.pllReset
   } }
 }
 

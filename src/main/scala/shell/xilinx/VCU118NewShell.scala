@@ -20,9 +20,6 @@ class SysClockVCU118Overlay(val shell: VCU118Shell, val name: String, params: Cl
   val node = shell { ClockSourceNode(freqMHz = 250, jitterPS = 50)(ValName(name)) }
 
   shell { InModuleBody {
-    val (c, _) = node.out(0)
-    c.reset := shell.pllReset
-
     shell.xdc.addBoardPin(io.p, "default_250mhz_clk1_p")
     shell.xdc.addBoardPin(io.n, "default_250mhz_clk1_n")
   } }
@@ -107,9 +104,6 @@ class ChipLinkVCU118Overlay(val shell: VCU118Shell, val name: String, params: Ch
                    "AN15", "AP15", "AK12", "AL12", "AM13", "AM12", "AJ13", "AJ12")
     (IOPin.of(io.b2c) zip dir1) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
     (IOPin.of(io.c2b) zip dir2) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
-
-    val (rxIn, _) = rxI.out(0)
-    rxIn.reset := shell.pllReset
   } }
 }
 

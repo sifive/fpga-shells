@@ -19,6 +19,6 @@ abstract class LVDSClockInputXilinxOverlay(params: ClockInputOverlayParams)
     ibufds.io.I  := io.p
     ibufds.io.IB := io.n
     c.clock := ibufds.io.O
-    c.reset := false.B
+    c.reset := shell.pllReset
   } }
 }
