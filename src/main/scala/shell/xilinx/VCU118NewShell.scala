@@ -2,7 +2,7 @@
 package sifive.fpgashells.shell.xilinx
 
 import chisel3._
-import chisel3.experimental.{attach, IO, withClockAndReset}
+import chisel3.experimental.{attach, Analog, IO, withClockAndReset}
 import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
@@ -20,9 +20,6 @@ class SysClockVCU118Overlay(val shell: VCU118Shell, val name: String, params: Cl
   val node = shell { ClockSourceNode(freqMHz = 250, jitterPS = 50)(ValName(name)) }
 
   shell { InModuleBody {
-    val (c, _) = node.out(0)
-    c.reset := shell.pllReset
-
     shell.xdc.addBoardPin(io.p, "default_250mhz_clk1_p")
     shell.xdc.addBoardPin(io.n, "default_250mhz_clk1_n")
   } }
@@ -77,12 +74,21 @@ class ChipLinkVCU118Overlay(val shell: VCU118Shell, val name: String, params: Ch
   extends ChipLinkXilinxOverlay(params, rxPhase= -120, txPhase= -90, rxMargin=0.6, txMargin=0.5)
 {
   val ereset_n = shell { InModuleBody {
-    val ereset_n = IO(Input(Bool()))
+    val ereset_n = IO(Analog(1.W))
     ereset_n.suggestName("ereset_n")
-    shell.xdc.addPackagePin(ereset_n, "BC8")
-    shell.xdc.addIOStandard(ereset_n, "LVCMOS18")
-    shell.xdc.addTermination(ereset_n, "NONE")
-    ereset_n
+    val pin = IOPin(ereset_n, 0)
+    shell.xdc.addPackagePin(pin, "BC8")
+    shell.xdc.addIOStandard(pin, "LVCMOS18")
+    shell.xdc.addTermination(pin, "NONE")
+    shell.xdc.addPullup(pin)
+
+    val iobuf = Module(new IOBUF)
+    iobuf.suggestName("chiplink_ereset_iobuf")
+    attach(ereset_n, iobuf.io.IO)
+    iobuf.io.T := true.B // !oe
+    iobuf.io.I := false.B
+
+    iobuf.io.O
   } }
 
   shell { InModuleBody {
@@ -98,9 +104,6 @@ class ChipLinkVCU118Overlay(val shell: VCU118Shell, val name: String, params: Ch
                    "AN15", "AP15", "AK12", "AL12", "AM13", "AM12", "AJ13", "AJ12")
     (IOPin.of(io.b2c) zip dir1) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
     (IOPin.of(io.c2b) zip dir2) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
-
-    val (rxIn, _) = rxI.out(0)
-    rxIn.reset := shell.pllReset
   } }
 }
 
@@ -157,10 +160,10 @@ class DDRVCU118Overlay(val shell: VCU118Shell, val name: String, params: DDROver
     port.sys_rst := sys.reset // pllReset
     port.c0_ddr4_aresetn := !ar.reset
 
-    val allddrpins = Seq( "D14", "B15", "B16", "C14", "C15", "A13", "A14",
+    val allddrpins = Seq(  "D14", "B15", "B16", "C14", "C15", "A13", "A14",
       "A15", "A16", "B12", "C12", "B13", "C13", "D15", "H14", "H15", "F15",
-      "H13", "G15", "G13", "N20", "E13", "E14", "F14", "A10", "F13", "C8 ",
-      "F11", "E11", "F10", "F9 ", "H12", "G12", "E9 ", "D9 ", "R19", "P19",
+      "H13", "G15", "G13", "N20", "E13", "E14", "F14", "A10", "F13", "C8",
+      "F11", "E11", "F10", "F9",  "H12", "G12", "E9",  "D9",  "R19", "P19",
       "M18", "M17", "N19", "N18", "N17", "M16", "L16", "K16", "L18", "K18",
       "J17", "H17", "H19", "H18", "F19", "F18", "E19", "E18", "G20", "F20",
       "E17", "D16", "D17", "C17", "C19", "C18", "D20", "D19", "C20", "B20",
@@ -176,93 +179,89 @@ class DDRVCU118Overlay(val shell: VCU118Shell, val name: String, params: DDROver
   shell.sdc.addGroup(pins = Seq(mig.island.module.blackbox.io.c0_ddr4_ui_clk))
 }
 
-
-class XDMATopPads extends Bundle {
-  val refclk = Input(new LVDSClock)
-  val lanes = new XDMAPads
-}
-
-class XDMABridge extends Bundle {
-  val lanes = new XDMAPads
-  val srstn = Input(Bool())
-  val O     = Input(Clock())
-  val ODIV2 = Input(Clock())
-}
-
-class PCIeVCU118Overlay(val shell: VCU118Shell, val name: String, params: PCIeOverlayParams)
-  extends PCIeOverlay[XDMATopPads](params)
+class PCIeVCU118FMCOverlay(val shell: VCU118Shell, val name: String, params: PCIeOverlayParams)
+  extends PCIeUltraScaleOverlay(XDMAParams(lanes = 4, gen = 3, addrBits = 64), params)
 {
-  val pcie      = LazyModule(new XDMA(XDMAParams()))
-  val bridge    = BundleBridgeSource(() => new XDMABridge)
-  val topBridge = shell { bridge.makeSink }
-  val axiClk    = ClockSourceNode(freqMHz = 125)
-  val areset    = ClockSinkNode(Seq(ClockSinkParameters()))
-  areset := params.wrangler := axiClk
-
-  val slaveSide = TLIdentityNode()
-  pcie.crossTLIn(pcie.slave) := slaveSide
-  pcie.crossTLIn(pcie.control) := slaveSide
-  val node = NodeHandle(slaveSide, pcie.crossTLOut(pcie.master))
-  val intnode = pcie.crossIntOut(pcie.intnode)
-
-  def designOutput = (node, intnode)
-  def ioFactory = new XDMATopPads
-
-  InModuleBody {
-    val (axi, _) = axiClk.out(0)
-    val (ar, _) = areset.in(0)
-    val b = bridge.out(0)._1
-
-    pcie.module.clock := ar.clock
-    pcie.module.reset := ar.reset
-
-    b.lanes <> pcie.module.io.pads
-
-    axi.clock := pcie.module.io.clocks.axi_aclk
-    axi.reset := !pcie.module.io.clocks.axi_aresetn
-    pcie.module.io.clocks.sys_rst_n  := b.srstn
-    pcie.module.io.clocks.sys_clk    := b.ODIV2
-    pcie.module.io.clocks.sys_clk_gt := b.O
-
-    shell.sdc.addGroup(pins = Seq(pcie.imp.module.blackbox.io.axi_aclk))
-  }
-
   shell { InModuleBody {
-    val b = topBridge.in(0)._1
+    // Work-around incorrectly pre-assigned pins
+    IOPin.of(io).foreach { shell.xdc.addPackagePin(_, "") }
 
-    val ibufds = Module(new IBUFDS_GTE4)
-    ibufds.suggestName(s"${name}_refclk_ibufds")
-    ibufds.io.CEB := false.B
-    ibufds.io.I   := io.refclk.p
-    ibufds.io.IB  := io.refclk.n
-    b.O     := ibufds.io.O
-    b.ODIV2 := ibufds.io.ODIV2
-    b.srstn := !shell.pllReset
-    io.lanes <> b.lanes
+    // We need some way to connect both of these to reach x8
+    val ref126 = Seq("V38",  "V39")  /* [pn] GBT0 Bank 126 */
+    val ref121 = Seq("AK38", "AK39") /* [pn] GBT0 Bank 121 */
+    val ref = ref126
 
-    val pins = Seq("V38", "V39", /* refclk_[pn] */
-                   "P42", "P43", /* tx_[0-x]_[pn] */
-                   "U45", "U46") /* rx_[0-x]_[pn] */
-    (IOPin.of(io) zip pins) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
-    shell.sdc.addClock(s"${name}_ref_clk", io.refclk.p, 100)
+    // Bank 126 (DP5, DP6, DP4, DP7), Bank 121 (DP3, DP2, DP1, DP0)
+    val rxp = Seq("U45", "R45", "W45", "N45", "AJ45", "AL45", "AN45", "AR45") /* [0-7] */
+    val rxn = Seq("U46", "R46", "W46", "N46", "AJ46", "AL46", "AN46", "AR46") /* [0-7] */
+    val txp = Seq("P42", "M42", "T42", "K42", "AL40", "AM42", "AP42", "AT42") /* [0-7] */
+    val txn = Seq("P43", "M43", "T43", "K43", "AL41", "AM43", "AP43", "AT43") /* [0-7] */
+
+    def bind(io: Seq[IOPin], pad: Seq[String]) {
+      (io zip pad) foreach { case (io, pad) => shell.xdc.addPackagePin(io, pad) }
+    }
+
+    bind(IOPin.of(io.refclk), ref)
+    // We do these individually so that zip falls off the end of the lanes:
+    bind(IOPin.of(io.lanes.pci_exp_txp), txp)
+    bind(IOPin.of(io.lanes.pci_exp_txn), txn)
+    bind(IOPin.of(io.lanes.pci_exp_rxp), rxp)
+    bind(IOPin.of(io.lanes.pci_exp_rxn), rxn)
   } }
 }
 
-class VCU118Shell()(implicit p: Parameters) extends Series7Shell
+class PCIeVCU118EdgeOverlay(val shell: VCU118Shell, val name: String, params: PCIeOverlayParams)
+  extends PCIeUltraScaleOverlay(XDMAParams(lanes = 8, gen = 3, addrBits = 64), params)
+{
+  shell { InModuleBody {
+    // Work-around incorrectly pre-assigned pins
+    IOPin.of(io).foreach { shell.xdc.addPackagePin(_, "") }
+
+    // PCIe Edge connector U2
+    //   Lanes 00-03 Bank 227
+    //   Lanes 04-07 Bank 226
+    //   Lanes 08-11 Bank 225
+    //   Lanes 12-15 Bank 224
+
+    // FMC+ J22
+    val ref227 = Seq("AC9", "AC8")  /* [pn]  Bank 227 PCIE_CLK2_*/
+    val ref = ref227
+
+    // PCIe Edge connector U2 : Bank 227, 226
+    val rxp = Seq("AA4", "AB2", "AC4", "AD2", "AE4", "AF2", "AG4", "AH2") // [0-7]
+    val rxn = Seq("AA3", "AB1", "AC3", "AD1", "AE3", "AF1", "AG3", "AH1") // [0-7]
+    val txp = Seq("Y7", "AB7", "AD7", "AF7", "AH7", "AK7", "AM7", "AN5") // [0-7]
+    val txn = Seq("Y6", "AB6", "AD6", "AF6", "AH6", "AK6", "AM6", "AN4") // [0-7]
+
+    def bind(io: Seq[IOPin], pad: Seq[String]) {
+      (io zip pad) foreach { case (io, pad) => shell.xdc.addPackagePin(io, pad) }
+    }
+
+    bind(IOPin.of(io.refclk), ref)
+    // We do these individually so that zip falls off the end of the lanes:
+    bind(IOPin.of(io.lanes.pci_exp_txp), txp)
+    bind(IOPin.of(io.lanes.pci_exp_txn), txn)
+    bind(IOPin.of(io.lanes.pci_exp_rxp), rxp)
+    bind(IOPin.of(io.lanes.pci_exp_rxn), rxn)
+  } }
+}
+
+class VCU118Shell()(implicit p: Parameters) extends UltraScaleShell
 {
   // PLL reset causes
   val pllReset = InModuleBody { Wire(Bool()) }
 
   // Order matters; ddr depends on sys_clock
-  val sys_clock = Overlay(ClockInputOverlayKey)(new SysClockVCU118Overlay(_, _, _))
-  val led       = Overlay(LEDOverlayKey)       (new LEDVCU118Overlay     (_, _, _))
-  val switch    = Overlay(SwitchOverlayKey)    (new SwitchVCU118Overlay  (_, _, _))
-  val chiplink  = Overlay(ChipLinkOverlayKey)  (new ChipLinkVCU118Overlay(_, _, _))
-  val ddr       = Overlay(DDROverlayKey)       (new DDRVCU118Overlay     (_, _, _))
-  val pcie      = Overlay(PCIeOverlayKey)      (new PCIeVCU118Overlay    (_, _, _))
-  val uart      = Overlay(UARTOverlayKey)      (new UARTVCU118Overlay    (_, _, _))
-  val sdio      = Overlay(SDIOOverlayKey)      (new SDIOVCU118Overlay    (_, _, _))
-  val jtag      = Overlay(JTAGDebugOverlayKey)      (new JTAGDebugVCU118Overlay    (_, _, _))
+  val sys_clock = Overlay(ClockInputOverlayKey)(new SysClockVCU118Overlay (_, _, _))
+  val led       = Overlay(LEDOverlayKey)       (new LEDVCU118Overlay      (_, _, _))
+  val switch    = Overlay(SwitchOverlayKey)    (new SwitchVCU118Overlay   (_, _, _))
+  val chiplink  = Overlay(ChipLinkOverlayKey)  (new ChipLinkVCU118Overlay (_, _, _))
+  val ddr       = Overlay(DDROverlayKey)       (new DDRVCU118Overlay      (_, _, _))
+  val fmc       = Overlay(PCIeOverlayKey)      (new PCIeVCU118FMCOverlay  (_, _, _))
+  val edge      = Overlay(PCIeOverlayKey)      (new PCIeVCU118EdgeOverlay (_, _, _))
+  val uart      = Overlay(UARTOverlayKey)      (new UARTVCU118Overlay     (_, _, _))
+  val sdio      = Overlay(SDIOOverlayKey)      (new SDIOVCU118Overlay     (_, _, _))
+  val jtag      = Overlay(JTAGDebugOverlayKey) (new JTAGDebugVCU118Overlay(_, _, _))
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 

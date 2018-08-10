@@ -8,19 +8,21 @@ import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 
 abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams, rxPhase: Double, txPhase: Double, rxMargin: Double, txMargin: Double)
-  extends ChipLinkOverlay(params, rxPhase, txPhase)
+  extends ChipLinkOverlay(params.copy(params = params.params.copy(fpgaReset = true))(params.p), rxPhase, txPhase)
 {
   def shell: XilinxShell
 
+  InModuleBody {
+    // Provide reset pulse to initialize b2c_reset (before RX PLL locks)
+    link.module.io.fpga_reset.foreach { _ := PowerOnResetFPGAOnly(Module.clock) }
+  }
+
   shell { InModuleBody {
     val (tx, _) = txClock.in(0)
-    val (tap, _) = txTap.out(0)
+    val (rx, _) = rxI.out(0)
     val rxEdge = rxI.edges.out(0)
 
-    val oddr = Module(new ODDR(
-       DDR_CLK_EDGE = "SAME_EDGE",
-       SRTYPE       = "ASYNC"
-      ))
+    val oddr = Module(new ODDR(DDR_CLK_EDGE = "SAME_EDGE", SRTYPE = "ASYNC"))
     oddr.suggestName(s"${name}_tx_oddr")
     io.c2b.clk := oddr.io.Q.asClock
     oddr.io.C  := tx.clock
@@ -31,7 +33,13 @@ abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams, rxPhase: Dou
     // We can't use tx.reset here as it waits for all PLLs to lock,
     // including RX, which depends on this clock being driven.
     // tap.reset only waits for the TX PLL to lock.
-    oddr.io.R  := ResetCatchAndSync(tx.clock, tap.reset)
+    oddr.io.R  := ResetCatchAndSync(tx.clock, PowerOnResetFPGAOnly(tx.clock))
+
+    val ibufg = Module(new IBUFG)
+    ibufg.suggestName(s"${name}_rx_ibufg")
+    ibufg.io.I := io.b2c.clk
+    rx.clock := ibufg.io.O
+    rx.reset := shell.pllReset
 
     IOPin.of(io).foreach { shell.xdc.addIOStandard(_, "LVCMOS18") }
     IOPin.of(io).filterNot(_.element eq io.b2c.clk).foreach { shell.xdc.addIOB(_) }
