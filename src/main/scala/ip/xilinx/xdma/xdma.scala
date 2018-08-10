@@ -177,12 +177,13 @@ class XDMAPads(val lanes: Int) extends Bundle with HasXDMAPads
 class XDMAClocks() extends Bundle with HasXDMAClocks
 
 case class XDMAParams(
-  name:     String = "xdma_0",
-  bars:     Seq[AddressSet] = Seq(AddressSet(0x40000000L, 0x1FFFFFFFL)),
-  control:  BigInt = 0x2000000000L,
+  name:     String,
+  location: String,
+  bars:     Seq[AddressSet],
+  control:  BigInt,
   lanes:    Int    = 1,
-  gen:      Int    = 1,
-  addrBits: Int    = 32,
+  gen:      Int    = 3,
+  addrBits: Int    = 64,
   mIDBits:  Int    = 4,
   sIDBits:  Int    = 4)
 {
@@ -233,6 +234,7 @@ class XDMABlackBox(c: XDMAParams) extends BlackBox
     s"""create_ip -vendor xilinx.com -library ip -version 4.1 -name xdma -module_name ${desiredName} -dir $$ipdir -force
        |set_property -dict [list 							\\
        |  CONFIG.functional_mode		{AXI_Bridge}				\\
+       |  CONFIG.pcie_blk_locn			{${c.location}}				\\
        |  CONFIG.device_port_type		{Root_Port_of_PCI_Express_Root_Complex}	\\
        |  CONFIG.pf0_bar0_enabled		{false}					\\
        |  CONFIG.pf0_sub_class_interface_menu	{PCI_to_PCI_bridge}			\\
@@ -255,7 +257,7 @@ class DiplomaticXDMA(c: XDMAParams)(implicit p:Parameters) extends LazyModule
   val device = new SimpleDevice("pci", Seq("xlnx,xdma-host-3.00")) {
     override def describe(resources: ResourceBindings): Description = {
       val Description(name, mapping) = super.describe(resources)
-      val intc = "pcie_intc"
+      val intc = s"${c.name}_intc"
       def ofInt(x: Int) = Seq(ResourceInt(BigInt(x)))
       def ofMap(x: Int) = Seq(0, 0, 0, x).flatMap(ofInt) ++ Seq(ResourceReference(intc)) ++ ofInt(x)
       val extra = Map(
@@ -297,7 +299,7 @@ class DiplomaticXDMA(c: XDMAParams)(implicit p:Parameters) extends LazyModule
 
   val master = AXI4MasterNode(Seq(AXI4MasterPortParameters(
     masters = Seq(AXI4MasterParameters(
-      name    = "XDMA_PCIe",
+      name    = c.name,
       id      = IdRange(0, 1 << c.mIDBits),
       aligned = false)))))
 
