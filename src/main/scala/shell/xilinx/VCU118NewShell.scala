@@ -20,8 +20,10 @@ class SysClockVCU118Overlay(val shell: VCU118Shell, val name: String, params: Cl
   val node = shell { ClockSourceNode(freqMHz = 250, jitterPS = 50)(ValName(name)) }
 
   shell { InModuleBody {
-    shell.xdc.addBoardPin(io.p, "default_250mhz_clk1_p")
-    shell.xdc.addBoardPin(io.n, "default_250mhz_clk1_n")
+    shell.xdc.addPackagePin(io.p, "E12")
+    shell.xdc.addPackagePin(io.n, "D12")
+    shell.xdc.addIOStandard(io.p, "DIFF_SSTL12")
+    shell.xdc.addIOStandard(io.n, "DIFF_SSTL12")
   } }
 }
 
@@ -65,10 +67,20 @@ class UARTVCU118Overlay(val shell: VCU118Shell, val name: String, params: UARTOv
 }
 
 class LEDVCU118Overlay(val shell: VCU118Shell, val name: String, params: LEDOverlayParams)
-  extends LEDXilinxOverlay(params, boardPins = Seq.tabulate(8) { i => s"GPIO_LED_${i}_LS" })
+  extends LEDXilinxOverlay(params, packagePins = Seq("AT32", "AV34", "AY30", "BB32", "BF32", "AU37", "AV36", "BA37"))
+{
+  shell { InModuleBody {
+    IOPin.of(io).foreach { shell.xdc.addIOStandard(_, "LVCMOS12") }
+  } }
+}
 
 class SwitchVCU118Overlay(val shell: VCU118Shell, val name: String, params: SwitchOverlayParams)
-  extends SwitchXilinxOverlay(params, boardPins = Seq.tabulate(4) { i => s"GPIO_DIP_SW$i" })
+  extends SwitchXilinxOverlay(params, packagePins = Seq("B17", "G16", "J16", "D21"))
+{
+  shell { InModuleBody {
+    IOPin.of(io).foreach { shell.xdc.addIOStandard(_, "LVCMOS12") }
+  } }
+}
 
 class ChipLinkVCU118Overlay(val shell: VCU118Shell, val name: String, params: ChipLinkOverlayParams)
   extends ChipLinkXilinxOverlay(params, rxPhase= -120, txPhase= -90, rxMargin=0.6, txMargin=0.5)
@@ -180,7 +192,12 @@ class DDRVCU118Overlay(val shell: VCU118Shell, val name: String, params: DDROver
 }
 
 class PCIeVCU118FMCOverlay(val shell: VCU118Shell, val name: String, params: PCIeOverlayParams)
-  extends PCIeUltraScaleOverlay(XDMAParams(lanes = 4, gen = 3, addrBits = 64), params)
+  extends PCIeUltraScaleOverlay(XDMAParams(
+    name     = "fmc_xdma",
+    location = "X0Y3",
+    bars     = params.bars,
+    control  = params.ecam,
+    lanes    = 4), params)
 {
   shell { InModuleBody {
     // Work-around incorrectly pre-assigned pins
@@ -211,7 +228,12 @@ class PCIeVCU118FMCOverlay(val shell: VCU118Shell, val name: String, params: PCI
 }
 
 class PCIeVCU118EdgeOverlay(val shell: VCU118Shell, val name: String, params: PCIeOverlayParams)
-  extends PCIeUltraScaleOverlay(XDMAParams(lanes = 8, gen = 3, addrBits = 64), params)
+  extends PCIeUltraScaleOverlay(XDMAParams(
+    name     = "edge_xdma",
+    location = "X1Y2",
+    bars     = params.bars,
+    control  = params.ecam,
+    lanes    = 8), params)
 {
   shell { InModuleBody {
     // Work-around incorrectly pre-assigned pins
