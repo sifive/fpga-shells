@@ -31,18 +31,13 @@ abstract class UARTOverlay(
   def ioFactory = new FPGAUARTPortIO
 
   val tluart = UART.attach(UARTAttachParams(params.uartParams, params.divInit, params.controlBus, params.intNode))
-  val tluartSink = tluart.ioNode.makeSink
-  val uartSource = BundleBridgeSource(() => new UARTPortIO())
+  // TODO: These spliced input registers should be inside the device itself
+  val uartSource = tluart.ioNode.splice { (out, in) =>
+    in.rxd := RegNext(RegNext(out.rxd)) 
+  }
   val uartSink = shell { uartSource.makeSink }
 
   val designOutput = tluart
-
-  InModuleBody {
-    val (io, _) = uartSource.out(0)
-    val tluartport = tluartSink.bundle
-    io <> tluartport
-    tluartport.rxd := RegNext(RegNext(io.rxd))
-  }
 
   shell { InModuleBody {
     io.txd := uartSink.bundle.txd

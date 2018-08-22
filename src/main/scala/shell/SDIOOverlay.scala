@@ -31,20 +31,15 @@ abstract class SDIOOverlay(
 
   def ioFactory = new FPGASDIOPortIO
   val tlspi = SPI.attach(SPIAttachParams(params.spiParam, params.controlBus, params.intNode))
-  val tlspiSink = tlspi.ioNode.makeSink
-
-  val spiSource = BundleBridgeSource(() => new SPIPortIO(params.spiParam))
-  val spiSink = shell { spiSource.makeSink }
-  val designOutput = tlspi
-
-  InModuleBody {
-    val (io, _) = spiSource.out(0)
-    val tlspiport = tlspiSink.bundle
-    io <> tlspiport
-    (0 to 3).foreach { case q =>
-      tlspiport.dq(q).i := RegNext(RegNext(io.dq(q).i))
+  // TODO: These spliced input registers should be inside the device itself
+  val spiSource = tlspi.ioNode.splice { (out, in) =>
+    out.dq.zip(in.dq).foreach { (o, i) =>
+      i.i := RegNext(RegNext(o.i))
     }
   }
+  val spiSink = shell { spiSource.makeSink }
+
+  val designOutput = tlspi
 
   shell { InModuleBody {
     val sd_spi_sck = spiSink.bundle.sck
