@@ -9,7 +9,8 @@ import freechips.rocketchip.subsystem.{BaseSubsystem, PeripheryBus, PeripheryBus
 import freechips.rocketchip.tilelink.TLBusWrapper
 import freechips.rocketchip.interrupts.IntInwardNode
 
-case class UARTOverlayParams(beatBytes: Int, uartParams: UARTParams, divInit: Int, controlBus: TLBusWrapper, intNode: IntInwardNode, mclock: Option[ModuleValue[Clock]])(implicit val p: Parameters)
+//TODO: Can this be combined with UARTAttachParams?
+case class UARTOverlayParams(uartParams: UARTParams, divInit: Int, controlBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
 case object UARTOverlayKey extends Field[Seq[DesignOverlay[UARTOverlayParams, TLUART]]](Nil)
 
 // Tack on cts, rts signals available on some FPGAs. They are currently unused
@@ -29,8 +30,8 @@ abstract class UARTOverlay(
 
   def ioFactory = new FPGAUARTPortIO
 
-  val tluart = UART.attach(AttachedUARTParams(params.uartParams, params.divInit), params.controlBus, params.intNode, params.mclock)
-  val tluartsink = tluart.ioNode.makeSink
+  val tluart = UART.attach(UARTAttachParams(params.uartParams, params.divInit, params.controlBus, params.intNode))
+  val tluartSink = tluart.ioNode.makeSink
   val uartSource = BundleBridgeSource(() => new UARTPortIO())
   val uartSink = shell { uartSource.makeSink }
 
@@ -38,7 +39,7 @@ abstract class UARTOverlay(
 
   InModuleBody {
     val (io, _) = uartSource.out(0)
-    val tluartport = tluartsink.bundle
+    val tluartport = tluartSink.bundle
     io <> tluartport
     tluartport.rxd := RegNext(RegNext(io.rxd))
   }

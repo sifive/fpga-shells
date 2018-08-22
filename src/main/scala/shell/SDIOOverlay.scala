@@ -9,7 +9,8 @@ import sifive.blocks.devices.spi._
 import freechips.rocketchip.tilelink.TLBusWrapper
 import freechips.rocketchip.interrupts.IntInwardNode
 
-case class SDIOOverlayParams(spiParam: SPIParams, controlBus: TLBusWrapper, intNode: IntInwardNode, mclock: Option[ModuleValue[Clock]])(implicit val p: Parameters)
+// TODO: Can this be combined with SPIAttachParams?
+case class SDIOOverlayParams(spiParam: SPIParams, controlBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
 case object SDIOOverlayKey extends Field[Seq[DesignOverlay[SDIOOverlayParams, TLSPI]]](Nil)
 
 // SDIO Port. Not sure how generic this is, it might need to move.
@@ -29,8 +30,8 @@ abstract class SDIOOverlay(
   implicit val p = params.p
 
   def ioFactory = new FPGASDIOPortIO
-  val tlspi = SPI.attach(AttachedSPIParams(params.spiParam), params.controlBus, params.intNode, params.mclock)
-  val tlspisource = tlspi.ioNode.makeSink
+  val tlspi = SPI.attach(SPIAttachParams(params.spiParam, params.controlBus, params.intNode))
+  val tlspiSink = tlspi.ioNode.makeSink
 
   val spiSource = BundleBridgeSource(() => new SPIPortIO(params.spiParam))
   val spiSink = shell { spiSource.makeSink }
@@ -38,7 +39,7 @@ abstract class SDIOOverlay(
 
   InModuleBody {
     val (io, _) = spiSource.out(0)
-    val tlspiport = tlspisource.bundle
+    val tlspiport = tlspiSink.bundle
     io <> tlspiport
     (0 to 3).foreach { case q =>
       tlspiport.dq(q).i := RegNext(RegNext(io.dq(q).i))
