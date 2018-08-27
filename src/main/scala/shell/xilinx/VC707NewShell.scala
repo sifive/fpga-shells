@@ -119,7 +119,7 @@ class JTAGDebugVC707Overlay(val shell: VC707Shell, val name: String, params: JTA
   } }
 }
 
-case object VC707DDRSize extends Field[BigInt](0x40000000L * 4) // 4GB
+case object VC707DDRSize extends Field[BigInt](0x40000000L * 1) // 1GB
 class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverlayParams)
   extends DDROverlay[XilinxVC707MIGPads](params)
 {
