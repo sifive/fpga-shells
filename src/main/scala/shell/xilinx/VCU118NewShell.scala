@@ -66,6 +66,19 @@ class UARTVCU118Overlay(val shell: VCU118Shell, val name: String, params: UARTOv
   } }
 }
 
+class EthernetVCU118Overlay(val shell: VCU118Shell, val name: String, params: EthernetOverlayParams)
+  extends EthernetOverlay(params)
+{
+  shell { InModuleBody {
+    shell.xdc.addPackagePin(io.tx_p, "")
+    shell.xdc.addPackagePin(io.tx_n, "")
+    shell.xdc.addPackagePin(io.rx_p, "")
+    shell.xdc.addPackagePin(io.rx_n, "")
+    shell.xdc.addPackagePin(io.refclk_p, "")
+    shell.xdc.addPackagePin(io.refclk_n, "")
+  } }
+}
+
 class LEDVCU118Overlay(val shell: VCU118Shell, val name: String, params: LEDOverlayParams)
   extends LEDXilinxOverlay(params, packagePins = Seq("AT32", "AV34", "AY30", "BB32", "BF32", "AU37", "AV36", "BA37"))
 {
@@ -284,6 +297,7 @@ class VCU118Shell()(implicit p: Parameters) extends UltraScaleShell
   val uart      = Overlay(UARTOverlayKey)      (new UARTVCU118Overlay     (_, _, _))
   val sdio      = Overlay(SDIOOverlayKey)      (new SDIOVCU118Overlay     (_, _, _))
   val jtag      = Overlay(JTAGDebugOverlayKey) (new JTAGDebugVCU118Overlay(_, _, _))
+  val ethernet  = Overlay(EthernetOverlayKey)  (new EthernetVCU118Overlay (_, _, _))
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 

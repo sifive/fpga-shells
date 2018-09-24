@@ -7,7 +7,7 @@ import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
 
 class nfmac10g extends BlackBox {
-  val io = new Bundle {
+  val io = IO(new Bundle {
     val tx_clk0       = Input(Clock())
     val rx_clk0       = Input(Clock())
     val reset         = Input(Bool())
@@ -48,5 +48,5 @@ class nfmac10g extends BlackBox {
     val tx_statistics_valid  = Output(Bool())
     val rx_statistics_vector = Output(UInt(30.W))
     val rx_statistics_valid  = Output(Bool())
-  }
+  })
 }

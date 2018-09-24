@@ -108,6 +108,7 @@ class XXVEthernetBlackBoxIO extends Bundle
   with HasXXVEthernetJunk
 
 class XXVEthernetPads() extends Bundle with HasXXVEthernetPads
+class XXVEthernetMAC() extends Bundle with HasXXVEthernetMAC
 class XXVEthernetClocks() extends Bundle with HasXXVEthernetClocks
 
 case class XXVEthernetParams(
@@ -149,7 +150,7 @@ class DiplomaticXXVEthernet(c: XXVEthernetParams)(implicit p:Parameters) extends
 
   val control = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
     slaves = Seq(AXI4SlaveParameters(
-      address       = List(AddressSet(c.control, 0x3ffffffL)), // when truncated to 32-bits, is 0
+      address       = List(AddressSet(c.control, 0xfffL)),
       resources     = device.reg("control"),
       supportsWrite = TransferSizes(1, 4),
       supportsRead  = TransferSizes(1, 4),
@@ -162,6 +163,7 @@ class DiplomaticXXVEthernet(c: XXVEthernetParams)(implicit p:Parameters) extends
 
     val io = IO(new Bundle {
       val pads   = new XXVEthernetPads
+      val mac    = new XXVEthernetMAC
       val clocks = new XXVEthernetClocks
     })
 
@@ -205,6 +207,12 @@ class DiplomaticXXVEthernet(c: XXVEthernetParams)(implicit p:Parameters) extends
     sl.r.bits.data := blackbox.io.s_axi_rdata_0
     sl.r.bits.resp := blackbox.io.s_axi_rresp_0
     sl.r.bits.last := true.B
+
+    // MAC
+    blackbox.io.tx_mii_d_0 := io.mac.tx_mii_d_0
+    blackbox.io.tx_mii_c_0 := io.mac.tx_mii_c_0
+    io.mac.rx_mii_d_0 := blackbox.io.rx_mii_d_0
+    io.mac.rx_mii_c_0 := blackbox.io.rx_mii_c_0
 
     // Junk
     blackbox.io.txoutclksel_in_0 := 5.U
