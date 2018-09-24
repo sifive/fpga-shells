@@ -418,14 +418,14 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
   val btn_3                = IO(Analog(1.W))
 
   //Sliding switches
-  val sw_0                 = IO(Analog(1.W))
-  val sw_1                 = IO(Analog(1.W))
-  val sw_2                 = IO(Analog(1.W))
-  val sw_3                 = IO(Analog(1.W))
-  val sw_4                 = IO(Analog(1.W))
-  val sw_5                 = IO(Analog(1.W))
-  val sw_6                 = IO(Analog(1.W))
-  val sw_7                 = IO(Analog(1.W))
+  val sw_0                 = IO(Input(Bool()))
+  val sw_1                 = IO(Input(Bool()))
+  val sw_2                 = IO(Input(Bool()))
+  val sw_3                 = IO(Input(Bool()))
+  val sw_4                 = IO(Input(Bool()))
+  val sw_5                 = IO(Input(Bool()))
+  val sw_6                 = IO(Input(Bool()))
+  val sw_7                 = IO(Input(Bool()))
 
 
   //-----------------------------------------------------------------------
