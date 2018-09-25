@@ -82,6 +82,9 @@ abstract class Ethernet(busWidthBytes: Int, c: XXVEthernetParams)(implicit p: Pa
         RegField(7),
         RegField.r(1, rxQ.io.deq.valid, RegFieldDesc("rx_valid", "RX Valid")),
         RegField(7))),
+      4  -> RegFieldGroup("status", Some("Status Registers"), Seq(
+        RegField.r(1, clocks.user_tx_reset_0, RegFieldDesc("tx_reset", "TX Reset")),
+        RegField.r(1, clocks.user_rx_reset_0, RegFieldDesc("rx_reset", "RX Reset")))),
       8  -> RegFieldGroup("tx", Some("TX Data Queue"), Seq(RegField.w(64, txQ.io.enq))),
       16 -> RegFieldGroup("rx", Some("RX Data Queue"), Seq(RegField.r(64, rxQ.io.deq))))
 
