@@ -66,7 +66,7 @@ class UARTVCU118Overlay(val shell: VCU118Shell, val name: String, params: UARTOv
   } }
 }
 
-class EthernetVCU118Overlay(val shell: VCU118Shell, val name: String, params: EthernetOverlayParams)
+class QSFP1VCU118Overlay(val shell: VCU118Shell, val name: String, params: EthernetOverlayParams)
   extends EthernetOverlay(params)
 {
   shell { InModuleBody {
@@ -76,6 +76,19 @@ class EthernetVCU118Overlay(val shell: VCU118Shell, val name: String, params: Et
     shell.xdc.addPackagePin(io.rx_n, "Y1")
     shell.xdc.addPackagePin(io.refclk_p, "W9")
     shell.xdc.addPackagePin(io.refclk_n, "W8")
+  } }
+}
+
+class QSFP2VCU118Overlay(val shell: VCU118Shell, val name: String, params: EthernetOverlayParams)
+  extends EthernetOverlay(params)
+{
+  shell { InModuleBody {
+    shell.xdc.addPackagePin(io.tx_p, "L5")
+    shell.xdc.addPackagePin(io.tx_n, "L4")
+    shell.xdc.addPackagePin(io.rx_p, "T2")
+    shell.xdc.addPackagePin(io.rx_n, "T1")
+    shell.xdc.addPackagePin(io.refclk_p, "R9")
+    shell.xdc.addPackagePin(io.refclk_n, "R8")
   } }
 }
 
@@ -297,7 +310,8 @@ class VCU118Shell()(implicit p: Parameters) extends UltraScaleShell
   val uart      = Overlay(UARTOverlayKey)      (new UARTVCU118Overlay     (_, _, _))
   val sdio      = Overlay(SDIOOverlayKey)      (new SDIOVCU118Overlay     (_, _, _))
   val jtag      = Overlay(JTAGDebugOverlayKey) (new JTAGDebugVCU118Overlay(_, _, _))
-  val ethernet  = Overlay(EthernetOverlayKey)  (new EthernetVCU118Overlay (_, _, _))
+  val qsfp1     = Overlay(EthernetOverlayKey)  (new QSFP1VCU118Overlay    (_, _, _))
+  val qsfp2     = Overlay(EthernetOverlayKey)  (new QSFP2VCU118Overlay    (_, _, _))
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
