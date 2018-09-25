@@ -117,6 +117,7 @@ case class XXVEthernetParams(
   speed:    Int)
 {
   require (speed == 10 || speed == 25)
+  val MHz = if (speed == 10) 156.25 else 161.1328125
 }
 
 class XXVEthernetBlackBox(c: XXVEthernetParams) extends BlackBox
@@ -132,6 +133,8 @@ class XXVEthernetBlackBox(c: XXVEthernetParams) extends BlackBox
        |  CONFIG.CORE				{Ethernet PCS/PMA 64-bit}		\\
        |  CONFIG.BASE_R_KR			{BASE-R}				\\
        |  CONFIG.LINE_RATE			{${c.speed}}				\\
+       |  CONFIG.GT_REF_CLK_FREQ		{${c.MHz}}				\\
+       |  CONFIG.GT_DRP_CLK			{${c.MHz}}				\\
        |  CONFIG.INCLUDE_AXI4_INTERFACE		{1}					\\
        |] [get_ips ${desiredName}]
        |""".stripMargin)

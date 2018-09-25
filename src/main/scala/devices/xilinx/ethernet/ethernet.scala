@@ -32,7 +32,7 @@ abstract class Ethernet(busWidthBytes: Int, c: XXVEthernetParams)(implicit p: Pa
 
     val clocks = phy.module.io.clocks
     clocks.rx_core_clk_0             := clocks.tx_mii_clk_0
-    clocks.dclk                      := clock
+    clocks.dclk                      := clocks.gt_refclk_out
     clocks.s_axi_aclk_0              := clock
     clocks.s_axi_aresetn_0           := !reset.asUInt
     clocks.sys_reset                 := reset
