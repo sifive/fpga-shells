@@ -70,12 +70,12 @@ class EthernetVCU118Overlay(val shell: VCU118Shell, val name: String, params: Et
   extends EthernetOverlay(params)
 {
   shell { InModuleBody {
-    shell.xdc.addPackagePin(io.tx_p, "")
-    shell.xdc.addPackagePin(io.tx_n, "")
-    shell.xdc.addPackagePin(io.rx_p, "")
-    shell.xdc.addPackagePin(io.rx_n, "")
-    shell.xdc.addPackagePin(io.refclk_p, "")
-    shell.xdc.addPackagePin(io.refclk_n, "")
+    shell.xdc.addPackagePin(io.tx_p, "V7")
+    shell.xdc.addPackagePin(io.tx_n, "V6")
+    shell.xdc.addPackagePin(io.rx_p, "Y2")
+    shell.xdc.addPackagePin(io.rx_n, "Y1")
+    shell.xdc.addPackagePin(io.refclk_p, "W9")
+    shell.xdc.addPackagePin(io.refclk_n, "W8")
   } }
 }
 

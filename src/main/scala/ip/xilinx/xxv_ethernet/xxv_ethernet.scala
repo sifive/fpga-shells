@@ -113,8 +113,6 @@ class XXVEthernetClocks() extends Bundle with HasXXVEthernetClocks
 
 case class XXVEthernetParams(
   name:     String,
-  group:    String,
-  location: String, // Seq[String] to support multiple cores
   control:  BigInt,
   speed:    Int)
 {
@@ -135,8 +133,6 @@ class XXVEthernetBlackBox(c: XXVEthernetParams) extends BlackBox
        |  CONFIG.BASE_R_KR			{BASE-R}				\\
        |  CONFIG.LINE_RATE			{${c.speed}}				\\
        |  CONFIG.INCLUDE_AXI4_INTERFACE		{1}					\\
-       |  CONFIG.GT_GROUP_SELECT		{${c.group}}				\\
-       |  CONFIG.LANE1_GT_LOC			{${c.location}}				\\
        |] [get_ips ${desiredName}]
        |""".stripMargin)
 // INCLUDE_USER_FIFO 0
