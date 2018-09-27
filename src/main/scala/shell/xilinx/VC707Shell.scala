@@ -55,6 +55,27 @@ trait HasPCIe { this: VC707Shell =>
 
     pcie <> dut.xilinxvc707pcie
   }
+  ElaborationArtefacts.add(
+    """vc707pcie.vivado.tcl""",
+    """set vc707pcie_vivado_tcl_dir [file dirname [file normalize [info script]]]
+       add_files -fileset [current_fileset -constrset] [glob -directory $vc707pcie_vivado_tcl_dir {*.vc707pcie.xdc}]"""
+    )
+
+  ElaborationArtefacts.add(
+    """vc707pcie.xdc""",
+    """
+    set_property PACKAGE_PIN A10 [get_ports {pcie_REFCLK_rxp}]
+    set_property PACKAGE_PIN A9 [get_ports {pcie_REFCLK_rxn}]
+    create_clock -name pcie_ref_clk -period 10 [get_ports pcie_REFCLK_rxp]
+    set_input_jitter [get_clocks -of_objects [get_ports pcie_REFCLK_rxp]] 0.5
+    
+    set_property PACKAGE_PIN H4 [get_ports {pcie_pci_exp_txp}]
+    set_property PACKAGE_PIN H3 [get_ports {pcie_pci_exp_txn}]
+    
+    set_property PACKAGE_PIN G6 [get_ports {pcie_pci_exp_rxp}]
+    set_property PACKAGE_PIN G5 [get_ports {pcie_pci_exp_rxn}]
+    """
+  )
 }
 
 trait HasDebugJTAG { this: VC707Shell =>
