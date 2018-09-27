@@ -11,53 +11,33 @@ import freechips.rocketchip.regmapper._
 import freechips.rocketchip.util._
 import freechips.rocketchip.subsystem.CacheBlockBytes
 import sifive.fpgashells.clocks._
+import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx.xxv_ethernet._
 
-abstract class Ethernet(busWidthBytes: Int, c: XXVEthernetParams)(implicit p: Parameters) extends IORegisterRouter(
+class EthernetMACIO extends Bundle {
+  val pcs = Flipped(new EthernetPCS)
+}
+
+abstract class EthernetMAC(busWidthBytes: Int, base: BigInt)(implicit p: Parameters) extends IORegisterRouter(
   RegisterRouterParams(
     name      = "ethernet",
     compat    = Seq("sifive,ethernet0"), 
-    base      = c.control + 0x1000,
+    base      = base,
     beatBytes = busWidthBytes),
-  new XXVEthernetPads)
+  new EthernetMACIO)
 {
-  val phy = LazyModule(new DiplomaticXXVEthernet(c))
-  val ctlnode =
-    (phy.control // we drive s_axi_aclk_0 = clock; so syncrhonous
-      := AXI4Buffer()
-      := AXI4UserYanker(capMaxFlight = Some(2))
-      := TLToAXI4()
-      := TLFragmenter(4, p(CacheBlockBytes), holdFirstDeny = true))
-
-  // connect this to a PLL source
-  val dclk = ClockSinkNode(freqMHz = 75.0)
-
   lazy val module = new LazyModuleImp(this) {
-    port <> phy.module.io.pads
-
-    val clocks = phy.module.io.clocks
-    clocks.rx_core_clk_0             := clocks.tx_mii_clk_0
-    clocks.dclk                      := dclk.in(0)._1.clock
-    clocks.s_axi_aclk_0              := clock
-    clocks.s_axi_aresetn_0           := !reset.asUInt
-    clocks.sys_reset                 := reset
-    clocks.tx_reset_0                := false.B
-    clocks.rx_reset_0                := false.B
-    clocks.gtwiz_reset_tx_datapath_0 := false.B
-    clocks.gtwiz_reset_rx_datapath_0 := false.B
-
     val mac = Module(new nfmac10g)
-    val macIO = phy.module.io.mac
-    macIO.tx_mii_d_0 := mac.io.xgmii_txd
-    macIO.tx_mii_c_0 := mac.io.xgmii_txc
-    mac.io.xgmii_rxd := macIO.rx_mii_d_0
-    mac.io.xgmii_rxc := macIO.rx_mii_c_0
+    port.pcs.tx_d := mac.io.xgmii_txd
+    port.pcs.tx_c := mac.io.xgmii_txc
+    mac.io.xgmii_rxd := port.pcs.rx_d
+    mac.io.xgmii_rxc := port.pcs.rx_c
 
-    mac.io.tx_clk0 := clocks.tx_mii_clk_0
-    mac.io.rx_clk0 := clocks.rx_core_clk_0
+    mac.io.tx_clk0 := port.pcs.tx_clock
+    mac.io.rx_clk0 := port.pcs.rx_clock
+    mac.io.tx_dcm_locked := !port.pcs.tx_reset
+    mac.io.rx_dcm_locked := !port.pcs.rx_reset
     mac.io.reset := reset
-    mac.io.tx_dcm_locked := !clocks.user_tx_reset_0
-    mac.io.rx_dcm_locked := !clocks.user_rx_reset_0
 
     // FIFO interface
     val txen = RegInit(false.B)
@@ -68,26 +48,21 @@ abstract class Ethernet(busWidthBytes: Int, c: XXVEthernetParams)(implicit p: Pa
     // TX AXIS / RX AXIS
     mac.io.tx_axis_aresetn := !reset.asUInt
     mac.io.rx_axis_aresetn := !reset.asUInt
-    rxQ.io.enq_clock := clocks.rx_core_clk_0
-    rxQ.io.enq_reset := clocks.user_rx_reset_0
+    rxQ.io.enq_clock := port.pcs.rx_clock
+    rxQ.io.enq_reset := port.pcs.rx_reset
     rxQ.io.deq_clock := clock
     rxQ.io.deq_reset := reset
     txQ.io.enq_clock := clock
     txQ.io.enq_reset := reset
-    txQ.io.deq_clock := clocks.tx_mii_clk_0
-    txQ.io.deq_reset := clocks.user_tx_reset_0
+    txQ.io.deq_clock := port.pcs.tx_clock
+    txQ.io.deq_reset := port.pcs.tx_reset
 
-    val gtC = withClockAndReset(clocks.gt_refclk_out, false.B) {
+    val txC = withClockAndReset(port.pcs.tx_clock, false.B) {
       val count = RegInit(0.U(32.W))
       count := count + 1.U
       count
     }
-    val txC = withClockAndReset(clocks.tx_mii_clk_0, false.B) {
-      val count = RegInit(0.U(32.W))
-      count := count + 1.U
-      count
-    }
-    val rxC = withClockAndReset(clocks.rxrecclkout_0, false.B) {
+    val rxC = withClockAndReset(port.pcs.rx_clock, false.B) {
       val count = RegInit(0.U(32.W))
       count := count + 1.U
       count
@@ -100,12 +75,10 @@ abstract class Ethernet(busWidthBytes: Int, c: XXVEthernetParams)(implicit p: Pa
         RegField(14),
         RegField.r(1, txQ.io.enq.ready, RegFieldDesc("tx_ready", "TX Ready")),
         RegField.r(1, rxQ.io.deq.valid, RegFieldDesc("rx_valid", "RX Valid")),
-        RegField.r(1, clocks.user_tx_reset_0, RegFieldDesc("tx_reset", "TX Reset")),
-        RegField.r(1, clocks.user_rx_reset_0, RegFieldDesc("rx_reset", "RX Reset")),
-        RegField.r(1, mac.io.tx_axis_tready,  RegFieldDesc("mac_ready", "MAC Ready")),
-        RegField.r(1, clocks.gtpowergood_out_0, RegFieldDesc("powergood", "PHY Power Good")))),
-      4  -> RegFieldGroup("rxc", Some("RXC"), Seq(RegField.r(32, RegReadFn(RegNext(RegNext(rxC)))))),
-      8  -> RegFieldGroup("gtc", Some("GTC"), Seq(RegField.r(32, RegReadFn(RegNext(RegNext(gtC)))))),
+        RegField.r(1, port.pcs.tx_reset, RegFieldDesc("tx_reset", "TX Reset")),
+        RegField.r(1, port.pcs.rx_reset, RegFieldDesc("rx_reset", "RX Reset")),
+        RegField.r(1, mac.io.tx_axis_tready,  RegFieldDesc("mac_ready", "MAC Ready")))),
+      8  -> RegFieldGroup("rxc", Some("RXC"), Seq(RegField.r(32, RegReadFn(RegNext(RegNext(rxC)))))),
       12 -> RegFieldGroup("txc", Some("TXC"), Seq(RegField.r(32, RegReadFn(RegNext(RegNext(txC)))))),
       16 -> RegFieldGroup("tx", Some("TX Data Queue"), Seq(RegField.w(64, txQ.io.enq))),
       24 -> RegFieldGroup("rx", Some("RX Data Queue"), Seq(RegField.r(64, rxQ.io.deq))))
@@ -124,5 +97,5 @@ abstract class Ethernet(busWidthBytes: Int, c: XXVEthernetParams)(implicit p: Pa
   }
 }
 
-class TLEthernet(busWidthBytes: Int, c: XXVEthernetParams)(implicit p: Parameters)
-  extends Ethernet(busWidthBytes, c) with HasTLControlRegMap
+class TLEthernetMAC(busWidthBytes: Int, c: BigInt)(implicit p: Parameters)
+  extends EthernetMAC(busWidthBytes, c) with HasTLControlRegMap

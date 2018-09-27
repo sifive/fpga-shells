@@ -9,7 +9,8 @@ import sifive.fpgashells.clocks._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 import sifive.fpgashells.devices.xilinx.xdma._
-
+import sifive.fpgashells.devices.xilinx.ethernet._
+import sifive.fpgashells.ip.xilinx.xxv_ethernet._
 
 class XDMATopPads(val numLanes: Int) extends Bundle {
   val refclk = Input(new LVDSClock)
@@ -21,6 +22,54 @@ class XDMABridge(val numLanes: Int) extends Bundle {
   val srstn = Input(Bool())
   val O     = Input(Clock())
   val ODIV2 = Input(Clock())
+}
+
+abstract class EthernetUltraScaleOverlay(config: XXVEthernetParams, params: EthernetOverlayParams)
+  extends EthernetOverlay(params)
+{
+  def shell: UltraScaleShell
+
+  val pcs = LazyModule(new DiplomaticXXVEthernet(config))
+  pcs.suggestName(name + "_pcs")
+
+  val padSource = BundleBridgeSource(() => new XXVEthernetPads)
+  val padSink = shell { padSource.makeSink() }
+  val dclk = InModuleBody { Wire(Clock()) }
+
+  InModuleBody {
+    padSource.bundle <> pcs.module.io.pads
+
+    val clocks = pcs.module.io.clocks
+    clocks.rx_core_clk_0             := clocks.tx_mii_clk_0
+    clocks.dclk                      := dclk
+    clocks.sys_reset                 := Module.reset
+
+    val macIO = pcs.module.io.mac
+    val pcsIO = designOutput
+    macIO.tx_mii_d_0 := pcsIO.tx_d
+    macIO.tx_mii_c_0 := pcsIO.tx_c
+    pcsIO.rx_d := macIO.rx_mii_d_0
+    pcsIO.rx_c := macIO.rx_mii_c_0
+
+    pcsIO.rx_clock := clocks.rx_core_clk_0
+    pcsIO.rx_reset := clocks.user_rx_reset_0
+    pcsIO.tx_clock := clocks.tx_mii_clk_0
+    pcsIO.tx_reset := clocks.user_tx_reset_0
+
+    shell.sdc.addGroup(clocks = Seq(s"${name}_ref_clk"), pins = Seq(clocks.tx_mii_clk_0))
+  }
+
+  shell { InModuleBody {
+    val pcsIO = padSink.bundle
+    io.tx_p := pcsIO.gt_txp_out_0
+    io.tx_n := pcsIO.gt_txn_out_0
+    pcsIO.gt_rxp_in_0 := io.rx_p
+    pcsIO.gt_rxn_in_0 := io.rx_n
+    pcsIO.gt_refclk_p := io.refclk_p
+    pcsIO.gt_refclk_n := io.refclk_n
+
+    shell.sdc.addClock(s"${name}_ref_clk", io.refclk_p, config.refMHz)
+  } }
 }
 
 abstract class PCIeUltraScaleOverlay(config: XDMAParams, params: PCIeOverlayParams)

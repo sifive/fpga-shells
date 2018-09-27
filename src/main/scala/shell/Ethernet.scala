@@ -10,7 +10,7 @@ import freechips.rocketchip.tilelink.TLBusWrapper
 import freechips.rocketchip.interrupts.IntInwardNode
 
 case class EthernetOverlayParams()(implicit val p: Parameters)
-case object EthernetOverlayKey extends Field[Seq[DesignOverlay[EthernetOverlayParams, ModuleValue[EthernetPads]]]](Nil)
+case object EthernetOverlayKey extends Field[Seq[DesignOverlay[EthernetOverlayParams, ModuleValue[EthernetPCS]]]](Nil)
 
 class EthernetPads extends Bundle {
   val tx_p = Output(Bool())
@@ -21,18 +21,22 @@ class EthernetPads extends Bundle {
   val refclk_n = Input(Clock())
 }
 
+class EthernetPCS extends Bundle {
+  val rx_clock = Output(Clock())
+  val rx_reset = Output(Bool())
+  val rx_d = Output(UInt(64.W))
+  val rx_c = Output(UInt(8.W))
+  val tx_clock = Output(Clock())
+  val tx_reset = Output(Bool())
+  val tx_d = Input(UInt(64.W))
+  val tx_c = Input(UInt(8.W))
+}
+
 abstract class EthernetOverlay(val params: EthernetOverlayParams)
-  extends IOOverlay[EthernetPads, ModuleValue[EthernetPads]]
+  extends IOOverlay[EthernetPads, ModuleValue[EthernetPCS]]
 {
   implicit val p = params.p
 
   def ioFactory = new EthernetPads
-  val padSource = BundleBridgeSource(() => new EthernetPads)
-  val padSink = shell { padSource.makeSink }
-
-  val designOutput = InModuleBody { padSource.bundle }
-
-  shell { InModuleBody {
-    io <> padSink.bundle
-  } }
+  val designOutput = InModuleBody { Wire(new EthernetPCS) }
 }
