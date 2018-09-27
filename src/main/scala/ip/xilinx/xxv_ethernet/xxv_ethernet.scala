@@ -145,12 +145,12 @@ class DiplomaticXXVEthernet(c: XXVEthernetParams)(implicit p:Parameters) extends
     blackbox.io.gt_refclk_n := io.pads.gt_refclk_n
 
     // clocks
-    io.clocks.tx_mii_clk_0      := blackbox.io.tx_mii_clk_0
-    io.clocks.user_rx_reset_0   := blackbox.io.user_rx_reset_0
-    io.clocks.user_tx_reset_0   := blackbox.io.user_tx_reset_0
-    blackbox.io.rx_core_clk_0             := io.clocks.rx_core_clk_0
-    blackbox.io.sys_reset                 := io.clocks.sys_reset
-    blackbox.io.dclk                      := io.clocks.dclk
+    io.clocks.tx_mii_clk_0    := blackbox.io.tx_mii_clk_0
+    io.clocks.user_rx_reset_0 := blackbox.io.user_rx_reset_0
+    io.clocks.user_tx_reset_0 := blackbox.io.user_tx_reset_0
+    blackbox.io.rx_core_clk_0 := io.clocks.rx_core_clk_0
+    blackbox.io.sys_reset     := io.clocks.sys_reset
+    blackbox.io.dclk          := io.clocks.dclk
 
     // MAC
     blackbox.io.tx_mii_d_0 := io.mac.tx_mii_d_0
@@ -165,7 +165,6 @@ class DiplomaticXXVEthernet(c: XXVEthernetParams)(implicit p:Parameters) extends
     blackbox.io.tx_reset_0                := false.B
     blackbox.io.gtwiz_reset_tx_datapath_0 := false.B
     blackbox.io.gtwiz_reset_rx_datapath_0 := false.B
-
     blackbox.io.gt_loopback_in_0 := false.B
     blackbox.io.ctl_rx_test_pattern_0 := false.B
     blackbox.io.ctl_rx_test_pattern_enable_0 := false.B
