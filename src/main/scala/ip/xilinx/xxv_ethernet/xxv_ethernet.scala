@@ -37,6 +37,8 @@ trait HasXXVEthernetClocks {
 
   val gtwiz_reset_tx_datapath_0 = Input(Bool()) // dclk
   val gtwiz_reset_rx_datapath_0 = Input(Bool())
+
+  val gtpowergood_out_0 = Output(Bool())
 }
 
 trait HasXXVEthernetControl {
@@ -97,7 +99,6 @@ trait HasXXVEthernetJunk {
   val stat_rx_status_0            = Output(Bool())
   val stat_tx_local_fault_0       = Output(Bool())
   val user_reg0_0                 = Output(UInt(32.W))
-  val gtpowergood_out_0           = Output(Bool())
 }
 
 class XXVEthernetBlackBoxIO extends Bundle
@@ -133,11 +134,14 @@ class XXVEthernetBlackBox(c: XXVEthernetParams) extends BlackBox
        |  CONFIG.CORE				{Ethernet PCS/PMA 64-bit}		\\
        |  CONFIG.BASE_R_KR			{BASE-R}				\\
        |  CONFIG.LINE_RATE			{${c.speed}}				\\
+       |  CONFIG.ENABLE_PIPELINE_REG		{1}					\\
        |  CONFIG.GT_REF_CLK_FREQ		{${c.MHz}}				\\
-       |  CONFIG.GT_DRP_CLK			{${c.MHz}}				\\
+       |  CONFIG.GT_DRP_CLK			{75}					\\
        |  CONFIG.INCLUDE_AXI4_INTERFACE		{1}					\\
        |] [get_ips ${desiredName}]
        |""".stripMargin)
+//       |  CONFIG.GT_GROUP_SELECT		{Quad_X1Y12}				\\
+//       |  CONFIG.LANE1_GT_LOC			{X1Y48}					\\
 // INCLUDE_USER_FIFO 0
 // TX_LATENCY_ADJUST 0
 // CLOCKIN Asynchronous
@@ -176,6 +180,24 @@ class DiplomaticXXVEthernet(c: XXVEthernetParams)(implicit p:Parameters) extends
     blackbox.io.gt_rxn_in_0 := io.pads.gt_rxn_in_0
     blackbox.io.gt_refclk_p := io.pads.gt_refclk_p
     blackbox.io.gt_refclk_n := io.pads.gt_refclk_n
+
+    // clocks
+    io.clocks.gt_refclk_out     := blackbox.io.gt_refclk_out
+    io.clocks.tx_mii_clk_0      := blackbox.io.tx_mii_clk_0
+    io.clocks.rx_clk_out_0      := blackbox.io.rx_clk_out_0
+    io.clocks.rxrecclkout_0     := blackbox.io.rxrecclkout_0
+    io.clocks.user_rx_reset_0   := blackbox.io.user_rx_reset_0
+    io.clocks.user_tx_reset_0   := blackbox.io.user_tx_reset_0
+    io.clocks.gtpowergood_out_0 := blackbox.io.gtpowergood_out_0
+    blackbox.io.rx_core_clk_0             := io.clocks.rx_core_clk_0
+    blackbox.io.s_axi_aclk_0              := io.clocks.s_axi_aclk_0
+    blackbox.io.s_axi_aresetn_0           := io.clocks.s_axi_aresetn_0
+    blackbox.io.sys_reset                 := io.clocks.sys_reset
+    blackbox.io.dclk                      := io.clocks.dclk
+    blackbox.io.rx_reset_0                := io.clocks.rx_reset_0
+    blackbox.io.tx_reset_0                := io.clocks.tx_reset_0
+    blackbox.io.gtwiz_reset_tx_datapath_0 := io.clocks.gtwiz_reset_tx_datapath_0
+    blackbox.io.gtwiz_reset_rx_datapath_0 := io.clocks.gtwiz_reset_rx_datapath_0
 
     // SL.AW
     sl.aw.ready := blackbox.io.s_axi_awready_0

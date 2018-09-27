@@ -60,7 +60,7 @@ abstract class PCIeUltraScaleOverlay(config: XDMAParams, params: PCIeOverlayPara
     pcie.module.io.clocks.sys_clk    := b.ODIV2
     pcie.module.io.clocks.sys_clk_gt := b.O
 
-    shell.sdc.addGroup(clocks = Seq(s"${name}_ref_clk", "pipe_clk"), pins = Seq(pcie.imp.module.blackbox.io.axi_aclk))
+    shell.sdc.addGroup(clocks = Seq(s"${name}_ref_clk"), pins = Seq(pcie.imp.module.blackbox.io.axi_aclk))
   }
 
   shell { InModuleBody {
