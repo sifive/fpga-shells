@@ -22,7 +22,7 @@ class IBUFDS(
   CAPACITANCE : String = "DONT_CARE",
   DIFF_TERM : Boolean = false,
   DQS_BIAS : Boolean = false,
-  IBUF_DELAY_VALUE : Int = 0,
+  IBUF_DELAY_VALUE : String = "0",
   IBUF_LOW_PWR : Boolean = true,
   IFD_DELAY_VALUE : String = "AUTO",
   IOSTANDARD : String = "DEFAULT"
@@ -32,7 +32,7 @@ extends BlackBox(
   "CAPACITANCE" -> StringParam(CAPACITANCE),
   "DIFF_TERM" -> booleanToVerilogStringParam(DIFF_TERM),
   "DQS_BIAS" -> booleanToVerilogStringParam(DQS_BIAS),
-  "IBUF_DELAY_VALUE" -> IntParam(IBUF_DELAY_VALUE),
+  "IBUF_DELAY_VALUE" -> StringParam(IBUF_DELAY_VALUE),
   "IBUF_LOW_PWR" -> booleanToVerilogStringParam(IBUF_LOW_PWR),
   "IFD_DELAY_VALUE" -> StringParam(IFD_DELAY_VALUE),
   "IOSTANDARD" -> StringParam(IOSTANDARD)
