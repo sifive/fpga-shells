@@ -33,12 +33,13 @@ trait HasXXVEthernetMAC {
   val tx_mii_d_0 = Input (UInt(64.W))
   val rx_mii_c_0 = Output(UInt(8.W))
   val tx_mii_c_0 = Input (UInt(8.W))
+
+  val gt_loopback_in_0 = Input(UInt(3.W))
+  val stat_rx_block_lock_0 = Output(Bool())
 }
 
 trait HasXXVEthernetJunk {
   // Unused loopback test stuff
-  val gt_loopback_in_0 = Input(Bool())
-
   val ctl_rx_test_pattern_0 = Input(Bool())
   val ctl_rx_test_pattern_enable_0 = Input(Bool())
   val ctl_rx_data_pattern_select_0 = Input(Bool())
@@ -67,7 +68,6 @@ trait HasXXVEthernetJunk {
   val txoutclksel_in_0 = Input(UInt(3.W))
   val rxoutclksel_in_0 = Input(UInt(3.W))
 
-  val stat_rx_block_lock_0        = Output(Bool())
   val stat_rx_framing_err_valid_0 = Output(Bool())
   val stat_rx_framing_err_0       = Output(Bool())
   val stat_rx_hi_ber_0            = Output(Bool())
@@ -157,15 +157,16 @@ class DiplomaticXXVEthernet(c: XXVEthernetParams)(implicit p:Parameters) extends
     blackbox.io.tx_mii_c_0 := io.mac.tx_mii_c_0
     io.mac.rx_mii_d_0 := blackbox.io.rx_mii_d_0
     io.mac.rx_mii_c_0 := blackbox.io.rx_mii_c_0
+    blackbox.io.gt_loopback_in_0 := io.mac.gt_loopback_in_0
+    io.mac.stat_rx_block_lock_0 := blackbox.io.stat_rx_block_lock_0
 
     // Junk
     blackbox.io.txoutclksel_in_0 := 5.U
     blackbox.io.rxoutclksel_in_0 := 5.U
-    blackbox.io.rx_reset_0                := false.B
-    blackbox.io.tx_reset_0                := false.B
-    blackbox.io.gtwiz_reset_tx_datapath_0 := false.B
-    blackbox.io.gtwiz_reset_rx_datapath_0 := false.B
-    blackbox.io.gt_loopback_in_0 := false.B
+    blackbox.io.rx_reset_0                := io.clocks.sys_reset
+    blackbox.io.tx_reset_0                := io.clocks.sys_reset
+    blackbox.io.gtwiz_reset_tx_datapath_0 := io.clocks.sys_reset
+    blackbox.io.gtwiz_reset_rx_datapath_0 := io.clocks.sys_reset
     blackbox.io.ctl_rx_test_pattern_0 := false.B
     blackbox.io.ctl_rx_test_pattern_enable_0 := false.B
     blackbox.io.ctl_rx_data_pattern_select_0 := false.B

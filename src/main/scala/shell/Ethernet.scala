@@ -30,6 +30,9 @@ class EthernetPCS extends Bundle {
   val tx_reset = Output(Bool())
   val tx_d = Input(UInt(64.W))
   val tx_c = Input(UInt(8.W))
+  val loopback = Input(UInt(3.W))
+  val rx_lock = Output(Bool())
+  val sfp_detect = Output(Bool())
 }
 
 abstract class EthernetOverlay(val params: EthernetOverlayParams)
