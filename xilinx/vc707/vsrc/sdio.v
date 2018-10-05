@@ -17,8 +17,8 @@ module sdio_spi_bridge (
 );
 
   wire mosi, miso;
-  reg miso_sync [1:0];
-
+  //reg miso_sync [1:0];
+(* extract_reset = "yes" *) reg miso_sync [1:0];
   assign mosi = spi_dq_o[0];
   assign spi_dq_i = {2'b00, miso_sync[1], 1'b0};
 
