@@ -170,7 +170,7 @@ abstract class ArtyShell(implicit val p: Parameters) extends RawModule {
         dut.qspi(0),
         dut.clock,
         dut.reset,
-        syncStages = 0
+        syncStages = qspi_params.defaultSampleDel
       )
 
       IOBUF(qspi_sck, dut.qspi(0).sck)
