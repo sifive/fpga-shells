@@ -15,8 +15,7 @@ trait HasMemoryPolarFireEvalKitDDR3 { this: BaseSubsystem =>
 
   val polarfireddrsubsys = LazyModule(new PolarFireEvalKitDDR3(p(MemoryMicrosemiDDR3Key)))
 
-  require(nMemoryChannels == 1, "Coreplex must have 1 master memory port")
-  polarfireddrsubsys.node := memBuses.head.toDRAMController(Some("PolarFireDDR"))()
+  polarfireddrsubsys.node := mbus.toDRAMController(Some("PolarFireDDR"))()
 }
 
 trait HasMemoryPolarFireEvalKitDDR3Bundle {

@@ -13,8 +13,7 @@ trait HasMemoryXilinxVCU118MIG { this: BaseSubsystem =>
 
   val xilinxvcu118mig = LazyModule(new XilinxVCU118MIG(p(MemoryXilinxDDRKey)))
 
-  require(nMemoryChannels == 1, "Core complex must have 1 master memory port")
-  xilinxvcu118mig.node := memBuses.head.toDRAMController(Some("xilinxvcu118mig"))()
+  xilinxvcu118mig.node := mbus.toDRAMController(Some("xilinxvcu118mig"))()
 }
 
 trait HasMemoryXilinxVCU118MIGBundle {
