@@ -353,3 +353,18 @@ object PULLUP {
     }
 }
 
+/** KEEPER : can be applied to I/O to hold its last value since driven. */
+
+class KEEPER extends BlackBox {
+  val io = IO(new Bundle { 
+    val O = Analog(1.W)
+  })
+}
+
+object KEEPER {
+    def apply (pin: Analog): Unit = {
+    val pullup = Module(new KEEPER())
+    attach(pullup.io.O, pin)
+    }
+}
+
