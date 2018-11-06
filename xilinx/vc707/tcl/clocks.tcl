@@ -31,6 +31,9 @@ set group_cl  [get_clocks -quiet {chiplink_b2c_clock              \
                                   clk_out*_vc707_sys_clock_mmcm3}]
 set group_pci [get_clocks -quiet {userclk1 txoutclk}]
 
+create_clock -add -name JTCK        -period 100   -waveform {0 50} [get_ports {jtag_TCK}]
+create_clock -add -name ULPI_CLK  -period 16.667 [get_ports {ulpi_clk}];
+
 set group_jtag [get_clocks -quiet {JTCK}]
 
 set group_ulpi [get_clocks -quiet {ULPI_CLK}]
