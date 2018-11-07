@@ -15,20 +15,20 @@ case object UARTOverlayKey extends Field[Seq[DesignOverlay[UARTOverlayParams, TL
 
 // Tack on cts, rts signals available on some FPGAs. They are currently unused
 // by our designs.
-class FPGAUARTPortIO extends UARTPortIO {
-  val rtsn = Output(Bool())
-  val ctsn = Input(Bool())
+class FPGAUARTPortIO(flowControl: Boolean) extends UARTPortIO {
+  val rtsn = if (flowControl) Some(Output(Bool())) else None
+  val ctsn = if (flowControl) Some(Input(Bool())) else None
 }
 
 //class UARTReplacementBundle extends Bundle with HasUARTTopBundleContents
 
 abstract class UARTOverlay(
-  val params: UARTOverlayParams)
+  val params: UARTOverlayParams, flowControl: Boolean)
     extends IOOverlay[FPGAUARTPortIO, TLUART]
 {
   implicit val p = params.p
 
-  def ioFactory = new FPGAUARTPortIO
+  def ioFactory = new FPGAUARTPortIO(flowControl)
 
   val tluart = UART.attach(UARTAttachParams(params.uartParams, params.divInit, params.controlBus, params.intNode))
   val tluartSink = tluart.ioNode.makeSink
@@ -49,6 +49,6 @@ abstract class UARTOverlay(
     uartSink.bundle.rxd := io.rxd
 
     // Some FPGAs have this, we don't use it.
-    io.rtsn := false.B
+    // io.rtsn := false.B
   } }
 }
