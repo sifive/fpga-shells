@@ -51,6 +51,7 @@ abstract class EthernetMAC(busWidthBytes: Int, base: BigInt)(implicit p: Paramet
     val txen = RegInit(false.B)
     val rxen = RegInit(false.B)
     val loop = RegInit(0.U(3.W))
+    val skip = RegInit(false.B)
     val last = RegInit(true.B)
     val rxQ  = Module(new AsyncQueue(new EtherBeat, params=AsyncQueueParams(depth=16)))
     val txQ  = Module(new AsyncQueue(new EtherBeat, params=AsyncQueueParams(depth=16)))
@@ -79,14 +80,15 @@ abstract class EthernetMAC(busWidthBytes: Int, base: BigInt)(implicit p: Paramet
         RegField(1, rxen, RegFieldDesc("rx_en", "RX Enable", reset=Some(0))),
         RegField(1),
         RegField(1, last, RegFieldDesc("last", "Last frame", reset=Some(1))),
-        RegField(3, loop, RegFieldDesc("loop",  "TX-RX PCS Loopback", reset=Some(0))),
-        RegField(9),
+        RegField(3, loop, RegFieldDesc("loop", "TX-RX PCS Loopback", reset=Some(0))),
+        RegField(1, skip, RegFieldDesc("skip", "Bypass RX-TX directly", reset=Some(0))),
+        RegField(8),
         RegField.r(1, txQ.io.enq.ready, RegFieldDesc("tx_ready", "TX Ready")),
         RegField.r(1, rxQ.io.deq.valid, RegFieldDesc("rx_valid", "RX Valid")),
         RegField.r(1, port.pcs.tx_reset, RegFieldDesc("tx_reset", "TX Reset")),
         RegField.r(1, port.pcs.rx_reset, RegFieldDesc("rx_reset", "RX Reset")),
         RegField.r(1, mac.io.tx_axis_tready,  RegFieldDesc("mac_ready", "MAC Ready")),
-        RegField.r(1, port.pcs.rx_lock, RegFieldDesc("rx_lock", "RX Lock")),
+//        RegField.r(1, port.pcs.rx_lock, RegFieldDesc("rx_lock", "RX Lock")),
         RegField.r(1, port.pcs.sfp_detect, RegFieldDesc("sfp_detect", "SFP Detect")))),
       16 -> RegFieldGroup("tx", Some("TX Data Queue"), Seq(RegField.w(64, RegWriteFn((valid, data) => {
         txQ.io.enq.valid := valid;
@@ -97,18 +99,26 @@ abstract class EthernetMAC(busWidthBytes: Int, base: BigInt)(implicit p: Paramet
         rxQ.io.deq.ready := ready
         (rxQ.io.deq.valid, rxQ.io.deq.bits.data)}))))) // discards last
 
-    txO.ready := mac.io.tx_axis_tready && txen
-    mac.io.tx_axis_tvalid := txO.valid && txen
+    val tx_txen = withClockAndReset(port.pcs.tx_clock, port.pcs.tx_reset) { RegNext(RegNext(txen)) }
+    txO.ready := mac.io.tx_axis_tready && tx_txen
+    mac.io.tx_axis_tvalid := txO.valid && tx_txen
     mac.io.tx_axis_tdata  := txO.bits.data
     mac.io.tx_axis_tlast  := txO.bits.last
     mac.io.tx_axis_tkeep  := 0xff.U
     mac.io.tx_axis_tuser  := 0.U
 
     // rxQ.io ready is ignored; loss of packets can happen
-    rxI.valid := mac.io.rx_axis_tvalid && rxen
+    val rx_rxen = withClockAndReset(port.pcs.rx_clock, port.pcs.rx_reset) { RegNext(RegNext(rxen)) }
+    rxI.valid := mac.io.rx_axis_tvalid && rx_rxen
     rxI.bits.data := mac.io.rx_axis_tdata
     rxI.bits.last := mac.io.rx_axis_tlast
     // ignore tkeep/tuser
+
+    when (withClockAndReset(port.pcs.tx_clock, port.pcs.tx_reset) { RegNext(RegNext(skip)) } ) {
+      txO.ready := rxI.ready
+      rxI.valid := txO.valid
+      rxI.bits := txO.bits
+    }
   }
 }
 
