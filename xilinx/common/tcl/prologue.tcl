@@ -66,6 +66,8 @@ set ipdir [file join $wrkdir ip]
 # Create an in-memory project
 create_project -part $part_fpga -force $top
 
+set_param messaging.defaultLimit 1000000
+
 # Set the board part, target language, default library, and IP directory
 # paths for the current project
 set_property -dict [list \
