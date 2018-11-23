@@ -149,6 +149,7 @@ module xgmii2axis (
         
         if (rst) begin  // rst
             tvalid_i <= 1'b0;
+            tvalid_d0 <= 1'b0;
             fsm <= SRES;
         end
 
