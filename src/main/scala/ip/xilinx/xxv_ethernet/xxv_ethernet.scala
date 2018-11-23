@@ -118,11 +118,6 @@ class XXVEthernetBlackBox(c: XXVEthernetParams) extends BlackBox
        |  CONFIG.GT_DRP_CLK			{${c.dclkMHz}}				\\
        |] [get_ips ${desiredName}]
        |""".stripMargin)
-//       |  CONFIG.GT_GROUP_SELECT		{Quad_X1Y12}				\\
-//       |  CONFIG.LANE1_GT_LOC			{X1Y48}					\\
-// INCLUDE_USER_FIFO 0
-// TX_LATENCY_ADJUST 0
-// CLOCKIN Asynchronous
 }
 
 class DiplomaticXXVEthernet(c: XXVEthernetParams)(implicit p:Parameters) extends LazyModule
