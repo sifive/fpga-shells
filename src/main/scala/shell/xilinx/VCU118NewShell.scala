@@ -13,6 +13,7 @@ import sifive.fpgashells.ip.xilinx._
 import sifive.blocks.devices.chiplink._
 import sifive.fpgashells.devices.xilinx.xilinxvcu118mig._
 import sifive.fpgashells.devices.xilinx.xdma._
+import sifive.fpgashells.ip.xilinx.xxv_ethernet._
 
 class SysClockVCU118Overlay(val shell: VCU118Shell, val name: String, params: ClockInputOverlayParams)
   extends LVDSClockInputXilinxOverlay(params)
@@ -24,6 +25,19 @@ class SysClockVCU118Overlay(val shell: VCU118Shell, val name: String, params: Cl
     shell.xdc.addPackagePin(io.n, "D12")
     shell.xdc.addIOStandard(io.p, "DIFF_SSTL12")
     shell.xdc.addIOStandard(io.n, "DIFF_SSTL12")
+  } }
+}
+
+class RefClockVCU118Overlay(val shell: VCU118Shell, val name: String, params: ClockInputOverlayParams)
+  extends LVDSClockInputXilinxOverlay(params)
+{
+  val node = shell { ClockSourceNode(freqMHz = 125, jitterPS = 50)(ValName(name)) }
+
+  shell { InModuleBody {
+    shell.xdc.addPackagePin(io.p, "AY24")
+    shell.xdc.addPackagePin(io.n, "AY23")
+    shell.xdc.addIOStandard(io.p, "LVDS")
+    shell.xdc.addIOStandard(io.n, "LVDS")
   } }
 }
 
@@ -63,6 +77,50 @@ class UARTVCU118Overlay(val shell: VCU118Shell, val name: String, params: UARTOv
       shell.xdc.addIOStandard(io, "LVCMOS18")
       shell.xdc.addIOB(io)
     } }
+  } }
+}
+
+class QSFP1VCU118Overlay(val shell: VCU118Shell, val name: String, params: EthernetOverlayParams)
+  extends EthernetUltraScaleOverlay(XXVEthernetParams(
+    name    = name,
+    speed   = 10,
+    dclkMHz = 125), params)
+{
+  val dclkSource = shell { BundleBridgeSource(() => Clock()) }
+  val dclkSink = dclkSource.makeSink()
+  InModuleBody {
+    dclk := dclkSink.bundle
+  }
+  shell { InModuleBody {
+    dclkSource.bundle := shell.ref_clock.get.node.out(0)._1.clock
+    shell.xdc.addPackagePin(io.tx_p, "V7")
+    shell.xdc.addPackagePin(io.tx_n, "V6")
+    shell.xdc.addPackagePin(io.rx_p, "Y2")
+    shell.xdc.addPackagePin(io.rx_n, "Y1")
+    shell.xdc.addPackagePin(io.refclk_p, "W9")
+    shell.xdc.addPackagePin(io.refclk_n, "W8")
+  } }
+}
+
+class QSFP2VCU118Overlay(val shell: VCU118Shell, val name: String, params: EthernetOverlayParams)
+  extends EthernetUltraScaleOverlay(XXVEthernetParams(
+    name    = name,
+    speed   = 10,
+    dclkMHz = 125), params)
+{
+  val dclkSource = shell { BundleBridgeSource(() => Clock()) }
+  val dclkSink = dclkSource.makeSink()
+  InModuleBody {
+    dclk := dclkSink.bundle
+  }
+  shell { InModuleBody {
+    dclkSource.bundle := shell.ref_clock.get.node.out(0)._1.clock
+    shell.xdc.addPackagePin(io.tx_p, "L5")
+    shell.xdc.addPackagePin(io.tx_n, "L4")
+    shell.xdc.addPackagePin(io.rx_p, "T2")
+    shell.xdc.addPackagePin(io.rx_n, "T1")
+    shell.xdc.addPackagePin(io.refclk_p, "R9")
+    shell.xdc.addPackagePin(io.refclk_n, "R8")
   } }
 }
 
@@ -275,6 +333,7 @@ class VCU118Shell()(implicit p: Parameters) extends UltraScaleShell
 
   // Order matters; ddr depends on sys_clock
   val sys_clock = Overlay(ClockInputOverlayKey)(new SysClockVCU118Overlay (_, _, _))
+  val ref_clock = Overlay(ClockInputOverlayKey)(new RefClockVCU118Overlay (_, _, _))
   val led       = Overlay(LEDOverlayKey)       (new LEDVCU118Overlay      (_, _, _))
   val switch    = Overlay(SwitchOverlayKey)    (new SwitchVCU118Overlay   (_, _, _))
   val chiplink  = Overlay(ChipLinkOverlayKey)  (new ChipLinkVCU118Overlay (_, _, _))
@@ -284,11 +343,17 @@ class VCU118Shell()(implicit p: Parameters) extends UltraScaleShell
   val uart      = Overlay(UARTOverlayKey)      (new UARTVCU118Overlay     (_, _, _))
   val sdio      = Overlay(SDIOOverlayKey)      (new SDIOVCU118Overlay     (_, _, _))
   val jtag      = Overlay(JTAGDebugOverlayKey) (new JTAGDebugVCU118Overlay(_, _, _))
+  val qsfp1     = Overlay(EthernetOverlayKey)  (new QSFP1VCU118Overlay    (_, _, _))
+  val qsfp2     = Overlay(EthernetOverlayKey)  (new QSFP2VCU118Overlay    (_, _, _))
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
   // Place the sys_clock at the Shell if the user didn't ask for it
-  p(ClockInputOverlayKey).foreach(_(ClockInputOverlayParams()))
+  designParameters(ClockInputOverlayKey).foreach { unused =>
+    val source = unused(ClockInputOverlayParams())
+    val sink = ClockSinkNode(Seq(ClockSinkParameters()))
+    sink := source
+  }
 
   override lazy val module = new LazyRawModuleImp(this) {
     val reset = IO(Input(Bool()))
