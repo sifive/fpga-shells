@@ -188,7 +188,6 @@ case class XDMAParams(
   sIDBits:  Int    = 4)
 {
   require (!bars.isEmpty)
-  require (control >> 32 << 32 == control)
   require (lanes >= 1 && lanes <= 16 && isPow2(lanes))
   require (gen >= 1  && gen <= 3)
   require (addrBits == 32 || addrBits == 64)
@@ -201,6 +200,10 @@ case class XDMAParams(
   val busBytes = busBytesAt250MHz max 8
   private val minMHz = 250.0 * busBytesAt250MHz / busBytes
   val axiMHz = minMHz max 62.5
+
+  val ecamSize = 0x4000000
+  val ecamMask = ecamSize - 1
+  require ((control & ecamMask) == 0)
 }
 
 class XDMABlackBox(c: XDMAParams) extends BlackBox
@@ -290,7 +293,7 @@ class DiplomaticXDMA(c: XDMAParams)(implicit p:Parameters) extends LazyModule
 
   val control = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
     slaves = Seq(AXI4SlaveParameters(
-      address       = List(AddressSet(c.control, 0x3ffffffL)), // when truncated to 32-bits, is 0
+      address       = List(AddressSet(c.control, c.ecamMask)),
       resources     = device.reg("control"),
       supportsWrite = TransferSizes(1, 4),
       supportsRead  = TransferSizes(1, 4),
@@ -434,13 +437,13 @@ class DiplomaticXDMA(c: XDMAParams)(implicit p:Parameters) extends LazyModule
     // SL.AW
     t.aw.ready := blackbox.io.s_axil_awready
     blackbox.io.s_axil_awvalid := t.aw.valid
-    blackbox.io.s_axil_awaddr := t.aw.bits.addr
+    blackbox.io.s_axil_awaddr := t.aw.bits.addr & c.ecamMask.U
     blackbox.io.s_axil_awprot := t.aw.bits.prot
 
     // SL.AR
     t.ar.ready := blackbox.io.s_axil_arready
     blackbox.io.s_axil_arvalid := t.ar.valid
-    blackbox.io.s_axil_araddr := t.ar.bits.addr
+    blackbox.io.s_axil_araddr := t.ar.bits.addr & c.ecamMask.U
     blackbox.io.s_axil_arprot := t.ar.bits.prot
 
     // SL.W
