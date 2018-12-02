@@ -30,7 +30,7 @@ source [file join $scriptdir "route.tcl"]
 source [file join $scriptdir "bitstream.tcl"]
 
 # Post-implementation debug
-if {[info exists post_impl_debug_tcl)]} {
+if {[info exists post_impl_debug_tcl]} {
   source [file join $scriptdir $post_impl_debug_tcl]
 }
 
