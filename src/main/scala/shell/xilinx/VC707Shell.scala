@@ -55,6 +55,27 @@ trait HasPCIe { this: VC707Shell =>
 
     pcie <> dut.xilinxvc707pcie
   }
+  ElaborationArtefacts.add(
+    """vc707pcie.vivado.tcl""",
+    """set vc707pcie_vivado_tcl_dir [file dirname [file normalize [info script]]]
+       add_files -fileset [current_fileset -constrset] [glob -directory $vc707pcie_vivado_tcl_dir {*.vc707pcie.xdc}]"""
+    )
+
+  ElaborationArtefacts.add(
+    """vc707pcie.xdc""",
+    """
+    set_property PACKAGE_PIN A10 [get_ports {pcie_REFCLK_rxp}]
+    set_property PACKAGE_PIN A9 [get_ports {pcie_REFCLK_rxn}]
+    create_clock -name pcie_ref_clk -period 10 [get_ports pcie_REFCLK_rxp]
+    set_input_jitter [get_clocks -of_objects [get_ports pcie_REFCLK_rxp]] 0.5
+    
+    set_property PACKAGE_PIN H4 [get_ports {pcie_pci_exp_txp}]
+    set_property PACKAGE_PIN H3 [get_ports {pcie_pci_exp_txn}]
+    
+    set_property PACKAGE_PIN G6 [get_ports {pcie_pci_exp_rxp}]
+    set_property PACKAGE_PIN G5 [get_ports {pcie_pci_exp_rxn}]
+    """
+  )
 }
 
 trait HasDebugJTAG { this: VC707Shell =>
@@ -64,7 +85,7 @@ trait HasDebugJTAG { this: VC707Shell =>
   val jtag_TDI             = IO(Input(Bool()))
   val jtag_TDO             = IO(Output(Bool()))
 
-  def connectDebugJTAG(dut: HasPeripheryDebugModuleImp, fmcxm105: Boolean = true): SystemJTAGIO = {
+  def connectDebugJTAG(djtag: SystemJTAGIO, fmcxm105: Boolean, ndreset: Bool): SystemJTAGIO = {
   
     ElaborationArtefacts.add(
     """debugjtag.vivado.tcl""",
@@ -104,12 +125,10 @@ trait HasDebugJTAG { this: VC707Shell =>
            set_property -dict { PACKAGE_PIN AR38  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TMS}]
            set_property -dict { PACKAGE_PIN AR39  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDI}]
            set_property -dict { PACKAGE_PIN AT40  IOSTANDARD LVCMOS18  PULLUP TRUE } [get_ports {jtag_TDO}]
-           create_clock -add -name JTCK        -period 100   -waveform {0 50} [get_ports {jtag_TCK}];"""
+           # create_clock -add -name JTCK        -period 100   -waveform {0 50} [get_ports {jtag_TCK}];"""
       )
     }
    
-    val djtag     = dut.debug.systemjtag.get
-
     djtag.jtag.TCK := jtag_TCK
     djtag.jtag.TMS := jtag_TMS
     djtag.jtag.TDI := jtag_TDI
@@ -118,9 +137,14 @@ trait HasDebugJTAG { this: VC707Shell =>
     djtag.mfr_id   := p(JtagDTMKey).idcodeManufId.U(11.W)
 
     djtag.reset    := PowerOnResetFPGAOnly(dut_clock)
-    dut_ndreset    := dut.debug.ndreset
+    dut_ndreset    := ndreset
     djtag
   }
+
+
+  def connectDebugJTAG(dut: HasPeripheryDebugModuleImp, fmcxm105: Boolean = true): SystemJTAGIO =
+    connectDebugJTAG(dut.debug.systemjtag.get, fmcxm105, dut.debug.ndreset)
+
 }
 
 trait HasVC707ChipLink { this: VC707Shell =>
@@ -558,25 +582,27 @@ abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
 
   uart_rtsn := false.B
 
-  def connectUART(dut: HasPeripheryUARTModuleImp): Unit = {
-    val uartParams = p(PeripheryUARTKey)
-    if (!uartParams.isEmpty) {
-      // uart connections
-      dut.uart(0).rxd := SyncResetSynchronizerShiftReg(uart_rx, 2, init = Bool(true), name=Some("uart_rxd_sync"))
-      uart_tx         := dut.uart(0).txd
-    }
+  def connectUART(dut: HasPeripheryUARTModuleImp): Unit =
+    dut.uart.lift(0).map { connectUART(_)}
+
+  def connectUART(uart: UARTPortIO): Unit = {
+    uart.rxd := SyncResetSynchronizerShiftReg(uart_rx, 2, init = Bool(true), name=Some("uart_rxd_sync"))
+    uart_tx  := uart.txd
   }
+
 
   //-----------------------------------------------------------------------
   // SPI
   //-----------------------------------------------------------------------
-
   def connectSPI(dut: HasPeripherySPIModuleImp): Unit = {
+    dut.spi.lift(0).map { connectSPI(_) }
+  }
+  def connectSPI(spi: SPIPortIO): Unit = {
     // SPI
-    sd_spi_sck := dut.spi(0).sck
-    sd_spi_cs  := dut.spi(0).cs(0)
+    sd_spi_sck := spi.sck
+    sd_spi_cs  := spi.cs(0)
 
-    dut.spi(0).dq.zipWithIndex.foreach {
+    spi.dq.zipWithIndex.foreach {
       case(pin, idx) =>
         sd_spi_dq_o(idx) := pin.o
         pin.i            := sd_spi_dq_i(idx)
