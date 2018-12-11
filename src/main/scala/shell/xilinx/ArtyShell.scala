@@ -160,26 +160,19 @@ abstract class ArtyShell(implicit val p: Parameters) extends RawModule {
   // SPI Flash
   //-----------------------------------------------------------------------
 
-  def connectSPIFlash(dut: HasPeripherySPIFlashModuleImp): Unit = {
-    val qspiParams = p(PeripherySPIFlashKey)
-    if (!qspiParams.isEmpty) {
-      val qspi_params = qspiParams(0)
-      val qspi_pins = Wire(new SPIPins(() => {new BasePin()}, qspi_params))
+  def connectSPIFlash(dut: HasPeripherySPIFlashModuleImp): Unit = dut.qspi.headOption.foreach {
+    connectSPIFlash(_, dut.clock, dut.reset)
+  }
 
-      SPIPinsFromPort(qspi_pins,
-        dut.qspi(0),
-        dut.clock,
-        dut.reset,
-        syncStages = qspi_params.defaultSampleDel
-      )
+  def connectSPIFlash(qspi: SPIPortIO, clock: Clock, reset: Bool): Unit = {
+    val qspi_pins = Wire(new SPIPins(() => {new BasePin()}, qspi.c))
 
-      IOBUF(qspi_sck, dut.qspi(0).sck)
-      IOBUF(qspi_cs,  dut.qspi(0).cs(0))
+    SPIPinsFromPort(qspi_pins, qspi, clock, reset, syncStages = qspi.c.defaultSampleDel)
 
-      (qspi_dq zip qspi_pins.dq).foreach {
-        case(a, b) => IOBUF(a,b)
-      }
-    }
+    IOBUF(qspi_sck, qspi.sck)
+    IOBUF(qspi_cs,  qspi.cs(0))
+
+    (qspi_dq zip qspi_pins.dq).foreach { case(a, b) => IOBUF(a, b) }
   }
 
   //---------------------------------------------------------------------
@@ -236,12 +229,11 @@ abstract class ArtyShell(implicit val p: Parameters) extends RawModule {
   // UART
   //---------------------------------------------------------------------
 
-  def connectUART(dut: HasPeripheryUARTModuleImp): Unit = {
-    val uartParams = p(PeripheryUARTKey)
-    if (!uartParams.isEmpty) {
-      IOBUF(uart_rxd_out, dut.uart(0).txd)
-      dut.uart(0).rxd := IOBUF(uart_txd_in)
-    }
+  def connectUART(dut: HasPeripheryUARTModuleImp): Unit = dut.uart.headOption.foreach(connectUART)
+
+  def connectUART(uart: UARTPortIO): Unit = {
+    IOBUF(uart_rxd_out, uart.txd)
+    uart.rxd := IOBUF(uart_txd_in)
   }
 
 }

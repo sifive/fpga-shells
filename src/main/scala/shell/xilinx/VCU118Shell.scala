@@ -226,25 +226,25 @@ abstract class VCU118Shell(implicit val p: Parameters) extends RawModule {
 
   uart_rtsn := false.B
 
-  def connectUART(dut: HasPeripheryUARTModuleImp): Unit = {
-    val uartParams = p(PeripheryUARTKey)
-    if (!uartParams.isEmpty) {
-      // uart connections
-      dut.uart(0).rxd := SyncResetSynchronizerShiftReg(uart_rx, 2, init = Bool(true), name=Some("uart_rxd_sync"))
-      uart_tx         := dut.uart(0).txd
-    }
+  def connectUART(dut: HasPeripheryUARTModuleImp): Unit = dut.uart.headOption.foreach(connectUART)
+
+  def connectUART(uart: UARTPortIO): Unit = {
+    uart.rxd := SyncResetSynchronizerShiftReg(uart_rx, 2, init = Bool(true), name=Some("uart_rxd_sync"))
+    uart_tx  := uart.txd
   }
 
   //-----------------------------------------------------------------------
   // SPI
   //-----------------------------------------------------------------------
 
-  def connectSPI(dut: HasPeripherySPIModuleImp): Unit = {
-    // SPI
-    sd_spi_sck := dut.spi(0).sck
-    sd_spi_cs  := dut.spi(0).cs(0)
+  def connectSPI(dut: HasPeripherySPIModuleImp): Unit = dut.spi.headOption.foreach(connectSPI)
 
-    dut.spi(0).dq.zipWithIndex.foreach {
+  def connectSPI(spi: SPIPortIO): Unit = {
+    // SPI
+    sd_spi_sck := spi.sck
+    sd_spi_cs  := spi.cs(0)
+
+    spi.dq.zipWithIndex.foreach {
       case(pin, idx) =>
         sd_spi_dq_o(idx) := pin.o
         pin.i            := sd_spi_dq_i(idx)

@@ -633,27 +633,26 @@ abstract class PolarFireEvalKitShell(implicit val p: Parameters) extends RawModu
   // UART
   //-----------------------------------------------------------------------
 
-  def connectUART(dut: HasPeripheryUARTModuleImp): Unit = {
-    val uartParams = p(PeripheryUARTKey)
-    if (!uartParams.isEmpty) {
-      // uart connections
-      dut.uart(0).rxd := SyncResetSynchronizerShiftReg(uart_rx, 2, init = Bool(true), name=Some("uart_rxd_sync"))
-      uart_tx         := dut.uart(0).txd
-    }
+  def connectUART(dut: HasPeripheryUARTModuleImp): Unit = dut.uart.headOption.foreach(connectUART)
+
+  def connectUART(uart: UARTPortIO): Unit = {
+    uart.rxd := SyncResetSynchronizerShiftReg(uart_rx, 2, init = Bool(true), name=Some("uart_rxd_sync"))
+    uart_tx      := uart.txd
   }
 
   //-----------------------------------------------------------------------
   // SPI
   //-----------------------------------------------------------------------
 
-  def connectSPI(dut: HasPeripherySPIModuleImp): Unit = {
-    // SPI
+  def connectSPI(dut: HasPeripherySPIModuleImp): Unit = dut.spi.headOption.foreach(connectSPI)
+
+  def connectSPI(spi: SPIPortIO): Unit = {
     spi_flash_reset := fpga_reset
     spi_flash_wp    := UInt("b0")
     spi_flash_hold  := UInt("b0")
-    spi_flash_sck   := dut.spi(0).sck
-    spi_flash_ss    := dut.spi(0).cs(0)
-    spi_flash_sdo   := dut.spi(0).dq(0).o
-    dut.spi(0).dq(0).i := spi_flash_sdi
+    spi_flash_sck   := spi.sck
+    spi_flash_ss    := spi.cs(0)
+    spi_flash_sdo   := spi.dq(0).o
+    spi.dq(0).i := spi_flash_sdi
   }
 }
