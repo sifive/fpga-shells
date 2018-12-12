@@ -77,6 +77,7 @@ class XilinxArty100TMIGIsland(c : XilinxArty100TMIGParams, val crossing: ClockCr
     //inputs
     //NO_BUFFER clock
     blackbox.io.sys_clk_i     := io.port.sys_clk_i
+    blackbox.io.clk_ref_i     := io.port.clk_ref_i
 
     io.port.ui_clk            := blackbox.io.ui_clk
     io.port.ui_clk_sync_rst   := blackbox.io.ui_clk_sync_rst

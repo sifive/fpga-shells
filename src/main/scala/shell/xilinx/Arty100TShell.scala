@@ -15,7 +15,7 @@ import sifive.fpgashells.devices.xilinx.xilinxarty100tmig._
 class SysClockArtyOverlay(val shell: Arty100TShell, val name: String, params: ClockInputOverlayParams)
   extends SingleEndedClockInputXilinxOverlay(params)
 {
-  val node = shell { ClockSourceNode(freqMHz = 200, jitterPS = 50)(ValName(name)) }
+  val node = shell { ClockSourceNode(freqMHz = 100, jitterPS = 50)(ValName(name)) }
 
   shell { InModuleBody {
     val clk: Clock = io
@@ -24,8 +24,7 @@ class SysClockArtyOverlay(val shell: Arty100TShell, val name: String, params: Cl
   } }
 }
 
-//PMOD JA used for SDIO. Pins may need to be remapped based on pinout of header
-//TODO: CD,WP?
+//PMOD JA used for SDIO
 class SDIOArtyOverlay(val shell: Arty100TShell, val name: String, params: SDIOOverlayParams)
   extends SDIOXilinxOverlay(params)
 {
@@ -52,8 +51,8 @@ class UARTArtyOverlay(val shell: Arty100TShell, val name: String, params: UARTOv
   extends UARTXilinxOverlay(params, false)
 {
   shell { InModuleBody {
-    val packagePinsWithPackageIOs = Seq(("D10", IOPin(io.rxd)),
-      ("A9", IOPin(io.txd)))
+    val packagePinsWithPackageIOs = Seq(("A9", IOPin(io.rxd)),
+      ("D10", IOPin(io.txd)))
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
@@ -97,11 +96,17 @@ class DDRArtyOverlay(val shell: Arty100TShell, val name: String, params: DDROver
 {
   val size = p(ArtyDDRSize)
 
+  val ddrClk1 = shell { ClockSinkNode(freqMHz = 166.666)}
+  val ddrClk2 = shell { ClockSinkNode(freqMHz = 200)}
+  val ddrGroup = shell { ClockGroup() }
+  ddrClk1 := params.wrangler := ddrGroup := params.corePLL
+  ddrClk2 := params.wrangler := ddrGroup
+  
   val migParams = XilinxArty100TMIGParams(address = AddressSet.misaligned(params.baseAddress, size))
   val mig = LazyModule(new XilinxArty100TMIG(migParams))
   val ioNode = BundleBridgeSource(() => mig.module.io.cloneType)
   val topIONode = shell { ioNode.makeSink() }
-  val ddrUI     = shell { ClockSourceNode(freqMHz = 200) }
+  val ddrUI     = shell { ClockSourceNode(freqMHz = 100) }
   val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
   areset := params.wrangler := ddrUI
 
@@ -114,13 +119,17 @@ class DDRArtyOverlay(val shell: Arty100TShell, val name: String, params: DDROver
     require (shell.sys_clock.isDefined, "Use of DDRArtyOverlay depends on SysClockArtyOverlay")
     val (sys, _) = shell.sys_clock.get.node.out(0)
     val (ui, _) = ddrUI.out(0)
+    val (dclk1, _) = ddrClk1.in(0)
+    val (dclk2, _) = ddrClk2.in(0)
     val (ar, _) = areset.in(0)
     val port = topIONode.bundle.port
+    
     io <> port
     ui.clock := port.ui_clk
     ui.reset := !port.mmcm_locked || port.ui_clk_sync_rst
-    port.sys_clk_i := sys.clock.asUInt
-    port.sys_rst := sys.reset // pllReset
+    port.sys_clk_i := dclk1.clock.asUInt
+    port.clk_ref_i := dclk2.clock.asUInt
+    port.sys_rst := shell.pllReset
     port.aresetn := !ar.reset
   } }
 
@@ -151,12 +160,12 @@ class Arty100TShell()(implicit p: Parameters) extends Series7Shell
     xdc.addBoardPin(reset, "reset")
 
     val reset_ibuf = Module(new IBUF)
-    reset_ibuf.io.I := !reset // Arty100T is active low reset
+    reset_ibuf.io.I := reset
 
     val powerOnReset = PowerOnResetFPGAOnly(sys_clock.get.clock)
     sdc.addAsyncPath(Seq(powerOnReset))
 
     pllReset :=
-      reset_ibuf.io.O || powerOnReset
+      (!reset_ibuf.io.O) || powerOnReset //Arty100T is active low reset
   }
 }
