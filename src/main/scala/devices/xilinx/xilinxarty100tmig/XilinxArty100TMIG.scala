@@ -37,8 +37,8 @@ class XilinxArty100TMIGIsland(c : XilinxArty100TMIGParams, val crossing: ClockCr
       resources     = device.reg,
       regionType    = RegionType.UNCACHED,
       executable    = true,
-      supportsWrite = TransferSizes(1, 128),
-      supportsRead  = TransferSizes(1, 128))),
+      supportsWrite = TransferSizes(1, 64),
+      supportsRead  = TransferSizes(1, 64))),
     beatBytes = 8)))
 
   lazy val module = new LazyRawModuleImp(this) {
