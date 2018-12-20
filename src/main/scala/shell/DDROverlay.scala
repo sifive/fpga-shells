@@ -12,7 +12,7 @@ case class DDROverlayParams(
   wrangler: ClockAdapterNode,
   corePLL: PLLNode)(
   implicit val p: Parameters)
-//will need to change type of corePLL
+
 case object DDROverlayKey extends Field[Seq[DesignOverlay[DDROverlayParams, TLInwardNode]]](Nil)
 
 abstract class DDROverlay[IO <: Data](val params: DDROverlayParams)
