@@ -47,8 +47,5 @@ abstract class UARTOverlay(
   shell { InModuleBody {
     io.txd := uartSink.bundle.txd
     uartSink.bundle.rxd := io.rxd
-
-    // Some FPGAs have this, we don't use it.
-    // io.rtsn := false.B
   } }
 }
