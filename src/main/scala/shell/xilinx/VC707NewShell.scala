@@ -11,7 +11,7 @@ import sifive.fpgashells.clocks._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 import sifive.blocks.devices.chiplink._
-import sifive.fpgashells.devices.xilinx.xilinxvc707mig._
+import sifive.fpgashells.devices.xilinx.xilinxmig._
 import sifive.fpgashells.devices.xilinx.xilinxvc707pciex1._
 
 class SysClockVC707Overlay(val shell: VC707Shell, val name: String, params: ClockInputOverlayParams)
@@ -121,12 +121,12 @@ class JTAGDebugVC707Overlay(val shell: VC707Shell, val name: String, params: JTA
 
 case object VC707DDRSize extends Field[BigInt](0x40000000L * 1) // 1GB
 class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverlayParams)
-  extends DDROverlay[XilinxVC707MIGPads](params)
+  extends DDROverlay[XilinxMIGPads](params)
 {
   val size = p(VC707DDRSize)
 
-  val migParams = XilinxVC707MIGParams(address = AddressSet.misaligned(params.baseAddress, size))
-  val mig = LazyModule(new XilinxVC707MIG(migParams))
+  val migParams = XilinxMIGParams(address = AddressSet.misaligned(params.baseAddress, size), fpga = "vc707")
+  val mig = LazyModule(new XilinxMIG(migParams))
   val ioNode = BundleBridgeSource(() => mig.module.io.cloneType)
   val topIONode = shell { ioNode.makeSink() }
   val ddrUI     = shell { ClockSourceNode(freqMHz = 200) }
@@ -134,7 +134,7 @@ class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverla
   areset := params.wrangler := ddrUI
 
   def designOutput = mig.node
-  def ioFactory = new XilinxVC707MIGPads(size)
+  def ioFactory = new XilinxMIGPads(size, "vc707")
 
   InModuleBody { ioNode.bundle <> mig.module.io }
 

@@ -10,7 +10,8 @@ import freechips.rocketchip.util.SyncResetSynchronizerShiftReg
 import sifive.fpgashells.clocks._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
-import sifive.fpgashells.devices.xilinx.xilinxarty100tmig._
+import sifive.fpgashells.devices.xilinx.xilinxmig._
+import sifive.fpgashells.ip.xilinx.mig._
 
 class SysClockArtyOverlay(val shell: Arty100TShell, val name: String, params: ClockInputOverlayParams)
   extends SingleEndedClockInputXilinxOverlay(params)
@@ -92,7 +93,7 @@ class JTAGDebugArtyOverlay(val shell: Arty100TShell, val name: String, params: J
 
 case object ArtyDDRSize extends Field[BigInt](0x10000000L * 1) // 256 MB
 class DDRArtyOverlay(val shell: Arty100TShell, val name: String, params: DDROverlayParams)
-  extends DDROverlay[XilinxArty100TMIGPads](params)
+  extends DDROverlay[XilinxMIGPads](params)
 {
   val size = p(ArtyDDRSize)
 
@@ -102,8 +103,8 @@ class DDRArtyOverlay(val shell: Arty100TShell, val name: String, params: DDROver
   ddrClk1 := params.wrangler := ddrGroup := params.corePLL
   ddrClk2 := params.wrangler := ddrGroup
   
-  val migParams = XilinxArty100TMIGParams(address = AddressSet.misaligned(params.baseAddress, size))
-  val mig = LazyModule(new XilinxArty100TMIG(migParams))
+  val migParams = XilinxMIGParams(address = AddressSet.misaligned(params.baseAddress, size), fpga = "arty")
+  val mig = LazyModule(new XilinxMIG(migParams))
   val ioNode = BundleBridgeSource(() => mig.module.io.cloneType)
   val topIONode = shell { ioNode.makeSink() }
   val ddrUI     = shell { ClockSourceNode(freqMHz = 100) }
@@ -111,7 +112,7 @@ class DDRArtyOverlay(val shell: Arty100TShell, val name: String, params: DDROver
   areset := params.wrangler := ddrUI
 
   def designOutput = mig.node
-  def ioFactory = new XilinxArty100TMIGPads(size)
+  def ioFactory = new XilinxMIGPads(size, "arty")
 
   InModuleBody { ioNode.bundle <> mig.module.io }
 
@@ -128,7 +129,7 @@ class DDRArtyOverlay(val shell: Arty100TShell, val name: String, params: DDROver
     ui.clock := port.ui_clk
     ui.reset := !port.mmcm_locked || port.ui_clk_sync_rst
     port.sys_clk_i := dclk1.clock.asUInt
-    port.clk_ref_i := dclk2.clock.asUInt
+    port.clk_ref_i.foreach(_ := dclk2.clock.asUInt)
     port.sys_rst := shell.pllReset
     port.aresetn := !ar.reset
   } }
