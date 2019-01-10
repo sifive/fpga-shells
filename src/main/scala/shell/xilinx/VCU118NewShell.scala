@@ -15,7 +15,7 @@ import sifive.fpgashells.devices.xilinx.xilinxvcu118mig._
 import sifive.fpgashells.devices.xilinx.xdma._
 import sifive.fpgashells.ip.xilinx.xxv_ethernet._
 
-class SysClockVCU118Overlay(val shell: VCU118Shell, val name: String, params: ClockInputOverlayParams)
+class SysClockVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: ClockInputOverlayParams)
   extends LVDSClockInputXilinxOverlay(params)
 {
   val node = shell { ClockSourceNode(freqMHz = 250, jitterPS = 50)(ValName(name)) }
@@ -28,7 +28,7 @@ class SysClockVCU118Overlay(val shell: VCU118Shell, val name: String, params: Cl
   } }
 }
 
-class RefClockVCU118Overlay(val shell: VCU118Shell, val name: String, params: ClockInputOverlayParams)
+class RefClockVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: ClockInputOverlayParams)
   extends LVDSClockInputXilinxOverlay(params)
 {
   val node = shell { ClockSourceNode(freqMHz = 125, jitterPS = 50)(ValName(name)) }
@@ -41,7 +41,7 @@ class RefClockVCU118Overlay(val shell: VCU118Shell, val name: String, params: Cl
   } }
 }
 
-class SDIOVCU118Overlay(val shell: VCU118Shell, val name: String, params: SDIOOverlayParams)
+class SDIOVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: SDIOOverlayParams)
   extends SDIOXilinxOverlay(params)
 {
   shell { InModuleBody {
@@ -63,7 +63,7 @@ class SDIOVCU118Overlay(val shell: VCU118Shell, val name: String, params: SDIOOv
   } }
 }
 
-class UARTVCU118Overlay(val shell: VCU118Shell, val name: String, params: UARTOverlayParams)
+class UARTVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: UARTOverlayParams)
   extends UARTXilinxOverlay(params)
 {
   shell { InModuleBody {
@@ -80,7 +80,7 @@ class UARTVCU118Overlay(val shell: VCU118Shell, val name: String, params: UARTOv
   } }
 }
 
-class QSFP1VCU118Overlay(val shell: VCU118Shell, val name: String, params: EthernetOverlayParams)
+class QSFP1VCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: EthernetOverlayParams)
   extends EthernetUltraScaleOverlay(XXVEthernetParams(
     name    = name,
     speed   = 10,
@@ -102,7 +102,7 @@ class QSFP1VCU118Overlay(val shell: VCU118Shell, val name: String, params: Ether
   } }
 }
 
-class QSFP2VCU118Overlay(val shell: VCU118Shell, val name: String, params: EthernetOverlayParams)
+class QSFP2VCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: EthernetOverlayParams)
   extends EthernetUltraScaleOverlay(XXVEthernetParams(
     name    = name,
     speed   = 10,
@@ -124,7 +124,7 @@ class QSFP2VCU118Overlay(val shell: VCU118Shell, val name: String, params: Ether
   } }
 }
 
-class LEDVCU118Overlay(val shell: VCU118Shell, val name: String, params: LEDOverlayParams)
+class LEDVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: LEDOverlayParams)
   extends LEDXilinxOverlay(params, packagePins = Seq("AT32", "AV34", "AY30", "BB32", "BF32", "AU37", "AV36", "BA37"))
 {
   shell { InModuleBody {
@@ -132,7 +132,7 @@ class LEDVCU118Overlay(val shell: VCU118Shell, val name: String, params: LEDOver
   } }
 }
 
-class SwitchVCU118Overlay(val shell: VCU118Shell, val name: String, params: SwitchOverlayParams)
+class SwitchVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: SwitchOverlayParams)
   extends SwitchXilinxOverlay(params, packagePins = Seq("B17", "G16", "J16", "D21"))
 {
   shell { InModuleBody {
@@ -140,7 +140,7 @@ class SwitchVCU118Overlay(val shell: VCU118Shell, val name: String, params: Swit
   } }
 }
 
-class ChipLinkVCU118Overlay(val shell: VCU118Shell, val name: String, params: ChipLinkOverlayParams)
+class ChipLinkVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: ChipLinkOverlayParams)
   extends ChipLinkXilinxOverlay(params, rxPhase= -120, txPhase= -90, rxMargin=0.6, txMargin=0.5)
 {
   val ereset_n = shell { InModuleBody {
@@ -178,7 +178,7 @@ class ChipLinkVCU118Overlay(val shell: VCU118Shell, val name: String, params: Ch
 }
 
 // TODO: JTAG is untested
-class JTAGDebugVCU118Overlay(val shell: VCU118Shell, val name: String, params: JTAGDebugOverlayParams)
+class JTAGDebugVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: JTAGDebugOverlayParams)
   extends JTAGDebugXilinxOverlay(params)
 {
   shell { InModuleBody {
@@ -199,7 +199,7 @@ class JTAGDebugVCU118Overlay(val shell: VCU118Shell, val name: String, params: J
 }
 
 case object VCU118DDRSize extends Field[BigInt](0x40000000L * 2) // 2GB
-class DDRVCU118Overlay(val shell: VCU118Shell, val name: String, params: DDROverlayParams)
+class DDRVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: DDROverlayParams)
   extends DDROverlay[XilinxVCU118MIGPads](params)
 {
   val size = p(VCU118DDRSize)
@@ -249,7 +249,7 @@ class DDRVCU118Overlay(val shell: VCU118Shell, val name: String, params: DDROver
   shell.sdc.addGroup(pins = Seq(mig.island.module.blackbox.io.c0_ddr4_ui_clk))
 }
 
-class PCIeVCU118FMCOverlay(val shell: VCU118Shell, val name: String, params: PCIeOverlayParams)
+class PCIeVCU118FMCOverlay(val shell: VCU118ShellBasicOverlays, val name: String, params: PCIeOverlayParams)
   extends PCIeUltraScaleOverlay(XDMAParams(
     name     = "fmc_xdma",
     location = "X0Y3",
@@ -285,7 +285,7 @@ class PCIeVCU118FMCOverlay(val shell: VCU118Shell, val name: String, params: PCI
   } }
 }
 
-class PCIeVCU118EdgeOverlay(val shell: VCU118Shell, val name: String, params: PCIeOverlayParams)
+class PCIeVCU118EdgeOverlay(val shell: VCU118ShellBasicOverlays, val name: String, params: PCIeOverlayParams)
   extends PCIeUltraScaleOverlay(XDMAParams(
     name     = "edge_xdma",
     location = "X1Y2",
@@ -326,25 +326,28 @@ class PCIeVCU118EdgeOverlay(val shell: VCU118Shell, val name: String, params: PC
   } }
 }
 
-class VCU118Shell()(implicit p: Parameters) extends UltraScaleShell
-{
-  // PLL reset causes
-  val pllReset = InModuleBody { Wire(Bool()) }
-
-  // Order matters; ddr depends on sys_clock
+abstract class VCU118ShellBasicOverlays()(implicit p: Parameters) extends UltraScaleShell{
   val sys_clock = Overlay(ClockInputOverlayKey)(new SysClockVCU118Overlay (_, _, _))
   val ref_clock = Overlay(ClockInputOverlayKey)(new RefClockVCU118Overlay (_, _, _))
   val led       = Overlay(LEDOverlayKey)       (new LEDVCU118Overlay      (_, _, _))
   val switch    = Overlay(SwitchOverlayKey)    (new SwitchVCU118Overlay   (_, _, _))
-  val chiplink  = Overlay(ChipLinkOverlayKey)  (new ChipLinkVCU118Overlay (_, _, _))
   val ddr       = Overlay(DDROverlayKey)       (new DDRVCU118Overlay      (_, _, _))
-  val fmc       = Overlay(PCIeOverlayKey)      (new PCIeVCU118FMCOverlay  (_, _, _))
-  val edge      = Overlay(PCIeOverlayKey)      (new PCIeVCU118EdgeOverlay (_, _, _))
   val uart      = Overlay(UARTOverlayKey)      (new UARTVCU118Overlay     (_, _, _))
   val sdio      = Overlay(SDIOOverlayKey)      (new SDIOVCU118Overlay     (_, _, _))
   val jtag      = Overlay(JTAGDebugOverlayKey) (new JTAGDebugVCU118Overlay(_, _, _))
   val qsfp1     = Overlay(EthernetOverlayKey)  (new QSFP1VCU118Overlay    (_, _, _))
   val qsfp2     = Overlay(EthernetOverlayKey)  (new QSFP2VCU118Overlay    (_, _, _))
+  val chiplink  = Overlay(ChipLinkOverlayKey)  (new ChipLinkVCU118Overlay (_, _, _))
+}
+
+class VCU118Shell()(implicit p: Parameters) extends VCU118ShellBasicOverlays
+{
+  // PLL reset causes
+  val pllReset = InModuleBody { Wire(Bool()) }
+
+  // Order matters; ddr depends on sys_clock
+  val fmc       = Overlay(PCIeOverlayKey)      (new PCIeVCU118FMCOverlay  (_, _, _))
+  val edge      = Overlay(PCIeOverlayKey)      (new PCIeVCU118EdgeOverlay (_, _, _))
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
