@@ -20,6 +20,11 @@ if {[info exists pre_impl_debug_tcl]} {
 # Post synthesis optimization
 source [file join $scriptdir "opt.tcl"]
 
+# Post-opt debug 
+if {[info exists post_opt_debug_tcl]} {
+  source [file join $scriptdir $post_opt_debug_tcl]
+}
+
 # Place the design
 source [file join $scriptdir "place.tcl"]
 
