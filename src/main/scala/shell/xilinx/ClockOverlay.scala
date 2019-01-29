@@ -22,3 +22,20 @@ abstract class LVDSClockInputXilinxOverlay(params: ClockInputOverlayParams)
     c.reset := shell.pllReset
   } }
 }
+
+
+abstract class SingleEndedClockInputXilinxOverlay(params: ClockInputOverlayParams)
+  extends SingleEndedClockInputOverlay(params)
+{
+  def shell: XilinxShell
+
+  shell { InModuleBody {
+    val ibuf = Module(new IBUFG)
+    ibuf.suggestName(s"${name}_ibufg")
+
+    val (c, _) = node.out(0)
+    ibuf.io.I  := io
+    c.clock := ibuf.io.O
+    c.reset := shell.pllReset
+  } }
+}

@@ -34,3 +34,21 @@ abstract class LVDSClockInputOverlay(
     bundle.clock
   } }
 }
+
+
+abstract class SingleEndedClockInputOverlay(
+  val params: ClockInputOverlayParams)
+    extends IOOverlay[Clock, ClockSourceNode]
+{
+  implicit val p = params.p
+  def node: ClockSourceNode
+
+  def ioFactory = Input(Clock())
+  def designOutput = node
+
+  val clock = shell { InModuleBody {
+    val (bundle, edge) = node.out.head
+    shell.sdc.addClock(name, io:Clock, edge.clock.freqMHz)
+    bundle.clock
+  } }
+}
