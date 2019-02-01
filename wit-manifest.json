@@ -1,0 +1,12 @@
+[
+    {
+        "commit": "7c573e8d32233e3d4debdceb748c28e661070269",
+        "name": "sifive-blocks",
+        "source": "git@github.com:sifive/sifive-blocks.git"
+    },
+    {
+        "commit": "71113e07bc9078f463ed512a13f07ca8193ce2df",
+        "name": "rocket-chip-wake",
+        "source": "git@github.com:sifive/rocket-chip-wake.git"
+    }
+]

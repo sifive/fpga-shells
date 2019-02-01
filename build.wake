@@ -1,0 +1,3 @@
+global def fpgaShellsProject = millScalaProject "fpgaShells" here (rocketchipProject, sifiveBlocksProject, Nil) "build" "FPGAShellsBase"
+
+publish scalaProjects = fpgaShellsProject
