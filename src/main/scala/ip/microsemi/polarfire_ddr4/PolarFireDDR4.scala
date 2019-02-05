@@ -93,14 +93,14 @@ class DDR4_Subsys(depth : BigInt)(implicit val p:Parameters) extends BlackBox
     val axi0_rlast            = Bool(OUTPUT)
     val axi0_rvalid           = Bool(OUTPUT)
     //misc
-    val AXI0_AWUSERTAG        = Bits(INPUT,4)
-    val AXI0_BUSERTAG         = Bits(OUTPUT,4)
+    //val AXI0_AWUSERTAG        = Bits(INPUT,4)
+    //val AXI0_BUSERTAG         = Bits(OUTPUT,4)
   }
 
   ElaborationArtefacts.add(
     "AddIPInstance.ddr4.libero.tcl",
     """ 
-create_design -id Actel:SystemBuilder:PF_DDR4:2.2.109 -design_name {pf_ddr} -config_file {} -params {} -inhibit_configurator 0
+create_design -id Actel:SystemBuilder:PF_DDR4:2.3.201 -design_name {pf_ddr} -config_file {} -params {} -inhibit_configurator 0
 open_smartdesign -design pf_ddr
 
 sysbld_configure_page -component pf_ddr -page PF_DDR4_UI -param WIDTH:16 \
