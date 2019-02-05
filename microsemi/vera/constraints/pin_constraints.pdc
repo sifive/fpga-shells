@@ -100,7 +100,6 @@ set_io -port_name ereset_n  \
     -DIRECTION INPUT
 
 
-
 #set_io -port_name pf_user_reset_n  \
 #    -pin_name AK18         \
 #    -fixed true            \
@@ -111,208 +110,241 @@ set_io -port_name chiplink_b2c_clk  \
     -fixed true               \
     -DIRECTION INPUT
 
-
 set_io -port_name {chiplink_b2c_data[0]}  \
-    -pin_name V13                   \
-    -fixed true                     \
+    -pin_name V13                         \
+    -fixed true                           \
+    -IN_DELAY 218                         \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[1]}  \
-    -pin_name W13                   \
-    -fixed true                     \
+    -pin_name W13                         \
+    -fixed true                           \
+    -IN_DELAY 218                         \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[2]}  \
-    -pin_name T5                    \
-    -fixed true                     \
+    -pin_name T5                          \
+    -fixed true                           \
+    -IN_DELAY 218                         \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[3]}  \
-    -pin_name T4                    \
-    -fixed true                     \
+    -pin_name T4                          \
+    -fixed true                           \
+    -IN_DELAY 218                         \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[4]}  \
-    -pin_name V14                   \
-    -fixed true                     \
+    -pin_name V14                         \
+    -fixed true                           \
+    -IN_DELAY 218                         \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[5]}  \
-    -pin_name W14                   \
-    -fixed true                     \
+    -pin_name W14                         \
+    -fixed true                           \
+    -IN_DELAY 218                         \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[6]}  \
-    -pin_name R3                    \
-    -fixed true                     \
+    -pin_name R3                          \
+    -fixed true                           \
+    -IN_DELAY 218                         \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[7]}  \
-    -pin_name R2                    \
-    -fixed true                     \
+    -pin_name R2                          \
+    -fixed true                           \
+    -IN_DELAY 218                         \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[8]}  \
-    -pin_name W6                    \
-    -fixed true                     \
+    -pin_name W6                          \
+    -fixed true                           \
+    -IN_DELAY 218                         \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[9]}  \
-    -pin_name Y6                    \
-    -fixed true                     \
+    -pin_name Y6                          \
+    -fixed true                           \
+    -IN_DELAY 218                         \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[10]}  \
-    -pin_name U2                     \
-    -fixed true                      \
+    -pin_name U2                           \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[11]}  \
-    -pin_name U1                     \
-    -fixed true                      \
+    -pin_name U1                           \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[12]}  \
-    -pin_name T3                     \
-    -fixed true                      \
+    -pin_name T3                           \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[13]}  \
-    -pin_name T2                     \
-    -fixed true                      \
+    -pin_name T2                           \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[14]}  \
-    -pin_name W1                     \
-    -fixed true                      \
+    -pin_name W1                           \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[15]}  \
-    -pin_name Y1                     \
-    -fixed true                      \
+    -pin_name Y1                           \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[16]}  \
-    -pin_name V3                     \
-    -fixed true                      \
+    -pin_name V3                           \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[17]}  \
-    -pin_name V4                     \
-    -fixed true                      \
+    -pin_name V4                           \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[18]}  \
-    -pin_name AA4                    \
-    -fixed true                      \
+    -pin_name AA4                          \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[19]}  \
-    -pin_name AA5                    \
-    -fixed true                      \
+    -pin_name AA5                          \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[20]}  \
-    -pin_name V1                     \
-    -fixed true                      \
+    -pin_name V1                           \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[21]}  \
-    -pin_name V2                     \
-    -fixed true                      \
+    -pin_name V2                           \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[22]}  \
-    -pin_name Y3                     \
-    -fixed true                      \
+    -pin_name Y3                           \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[23]}  \
-    -pin_name Y2                     \
-    -fixed true                      \
+    -pin_name Y2                           \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[24]}  \
-    -pin_name W4                     \
-    -fixed true                      \
+    -pin_name W4                           \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[25]}  \
-    -pin_name W3                     \
-    -fixed true                      \
+    -pin_name W3                           \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[26]}  \
-    -pin_name AA3                    \
-    -fixed true                      \
+    -pin_name AA3                          \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[27]}  \
-    -pin_name AA2                    \
-    -fixed true                      \
+    -pin_name AA2                          \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[28]}  \
-    -pin_name Y7                     \
-    -fixed true                      \
+    -pin_name Y7                           \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[29]}  \
-    -pin_name AA7                    \
-    -fixed true                      \
+    -pin_name AA7                          \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[30]}  \
-    -pin_name AB2                    \
-    -fixed true                      \
+    -pin_name AB2                          \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name {chiplink_b2c_data[31]}  \
-    -pin_name AB1                    \
-    -fixed true                      \
+    -pin_name AB1                          \
+    -fixed true                            \
+    -IN_DELAY 218                          \
     -DIRECTION INPUT
 
 
 set_io -port_name chiplink_b2c_rst  \
-    -pin_name AC8             \
-    -fixed true               \
+    -pin_name AC8                   \
+    -fixed true                     \
+    -IN_DELAY 218                   \
     -DIRECTION INPUT
 
 
 set_io -port_name chiplink_b2c_send  \
-    -pin_name U9               \
-    -fixed true                \
+    -pin_name U9                     \
+    -fixed true                      \
+    -IN_DELAY 218                    \
     -DIRECTION INPUT
 
 
