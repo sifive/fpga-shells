@@ -15,6 +15,14 @@ import freechips.rocketchip.util.{ElaborationArtefacts}
 // Clock network macro
 //-------------------------------------------------------------------------
 
+class CLKBUF() extends BlackBox
+{
+  val io = new Bundle{
+    val PAD = Clock(INPUT)
+    val Y = Clock(OUTPUT)
+  }
+}
+
 class CLKINT() extends BlackBox
 {
   val io = new Bundle{
