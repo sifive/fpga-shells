@@ -23,7 +23,7 @@ class PolarFireEvalKitDDR4Pads(depth : BigInt) extends PolarFireEvalKitDDR4IODDR
 
 class PolarFireEvalKitDDR4IO(depth : BigInt) extends PolarFireEvalKitDDR4IODDR(depth) with PolarFireEvalKitDDR4IOClocksReset
 
-class PolarFireEvalKitDDR4Island(c : PolarFireEvalKitDDR4Params)(implicit p: Parameters) extends LazyModule with CrossesToOnlyOneClockDomain {
+class PolarFireEvalKitDDR4Island(c : PolarFireEvalKitDDR4Params)(implicit p: Parameters) extends LazyModule with HasCrossing {
   val ranges = AddressRange.fromSets(c.address)
   require (ranges.size == 1, "DDR range must be contiguous")
   val offset = ranges.head.base
@@ -128,7 +128,7 @@ class PolarFireEvalKitDDR4Island(c : PolarFireEvalKitDDR4Params)(implicit p: Par
     axi_async.r.valid         := blackbox.io.axi0_rvalid
 
     //misc
-    blackbox.io.AXI0_AWUSERTAG := UInt("b0000")
+    //blackbox.io.AXI0_AWUSERTAG := UInt("b0000")
     blackbox.io.SYS_RESET_N    :=io.port.SYS_RESET_N
     blackbox.io.PLL_REF_CLK    :=io.port.PLL_REF_CLK
     
@@ -150,7 +150,7 @@ class PolarFireEvalKitDDR4(c : PolarFireEvalKitDDR4Params)(implicit p: Parameter
   val island  = LazyModule(new PolarFireEvalKitDDR4Island(c))
 
   val node: TLInwardNode =
-    island.crossAXI4In(island.node) := yank.node := deint.node := indexer.node := toaxi4.node := buffer.node
+    island.node := island.crossAXI4In := yank.node := deint.node := indexer.node := toaxi4.node := buffer.node
 
   lazy val module = new LazyModuleImp(this) {
     val io = IO(new Bundle {
