@@ -1,4 +1,5 @@
 set_false_path -from [ get_ports { ereset_n }]
+create_clock -name {chiplink_b2c_clk} -period 8 [ get_ports { chiplink_b2c_clk } ]
 
 # The c2b_clk comes from a phase-shifted output of the PLL
 create_generated_clock -name {chiplink_c2b_clk} \
@@ -19,13 +20,12 @@ set_clock_groups -asynchronous \
 
 # RX side: want to latch almost anywhere except on the rising edge of the clock
 # The data signals coming from Aloe have: clock - 1.2 <= transition <= clock + 0.8
-# Let's add 0.6ns of safety for trace jitter+skew on both sides:
-#   min = hold           = -1.2 - 0.6
-#   max = period - setup =  0.8 + 0.6
-# We add a full period because RX clock insertion adds more than a full  period of delay
-# Due to what is most likely a bug in Libero, we measured we need an additional 5ns shift
-set_input_delay -min 11.2 -clock {chiplink_b2c_clk} [ get_ports { chiplink_b2c_data* chiplink_b2c_rst chiplink_b2c_send } ]
-set_input_delay -max 14.4 -clock {chiplink_b2c_clk} [ get_ports { chiplink_b2c_data* chiplink_b2c_rst chiplink_b2c_send } ]
+# HFU500 Expansion board has 200mil delta between clock and data
+# Let's add 0.1ns of safety for trace jitter+skew on both sides:
+#   min = hold           = -1.2 - 0.1
+#   max = period - setup =  0.8 + 0.1
+set_input_delay -min -1.3 -clock {chiplink_b2c_clk} [ get_ports { chiplink_b2c_data* chiplink_b2c_rst chiplink_b2c_send } ]
+set_input_delay -max 0.9 -clock {chiplink_b2c_clk} [ get_ports { chiplink_b2c_data* chiplink_b2c_rst chiplink_b2c_send } ]
 
 # TX side: want to transition almost anywhere except on the rising edge of the clock
 # The data signals going to Aloe must have: clock - 1.85 <= NO transition <= clock + 0.65
@@ -36,14 +36,6 @@ set_output_delay -min -1.25 -clock {chiplink_c2b_clk} [ get_ports { chiplink_c2b
 set_output_delay -max  2.45 -clock {chiplink_c2b_clk} [ get_ports { chiplink_c2b_data* chiplink_c2b_rst chiplink_c2b_send } ]
 # phase = 31.5 -> 0.55ns setup slack, 0.45ns hold slack
 
-
-# DDR4 multicycle paths
-set_multicycle_path -setup_only 2 -from [ get_cells { iofpga/pf_ddr4/island/blackbox/*/*al_selec* } ]           -to [ get_clocks { iofpga/pf_ddr4/island/blackbox/CCC_0/pll_inst_0/OUT1 } ]
-set_multicycle_path -setup_only 2 -from [ get_cells { iofpga/pf_ddr4/island/blackbox/*/*cal_select* } ]         -to [ get_clocks { iofpga/pf_ddr4/island/blackbox/CCC_0/pll_inst_0/OUT1 } ]
-set_multicycle_path -setup_only 2 -from [ get_cells { iofpga/pf_ddr4/island/blackbox/*/*al_init_mr_add* } ]     -to [ get_clocks { iofpga/pf_ddr4/island/blackbox/CCC_0/pll_inst_0/OUT1 } ]
-set_multicycle_path -setup_only 2 -from [ get_cells { iofpga/pf_ddr4/island/blackbox/*/*cal_init_mr_addr* } ]   -to [ get_clocks { iofpga/pf_ddr4/island/blackbox/CCC_0/pll_inst_0/OUT1 } ]
-set_multicycle_path -setup_only 2 -from [ get_cells { iofpga/pf_ddr4/island/blackbox/*/*al_init_cs_* } ]        -to [ get_clocks { iofpga/pf_ddr4/island/blackbox/CCC_0/pll_inst_0/OUT1 } ]
-set_multicycle_path -setup_only 2 -from [ get_cells { iofpga/pf_ddr4/island/blackbox/*/*cal_init_cs_i* } ]      -to [ get_clocks { iofpga/pf_ddr4/island/blackbox/CCC_0/pll_inst_0/OUT1 } ]
-
-set_multicycle_path -setup_only 2 -from [ get_pins { iofpga/pf_ddr4/island/blackbox/DDRPHY_BLK_0/IOD_TRAINING_0/COREDDR_TIP_INT_U/reset_n_int*/CLK } ] \
-                                                                                                                -to [ get_clocks { iofpga/pf_ddr4/island/blackbox/CCC_0/pll_inst_0/OUT1 } ]
+#retiming is required
+set_false_path -from [ get_pins { iofpga/link/ResetCatchAndSync_d3_1/AsyncResetSynchronizerShiftReg_w1_d3_i0/sync_2/reg_0/q/CLK } ] -to [ get_ports { chiplink_c2b_rst } ]
+set_false_path -from [ get_ports { chiplink_b2c_rst } ] -to [ get_pins { iofpga/link/AsyncResetReg/q/D } ]                                                                                                            

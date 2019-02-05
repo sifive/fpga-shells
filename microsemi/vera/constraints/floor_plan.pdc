@@ -32,7 +32,7 @@ set_location -inst_name pf_glitchless_mux/pf_glitchless_mux_0/I_NGMUX_1 -fixed t
 set_location -inst_name pf_glitchless_mux/pf_glitchless_mux_0/I_NGMUX   -fixed true -x 2465 -y 163
 
 set_location -inst_name hart_clk_ccc/hart_clk_ccc_0/pll_inst_0              -fixed true -x 1 -y 377
-set_location -inst_name iofpga/chiplink_rx_pll/chiplink_rx_pll_0/pll_inst_0 -fixed true -x 0 -y 377
+#set_location -inst_name iofpga/chiplink_rx_pll/chiplink_rx_pll_0/pll_inst_0 -fixed true -x 0 -y 377
 
 set_location -inst_name iofpga/pf_ddr4/island/blackbox/CCC_0/pll_inst_0 -fixed true -x 2460 -y 377
 
