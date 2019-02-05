@@ -36,14 +36,14 @@ file mkdir $FPExpressDir
 
 ###########################################
 set CoreJTAGDebugver {2.0.100}
-set PF_DDR3ver {2.1.101}
-set PF_DDR4ver {2.1.101}
-set PF_CCCver {1.0.112}
-set PF_INIT_MONITORver {2.0.101}
-set PF_CORERESETPFver {2.0.112}
-set PF_PCIEver {1.0.230}
+set PF_DDR3ver {2.3.201}
+set PF_DDR4ver {2.3.201}
+set PF_CCCver {1.0.115}
+set PF_INIT_MONITORver {2.0.103}
+set PF_CORERESETPFver {2.1.100}
+set PF_PCIEver {2.0.100}
 set PF_XCVR_REF_CLKver {1.0.103}
-set PF_TX_PLLver {1.0.109}
+set PF_TX_PLLver {2.0.002}
 
 set use_enhanced_constraint_flow 1
 set tb {testbench}
@@ -100,8 +100,8 @@ new_project -ondemand_build_dh 1 -location "$Proj" -name "$Prjname" -project_des
 import_files \
          -convert_EDN_to_HDL 0 \
          -hdl_source "$chisel_build_dir/$chisel_project.$chisel_config.v" \
-         -hdl_source "../../rocket-chip/src/main/resources/vsrc/AsyncResetReg.v" \
-         -hdl_source "../../rocket-chip/src/main/resources/vsrc/plusarg_reader.v"
+         -hdl_source "../../rocket-chip/vsrc/AsyncResetReg.v" \
+         -hdl_source "../../rocket-chip/vsrc/plusarg_reader.v"
 
 #
 # Execute all design entry scripts generated from Chisel flow.
@@ -169,8 +169,11 @@ run_tool -name {SYNTHESIZE}
 puts "-----------------------------------------------------------------"
 puts "------------------------ Place and Route ------------------------"
 puts "-----------------------------------------------------------------"
-configure_tool -name {PLACEROUTE} -params {EFFORT_LEVEL:true} -params {REPAIR_MIN_DELAY:true} -params {TDPR:true} 
+configure_tool -name {PLACEROUTE} -params {EFFORT_LEVEL:true} -params {REPAIR_MIN_DELAY:true} -params {TDPR:true} -params {IOREG_COMBINING:true}
 run_tool -name {PLACEROUTE}
+
+configure_tool -name {VERIFYTIMING} -params {CONSTRAINTS_COVERAGE:1} -params {FORMAT:XML} -params {MAX_TIMING_FAST_HV_LT:1} -params {MAX_TIMING_SLOW_LV_HT:1} -params {MAX_TIMING_SLOW_LV_LT:1} -params {MAX_TIMING_VIOLATIONS_FAST_HV_LT:1} -params {MAX_TIMING_VIOLATIONS_SLOW_LV_HT:1} -params {MAX_TIMING_VIOLATIONS_SLOW_LV_LT:1} -params {MIN_TIMING_FAST_HV_LT:1} -params {MIN_TIMING_SLOW_LV_HT:1} -params {MIN_TIMING_SLOW_LV_LT:1} -params {MIN_TIMING_VIOLATIONS_FAST_HV_LT:1} -params {MIN_TIMING_VIOLATIONS_SLOW_LV_HT:1} -params {MIN_TIMING_VIOLATIONS_SLOW_LV_LT:1} 
+run_tool -name {VERIFYTIMING} 
 
 #
 # Generate programming files
