@@ -31,13 +31,19 @@ set group_cl  [get_clocks -quiet {chiplink_b2c_clock              \
                                   clk_out*_vc707_sys_clock_mmcm3}]
 set group_pci [get_clocks -quiet {userclk1 txoutclk}]
 
+create_clock -add -name JTCK        -period 100   -waveform {0 50} [get_ports {jtag_TCK}]
+create_clock -add -name ULPI_CLK  -period 16.667 [get_ports {ulpi_clk}];
+
 set group_jtag [get_clocks -quiet {JTCK}]
+
+set group_ulpi [get_clocks -quiet {ULPI_CLK}]
 
 puts "group_mem: $group_mem"
 puts "group_sys: $group_sys"
 puts "group_pci: $group_pci"
 puts "group_cl:  $group_cl"
 puts "group_jtag: $group_jtag"
+puts "group_ulpi: $group_ulpi"
 
 set groups [list]
 if { [llength $group_mem]    > 0 } { lappend groups -group $group_mem }
@@ -45,6 +51,7 @@ if { [llength $group_sys]    > 0 } { lappend groups -group $group_sys }
 if { [llength $group_pci]    > 0 } { lappend groups -group $group_pci }
 if { [llength $group_cl]     > 0 } { lappend groups -group $group_cl }
 if { [llength $group_jtag]   > 0 } { lappend groups -group $group_jtag }
+if { [llength $group_ulpi]   > 0 } { lappend groups -group $group_ulpi }
 
 puts "set_clock_groups -asynchronous $groups"
 set_clock_groups -asynchronous {*}$groups
