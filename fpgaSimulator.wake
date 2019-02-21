@@ -1,0 +1,107 @@
+tuple FPGACompileOutputs =
+  Job_ Job
+
+global def getFPGACompileOutputsJob = getFPGACompileOutputsJob_
+
+def getFPGACompileOptions plan =
+  def dut = plan.getSimCompileOptionsPlanDUT
+  def rom =
+    def romConf = filter (matches '.*\.rom\.conf' _.getPathName) dut.getDUTAllOutputs | head
+    def hexFile = plan.getSimCompileOptionsPlanProgram.getProgramHex
+    def outputFile = "{outputDir.getPathName}/rom_gen.v"
+    makeVLSIRomGenOptions romConf hexFile outputFile
+    | rocket_vlsi_rom_gen
+
+  def outputDir = plan.getSimCompileOptionsPlanCompileDir
+  def verilogFiles = rom, dut.getDUTVsrcs
+  def topModule = dut.getDUTTopModule
+  def allFiles = dut.getDUTAllOutputs
+  def tclFiles =
+    allFiles
+    | filter (matches '.*\.vivado\.tcl' _.getPathName)
+  FPGACompileOptions topModule tclFiles outputDir verilogFiles allFiles
+
+def getFPGAExecuteOptions plan compileOutputs = compileOutputs
+
+def fpgaSimulationChecker plan executeOutputs =
+  def simStatus  = executeOutputs.getFPGACompileOutputsJob.getJobStatus
+  def simStdout  = executeOutputs.getFPGACompileOutputsJob.getJobStdout
+  def simStderr  = executeOutputs.getFPGACompileOutputsJob.getJobStderr
+  def rawOutputs = executeOutputs.getFPGACompileOutputsJob.getJobFailedOutputs
+  def executeDir = plan.getSimResultsPlanCompileDir
+  makeSimOutputs simStatus simStdout simStderr rawOutputs executeDir
+
+global def doFPGAExecute plan = plan
+
+global def fpgaSim =
+  makeSimulator
+  VCS
+  getFPGACompileOptions
+  doFPGACompile
+  getFPGAExecuteOptions
+  doFPGAExecute
+  fpgaSimulationChecker
+
+tuple FPGACompileOptions =
+  global TopModule  String
+  global TclFiles   List Path
+  global OutputDir  Path
+  global Vsrcs      List Path
+  global AllOutputs List Path
+
+global def doFPGACompile plan = memoize 0 (
+  def board = "vcu118"
+  def buildDir = plan.getFPGACompileOptionsOutputDir.getPathName
+  def verilogFiles = plan.getFPGACompileOptionsVsrcs
+  def tclFiles = plan.getFPGACompileOptionsTclFiles
+  def ffile =
+    def contents =
+      map (relative buildDir _.getPathName) verilogFiles
+      | catWith "\n"
+    write 0664 "{buildDir}/test.f" contents
+  def sourceFile = sources "{here}/xilinx/common/tcl" 'vivado\.tcl' | head
+  def common =
+    sources "{here}/xilinx/common/tcl" '.*\.tcl'
+    ++ sources "{here}/xilinx/{board}/tcl" '.*\.tcl'
+  def cmdline =
+    whichIn path "vivado",
+    "-nojournal",
+    "-mode", "batch",
+    "-source", relative buildDir sourceFile.getPathName,
+    "-tclargs",
+    "-top-module", plan.getFPGACompileOptionsTopModule,
+    "-F", relative buildDir ffile.getPathName,
+    "-board", board,
+    "-ip-vivado-tcls",
+    map (relative buildDir _.getPathName) tclFiles | catWith " ",
+    Nil
+
+  def env = sifiveEnv ("xilinx/vivado", Nil) ("HOME=/tmp", environment)
+  def path =
+    env
+    | filter (matches 'PATH=.*')
+    | head
+    | extract 'PATH=(.*)'
+    | head
+  def inputs = ffile, verilogFiles ++ common ++ plan.getFPGACompileOptionsAllOutputs
+  makePlan cmdline inputs
+  | setPlanEnvironment env
+  | setPlanDirectory buildDir
+  | runJob
+  | FPGACompileOutputs
+)
+
+global def moduleEnv path list env =
+  def cmd = which "modulecmd", "bash", "load", list
+  def extra =
+    makePlan cmd Nil
+    | editPlanEnvironment ("MODULEPATH={path}", _)
+    | runJob
+    | getJobStdout
+    | tokenize ";"
+    | filter (matches '[^ ]*=.*')
+    | map (replace ' *$' "")
+  def pruned = filter (!matches "PATH=.*" _) env
+  pruned ++ extra
+
+global def sifiveEnv = moduleEnv "/etc/environment-modules/modules:/usr/share/modules/versions:/usr/Modules/3.2.10/modulefiles:/usr/share/modules/modulefiles:/sifive/tools/Modules/default/sifive"
