@@ -4,6 +4,7 @@ tuple FPGACompileOutputs =
 global def getFPGACompileOutputsJob = getFPGACompileOutputsJob_
 
 def getFPGACompileOptions plan =
+  def board = "vcu118"
   def dut = plan.getSimCompileOptionsPlanDUT
   def rom =
     def romConf = filter (matches '.*\.rom\.conf' _.getPathName) dut.getDUTAllOutputs | head
@@ -13,13 +14,17 @@ def getFPGACompileOptions plan =
     | rocket_vlsi_rom_gen
 
   def outputDir = plan.getSimCompileOptionsPlanCompileDir
-  def verilogFiles = rom, dut.getDUTVsrcs
+  def verilogFiles =
+    def fpgaDir = "fpga-shells/xilinx"
+    def powerOnReset = sources "{fpgaDir}/common/vsrc" 'PowerOnResetFPGAOnly\.v' | head
+    def vcuVsrc = 	sources "{fpgaDir}/{board}/vsrc" 'vcu118reset\.v|sdio\.v' | head
+    powerOnReset, rom, vcuVsrc ++ dut.getDUTVsrcs
   def topModule = dut.getDUTTopModule
   def allFiles = dut.getDUTAllOutputs
   def tclFiles =
     allFiles
     | filter (matches '.*\.vivado\.tcl' _.getPathName)
-  FPGACompileOptions topModule tclFiles outputDir verilogFiles allFiles
+  FPGACompileOptions topModule tclFiles outputDir verilogFiles allFiles board
 
 def getFPGAExecuteOptions plan compileOutputs = compileOutputs
 
@@ -48,9 +53,10 @@ tuple FPGACompileOptions =
   global OutputDir  Path
   global Vsrcs      List Path
   global AllOutputs List Path
+  global Board      String
 
 global def doFPGACompile plan = memoize 0 (
-  def board = "vcu118"
+  def board = plan.getFPGACompileOptionsBoard
   def buildDir = plan.getFPGACompileOptionsOutputDir.getPathName
   def verilogFiles = plan.getFPGACompileOptionsVsrcs
   def tclFiles = plan.getFPGACompileOptionsTclFiles
