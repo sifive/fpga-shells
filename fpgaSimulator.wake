@@ -17,7 +17,7 @@ def getFPGACompileOptions plan =
   def verilogFiles =
     def fpgaDir = "fpga-shells/xilinx"
     def powerOnReset = sources "{fpgaDir}/common/vsrc" 'PowerOnResetFPGAOnly\.v' | head
-    def vcuVsrc = 	sources "{fpgaDir}/{board}/vsrc" 'vcu118reset\.v|sdio\.v' | head
+    def vcuVsrc = 	sources "{fpgaDir}/{board}/vsrc" 'vcu118reset\.v|sdio\.v'
     powerOnReset, rom, vcuVsrc ++ dut.getDUTVsrcs
   def topModule = dut.getDUTTopModule
   def allFiles = dut.getDUTAllOutputs
@@ -39,8 +39,8 @@ def fpgaSimulationChecker plan executeOutputs =
 global def doFPGAExecute plan = plan
 
 global def fpgaSim =
-  makeSimulator
-  VCS
+  makeSimulatorWithKey
+  vcu118Key
   getFPGACompileOptions
   doFPGACompile
   getFPGAExecuteOptions
@@ -111,3 +111,21 @@ global def moduleEnv path list env =
   pruned ++ extra
 
 global def sifiveEnv = moduleEnv "/etc/environment-modules/modules:/usr/share/modules/versions:/usr/Modules/3.2.10/modulefiles:/usr/share/modules/modulefiles:/sifive/tools/Modules/default/sifive"
+
+global data FPGAVariant =
+  VCU118
+global def vcu118Key = Key "vcu118" VCU118 (\_ \_ True)
+global def vcu118Target =
+  def getResults sim plan =
+    def compile = plan.getSimTargetResultsPlanCompile
+    def execute = plan.getSimTargetResultsPlanExecute
+    def results = plan.getSimTargetResultsPlanResults
+    sim.getSimulatorResults compile execute results
+  makeTarget vcu118Key fpgaSim getResults
+
+global def fpgaPlatform =
+  makePlatform
+  "vcu118-platform"
+  vcu118Target
+
+global def runFPGA = runDirSim fpgaPlatform _ allTests defaultBuildDir fpgaPlatform.getPlatformPlanDefaultTarget
