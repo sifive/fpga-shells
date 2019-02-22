@@ -6,7 +6,7 @@ import freechips.rocketchip.diplomacy._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 
-abstract class SwitchXilinxOverlay(params: SwitchOverlayParams, boardPins: Seq[String] = Nil, packagePins: Seq[String] = Nil)
+abstract class SwitchXilinxOverlay(params: SwitchOverlayParams, boardPins: Seq[String] = Nil, packagePins: Seq[String] = Nil, ioStandard: String = "LVCMOS33")
   extends SwitchOverlay(params)
 {
   def shell: XilinxShell
@@ -28,6 +28,9 @@ abstract class SwitchXilinxOverlay(params: SwitchOverlayParams, boardPins: Seq[S
     val packageIOs = ios.drop(cutAt)
 
     (boardPins   zip boardIOs)   foreach { case (pin, io) => shell.xdc.addBoardPin  (io, pin) }
-    (packagePins zip packageIOs) foreach { case (pin, io) => shell.xdc.addPackagePin(io, pin) }
+    (packagePins zip packageIOs) foreach { case (pin, io) =>
+      shell.xdc.addPackagePin(io, pin)
+      shell.xdc.addIOStandard(io, ioStandard)
+    }
   } }
 }

@@ -48,11 +48,11 @@ class SDIOVC707Overlay(val shell: VC707Shell, val name: String, params: SDIOOver
 }
 
 class UARTVC707Overlay(val shell: VC707Shell, val name: String, params: UARTOverlayParams)
-  extends UARTXilinxOverlay(params)
+  extends UARTXilinxOverlay(params, true)
 {
   shell { InModuleBody {
-    val packagePinsWithPackageIOs = Seq(("AT32", IOPin(io.ctsn)),
-                                        ("AR34", IOPin(io.rtsn)),
+    val packagePinsWithPackageIOs = Seq(("AT32", IOPin(io.ctsn.get)),
+                                        ("AR34", IOPin(io.rtsn.get)),
                                         ("AU33", IOPin(io.rxd)),
                                         ("AU36", IOPin(io.txd)))
 

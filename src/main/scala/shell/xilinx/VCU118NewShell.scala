@@ -64,11 +64,11 @@ class SDIOVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, p
 }
 
 class UARTVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: UARTOverlayParams)
-  extends UARTXilinxOverlay(params)
+  extends UARTXilinxOverlay(params, true)
 {
   shell { InModuleBody {
-    val packagePinsWithPackageIOs = Seq(("AY25", IOPin(io.ctsn)),
-                                        ("BB22", IOPin(io.rtsn)),
+    val packagePinsWithPackageIOs = Seq(("AY25", IOPin(io.ctsn.get)),
+                                        ("BB22", IOPin(io.rtsn.get)),
                                         ("AW25", IOPin(io.rxd)),
                                         ("BB21", IOPin(io.txd)))
 
