@@ -63,6 +63,28 @@ class SDIOVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, p
   } }
 }
 
+class SPIFlashVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: SPIFlashOverlayParams)
+  extends SPIFlashXilinxOverlay(params)
+{
+
+  shell { InModuleBody { 
+    val packagePinsWithPackageIOs = Seq(("AF13", IOPin(io.qspi_sck)),
+      ("AJ11", IOPin(io.qspi_cs)),
+      ("AP11", IOPin(io.qspi_dq_0)),
+      ("AN11", IOPin(io.qspi_dq_1)),
+      ("AM11", IOPin(io.qspi_dq_2)),
+      ("AL11", IOPin(io.qspi_dq_3)))
+
+    packagePinsWithPackageIOs foreach { case (pin, io) => {
+      shell.xdc.addPackagePin(io, pin)
+    //  shell.xdc.addIOStandard(io, "LVCMOS18")
+    } }
+    //packagePinsWithPackageIOs drop 1 foreach { case (pin, io) => {
+    //  shell.xdc.addPullup(io)
+    //} }
+  } }
+}
+
 class UARTVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: UARTOverlayParams)
   extends UARTXilinxOverlay(params, true)
 {
@@ -338,6 +360,7 @@ abstract class VCU118ShellBasicOverlays()(implicit p: Parameters) extends UltraS
   val qsfp1     = Overlay(EthernetOverlayKey)  (new QSFP1VCU118Overlay    (_, _, _))
   val qsfp2     = Overlay(EthernetOverlayKey)  (new QSFP2VCU118Overlay    (_, _, _))
   val chiplink  = Overlay(ChipLinkOverlayKey)  (new ChipLinkVCU118Overlay (_, _, _))
+  val spi_flash = Overlay(SPIFlashOverlayKey)  (new SPIFlashVCU118Overlay (_, _, _))
 }
 
 class VCU118Shell()(implicit p: Parameters) extends VCU118ShellBasicOverlays
