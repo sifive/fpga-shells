@@ -3,5 +3,10 @@
         "commit": "150e1dc522a443ed732fd69da8c4896c35a6ef32",
         "name": "freedom-wake",
         "source": "git@github.com:sifive/freedom-wake.git"
+    },
+    {
+        "commit": "8921e5ac07bdb267e938387b66deab07a920823e",
+        "name": "rocket-chip-wake",
+        "source": "git@github.com:sifive/rocket-chip-wake.git"
     }
 ]
