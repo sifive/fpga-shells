@@ -6,11 +6,14 @@ global def getFPGACompileOutputsJob = getFPGACompileOutputsJob_
 def getFPGACompileOptions plan =
   def board = "vcu118"
   def dut = plan.getSimCompileOptionsPlanDUT
+  def hexFile =
+    def sdboot = sources "{here}/bootloader" 'sdboot\.elf' | head
+    makeProgramFromElf (makeRuntimeProgramArgs outputDir) sdboot
+    | getProgramHex
   def rom =
     def romConf = filter (matches '.*\.rom\.conf' _.getPathName) dut.getDUTAllOutputs | head
-    def hexFile = plan.getSimCompileOptionsPlanProgram.getProgramHex
     def outputFile = "{outputDir.getPathName}/rom_gen.v"
-    makeVLSIRomGenOptions romConf hexFile outputFile
+    makeVLSIRomGenOptions romConf (relative outputDir.getPathName hexFile.getPathName) outputFile
     | rocket_vlsi_rom_gen
 
   def outputDir = plan.getSimCompileOptionsPlanCompileDir
@@ -20,7 +23,7 @@ def getFPGACompileOptions plan =
     def vcuVsrc = 	sources "{fpgaDir}/{board}/vsrc" 'vcu118reset\.v|sdio\.v'
     powerOnReset, rom, vcuVsrc ++ dut.getDUTVsrcs
   def topModule = dut.getDUTTopModule
-  def allFiles = dut.getDUTAllOutputs
+  def allFiles = hexFile, dut.getDUTAllOutputs
   def tclFiles =
     allFiles
     | filter (matches '.*\.vivado\.tcl' _.getPathName)

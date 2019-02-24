@@ -192,7 +192,7 @@ class JTAGDebugVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: Stri
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
-      shell.xdc.addIOStandard(io, "LVCMOS18")
+      shell.xdc.addIOStandard(io, "LVCMOS12")
       shell.xdc.addPullup(io)
     } }
   } }
