@@ -154,7 +154,7 @@ global def vcu118Target =
 global def fpgaPlatform =
   makePlatform
   "vcu118-platform"
-  (vcu118Target, vc707Target, Nil)
+  (vc707Target, vcu118Target, Nil)
 
 global def runFPGA = runDirSim fpgaPlatform _ allTests defaultBuildDir fpgaPlatform.getPlatformPlanDefaultTarget
 global def runFPGABoard = runDirSim fpgaPlatform _ allTests defaultBuildDir _
