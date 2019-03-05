@@ -34,7 +34,7 @@ def fpgaSimulationChecker plan executeOutputs =
   def simStatus  = executeOutputs.getFPGACompileOutputsJob.getJobStatus
   def simStdout  = executeOutputs.getFPGACompileOutputsJob.getJobStdout
   def simStderr  = executeOutputs.getFPGACompileOutputsJob.getJobStderr
-  def rawOutputs = executeOutputs.getFPGACompileOutputsJob.getJobFailedOutputs
+  def rawOutputs = executeOutputs.getFPGACompileOutputsJob.getJobOutputs
   def executeDir = plan.getSimResultsPlanCompileDir
   makeSimOutputs simStatus simStdout simStderr rawOutputs executeDir
 
@@ -93,14 +93,14 @@ global def doFPGACompile plan = memoize 0 (
     map (relative buildDir _.getPathName) tclFiles | catWith " ",
     Nil
 
-  def env = sifiveEnv ("xilinx/vivado", Nil) ("HOME=/tmp", environment)
+  def env = sifiveEnv ("xilinx/vivado/2018.2", Nil) ("HOME=/tmp", environment)
   def path =
     env
     | filter (matches 'PATH=.*')
     | head
     | extract 'PATH=(.*)'
     | head
-  def foutputs _ = files buildDir '.*'
+  def foutputs _ = files "{buildDir}/obj" '.*'
   def inputs = ffile, verilogFiles ++ common ++ plan.getFPGACompileOptionsAllOutputs
   makeManualPlan cmdline inputs foutputs
   | setPlanEnvironment env
