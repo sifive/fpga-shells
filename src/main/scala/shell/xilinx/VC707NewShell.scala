@@ -106,10 +106,10 @@ class JTAGDebugVC707Overlay(val shell: VC707Shell, val name: String, params: JTA
     shell.sdc.addClock("JTCK", IOPin(io.jtag_TCK), 10)
     shell.sdc.addGroup(clocks = Seq("JTCK"))
     shell.xdc.clockDedicatedRouteFalse(IOPin(io.jtag_TCK))
-    val packagePinsWithPackageIOs = Seq(("R32", IOPin(io.jtag_TCK)),
-                                        ("W36", IOPin(io.jtag_TMS)),
-                                        ("W37", IOPin(io.jtag_TDI)),
-                                        ("V40", IOPin(io.jtag_TDO)))
+    val packagePinsWithPackageIOs = Seq(("AT42", IOPin(io.jtag_TCK)),
+                                        ("AR38", IOPin(io.jtag_TMS)),
+                                        ("AR39", IOPin(io.jtag_TDI)),
+                                        ("AT40", IOPin(io.jtag_TDO)))
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)

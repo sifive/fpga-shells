@@ -3,8 +3,7 @@ tuple FPGACompileOutputs =
 
 global def getFPGACompileOutputsJob = getFPGACompileOutputsJob_
 
-def getFPGACompileOptions plan =
-  def board = "vcu118"
+def getFPGACompileOptions board plan =
   def dut = plan.getSimCompileOptionsPlanDUT
   def hexFile =
     def sdboot = sources "{here}/bootloader" 'sdboot\.elf' | head
@@ -41,10 +40,19 @@ def fpgaSimulationChecker plan executeOutputs =
 
 global def doFPGAExecute plan = plan
 
-global def fpgaSim =
+global def vc707Sim =
+  makeSimulatorWithKey
+  vc707Key
+  (getFPGACompileOptions "vc707")
+  doFPGACompile
+  getFPGAExecuteOptions
+  doFPGAExecute
+  fpgaSimulationChecker
+
+global def vcu118Sim =
   makeSimulatorWithKey
   vcu118Key
-  getFPGACompileOptions
+  (getFPGACompileOptions "vcu118")
   doFPGACompile
   getFPGAExecuteOptions
   doFPGAExecute
@@ -92,8 +100,9 @@ global def doFPGACompile plan = memoize 0 (
     | head
     | extract 'PATH=(.*)'
     | head
+  def foutputs _ = files buildDir '.*'
   def inputs = ffile, verilogFiles ++ common ++ plan.getFPGACompileOptionsAllOutputs
-  makePlan cmdline inputs
+  makeManualPlan cmdline inputs foutputs
   | setPlanEnvironment env
   | setPlanDirectory buildDir
   | runJob
@@ -117,18 +126,35 @@ global def sifiveEnv = moduleEnv "/etc/environment-modules/modules:/usr/share/mo
 
 global data FPGAVariant =
   VCU118
-global def vcu118Key = Key "vcu118" VCU118 (\_ \_ True)
+  VC707
+
+global def fpgaVariantEquals = match _ _
+  VCU118 VCU118 = True
+  VC707  VC707  = True
+  _      _      = False
+
+global def vcu118Key = Key "vcu118" VCU118 fpgaVariantEquals
+global def vc707Key  = Key "vc707" VC707 fpgaVariantEquals
+global def vc707Target =
+  def getResults sim plan =
+    def compile = plan.getSimTargetResultsPlanCompile
+    def execute = plan.getSimTargetResultsPlanExecute
+    def results = plan.getSimTargetResultsPlanResults
+    sim.getSimulatorResults compile execute results
+  makeTarget vc707Key vc707Sim getResults
+
 global def vcu118Target =
   def getResults sim plan =
     def compile = plan.getSimTargetResultsPlanCompile
     def execute = plan.getSimTargetResultsPlanExecute
     def results = plan.getSimTargetResultsPlanResults
     sim.getSimulatorResults compile execute results
-  makeTarget vcu118Key fpgaSim getResults
+  makeTarget vcu118Key vcu118Sim getResults
 
 global def fpgaPlatform =
   makePlatform
   "vcu118-platform"
-  vcu118Target
+  (vcu118Target, vc707Target, Nil)
 
 global def runFPGA = runDirSim fpgaPlatform _ allTests defaultBuildDir fpgaPlatform.getPlatformPlanDefaultTarget
+global def runFPGABoard = runDirSim fpgaPlatform _ allTests defaultBuildDir _
