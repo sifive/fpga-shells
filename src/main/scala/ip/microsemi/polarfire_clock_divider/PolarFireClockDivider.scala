@@ -7,7 +7,7 @@ import freechips.rocketchip.util.{ElaborationArtefacts}
 import freechips.rocketchip.util.GenericParameterizedBundle
 import freechips.rocketchip.config._
 
-// Black Box for Actel:SgCore:PF_CLK_DIV:1.0.101
+// Black Box for Actel:SgCore:PF_CLK_DIV:1.0.103
 
 trait PolarFireClockDividerIOPads extends Bundle {
 
@@ -27,7 +27,7 @@ class PolarFireClockDivider(implicit val p:Parameters) extends BlackBox
   ElaborationArtefacts.add(
     "Libero.polarfire_clock_divider.tcl",
     """ 
-create_design -id Actel:SgCore:PF_CLK_DIV:1.0.101 -design_name {pf_clk_divider} -config_file {} -params {} -inhibit_configurator 0
+create_design -id Actel:SgCore:PF_CLK_DIV:1.0.103 -design_name {pf_clk_divider} -config_file {} -params {} -inhibit_configurator 0
 open_smartdesign -design {pf_clk_divider}
 configure_design -component {pf_clk_divider} -library {}
 configure_vlnv_instance -component {pf_clk_divider} -library {} -name {pf_clk_divider_0} -params {"DIVIDER:2"} -validate_rules 0 

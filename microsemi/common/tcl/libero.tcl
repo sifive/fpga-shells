@@ -35,12 +35,12 @@ puts "FlashPro Express folder: $FPExpressDir"
 file mkdir $FPExpressDir
 
 ###########################################
-set CoreJTAGDebugver {2.0.100}
-set PF_DDR3ver {2.1.101}
-set PF_DDR4ver {2.1.101}
-set PF_CCCver {1.0.112}
-set PF_INIT_MONITORver {2.0.101}
-set PF_CORERESETPFver {2.0.112}
+set CoreJTAGDebugver {3.0.100}
+set PF_DDR3ver {2.3.201}
+set PF_DDR4ver {2.3.201}
+set PF_CCCver {1.0.115}
+set PF_INIT_MONITORver {2.0.103}
+set PF_CORERESETPFver {2.1.100}
 set PF_PCIEver {1.0.230}
 set PF_XCVR_REF_CLKver {1.0.103}
 set PF_TX_PLLver {1.0.109}
@@ -92,17 +92,29 @@ set fanout {10}
 
 #########ORIGINAl SETTINGS#############
 
-new_project -ondemand_build_dh 1 -location "$Proj" -name "$Prjname" -project_description {} -block_mode $Block -standalone_peripheral_initialization $SAPI -use_enhanced_constraint_flow $use_enhanced_constraint_flow -hdl $HDL -family $family -die $die -package $package -speed $speed -die_voltage $die_voltage -part_range $part_range -adv_options IO_DEFT_STD:$IOTech -adv_options RESTRICTPROBEPINS:$ResProbe -adv_options RESTRICTSPIPINS:$ResSPI -adv_options TEMPR:$TEMPR -adv_options VCCI_1.2_VOLTR:$IOVOLTR_12 -adv_options VCCI_1.5_VOLTR:$IOVOLTR_15 -adv_options VCCI_1.8_VOLTR:$IOVOLTR_18 -adv_options VCCI_2.5_VOLTR:$IOVOLTR_25 -adv_options VCCI_3.3_VOLTR:$IOVOLTR_33 -adv_options VOLTR:$VOLTR 
+if {"$chisel_board" ==  "polarfireevalkit"} then {
+    new_project -ondemand_build_dh 1 -location "$Proj" -name "$Prjname" -project_description {} -block_mode $Block -standalone_peripheral_initialization $SAPI -use_enhanced_constraint_flow $use_enhanced_constraint_flow -hdl $HDL -family $family -die $die -package $package -speed $speed -die_voltage $die_voltage -part_range $part_range -adv_options IO_DEFT_STD:$IOTech -adv_options RESTRICTPROBEPINS:$ResProbe -adv_options RESTRICTSPIPINS:$ResSPI -adv_options TEMPR:$TEMPR -adv_options VCCI_1.2_VOLTR:$IOVOLTR_12 -adv_options VCCI_1.5_VOLTR:$IOVOLTR_15 -adv_options VCCI_1.8_VOLTR:$IOVOLTR_18 -adv_options VCCI_2.5_VOLTR:$IOVOLTR_25 -adv_options VCCI_3.3_VOLTR:$IOVOLTR_33 -adv_options VOLTR:$VOLTR 
+} elseif {"$chisel_board" == "polarfireavalancheboard"}  then {
+    new_project -location "$Proj" -name "$Prjname" -project_description {} -block_mode $Block -standalone_peripheral_initialization $SAPI -use_enhanced_constraint_flow $use_enhanced_constraint_flow -ondemand_build_dh 1 -hdl $HDL -family $family -die $die -package {FCG484} -speed {STD} -die_voltage {1.0} -part_range {IND} -adv_options {IO_DEFT_STD:LVCMOS 1.8V} -adv_options {RESTRICTPROBEPINS:1} -adv_options {RESTRICTSPIPINS:0} -adv_options {TEMPR:IND} -adv_options {UNUSED_MSS_IO_RESISTOR_PULL:None} -adv_options {VCCI_1.2_VOLTR:EXT} -adv_options {VCCI_1.5_VOLTR:EXT} -adv_options {VCCI_1.8_VOLTR:EXT} -adv_options {VCCI_2.5_VOLTR:EXT} -adv_options {VCCI_3.3_VOLTR:EXT} -adv_options {VOLTR:IND}  
+} else {
+    puts "Target not supported by this script or no target selected."
+}
+
 
 #
 # Import Chisel generated verilog files into Libero project
 #
 import_files \
          -convert_EDN_to_HDL 0 \
-         -hdl_source "$chisel_build_dir/$chisel_project.$chisel_config.v" \
-         -hdl_source "../../rocket-chip/src/main/resources/vsrc/AsyncResetReg.v" \
-         -hdl_source "../../rocket-chip/src/main/resources/vsrc/plusarg_reader.v"
+         -hdl_source "$chisel_build_dir/$chisel_project.$chisel_config.v" 
+        # -hdl_source "../../../rocket-chip/src/main/resources/vsrc/AsyncResetReg.v" \
+        # -hdl_source "../../../rocket-chip/src/main/resources/vsrc/plusarg_reader.v"
 
+import_files \
+         -convert_EDN_to_HDL 0 \
+         -library {work} \
+         -hdl_source {../../../../rocket-chip/src/main/resources/vsrc/AsyncResetReg.v} \
+         -hdl_source {../../../../rocket-chip/src/main/resources/vsrc/plusarg_reader.v} 
 #
 # Execute all design entry scripts generated from Chisel flow.
 #
@@ -117,40 +129,62 @@ foreach f $tclfiles {
 # Build design hierarchy and set project root to design's top level
 #
 build_design_hierarchy         
-
-#set_root -module {U500PolarFireEvalKitFPGAChip::work}
+if {"$chisel_board" ==  "polarfireevalkit"} then {
+    set_root -module {U500PolarFireEvalKitFPGAChip::work}
+} elseif {"$chisel_board" == "polarfireavalancheboard"}  then {
+    set_root -module {U500PolarFireAvalancheKitFPGAChip::work}
+}
 set proj_root $chisel_model
 append proj_root "::work"
 puts "project root: $proj_root"
 set_root -module $proj_root
 
 #
-# Import IO, Placement and timing constrainst
+#Import IO, Placement and timing constrainst
 #
+
 puts "-----------------------------------------------------------------"
 puts "------------------ Applying design constraints ------------------"
 puts "-----------------------------------------------------------------"
 
 import_files \
-         -io_pdc ../../fpga-shells/microsemi/$chisel_board/constraints/pin_constraints.pdc
-		 
+         -io_pdc "../../$chisel_board/constraints/pin_constraints.pdc"
+	 
 import_files \
-         -fp_pdc ../../fpga-shells/microsemi/$chisel_board/constraints/floor_plan.pdc 
-
-import_files \
-         -convert_EDN_to_HDL 0 \
-         -sdc ../../fpga-shells/microsemi/$chisel_board/constraints/false_paths.sdc 
-
-organize_tool_files -tool {PLACEROUTE} \
-         -file $Proj/constraint/io/pin_constraints.pdc \
-         -file $Proj/constraint/fp/floor_plan.pdc \
-         -file $Proj/constraint/false_paths.sdc \
-         -module $proj_root -input_type {constraint} 
-
-organize_tool_files -tool {VERIFYTIMING} \
-         -file $Proj/constraint/false_paths.sdc \
-         -module $proj_root -input_type {constraint} 
+         -fp_pdc "../../$chisel_board/constraints/floor_plan.pdc"
          
+         
+if {"$chisel_board" ==  "polarfireevalkit"} then {
+    # Evaluation kit
+    import_files \
+            -convert_EDN_to_HDL 0 \
+            -sdc "../../$chisel_board/constraints/false_paths.sdc"
+    
+    organize_tool_files -tool {PLACEROUTE} \
+            -file $Proj/constraint/io/pin_constraints.pdc \
+            -file $Proj/constraint/fp/floor_plan.pdc \
+            -file $Proj/constraint/false_paths.sdc \
+            -module $proj_root -input_type {constraint} 
+} elseif {"$chisel_board" == "polarfireavalancheboard"}  then {
+    import_files \
+         -convert_EDN_to_HDL 0 \
+         -sdc "../../$chisel_board/constraints/clock_groups.sdc"
+    organize_tool_files -tool {SYNTHESIZE} \
+        -file $Proj/constraint/clock_groups.sdc \
+        -module $proj_root -input_type {constraint}    
+        
+    organize_tool_files -tool {PLACEROUTE} \
+            -file $Proj/constraint/io/pin_constraints.pdc \
+            -file $Proj/constraint/fp/floor_plan.pdc \
+            -file $Proj/constraint/clock_groups.sdc \
+            -module $proj_root -input_type {constraint} 
+    organize_tool_files -tool {VERIFYTIMING} \
+            -file $Proj/constraint/clock_groups.sdc \
+            -module $proj_root -input_type {constraint} 
+}         
+
+
+        
 run_tool -name {CONSTRAINT_MANAGEMENT} 
 derive_constraints_sdc
 
@@ -182,12 +216,12 @@ run_tool -name {GENERATEPROGRAMMINGDATA}
 
 run_tool -name {GENERATEPROGRAMMINGFILE} 
 
-export_prog_job \
-    -job_file_name $chisel_model \
-    -export_dir $FPExpressDir \
-    -bitstream_file_type {TRUSTED_FACILITY} \
-    -bitstream_file_components {}
-
+#export_prog_job \
+#    -job_file_name $chisel_model \
+#    -export_dir $FPExpressDir \
+#    -bitstream_file_type {TRUSTED_FACILITY} \
+#    -bitstream_file_components {}
+#
 
 #proc export_programming_job_g5 { name location components } {
 #                export_prog_job \
