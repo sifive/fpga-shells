@@ -105,13 +105,17 @@ class UARTArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, p
   } }
 }
 
-//TODO: add rgbs?
+//LEDS - 4 normal leds, r0, g0, b0, r1, g1, b1 ...
 class LEDArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: LEDOverlayParams)
-  extends LEDXilinxOverlay(params, packagePins = Seq("H5", "J5", "T9", "T10"))
+  extends LEDXilinxOverlay(params, packagePins = Seq("H5", "J5", "T9", "T10", "G6", "F6", "E1", "G3", "J4", "G4", "J3", "J2", "H4", "K1", "H6", "K2"))
 
 //SWs
 class SwitchArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: SwitchOverlayParams)
   extends SwitchXilinxOverlay(params, packagePins = Seq("A8", "C11", "C10", "A10"))
+
+//Buttonss
+class ButtonArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: ButtonOverlayParams)
+  extends ButtonXilinxOverlay(params, packagePins = Seq("D9", "C9", "B9", "B8"))
 
 // PMOD JD used for JTAG
 class JTAGDebugArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: JTAGDebugOverlayParams)
@@ -185,6 +189,7 @@ abstract class Arty100TShellBasicOverlays()(implicit p: Parameters) extends Seri
   val sys_clock = Overlay(ClockInputOverlayKey)(new SysClockArtyOverlay   (_, _, _))
   val led       = Overlay(LEDOverlayKey)       (new LEDArtyOverlay        (_, _, _))
   val switch    = Overlay(SwitchOverlayKey)    (new SwitchArtyOverlay     (_, _, _))
+  val button    = Overlay(ButtonOverlayKey)    (new ButtonArtyOverlay     (_, _, _))
   val ddr       = Overlay(DDROverlayKey)       (new DDRArtyOverlay        (_, _, _))
   val uart      = Overlay(UARTOverlayKey)      (new UARTArtyOverlay       (_, _, _))
   val sdio      = Overlay(SDIOOverlayKey)      (new SDIOArtyOverlay       (_, _, _))
