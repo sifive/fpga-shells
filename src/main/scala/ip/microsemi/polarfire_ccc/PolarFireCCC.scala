@@ -8,7 +8,7 @@ import freechips.rocketchip.util.GenericParameterizedBundle
 import freechips.rocketchip.config._
 import sifive.fpgashells.clocks._
 
-// Black Box for Microsemi PolarFire Clock Conditioning Circuit (CCC) Actel:SgCore:PF_CCC:1.0.112
+// Black Box for Microsemi PolarFire Clock Conditioning Circuit (CCC) Actel:SgCore:PF_CCC:1.0.115
 class PolarFireCCCIOPads(c : PLLParameters) extends Bundle {
     val REF_CLK_0      = Clock(INPUT)
     val OUT0_FABCLK_0  = if (c.req.size >= 1) Some(Clock(OUTPUT)) else None
@@ -68,7 +68,7 @@ class PolarFireCCC(c : PLLParameters)(implicit val p:Parameters) extends BlackBo
   elaborateArtefactsString_temp += s""" "PLL_FEEDBACK_MODE_0:${if (c.input.feedback) "External" else "Post-VCO"}" \\""" 
 
   elaborateArtefactsString += 
-    s""" create_design -id Actel:SgCore:PF_CCC:1.0.112 -design_name {${moduleName}} -config_file {} -params {} -inhibit_configurator 0
+    s""" create_design -id Actel:SgCore:PF_CCC:1.0.115 -design_name {${moduleName}} -config_file {} -params {} -inhibit_configurator 0
        | open_smartdesign -design {${moduleName}}
        | configure_design -component {${moduleName}} -library {} 
        | configure_vlnv_instance -component {${moduleName}} -library {} -name {${moduleName}_0} \\

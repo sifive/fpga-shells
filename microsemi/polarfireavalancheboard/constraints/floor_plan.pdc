@@ -1,0 +1,34 @@
+# Microsemi Physical design constraints file
+
+# Version: v12.0 12.500.0.22
+
+# Design Name: U500PolarFireAvalancheKitFPGAChip 
+
+# Input Netlist Format: EDIF 
+
+# Family: PolarFire , Die: MPF300T_ES , Package: FCG484 , Speed grade: STD 
+
+# Date generated: Wed Mar  6 09:55:23 2019 
+
+
+#
+# Local clock constraints
+#
+
+
+#
+# Region constraints
+#
+
+
+#
+# Core cell constraints
+#
+
+set_location -inst_name dut_/polarfireddrsubsys_1/island/blackbox/DDRPHY_BLK_0/LANE_1_CTRL/I_LANECTRL -fixed true -x 1823 -y 378
+set_location -inst_name dut_/polarfireddrsubsys_1/island/blackbox/DDRPHY_BLK_0/LANE_0_CTRL/I_LANECTRL -fixed true -x 659 -y 378
+set_location -inst_name dut_/polarfireddrsubsys_1/island/blackbox/DDRPHY_BLK_0/LANE_1_IOD_READ_TRAINING/I_IOD_0 -fixed true -x 1812 -y 378
+set_location -inst_name dut_/polarfireddrsubsys_1/island/blackbox/CCC_0/pll_inst_0 -fixed true -x 1 -y 377
+set_location -inst_name dut_/polarfireddrsubsys_1/island/blackbox/DDRPHY_BLK_0/IOD_BCLK_TRAINING/I_IOD_0 -fixed true -x 60 -y 378
+set_location -inst_name dut_/polarfireddrsubsys_1/island/blackbox/DDRPHY_BLK_0/LANE_0_IOD_READ_TRAINING/I_IOD_0 -fixed true -x 648 -y 378
+set_location -inst_name dut_/polarfireddrsubsys_1/island/blackbox/DLL_0/dll_inst_0 -fixed true -x 3 -y 377
