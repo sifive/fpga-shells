@@ -30,7 +30,7 @@ class PolarFireInitMonitor(implicit val p:Parameters) extends BlackBox
   ElaborationArtefacts.add(
     "Libero.pf_init_monitor.tcl",
     """ 
-create_design -id Actel:SgCore:PF_INIT_MONITOR:2.0.101 -design_name {polarfire_init_monitor} -config_file {} -params {} -inhibit_configurator 0
+create_design -id Actel:SgCore:PF_INIT_MONITOR:2.0.103 -design_name {polarfire_init_monitor} -config_file {} -params {} -inhibit_configurator 0
 open_smartdesign -design {polarfire_init_monitor}
 configure_design -component {polarfire_init_monitor} -library {} 
 fix_vlnv_instance -component {polarfire_init_monitor} -library {} -name {polarfire_init_monitor_0} 
