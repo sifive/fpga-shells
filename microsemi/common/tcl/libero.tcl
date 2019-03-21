@@ -100,8 +100,8 @@ new_project -ondemand_build_dh 1 -location "$Proj" -name "$Prjname" -project_des
 import_files \
          -convert_EDN_to_HDL 0 \
          -hdl_source "$chisel_build_dir/$chisel_project.$chisel_config.v" \
-         -hdl_source "../../rocket-chip/vsrc/AsyncResetReg.v" \
-         -hdl_source "../../rocket-chip/vsrc/plusarg_reader.v"
+         -hdl_source "../../rocket-chip/src/main/resources/vsrc/AsyncResetReg.v" \
+         -hdl_source "../../rocket-chip/src/main/resources/vsrc/plusarg_reader.v"
 
 #
 # Execute all design entry scripts generated from Chisel flow.
