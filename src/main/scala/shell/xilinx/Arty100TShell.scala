@@ -77,11 +77,11 @@ class GPIOPMODArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Strin
     val packagePinsWithPackageIOs = Seq(("E15", IOPin(io.gpio_pmod_0)), //These are PMOD B. Can be changed
       ("E16", IOPin(io.gpio_pmod_1)),
       ("D15", IOPin(io.gpio_pmod_2)),
-      ("C15", IOPin(io.gpio_pmod_3)))
-     // ("J17", IOPin(io.gpio_pmod(4))),
-     // ("J18", IOPin(io.gpio_pmod(5))),
-     // ("K15", IOPin(io.gpio_pmod(6))),
-     // ("J15", IOPin(io.gpio_pmod(7))))
+      ("C15", IOPin(io.gpio_pmod_3)),
+      ("J17", IOPin(io.gpio_pmod_4)),
+      ("J18", IOPin(io.gpio_pmod_5)),
+      ("K15", IOPin(io.gpio_pmod_6)),
+      ("J15", IOPin(io.gpio_pmod_7)))
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
@@ -113,7 +113,7 @@ class LEDArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, pa
 class SwitchArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: SwitchOverlayParams)
   extends SwitchXilinxOverlay(params, packagePins = Seq("A8", "C11", "C10", "A10"))
 
-//Buttonss
+//Buttons
 class ButtonArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: ButtonOverlayParams)
   extends ButtonXilinxOverlay(params, packagePins = Seq("D9", "C9", "B9", "B8"))
 
