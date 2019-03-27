@@ -220,13 +220,17 @@ abstract class VeraShell(implicit val p: Parameters) extends RawModule {
   // Coreplex Clock Generator
   //-----------------------------------------------------------------------
   val ref_clk_int = Module(new CLKINT)
-  val hart_clk_ccc = Module(new PolarFireCCC(PLLParameters(
-    name = "hart_clk_ccc",
-    PLLInClockParameters(50),
-    Seq(
-      PLLOutClockParameters(25),
-      PLLOutClockParameters(125),
-      PLLOutClockParameters(125, 31.5)))))
+  val hart_clk_ccc = Module(new PolarFireCCC(
+    PolarFireCCCParameters(
+      name = "hart_clk_ccc",
+      pll_in_freq = 50,
+      gl0Enabled = true,
+      gl1Enabled = true,
+      gl2Enabled = true,
+      gl0_0_out_freq = 25,
+      gl1_0_out_freq = 125,
+      gl2_0_out_freq = 125,
+      gl2_0_pll_phase = 31.5)))
   
   val hart_clk_25     = hart_clk_ccc.io.OUT0_FABCLK_0.get
   val hart_clk_125    = hart_clk_ccc.io.OUT1_FABCLK_0.get
