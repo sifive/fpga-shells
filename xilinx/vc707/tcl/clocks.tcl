@@ -32,11 +32,11 @@ set group_cl  [get_clocks -quiet {chiplink_b2c_clock              \
 set group_pci [get_clocks -quiet {userclk1 txoutclk}]
 
 create_clock -add -name JTCK      -period 100   -waveform {0 50} [get_ports {jtag_TCK}]
-create_clock -add -name ULPI_CLK  -period 16.667 [get_ports {ulpi_clk}]
+if { [llength [get_ports -quiet {ulpi_clk}]] > 0 } { create_clock -add -name ULPI_CLK  -period 16.667 [get_ports {ulpi_clk}] }
 
 set group_jtag [get_clocks -quiet {JTCK}]
 
-set group_ulpi [get_clocks -quiet {ULPI_CLK}]
+if { [llength [get_ports -quiet {ulpi_clk}]] > 0 } { set group_ulpi [get_clocks -quiet {ULPI_CLK}] }
 
 puts "group_mem: $group_mem"
 puts "group_sys: $group_sys"
