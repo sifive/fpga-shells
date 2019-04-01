@@ -3,7 +3,7 @@
 # Include helper functions
 source [file join $scriptdir "util.tcl"]
 
-# Create the diretory for IPs
+# Create the directory for IPs
 file mkdir $ipdir
 
 # Update the IP catalog
@@ -28,7 +28,7 @@ foreach xci_file $xci_files {
 # Get a list of IPs in the current design
 set obj [get_ips]
 
-# Generate target data for the inlcuded IPs in the design
+# Generate target data for the included IPs in the design
 generate_target all $obj
 
 # Export the IP user files
