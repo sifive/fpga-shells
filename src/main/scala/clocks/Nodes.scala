@@ -45,10 +45,12 @@ object ClockSinkNode
 object ClockSourceNode
 {
   def apply(
+    sdcName:   String,
     freqMHz:   Double,
     dutyCycle: Double = 50,
     jitterPS:  Double = 300)(implicit valName: ValName): ClockSourceNode =
     ClockSourceNode(Seq(ClockSourceParameters(
+      sdcName     = () => sdcName,
       jitterPS    = Some(jitterPS),
       give        = Some(ClockParameters(
         freqMHz   = freqMHz,

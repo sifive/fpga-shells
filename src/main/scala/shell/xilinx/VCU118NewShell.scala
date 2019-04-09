@@ -18,7 +18,7 @@ import sifive.fpgashells.ip.xilinx.xxv_ethernet._
 class SysClockVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: ClockInputOverlayParams)
   extends LVDSClockInputXilinxOverlay(params)
 {
-  val node = shell { ClockSourceNode(freqMHz = 250, jitterPS = 50)(ValName(name)) }
+  val node = shell { ClockSourceNode(name, freqMHz = 250, jitterPS = 50) }
 
   shell { InModuleBody {
     shell.xdc.addPackagePin(io.p, "E12")
@@ -31,7 +31,7 @@ class SysClockVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: Strin
 class RefClockVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: ClockInputOverlayParams)
   extends LVDSClockInputXilinxOverlay(params)
 {
-  val node = shell { ClockSourceNode(freqMHz = 125, jitterPS = 50)(ValName(name)) }
+  val node = shell { ClockSourceNode(name, freqMHz = 125, jitterPS = 50) }
 
   shell { InModuleBody {
     shell.xdc.addPackagePin(io.p, "AY24")
@@ -226,11 +226,12 @@ class DDRVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, pa
 {
   val size = p(VCU118DDRSize)
 
+  val sdcClockName = "userClock1"
   val migParams = XilinxVCU118MIGParams(address = AddressSet.misaligned(params.baseAddress, size))
   val mig = LazyModule(new XilinxVCU118MIG(migParams))
   val ioNode = BundleBridgeSource(() => mig.module.io.cloneType)
   val topIONode = shell { ioNode.makeSink() }
-  val ddrUI     = shell { ClockSourceNode(freqMHz = 200) }
+  val ddrUI     = shell { ClockSourceNode(sdcClockName, freqMHz = 200) }
   val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
   areset := params.wrangler := ddrUI
 
@@ -268,7 +269,7 @@ class DDRVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, pa
     (IOPin.of(io) zip allddrpins) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
   } }
 
-  shell.sdc.addGroup(pins = Seq(mig.island.module.blackbox.io.c0_ddr4_ui_clk))
+  shell.sdc.addGroup(clocks = Seq("userClock1"))
 }
 
 class PCIeVCU118FMCOverlay(val shell: VCU118ShellBasicOverlays, val name: String, params: PCIeOverlayParams)
