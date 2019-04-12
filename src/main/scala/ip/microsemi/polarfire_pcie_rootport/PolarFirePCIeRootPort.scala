@@ -177,7 +177,7 @@ class PolarFirePCIeX4(implicit p:Parameters) extends LazyModule
         "device_type"        -> Seq(ResourceString("pci")),
         "interrupt-map-mask" -> Seq(0, 0, 0, 7).flatMap(ofInt),
         "interrupt-map"      -> Seq(1, 2, 3, 4).flatMap(ofMap),
-        "ranges"             -> resources("ranges").map { case Binding(_, ResourceAddress(address, perms)) =>
+        "ranges"             -> resources("ranges").map{ case Binding(_, ResourceAddress(address, perms)) =>
                                                                ResourceMapping(address, BigInt(0x02000000) << 64, perms) },
         "interrupt-controller" -> Seq(ResourceMap(labels = Seq(intc), value = Map(
           "interrupt-controller" -> Nil,
@@ -375,7 +375,7 @@ class PolarFirePCIeX4(implicit p:Parameters) extends LazyModule
   }
   
   ElaborationArtefacts.add(
-    "Libero.polarfire_pcie_root_port.tcl",
+    "Libero.polarfire_pcie_root_port.libero.tcl",
     """ 
 new_file -type {SmartDesign} -name polarfire_pcie_rp
 add_vlnv_instance -component {polarfire_pcie_rp} -library {} -vendor {Actel} -lib {SgCore} -name {PF_PCIE} -version {2.0.100} -instance_name {PF_PCIE_0} -promote_all 0 -file_name {} 

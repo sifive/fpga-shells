@@ -8,7 +8,7 @@ import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.microsemi._
 
  abstract class ChipLinkPolarFireOverlay(params: ChipLinkOverlayParams)
-  extends ChipLinkOverlay(params, rxPhase=252, txPhase=270)
+  extends ChipLinkOverlay(params, rxPhase=216, txPhase=270)
 {
   def shell: PolarFireShell
 
@@ -68,6 +68,7 @@ import sifive.fpgashells.ip.microsemi._
       maxOutput =  1.85 + txMargin + periodNs)
 
      shell.sdc.addClock(sdcRxClockName, io.b2c.clk, rxEdge.clock.freqMHz)
+    //shell.sdc.addDerivedClock(sdcTxClockName, "{corePLL/corePLL_0/pll_inst_0/OUT1}", io.c2b.clk)
     shell.sdc.addDerivedClock(sdcTxClockName, "[ get_pins {corePLL/corePLL_0/pll_inst_0/OUT1} ]", io.c2b.clk)
     IOPin.of(io).filter(p => p.isInput  && !(p.element eq io.b2c.clk)).foreach { e =>
       shell.sdc.addIOTiming(e, sdcRxClockName, timing)
