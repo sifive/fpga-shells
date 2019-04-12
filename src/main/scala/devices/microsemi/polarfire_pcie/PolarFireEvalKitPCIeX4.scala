@@ -15,8 +15,8 @@ import sifive.fpgashells.ip.microsemi.polarfirepcierootport._
 
 trait PolarFireEvalKitPCIeRefClk extends Bundle{
 //TODO: bring reference clock connection in here
-//  val REFCLK_rxp = Bool(INPUT)
-//  val REFCLK_rxn = Bool(INPUT)
+  val REFCLK_rxp = Bool(INPUT)
+  val REFCLK_rxn = Bool(INPUT)
 }
 
 class PolarFireEvalKitPCIeX4Pads extends Bundle 

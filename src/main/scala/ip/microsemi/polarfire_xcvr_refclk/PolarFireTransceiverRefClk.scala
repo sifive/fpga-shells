@@ -27,7 +27,7 @@ class PolarFireTransceiverRefClk(implicit val p:Parameters) extends BlackBox
   }
   
   ElaborationArtefacts.add(
-    "Libero.polarfire_xcvr_refclk.tcl",
+    "Libero.polarfire_xcvr_refclk.libero.tcl",
     """ 
 create_design -id Actel:SgCore:PF_XCVR_REF_CLK:1.0.103 -design_name {transceiver_refclk} -config_file {} -params {} -inhibit_configurator 0
 open_smartdesign -design {transceiver_refclk}

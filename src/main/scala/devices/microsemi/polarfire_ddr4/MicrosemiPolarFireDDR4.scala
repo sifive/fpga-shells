@@ -128,7 +128,7 @@ class PolarFireEvalKitDDR4Island(c : PolarFireEvalKitDDR4Params)(implicit p: Par
     axi_async.r.valid         := blackbox.io.axi0_rvalid
 
     //misc
-    blackbox.io.AXI0_AWUSERTAG := UInt("b0000")
+    //blackbox.io.AXI0_AWUSERTAG := UInt("b0000")
     blackbox.io.SYS_RESET_N    :=io.port.SYS_RESET_N
     blackbox.io.PLL_REF_CLK    :=io.port.PLL_REF_CLK
     

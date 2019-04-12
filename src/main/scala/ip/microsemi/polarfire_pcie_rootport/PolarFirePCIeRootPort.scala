@@ -146,7 +146,7 @@ class polarfire_pcie_rp() extends BlackBox
     val PCIESS_AXI_1_M_WREADY   = Bool(INPUT)
 
     // Misc
-    val DLL_OUT                 = Bool(OUTPUT)
+    //val DLL_OUT                 = Bool(OUTPUT)
     val PCIE_1_DLUP_EXIT        = Bool(OUTPUT)
     val PCIE_1_HOT_RST_EXIT     = Bool(OUTPUT)
     val PCIE_1_INTERRUPT_OUT    = Bool(OUTPUT)
@@ -177,10 +177,8 @@ class PolarFirePCIeX4(implicit p:Parameters) extends LazyModule
         "device_type"        -> Seq(ResourceString("pci")),
         "interrupt-map-mask" -> Seq(0, 0, 0, 7).flatMap(ofInt),
         "interrupt-map"      -> Seq(1, 2, 3, 4).flatMap(ofMap),
-        "ranges"             -> resources("ranges").map(x =>
-                                  (x: @unchecked) match { case Binding(_, ResourceAddress(address, perms)) =>
-                                                               ResourceMapping(address,
-                                                                 BigInt(0x02000000) << 64, perms) }),
+        "ranges"             -> resources("ranges").map{ case Binding(_, ResourceAddress(address, perms)) =>
+                                                               ResourceMapping(address, BigInt(0x02000000) << 64, perms) },
         "interrupt-controller" -> Seq(ResourceMap(labels = Seq(intc), value = Map(
           "interrupt-controller" -> Nil,
           "#address-cells"       -> ofInt(0),
@@ -377,10 +375,10 @@ class PolarFirePCIeX4(implicit p:Parameters) extends LazyModule
   }
   
   ElaborationArtefacts.add(
-    "Libero.polarfire_pcie_root_port.tcl",
+    "Libero.polarfire_pcie_root_port.libero.tcl",
     """ 
 new_file -type {SmartDesign} -name polarfire_pcie_rp
-add_vlnv_instance -component {polarfire_pcie_rp} -library {} -vendor {Actel} -lib {SgCore} -name {PF_PCIE} -version {1.0.234} -instance_name {PF_PCIE_0} -promote_all 0 -file_name {} 
+add_vlnv_instance -component {polarfire_pcie_rp} -library {} -vendor {Actel} -lib {SgCore} -name {PF_PCIE} -version {2.0.100} -instance_name {PF_PCIE_0} -promote_all 0 -file_name {} 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_IS_CONFIGURED:true"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_SIMULATION_LEVEL:RTL"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIESS_LANE0_IS_USED:true"} -validate_rules 0 
@@ -509,24 +507,24 @@ configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCI
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_0_SLAVE_TRANS_ADDRESS_TABLE_0:0x0000"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_SLAVE_STATE_TABLE_0:Enabled"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_SLAVE_SIZE_TABLE_0:256 MB"} -validate_rules 0 
-configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_SLAVE_SOURCE_ADDRESS_TABLE_0:0x30000"} -validate_rules 0 
-configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_SLAVE_TRANS_ADDRESS_TABLE_0:0x30000"} -validate_rules 0 
+configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_SLAVE_SOURCE_ADDRESS_TABLE_0:0x30000000"} -validate_rules 0 
+configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_SLAVE_TRANS_ADDRESS_TABLE_0:0x30000000"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_0_SLAVE_STATE_TABLE_1:Disabled"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_0_SLAVE_SIZE_TABLE_1:4 KB"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_0_SLAVE_SOURCE_ADDRESS_TABLE_1:0x0000"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_0_SLAVE_TRANS_ADDRESS_TABLE_1:0x0000"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_SLAVE_STATE_TABLE_1:Enabled"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_SLAVE_SIZE_TABLE_1:512 MB"} -validate_rules 0 
-configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_SLAVE_SOURCE_ADDRESS_TABLE_1:0x40000"} -validate_rules 0 
-configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_SLAVE_TRANS_ADDRESS_TABLE_1:0x40000"} -validate_rules 0 
+configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_SLAVE_SOURCE_ADDRESS_TABLE_1:0x40000000"} -validate_rules 0 
+configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_SLAVE_TRANS_ADDRESS_TABLE_1:0x40000000"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_0_SLAVE_STATE_TABLE_2:Disabled"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_0_SLAVE_SIZE_TABLE_2:4 KB"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_0_SLAVE_SOURCE_ADDRESS_TABLE_2:0x0000"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_0_SLAVE_TRANS_ADDRESS_TABLE_2:0x0000"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_SLAVE_STATE_TABLE_2:Enabled"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_SLAVE_SIZE_TABLE_2:2 GB"} -validate_rules 0 
-configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_SLAVE_SOURCE_ADDRESS_TABLE_2:0x80000"} -validate_rules 0 
-configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_SLAVE_TRANS_ADDRESS_TABLE_2:0x2080000"} -validate_rules 0 
+configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_SLAVE_SOURCE_ADDRESS_TABLE_2:0x80000000"} -validate_rules 0 
+configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_1_SLAVE_TRANS_ADDRESS_TABLE_2:0x2080000000"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_0_SLAVE_STATE_TABLE_3:Disabled"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_0_SLAVE_SIZE_TABLE_3:4 KB"} -validate_rules 0 
 configure_vlnv_instance -component {polarfire_pcie_rp} -library {} -name {PF_PCIE_0} -params {"UI_PCIE_0_SLAVE_SOURCE_ADDRESS_TABLE_3:0x0000"} -validate_rules 0 
@@ -586,7 +584,6 @@ promote_pin_to_top -component {polarfire_pcie_rp} -library {} -pin {PF_PCIE_0:PC
 promote_pin_to_top -component {polarfire_pcie_rp} -library {} -pin {PF_PCIE_0:PCIE_1_S_WDERR} -pin_create_new {}
 promote_pin_to_top -component {polarfire_pcie_rp} -library {} -pin {PF_PCIE_0:PCIE_1_M_RDERR} -pin_create_new {}
 
-promote_pin_to_top -component {polarfire_pcie_rp} -library {} -pin {PF_PCIE_0:DLL_OUT} -pin_create_new {}
 promote_pin_to_top -component {polarfire_pcie_rp} -library {} -pin {PF_PCIE_0:PCIE_1_DLUP_EXIT} -pin_create_new {}
 promote_pin_to_top -component {polarfire_pcie_rp} -library {} -pin {PF_PCIE_0:PCIE_1_HOT_RST_EXIT} -pin_create_new {}
 promote_pin_to_top -component {polarfire_pcie_rp} -library {} -pin {PF_PCIE_0:PCIE_1_INTERRUPT_OUT} -pin_create_new {}

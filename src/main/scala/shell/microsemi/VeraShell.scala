@@ -69,6 +69,92 @@ class ChipLinkVeraOverlay(val shell: VeraShell, val name: String, params: ChipLi
   } }
 }
 
+class PCIeVeraOverlay(val shell: VeraShell, val name: String, params: PCIeOverlayParams)
+  extends PCIeOverlay[PolarFireEvalKitPCIeX4Pads](params)
+{
+  val sdcClockName = "axiClock"
+  val pcie = LazyModule(new PolarFireEvalKitPCIeX4)
+  val ioNode = BundleBridgeSource(() => pcie.module.io.cloneType)
+  val topIONode = shell { ioNode.makeSink() }
+  val pcieClk_125 = shell { ClockSinkNode(freqMHz = 125)}
+  val pcieGroup = shell { ClockGroup()}
+  pcieClk_125 := params.wrangler := pcieGroup := params.corePLL
+  //val axiClk    = shell { ClockSourceNode(sdcClockName, freqMHz = 125) }
+  //val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
+  //areset := params.wrangler := axiClk
+
+  val slaveSide = TLIdentityNode()
+  pcie.crossTLIn(pcie.slave) := slaveSide
+  pcie.crossTLIn(pcie.control) := slaveSide
+  val node = NodeHandle(slaveSide, pcie.crossTLOut(pcie.master))
+  val intnode = pcie.crossIntOut(pcie.intnode)
+
+  def designOutput = (node, intnode)
+  def ioFactory = new PolarFireEvalKitPCIeX4Pads
+
+  InModuleBody { ioNode.bundle <> pcie.module.io }
+
+  shell { InModuleBody {
+    //val (axi, _) = axiClk.out(0)
+    //val (ar, _) = areset.in(0)
+    val (sys, _) = shell.sys_clock.get.node.out(0)
+    val (pcieClk, _) = pcieClk_125.in(0)
+    val port = topIONode.bundle.port
+    io <> port
+
+    val refClk = Module(new PolarFireTransceiverRefClk)
+    val pcie_tx_pll = Module(new PolarFireTxPLL)
+    val pf_osc = Module(new PolarFireOscillator)
+    val pf_clk_div = Module(new PolarFireClockDivider)
+    val pf_gless_mux = Module(new PolarFireGlitchlessMux)
+
+    pf_clk_div.io.CLK_IN := pf_osc.io.RCOSC_160MHZ_GL
+    pf_gless_mux.io.CLK0 := pf_clk_div.io.CLK_OUT
+    pf_gless_mux.io.CLK1 := pcieClk.clock
+    pf_gless_mux.io.SEL  := shell.initMonitor.io.PCIE_INIT_DONE
+
+    refClk.io.REF_CLK_PAD_P := io.REFCLK_rxp
+    refClk.io.REF_CLK_PAD_N := io.REFCLK_rxn
+    pcie_tx_pll.io.REF_CLK := refClk.io.REF_CLK
+
+    port.APB_S_PCLK                  := sys.clock
+    port.APB_S_PRESET_N              := true.B
+    port.AXI_CLK                     := sys.clock
+    port.AXI_CLK_STABLE              := shell.pllFactory.plls.getWrappedValue(1)._1.getLocked //TODO: how to get correct number?
+    port.PCIE_1_TL_CLK_125MHz        := pf_gless_mux.io.CLK_OUT
+    port.PCIE_1_TX_PLL_REF_CLK       := pcie_tx_pll.io.REF_CLK_TO_LANE
+    port.PCIE_1_TX_BIT_CLK           := pcie_tx_pll.io.BIT_CLK
+    port.PCIESS_LANE0_CDR_REF_CLK_0  := refClk.io.REF_CLK
+    port.PCIESS_LANE1_CDR_REF_CLK_0  := refClk.io.REF_CLK
+    port.PCIESS_LANE2_CDR_REF_CLK_0  := refClk.io.REF_CLK
+    port.PCIESS_LANE3_CDR_REF_CLK_0  := refClk.io.REF_CLK
+    port.PCIE_1_TX_PLL_LOCK          := pcie_tx_pll.io.LOCK
+
+    shell.io_pdc.addPin(io.REFCLK_rxp, "W27")
+    shell.io_pdc.addPin(io.REFCLK_rxn, "W28")
+    shell.io_pdc.addPin(io.PCIESS_LANE_TXD0_N, "V34")
+    shell.io_pdc.addPin(io.PCIESS_LANE_TXD0_P, "V33")
+    shell.io_pdc.addPin(io.PCIESS_LANE_TXD1_N, "Y34")
+    shell.io_pdc.addPin(io.PCIESS_LANE_TXD1_P, "Y33")
+    shell.io_pdc.addPin(io.PCIESS_LANE_TXD2_N, "AA32")
+    shell.io_pdc.addPin(io.PCIESS_LANE_TXD2_P, "AA31")
+    shell.io_pdc.addPin(io.PCIESS_LANE_TXD3_N, "AB34")
+    shell.io_pdc.addPin(io.PCIESS_LANE_TXD3_P, "AB33")
+    shell.io_pdc.addPin(io.PCIESS_LANE_RXD0_N, "V30")
+    shell.io_pdc.addPin(io.PCIESS_LANE_RXD0_P, "V29")
+    shell.io_pdc.addPin(io.PCIESS_LANE_RXD1_N, "W32")
+    shell.io_pdc.addPin(io.PCIESS_LANE_RXD1_P, "W31")
+    shell.io_pdc.addPin(io.PCIESS_LANE_RXD2_N, "Y30")
+    shell.io_pdc.addPin(io.PCIESS_LANE_RXD2_P, "Y29")
+    shell.io_pdc.addPin(io.PCIESS_LANE_RXD3_N, "AB30")
+    shell.io_pdc.addPin(io.PCIESS_LANE_RXD3_P, "AB29")
+
+    //shell.sdc.addClock(s"${name}_ref_clk", io.REFCLK_rxp, 100)
+  } }
+
+  //shell.sdc.addGroup(clocks = Seq("axiClock"))
+}
+
 class VeraShell()(implicit p: Parameters) extends PolarFireShell
 {
   // PLL reset causes
@@ -77,6 +163,7 @@ class VeraShell()(implicit p: Parameters) extends PolarFireShell
   val sys_clock = Overlay(ClockInputOverlayKey)(new SysClockVeraOverlay(_, _, _))
   val led       = Overlay(LEDOverlayKey)       (new LEDVeraOverlay     (_, _, _))
   val chiplink  = Overlay(ChipLinkOverlayKey)  (new ChipLinkVeraOverlay(_, _, _))
+  val pcie      = Overlay(PCIeOverlayKey)      (new PCIeVeraOverlay    (_, _, _))
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
