@@ -80,9 +80,8 @@ abstract class ArtyShell(implicit val p: Parameters) extends RawModule {
   val ja_6         = IO(Analog(1.W))
   val ja_7         = IO(Analog(1.W))
 
-  // JB (used for trigger out monitoring)
-  val jb_0         = IO(Analog(1.W))
-  val jb_1         = IO(Analog(1.W))
+  // JC (used for additional debug/trace connection)
+  val jc           = IO(Vec(8, Analog(1.W)))
 
   // JD (used for JTAG connection)
   val jd_0         = IO(Analog(1.W))  // TDO
