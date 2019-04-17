@@ -16,9 +16,13 @@ import sifive.fpgashells.shell._
   protected def addConstraint(command: => String) { constraints = (() => command) +: constraints }
   ElaborationArtefacts.add(name, constraints.map(_()).reverse.mkString("\n") + "\n")
 
-   def addPin(io: IOPin, pin: String) {
+   def addPin(io: IOPin, pin: String, ioStandard: String = "") {
     def dir = if (io.isInput) { if (io.isOutput) "INOUT" else "INPUT" } else { "OUTPUT" }
-    addConstraint(s"set_io -port_name {${io.name}} -pin_name ${pin} -fixed true -DIRECTION ${dir}")
+    def ioSt = if (!ioStandard.isEmpty) { 
+      require(ioStandard == "LVCMOS33") 
+      "-io_std LVCMOS33"
+      } else {""}
+    addConstraint(s"set_io -port_name {${io.name}} -pin_name ${pin} -fixed true -DIRECTION ${dir} ${ioSt} ")
   }
 }
 
