@@ -205,15 +205,15 @@ foreach report [lsort $reports] {
   while {[gets $fp line] >= 0} {
     set what [string trim "$line"]
     set eof false
-    if { "$what" == "This report was not generated" } {
+    if { "$what" == "<text>This report was not generated</text>" } {
       puts "empty"
       break
     }
-    if { "$what" == "No Path" } {
+    if { "$what" == "<text>No Path</text>" } {
       puts "pass"
       break
     }
-    if { "$what" == "Path 1" } {
+    if { "$what" == "<text>Path 1</text>" } {
       puts "failed"
       set ok false
       break
