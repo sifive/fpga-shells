@@ -111,8 +111,8 @@ class PCIeVeraOverlay(val shell: VeraShell, val name: String, params: PCIeOverla
     pf_reset.io.CLK      := coreClock
     pf_reset.io.PLL_LOCK := shell.pllFactory.plls.getWrappedValue(1)._1.getLocked
     pf_reset.io.INIT_DONE := shell.initMonitor.io.DEVICE_INIT_DONE
-    //pf_reset.io.EXT_RST_N := shell.chiplink.getWrappedValue.get.ereset_n
-    pf_reset.io.EXT_RST_N := true.B
+    pf_reset.io.EXT_RST_N := !shell.pllReset
+    //pf_reset.io.EXT_RST_N := true.B
     pf_reset.io.SS_BUSY := false.B
     pf_reset.io.FF_US_RESTORE := false.B
     val sys_reset_n = pf_reset.io.FABRIC_RESET_N
@@ -140,6 +140,13 @@ class PCIeVeraOverlay(val shell: VeraShell, val name: String, params: PCIeOverla
     val perst_sata_slot = IO(Output(Bool()))
     perst_sata_slot.suggestName("perst_sata_slot")
 
+    val led_test = IO(Output(Bool()))
+    led_test.suggestName("led_test")
+    val led_test1 = IO(Output(Bool()))
+    led_test1.suggestName("led_test1")
+    val led_test2 = IO(Output(Bool()))
+    led_test2.suggestName("led_test2")
+
     withClockAndReset(coreClock, !sys_reset_n) {
       val timer = RegInit(UInt(268435456, width=29))
       timer := timer - timer.orR
@@ -150,7 +157,11 @@ class PCIeVeraOverlay(val shell: VeraShell, val name: String, params: PCIeOverla
       perst_x16_slot := pf_rstb_i
       perst_m2_slot := pf_rstb_i
       perst_sata_slot := pf_rstb_i
-    }    
+
+      led_test := pf_rstb_i
+    }
+    led_test1 := shell.initMonitor.io.PCIE_INIT_DONE
+    led_test2 := shell.pllFactory.plls.getWrappedValue(1)._1.getLocked
 
     port.APB_S_PCLK                  := coreClock
     port.APB_S_PRESET_N              := true.B
@@ -165,6 +176,9 @@ class PCIeVeraOverlay(val shell: VeraShell, val name: String, params: PCIeOverla
     port.PCIESS_LANE3_CDR_REF_CLK_0  := refClk.io.REF_CLK
     port.PCIE_1_TX_PLL_LOCK          := pcie_tx_pll.io.LOCK
 
+    shell.io_pdc.addPin(led_test, "AK17")
+    shell.io_pdc.addPin(led_test1, "AN17")
+    shell.io_pdc.addPin(led_test2, "AM17")
     shell.io_pdc.addPin(pf_rstb, "AG15")
     shell.io_pdc.addPin(perst_x1_slot, "B4", ioStandard = "LVCMOS33")
     shell.io_pdc.addPin(perst_x16_slot, "A4", ioStandard = "LVCMOS33")
@@ -201,7 +215,7 @@ class VeraShell()(implicit p: Parameters) extends PolarFireShell
   val pllReset = InModuleBody { Wire(Bool()) }
 
   val sys_clock = Overlay(ClockInputOverlayKey)(new SysClockVeraOverlay(_, _, _))
-  val led       = Overlay(LEDOverlayKey)       (new LEDVeraOverlay     (_, _, _))
+//  val led       = Overlay(LEDOverlayKey)       (new LEDVeraOverlay     (_, _, _))
   val chiplink  = Overlay(ChipLinkOverlayKey)  (new ChipLinkVeraOverlay(_, _, _))
   val pcie      = Overlay(PCIeOverlayKey)      (new PCIeVeraOverlay    (_, _, _))
 
