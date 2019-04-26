@@ -37,6 +37,7 @@ if { [llength [get_ports -quiet {ulpi_clk}]] > 0 } { create_clock -add -name ULP
 set group_jtag [get_clocks -quiet {JTCK}]
 
 if { [llength [get_ports -quiet {ulpi_clk}]] > 0 } { set group_ulpi [get_clocks -quiet {ULPI_CLK}] }
+else {set group_ulpi {} }
 
 puts "group_mem: $group_mem"
 puts "group_sys: $group_sys"
