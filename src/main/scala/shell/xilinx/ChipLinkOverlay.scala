@@ -46,18 +46,18 @@ abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams, rxPhase: Dou
     IOPin.of(io).filter(_.isOutput).foreach { shell.xdc.addSlew(_, "FAST") }
 
     val timing = IOTiming(
-      /* The data signals coming from Aloe have: clock - 1.2 <= transition <= clock + 0.8
-       *   min = hold           = - 1.2
-       *   max = period - setup =   0.8
+      /* The data signals coming from Aloe have: clock - 0 <= transition <= clock + 0.871
+       *   min = hold           =  0
+       *   max = period - setup =  0.871
        */
-      minInput  = -1.2 - rxMargin,
-      maxInput  =  0.8 + rxMargin,
-      /* The data signals going to Aloe must have: clock - 1.85 <= NO transition <= clock + 0.65
-       *   min = -hold = -0.65
-       *   max = setup =  1.85
+      minInput  =  0 - rxMargin,
+      maxInput  =  0.871 + rxMargin,
+      /* The data signals going to Aloe must have: clock - 0 <= NO transition <= clock + 0.928
+       *   min = -hold =  0
+       *   max = setup =  0.928
        */
-      minOutput = -0.65 - txMargin,
-      maxOutput =  1.85 + txMargin)
+      minOutput =  0 - txMargin,
+      maxOutput =  0.928 + txMargin)
 
     shell.sdc.addClock(s"${name}_b2c_clock", io.b2c.clk, rxEdge.clock.freqMHz, 0.3)
     shell.sdc.addDerivedClock(s"${name}_c2b_clock", oddr.io.C, io.c2b.clk)
