@@ -208,7 +208,7 @@ trait HasVC707ChipLink { this: VC707Shell =>
         set_property PACKAGE_PIN V39 [get_ports {${direction1Pins}_data[28]}]
         set_property PACKAGE_PIN V40 [get_ports {${direction1Pins}_data[29]}]
         set_property PACKAGE_PIN P37 [get_ports {${direction1Pins}_data[30]}]
-        set_property PACKAGE_PIN P38 [get_ports {${direction1Pins}_data[31]}]
+        set_property PACKAGE_PIN P38 [get_ports {${direction1Pins}_data[31]}]""" + s"""
 
         set_property PACKAGE_PIN T36 [get_ports ${direction1Pins}_send]
         set_property PACKAGE_PIN R37 [get_ports ${direction1Pins}_rst]
@@ -308,7 +308,7 @@ trait HasVC707ChipLink { this: VC707Shell =>
         set_property SLEW FAST [get_ports {${direction1Pins}_data[3]}]
         set_property SLEW FAST [get_ports {${direction1Pins}_data[2]}]
         set_property SLEW FAST [get_ports {${direction1Pins}_data[1]}]
-        set_property SLEW FAST [get_ports {${direction1Pins}_data[0]}]
+        set_property SLEW FAST [get_ports {${direction1Pins}_data[0]}]""" + s"""
 
 
         set_property IOSTANDARD LVCMOS18 [get_ports ${direction0Pins}_clk]
