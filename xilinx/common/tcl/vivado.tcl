@@ -1,5 +1,8 @@
 # See LICENSE for license details.
 
+set BOARD [lindex $argv 0]
+set CONFIG [lindex $argv 1]
+
 # Set the variable for the directory that includes all scripts
 set scriptdir [file dirname [info script]]
 

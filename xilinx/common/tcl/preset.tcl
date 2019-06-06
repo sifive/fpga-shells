@@ -17,6 +17,9 @@ while {[llength $argv]} {
     -board {
       set argv [lassign $argv[set argv {}] board]
     }
+    -config {
+      set argv [lassign $argv[set argv {}] config]
+    }
     -ip-vivado-tcls {
       set argv [lassign $argv[set argv {}] ip_vivado_tcls]
     }
@@ -63,8 +66,10 @@ set wrkdir [file join [pwd] obj]
 # Create the directory for IPs
 set ipdir [file join $wrkdir ip]
 
+set mid_name _freedom_
+
 # Create the name for project
-set proj_name $(BOARD)_freedom_$(CONFIG)
+set proj_name $board$mid_name$config
 
 # Set the directory path for the original project from where this script was exported
 set orig_proj_dir "[file normalize "./$proj_name"]"
@@ -123,3 +128,4 @@ if {[get_filesets -quiet constrs_1] eq ""} {
 
 set obj [current_fileset -constrset]
 add_files -norecurse -fileset $obj [glob -directory $constraintsdir {*.xdc}]
+
