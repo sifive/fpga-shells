@@ -138,6 +138,26 @@ class JTAGDebugArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Stri
   } }
 }
 
+//cjtag
+class cJTAGDebugArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: cJTAGDebugOverlayParams)
+  extends cJTAGDebugXilinxOverlay(params)
+{
+  shell { InModuleBody {
+    shell.sdc.addClock("JTCKC", IOPin(io.cjtag_TCKC), 10)
+    shell.sdc.addGroup(clocks = Seq("JTCKC"))
+    shell.xdc.clockDedicatedRouteFalse(IOPin(io.cjtag_TCKC))
+    val packagePinsWithPackageIOs = Seq(("F4", IOPin(io.cjtag_TCKC)),  //pin JD-3
+      ("D2", IOPin(io.cjtag_TMSC)),  //pin JD-8
+      ("H2", IOPin(io.srst_n)))
+
+    packagePinsWithPackageIOs foreach { case (pin, io) => {
+      shell.xdc.addPackagePin(io, pin)
+      shell.xdc.addIOStandard(io, "LVCMOS33")
+      shell.xdc.addPullup(io)
+    } }
+  } }
+}
+
 case object ArtyDDRSize extends Field[BigInt](0x10000000L * 1) // 256 MB
 class DDRArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: DDROverlayParams)
   extends DDROverlay[XilinxArty100TMIGPads](params)
@@ -194,6 +214,7 @@ abstract class Arty100TShellBasicOverlays()(implicit p: Parameters) extends Seri
   val uart      = Overlay(UARTOverlayKey)      (new UARTArtyOverlay       (_, _, _))
   val sdio      = Overlay(SDIOOverlayKey)      (new SDIOArtyOverlay       (_, _, _))
   val jtag      = Overlay(JTAGDebugOverlayKey) (new JTAGDebugArtyOverlay  (_, _, _))
+  val cjtag     = Overlay(cJTAGDebugOverlayKey) (new cJTAGDebugArtyOverlay  (_, _, _))
   val spi_flash = Overlay(SPIFlashOverlayKey)  (new SPIFlashArtyOverlay   (_, _, _))
 }
 
