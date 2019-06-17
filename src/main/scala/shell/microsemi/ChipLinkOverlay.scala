@@ -8,7 +8,7 @@ import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.microsemi._
 
  abstract class ChipLinkPolarFireOverlay(params: ChipLinkOverlayParams)
-  extends ChipLinkOverlay(params, rxPhase=216, txPhase=270)
+  extends ChipLinkOverlay(params, rxPhase=180, txPhase=270)
 {
   def shell: PolarFireShell
 
@@ -58,8 +58,8 @@ import sifive.fpgashells.ip.microsemi._
        *   min = hold           = - 1.2
        *   max = period - setup =   0.8
        */
-      minInput  = -1.2 - rxMargin + periodNs*2,
-      maxInput  =  0.8 + rxMargin + periodNs*2,
+      minInput  =  -2.2 - rxMargin + periodNs*2,
+      maxInput  =  -0.2 + rxMargin + periodNs*2,
       /* The data signals going to Aloe must have: clock - 1.85 <= NO transition <= clock + 0.65
        *   min = -hold = -0.65
        *   max = setup =  1.85
