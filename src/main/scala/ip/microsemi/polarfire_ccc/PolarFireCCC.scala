@@ -33,7 +33,6 @@ class PolarFireCCCIOPads(c : PLLParameters) extends Bundle {
   val PLL_LOCK_0     = Bool(OUTPUT)
 }
 
-<<<<<<< 4c8910a7ed693cdde7b86db8307bcf9d57d6cb99
 //scalastyle:off
 //turn off linter: blackbox name must match verilog module
 class PolarFireCCC(c : PLLParameters) extends BlackBox with PLLInstance {
