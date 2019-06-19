@@ -23,5 +23,10 @@
         "commit": "228c9a4b7432ac52178d63b8f27fe064aec71e9c",
         "name": "firrtl",
         "source": "git@github.com:freechipsproject/firrtl.git"
+    },
+    {
+        "commit": "9c4bcd00b1d3c2ca667e330303ee8fa26432d687",
+        "name": "scala-wake",
+        "source": "git@github.com:sifive/scala-wake.git"
     }
 ]
