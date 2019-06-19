@@ -71,7 +71,7 @@ class JTAGF1VU9POverlay(val shell: F1VU9PShellBasicOverlays, val name: String, p
 
 case object F1VU9PDDRSize extends Field[BigInt](0x400000000L * 1) // 16 GiB (in bytes)
 class DisableDDRF1VU9POverlay(val shell: F1VU9PShellBasicOverlays, val name: String, params: DDROverlayParams)
-  extends DDROverlay[XilinxF1VU9PDDRPads](params)
+  extends DDROverlay[F1VU9PDDRIO](params)
 {
   val size = p(F1VU9PDDRSize)
 	val ddrParams = XilinxF1VU9PDDRParams(addresses = Seq(AddressSet.misaligned(params.baseAddress, size),
@@ -79,20 +79,98 @@ class DisableDDRF1VU9POverlay(val shell: F1VU9PShellBasicOverlays, val name: Str
                                                         AddressSet.misaligned(params.baseAddress + 3 * size, size)), // 3x because we want RAM D to be after C
                                         instantiate = Seq(false, false, false))
   val ddr = LazyModule(new XilinxF1VU9PDDR(ddrParams))
-  val ioNode = BundleBridgeSource(() => ddr.module.io.cloneType)
-  val topIONode = shell { ioNode.makeSink() }
+  val ddrSource = BundleBridgeSource(() => new F1VU9PDDRSignalsFlipped)
+  val ddrSink = shell { ddrSource.makeSink() }
   
   // implement abstract methods from Overlay and IOOverlay
-  def designOutput = ddr.node
-  def ioFactory = new XilinxF1VU9PDDRPads
+  def designOutput = ddr.node 
+  def ioFactory = new F1VU9PDDRIO
 
-  InModuleBody { ioNode.bundle <> ddr.module.io }
+  InModuleBody { ddrSource.bundle <> ddr.module.io.port }
 
   shell { InModuleBody {
     require (shell.clk_main_a0.isDefined, "Use of DisableDDRF1VU9PPOverlay depends on SysClockF1VU9POverlay")
     val (sys, _) = shell.clk_main_a0.get.node.out(0)
-    val port = topIONode.bundle.port
-    io <> port
+    val port = ddrSink.bundle
+    
+    nbitAnalog2BasePin(io.M_A_DQ,      port.M_A_DQ_bp)
+    nbitAnalog2BasePin(io.M_A_ECC,     port.M_A_ECC_bp)
+    nbitAnalog2BasePin(io.M_A_DQS_DP,  port.M_A_DQS_DP_bp)
+    nbitAnalog2BasePin(io.M_A_DQS_DN,  port.M_A_DQS_DN_bp)
+    nbitAnalog2BasePin(io.M_B_DQ,      port.M_B_DQ_bp)
+    nbitAnalog2BasePin(io.M_B_ECC,     port.M_B_ECC_bp)
+    nbitAnalog2BasePin(io.M_B_DQS_DP,  port.M_B_DQS_DP_bp)
+    nbitAnalog2BasePin(io.M_B_DQS_DN,  port.M_B_DQS_DN_bp)
+    nbitAnalog2BasePin(io.M_D_DQ,      port.M_D_DQ_bp)
+    nbitAnalog2BasePin(io.M_D_ECC,     port.M_D_ECC_bp)
+    nbitAnalog2BasePin(io.M_D_DQS_DP,  port.M_D_DQS_DP_bp)
+    nbitAnalog2BasePin(io.M_D_DQS_DN,  port.M_D_DQS_DN_bp)
+
+    port.CLK_300M_DIMM0_DP  := io.CLK_300M_DIMM0_DP  
+    port.CLK_300M_DIMM0_DN  := io.CLK_300M_DIMM0_DN  
+    io.M_A_ACT_N            := port.M_A_ACT_N          
+    io.M_A_MA               := port.M_A_MA             
+    io.M_A_BA               := port.M_A_BA             
+    io.M_A_BG               := port.M_A_BG             
+    io.M_A_CKE              := port.M_A_CKE            
+    io.M_A_ODT              := port.M_A_ODT            
+    io.M_A_CS_N             := port.M_A_CS_N           
+    io.M_A_CLK_DN           := port.M_A_CLK_DN         
+    io.M_A_CLK_DP           := port.M_A_CLK_DP         
+    io.M_A_PAR              := port.M_A_PAR            
+    io.cl_RST_DIMM_A_N      := port.cl_RST_DIMM_A_N    
+    port.CLK_300M_DIMM1_DP  := io.CLK_300M_DIMM1_DP  
+    port.CLK_300M_DIMM1_DN  := io.CLK_300M_DIMM1_DN  
+    io.M_B_ACT_N            := port.M_B_ACT_N          
+    io.M_B_MA               := port.M_B_MA             
+    io.M_B_BA               := port.M_B_BA             
+    io.M_B_BG               := port.M_B_BG             
+    io.M_B_CKE              := port.M_B_CKE            
+    io.M_B_ODT              := port.M_B_ODT            
+    io.M_B_CS_N             := port.M_B_CS_N           
+    io.M_B_CLK_DN           := port.M_B_CLK_DN         
+    io.M_B_CLK_DP           := port.M_B_CLK_DP         
+    io.M_B_PAR              := port.M_B_PAR            
+    io.cl_RST_DIMM_B_N      := port.cl_RST_DIMM_B_N    
+    port.CLK_300M_DIMM3_DP  := io.CLK_300M_DIMM3_DP  
+    port.CLK_300M_DIMM3_DN  := io.CLK_300M_DIMM3_DN  
+    io.M_D_ACT_N            := port.M_D_ACT_N          
+    io.M_D_MA               := port.M_D_MA             
+    io.M_D_BA               := port.M_D_BA             
+    io.M_D_BG               := port.M_D_BG             
+    io.M_D_CKE              := port.M_D_CKE            
+    io.M_D_ODT              := port.M_D_ODT            
+    io.M_D_CS_N             := port.M_D_CS_N           
+    io.M_D_CLK_DN           := port.M_D_CLK_DN         
+    io.M_D_CLK_DP           := port.M_D_CLK_DP         
+    io.M_D_PAR              := port.M_D_PAR            
+    io.cl_RST_DIMM_D_N      := port.cl_RST_DIMM_D_N    
+    port.clk                := io.clk                
+    port.rst_n              := io.rst_n              
+    port.stat_clk           := io.stat_clk           
+    port.stat_rst_n         := io.stat_rst_n         
+    port.sh_ddr_stat_addr0  := io.sh_ddr_stat_addr0  
+    port.sh_ddr_stat_wr0    := io.sh_ddr_stat_wr0    
+    port.sh_ddr_stat_rd0    := io.sh_ddr_stat_rd0    
+    port.sh_ddr_stat_wdata0 := io.sh_ddr_stat_wdata0 
+    io.ddr_sh_stat_ack0     := port.ddr_sh_stat_ack0   
+    io.ddr_sh_stat_rdata0   := port.ddr_sh_stat_rdata0 
+    io.ddr_sh_stat_int0     := port.ddr_sh_stat_int0   
+    port.sh_ddr_stat_addr1  := io.sh_ddr_stat_addr1  
+    port.sh_ddr_stat_wr1    := io.sh_ddr_stat_wr1    
+    port.sh_ddr_stat_rd1    := io.sh_ddr_stat_rd1    
+    port.sh_ddr_stat_wdata1 := io.sh_ddr_stat_wdata1 
+    io.ddr_sh_stat_ack1     := port.ddr_sh_stat_ack1   
+    io.ddr_sh_stat_rdata1   := port.ddr_sh_stat_rdata1 
+    io.ddr_sh_stat_int1     := port.ddr_sh_stat_int1   
+    port.sh_ddr_stat_addr2  := io.sh_ddr_stat_addr2  
+    port.sh_ddr_stat_wr2    := io.sh_ddr_stat_wr2    
+    port.sh_ddr_stat_rd2    := io.sh_ddr_stat_rd2    
+    port.sh_ddr_stat_wdata2 := io.sh_ddr_stat_wdata2 
+    io.ddr_sh_stat_ack2     := port.ddr_sh_stat_ack2   
+    io.ddr_sh_stat_rdata2   := port.ddr_sh_stat_rdata2 
+    io.ddr_sh_stat_int2     := port.ddr_sh_stat_int2   
+
     port.clk := sys.clock.asUInt
     port.stat_clk := sys.clock.asUInt
     port.rst_n := !sys.reset
