@@ -34,30 +34,15 @@ class XilinxF1VU9PDDR(c: XilinxF1VU9PDDRParams)(implicit p: Parameters) extends 
 
   lazy val module = new LazyModuleImp(this) {
     val io = IO(new Bundle {
-      val port = new F1VU9PDDRSignals
+      val analog = new Bundle with F1VU9PDDRIO
+      val directioned = new F1VU9PDDRBase
     })
 
-    io.port <> island.module.io.port
+    io <> island.module.io
     
     // connect inferred clock/reset
     //island.module.clock := io.port.clk
     //island.module.reset := !io.port.rst_n
-  }
-}
-
-// Connects Vec(n, Analog(1.W)) to Vec(n, BasePin)
-// used to connect BlackBox and then to break out Analog IO at the shell level
-// BasePins are required since BundleBridges don't support mixed Analog/Directioned IO
-class nbitAnalog2BasePin
-object nbitAnalog2BasePin {
-  def apply(analog: Vec[Analog], basepin: Seq[BasePin]): Unit = {
-    val n = basepin.length
-    // shouldn't really need this check but ya never know
-    require (n == analog.length, s"analog and basepin must both be ${n} bits long")
-    (analog zip basepin).foreach { case (a,b) =>
-      IOBUF(a,b)
-      KEEPER(a)
-    }
   }
 }
 
@@ -87,7 +72,8 @@ class XilinxF1VU9PDDRIsland(c: XilinxF1VU9PDDRParams)(implicit p: Parameters) ex
   
   lazy val module = new LazyModuleImp(this) {
     val io = IO(new Bundle {
-      val port = new F1VU9PDDRSignals
+      val analog = new Bundle with F1VU9PDDRIO
+      val directioned = new F1VU9PDDRBase
     })
 
     val blackbox = Module(new F1VU9PDDRBlackBox(c.instantiate)) // has F1VU9PDDRIO with F1VU9PAXISignals
@@ -100,100 +86,100 @@ class XilinxF1VU9PDDRIsland(c: XilinxF1VU9PDDRParams)(implicit p: Parameters) ex
     // DDR connections
     //-----------------------------
     // Analog (inout) connections
-    nbitAnalog2BasePin(blackbox.io.M_A_DQ,      io.port.M_A_DQ_bp)
-    nbitAnalog2BasePin(blackbox.io.M_A_ECC,     io.port.M_A_ECC_bp)
-    nbitAnalog2BasePin(blackbox.io.M_A_DQS_DP,  io.port.M_A_DQS_DP_bp)
-    nbitAnalog2BasePin(blackbox.io.M_A_DQS_DN,  io.port.M_A_DQS_DN_bp)
-    nbitAnalog2BasePin(blackbox.io.M_B_DQ,      io.port.M_B_DQ_bp)
-    nbitAnalog2BasePin(blackbox.io.M_B_ECC,     io.port.M_B_ECC_bp)
-    nbitAnalog2BasePin(blackbox.io.M_B_DQS_DP,  io.port.M_B_DQS_DP_bp)
-    nbitAnalog2BasePin(blackbox.io.M_B_DQS_DN,  io.port.M_B_DQS_DN_bp)
-    nbitAnalog2BasePin(blackbox.io.M_D_DQ,      io.port.M_D_DQ_bp)
-    nbitAnalog2BasePin(blackbox.io.M_D_ECC,     io.port.M_D_ECC_bp)
-    nbitAnalog2BasePin(blackbox.io.M_D_DQS_DP,  io.port.M_D_DQS_DP_bp)
-    nbitAnalog2BasePin(blackbox.io.M_D_DQS_DN,  io.port.M_D_DQS_DN_bp)
+    attach(blackbox.io.M_A_DQ,      io.analog.M_A_DQ)
+    attach(blackbox.io.M_A_ECC,     io.analog.M_A_ECC)
+    attach(blackbox.io.M_A_DQS_DP,  io.analog.M_A_DQS_DP)
+    attach(blackbox.io.M_A_DQS_DN,  io.analog.M_A_DQS_DN)
+    attach(blackbox.io.M_B_DQ,      io.analog.M_B_DQ)
+    attach(blackbox.io.M_B_ECC,     io.analog.M_B_ECC)
+    attach(blackbox.io.M_B_DQS_DP,  io.analog.M_B_DQS_DP)
+    attach(blackbox.io.M_B_DQS_DN,  io.analog.M_B_DQS_DN)
+    attach(blackbox.io.M_D_DQ,      io.analog.M_D_DQ)
+    attach(blackbox.io.M_D_ECC,     io.analog.M_D_ECC)
+    attach(blackbox.io.M_D_DQS_DP,  io.analog.M_D_DQS_DP)
+    attach(blackbox.io.M_D_DQS_DN,  io.analog.M_D_DQS_DN)
     // OUTPUTS
     // block A
-    io.port.M_A_ACT_N       := blackbox.io.M_A_ACT_N
-    io.port.M_A_MA          := blackbox.io.M_A_MA
-    io.port.M_A_BA          := blackbox.io.M_A_BA
-    io.port.M_A_BG          := blackbox.io.M_A_BG
-    io.port.M_A_CKE         := blackbox.io.M_A_CKE
-    io.port.M_A_ODT         := blackbox.io.M_A_ODT
-    io.port.M_A_CS_N        := blackbox.io.M_A_CS_N
-    io.port.M_A_CLK_DN      := blackbox.io.M_A_CLK_DN
-    io.port.M_A_CLK_DP      := blackbox.io.M_A_CLK_DP
-    io.port.M_A_PAR         := blackbox.io.M_A_PAR
-    io.port.cl_RST_DIMM_A_N := blackbox.io.cl_RST_DIMM_A_N
+    io.directioned.M_A_ACT_N       := blackbox.io.M_A_ACT_N
+    io.directioned.M_A_MA          := blackbox.io.M_A_MA
+    io.directioned.M_A_BA          := blackbox.io.M_A_BA
+    io.directioned.M_A_BG          := blackbox.io.M_A_BG
+    io.directioned.M_A_CKE         := blackbox.io.M_A_CKE
+    io.directioned.M_A_ODT         := blackbox.io.M_A_ODT
+    io.directioned.M_A_CS_N        := blackbox.io.M_A_CS_N
+    io.directioned.M_A_CLK_DN      := blackbox.io.M_A_CLK_DN
+    io.directioned.M_A_CLK_DP      := blackbox.io.M_A_CLK_DP
+    io.directioned.M_A_PAR         := blackbox.io.M_A_PAR
+    io.directioned.cl_RST_DIMM_A_N := blackbox.io.cl_RST_DIMM_A_N
     // block B
-    io.port.M_B_ACT_N       := blackbox.io.M_B_ACT_N
-    io.port.M_B_MA          := blackbox.io.M_B_MA
-    io.port.M_B_BA          := blackbox.io.M_B_BA
-    io.port.M_B_BG          := blackbox.io.M_B_BG
-    io.port.M_B_CKE         := blackbox.io.M_B_CKE
-    io.port.M_B_ODT         := blackbox.io.M_B_ODT
-    io.port.M_B_CS_N        := blackbox.io.M_B_CS_N
-    io.port.M_B_CLK_DN      := blackbox.io.M_B_CLK_DN
-    io.port.M_B_CLK_DP      := blackbox.io.M_B_CLK_DP
-    io.port.M_B_PAR         := blackbox.io.M_B_PAR
-    io.port.cl_RST_DIMM_B_N := blackbox.io.cl_RST_DIMM_B_N
+    io.directioned.M_B_ACT_N       := blackbox.io.M_B_ACT_N
+    io.directioned.M_B_MA          := blackbox.io.M_B_MA
+    io.directioned.M_B_BA          := blackbox.io.M_B_BA
+    io.directioned.M_B_BG          := blackbox.io.M_B_BG
+    io.directioned.M_B_CKE         := blackbox.io.M_B_CKE
+    io.directioned.M_B_ODT         := blackbox.io.M_B_ODT
+    io.directioned.M_B_CS_N        := blackbox.io.M_B_CS_N
+    io.directioned.M_B_CLK_DN      := blackbox.io.M_B_CLK_DN
+    io.directioned.M_B_CLK_DP      := blackbox.io.M_B_CLK_DP
+    io.directioned.M_B_PAR         := blackbox.io.M_B_PAR
+    io.directioned.cl_RST_DIMM_B_N := blackbox.io.cl_RST_DIMM_B_N
     // block D                 .
-    io.port.M_D_ACT_N       := blackbox.io.M_D_ACT_N
-    io.port.M_D_MA          := blackbox.io.M_D_MA
-    io.port.M_D_BA          := blackbox.io.M_D_BA
-    io.port.M_D_BG          := blackbox.io.M_D_BG
-    io.port.M_D_CKE         := blackbox.io.M_D_CKE
-    io.port.M_D_ODT         := blackbox.io.M_D_ODT
-    io.port.M_D_CS_N        := blackbox.io.M_D_CS_N
-    io.port.M_D_CLK_DN      := blackbox.io.M_D_CLK_DN
-    io.port.M_D_CLK_DP      := blackbox.io.M_D_CLK_DP
-    io.port.M_D_PAR         := blackbox.io.M_D_PAR
-    io.port.cl_RST_DIMM_D_N := blackbox.io.cl_RST_DIMM_D_N
+    io.directioned.M_D_ACT_N       := blackbox.io.M_D_ACT_N
+    io.directioned.M_D_MA          := blackbox.io.M_D_MA
+    io.directioned.M_D_BA          := blackbox.io.M_D_BA
+    io.directioned.M_D_BG          := blackbox.io.M_D_BG
+    io.directioned.M_D_CKE         := blackbox.io.M_D_CKE
+    io.directioned.M_D_ODT         := blackbox.io.M_D_ODT
+    io.directioned.M_D_CS_N        := blackbox.io.M_D_CS_N
+    io.directioned.M_D_CLK_DN      := blackbox.io.M_D_CLK_DN
+    io.directioned.M_D_CLK_DP      := blackbox.io.M_D_CLK_DP
+    io.directioned.M_D_PAR         := blackbox.io.M_D_PAR
+    io.directioned.cl_RST_DIMM_D_N := blackbox.io.cl_RST_DIMM_D_N
     // INPUTS
     // block A
-    blackbox.io.CLK_300M_DIMM0_DP := io.port.CLK_300M_DIMM0_DP
-    blackbox.io.CLK_300M_DIMM0_DN := io.port.CLK_300M_DIMM0_DN
+    blackbox.io.CLK_300M_DIMM0_DP := io.directioned.CLK_300M_DIMM0_DP
+    blackbox.io.CLK_300M_DIMM0_DN := io.directioned.CLK_300M_DIMM0_DN
     // block B
-    blackbox.io.CLK_300M_DIMM1_DP := io.port.CLK_300M_DIMM1_DP
-    blackbox.io.CLK_300M_DIMM1_DN := io.port.CLK_300M_DIMM1_DN
+    blackbox.io.CLK_300M_DIMM1_DP := io.directioned.CLK_300M_DIMM1_DP
+    blackbox.io.CLK_300M_DIMM1_DN := io.directioned.CLK_300M_DIMM1_DN
     // block D
-    blackbox.io.CLK_300M_DIMM3_DP := io.port.CLK_300M_DIMM3_DP
-    blackbox.io.CLK_300M_DIMM3_DN := io.port.CLK_300M_DIMM3_DN
+    blackbox.io.CLK_300M_DIMM3_DP := io.directioned.CLK_300M_DIMM3_DP
+    blackbox.io.CLK_300M_DIMM3_DN := io.directioned.CLK_300M_DIMM3_DN
     
     //----------------------------
     // Management
     //----------------------------
     // Clocks/Resets
-    blackbox.io.clk                 := io.port.clk              
-    blackbox.io.rst_n               := io.port.rst_n            
-    blackbox.io.stat_clk            := io.port.stat_clk         
-    blackbox.io.stat_rst_n          := io.port.stat_rst_n
+    blackbox.io.clk         := io.directioned.clk              
+    blackbox.io.rst_n       := io.directioned.rst_n            
+    blackbox.io.stat_clk    := io.directioned.stat_clk         
+    blackbox.io.stat_rst_n  := io.directioned.stat_rst_n
     
     // DDR status
     // block A
-    blackbox.io.sh_ddr_stat_addr0   := io.port.sh_ddr_stat_addr0  
-    blackbox.io.sh_ddr_stat_wdata0  := io.port.sh_ddr_stat_wdata0 
-    io.port.ddr_sh_stat_rdata0      := blackbox.io.ddr_sh_stat_rdata0
-    io.port.ddr_sh_stat_int0        := blackbox.io.ddr_sh_stat_int0
-    blackbox.io.sh_ddr_stat_wr0     := io.port.sh_ddr_stat_wr0    
-    blackbox.io.sh_ddr_stat_rd0     := io.port.sh_ddr_stat_rd0    
-    io.port.ddr_sh_stat_ack0        := blackbox.io.ddr_sh_stat_ack0
+    blackbox.io.sh_ddr_stat_addr0     := io.directioned.sh_ddr_stat_addr0  
+    blackbox.io.sh_ddr_stat_wdata0    := io.directioned.sh_ddr_stat_wdata0 
+    io.directioned.ddr_sh_stat_rdata0 := blackbox.io.ddr_sh_stat_rdata0
+    io.directioned.ddr_sh_stat_int0   := blackbox.io.ddr_sh_stat_int0
+    blackbox.io.sh_ddr_stat_wr0       := io.directioned.sh_ddr_stat_wr0    
+    blackbox.io.sh_ddr_stat_rd0       := io.directioned.sh_ddr_stat_rd0    
+    io.directioned.ddr_sh_stat_ack0   := blackbox.io.ddr_sh_stat_ack0
     // block B
-    blackbox.io.sh_ddr_stat_addr1   := io.port.sh_ddr_stat_addr1  
-    blackbox.io.sh_ddr_stat_wdata1  := io.port.sh_ddr_stat_wdata1 
-    io.port.ddr_sh_stat_rdata1      := blackbox.io.ddr_sh_stat_rdata1
-    io.port.ddr_sh_stat_int1        := blackbox.io.ddr_sh_stat_int1
-    blackbox.io.sh_ddr_stat_wr1     := io.port.sh_ddr_stat_wr1    
-    blackbox.io.sh_ddr_stat_rd1     := io.port.sh_ddr_stat_rd1    
-    io.port.ddr_sh_stat_ack1        := blackbox.io.ddr_sh_stat_ack1
+    blackbox.io.sh_ddr_stat_addr1     := io.directioned.sh_ddr_stat_addr1  
+    blackbox.io.sh_ddr_stat_wdata1    := io.directioned.sh_ddr_stat_wdata1 
+    io.directioned.ddr_sh_stat_rdata1 := blackbox.io.ddr_sh_stat_rdata1
+    io.directioned.ddr_sh_stat_int1   := blackbox.io.ddr_sh_stat_int1
+    blackbox.io.sh_ddr_stat_wr1       := io.directioned.sh_ddr_stat_wr1    
+    blackbox.io.sh_ddr_stat_rd1       := io.directioned.sh_ddr_stat_rd1    
+    io.directioned.ddr_sh_stat_ack1   := blackbox.io.ddr_sh_stat_ack1
     // block D
-    blackbox.io.sh_ddr_stat_addr2   := io.port.sh_ddr_stat_addr2  
-    blackbox.io.sh_ddr_stat_wdata2  := io.port.sh_ddr_stat_wdata2 
-    io.port.ddr_sh_stat_rdata2      := blackbox.io.ddr_sh_stat_rdata2
-    io.port.ddr_sh_stat_int2        := blackbox.io.ddr_sh_stat_int2
-    blackbox.io.sh_ddr_stat_wr2     := io.port.sh_ddr_stat_wr2    
-    blackbox.io.sh_ddr_stat_rd2     := io.port.sh_ddr_stat_rd2    
-    io.port.ddr_sh_stat_ack2        := blackbox.io.ddr_sh_stat_ack2
+    blackbox.io.sh_ddr_stat_addr2     := io.directioned.sh_ddr_stat_addr2  
+    blackbox.io.sh_ddr_stat_wdata2    := io.directioned.sh_ddr_stat_wdata2 
+    io.directioned.ddr_sh_stat_rdata2 := blackbox.io.ddr_sh_stat_rdata2
+    io.directioned.ddr_sh_stat_int2   := blackbox.io.ddr_sh_stat_int2
+    blackbox.io.sh_ddr_stat_wr2       := io.directioned.sh_ddr_stat_wr2    
+    blackbox.io.sh_ddr_stat_rd2       := io.directioned.sh_ddr_stat_rd2    
+    io.directioned.ddr_sh_stat_ack2   := blackbox.io.ddr_sh_stat_ack2
 
     //--------------------------
     // AXI

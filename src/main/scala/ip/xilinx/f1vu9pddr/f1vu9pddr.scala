@@ -14,8 +14,11 @@ class F1VU9PDDRBlackBox(instantiate: Seq[Boolean]) extends BlackBox(Map(
   "DDR_A_PRESENT" -> (if (instantiate(0)) 1 else 0),
   "DDR_B_PRESENT" -> (if (instantiate(1)) 1 else 0),
   "DDR_D_PRESENT" -> (if (instantiate(2)) 1 else 0))) {
-  val io = IO(new F1VU9PDDRIO with F1VU9PAXISignals)
+  val io = IO(new F1VU9PDDRBase with F1VU9PDDRIO with F1VU9PAXISignals)
 }
+
+// toplevel interface
+class F1VU9PDDRPads extends F1VU9PDDRBase with F1VU9PDDRIO
 
 //----------------
 // DDR IOs
@@ -94,49 +97,19 @@ class F1VU9PDDRBase extends Bundle {
   val ddr_sh_stat_int2   = Output(UInt(8.W))
 }
 
-class F1VU9PDDRIO extends F1VU9PDDRBase {
-  val M_A_DQ             = Vec(64, Analog(1.W))
-  val M_A_ECC            = Vec(8, Analog(1.W))
-  val M_A_DQS_DP         = Vec(18, Analog(1.W))
-  val M_A_DQS_DN         = Vec(18, Analog(1.W))
-  val M_B_DQ             = Vec(64, Analog(1.W))
-  val M_B_ECC            = Vec(8, Analog(1.W))
-  val M_B_DQS_DP         = Vec(18, Analog(1.W))
-  val M_B_DQS_DN         = Vec(18, Analog(1.W))
-  val M_D_DQ             = Vec(64, Analog(1.W))
-  val M_D_ECC            = Vec(8, Analog(1.W))
-  val M_D_DQS_DP         = Vec(18, Analog(1.W))
-  val M_D_DQS_DN         = Vec(18, Analog(1.W))
-}
-
-class F1VU9PDDRSignals extends F1VU9PDDRBase {
-  val M_A_DQ_bp     = Vec(64, new BasePin)
-  val M_A_ECC_bp    = Vec(8,  new BasePin)
-  val M_A_DQS_DP_bp = Vec(18, new BasePin)
-  val M_A_DQS_DN_bp = Vec(18, new BasePin)
-  val M_B_DQ_bp     = Vec(64, new BasePin)
-  val M_B_ECC_bp    = Vec(8,  new BasePin)
-  val M_B_DQS_DP_bp = Vec(18, new BasePin)
-  val M_B_DQS_DN_bp = Vec(18, new BasePin)
-  val M_D_DQ_bp     = Vec(64, new BasePin)
-  val M_D_ECC_bp    = Vec(8,  new BasePin)
-  val M_D_DQS_DP_bp = Vec(18, new BasePin)
-  val M_D_DQS_DN_bp = Vec(18, new BasePin)
-}
-
-class F1VU9PDDRSignalsFlipped extends F1VU9PDDRBase {
-  val M_A_DQ_bp     = Vec(64, Flipped(new BasePin))
-  val M_A_ECC_bp    = Vec(8,  Flipped(new BasePin))
-  val M_A_DQS_DP_bp = Vec(18, Flipped(new BasePin))
-  val M_A_DQS_DN_bp = Vec(18, Flipped(new BasePin))
-  val M_B_DQ_bp     = Vec(64, Flipped(new BasePin))
-  val M_B_ECC_bp    = Vec(8,  Flipped(new BasePin))
-  val M_B_DQS_DP_bp = Vec(18, Flipped(new BasePin))
-  val M_B_DQS_DN_bp = Vec(18, Flipped(new BasePin))
-  val M_D_DQ_bp     = Vec(64, Flipped(new BasePin))
-  val M_D_ECC_bp    = Vec(8,  Flipped(new BasePin))
-  val M_D_DQS_DP_bp = Vec(18, Flipped(new BasePin))
-  val M_D_DQS_DN_bp = Vec(18, Flipped(new BasePin))
+trait F1VU9PDDRIO extends Bundle {
+  val M_A_DQ             = Analog(64.W)
+  val M_A_ECC            = Analog(8.W)
+  val M_A_DQS_DP         = Analog(18.W)
+  val M_A_DQS_DN         = Analog(18.W)
+  val M_B_DQ             = Analog(64.W)
+  val M_B_ECC            = Analog(8.W)
+  val M_B_DQS_DP         = Analog(18.W)
+  val M_B_DQS_DN         = Analog(18.W)
+  val M_D_DQ             = Analog(64.W)
+  val M_D_ECC            = Analog(8.W)
+  val M_D_DQS_DP         = Analog(18.W)
+  val M_D_DQS_DN         = Analog(18.W)
 }
 
 trait F1VU9PAXISignals extends Bundle {
@@ -172,39 +145,3 @@ trait F1VU9PAXISignals extends Bundle {
   val cl_sh_ddr_rready   = Input(Vec(3, Bool()))
   val sh_cl_ddr_is_ready = Output(Vec(3, Bool()))
 }
-
-/*
-// AXI interface
-trait F1VU9PAXIIO extends Bundle {
-  val cl_sh_ddr_awid     = Vec(3, Vec(16, Analog(1.W)))   // Input(Vec(3, UInt(16.W)))
-  val cl_sh_ddr_awaddr   = Vec(3, Vec(64, Analog(1.W)))   // Input(Vec(3, UInt(64.W)))
-  val cl_sh_ddr_awlen    = Vec(3, Vec(8, Analog(1.W)))    // Input(Vec(3, UInt(8.W)))
-  val cl_sh_ddr_awsize   = Vec(3, Vec(3, Analog(1.W)))    // Input(Vec(3, UInt(3.W)))
-  val cl_sh_ddr_awburst  = Vec(3, Vec(2, Analog(1.W)))    // Input(Vec(3, UInt(2.W)))
-  val cl_sh_ddr_awvalid  = Vec(3, Analog(1.W))            // Input(Vec(3, Bool()))
-  val sh_cl_ddr_awready  = Vec(3, Analog(1.W))            // Output(Vec(3, Bool()))
-  val cl_sh_ddr_wid      = Vec(3, Vec(16, Analog(1.W)))   // Input(Vec(3, UInt(16.W)))
-  val cl_sh_ddr_wdata    = Vec(3, Vec(512, Analog(1.W)))  // Input(Vec(3, UInt(512.W)))
-  val cl_sh_ddr_wstrb    = Vec(3, Vec(64, Analog(1.W)))   // Input(Vec(3, UInt(64.W)))
-  val cl_sh_ddr_wlast    = Vec(3, Analog(1.W))            // Input(Vec(3, Bool()))
-  val cl_sh_ddr_wvalid   = Vec(3, Analog(1.W))            // Input(Vec(3, Bool()))
-  val sh_cl_ddr_wready   = Vec(3, Analog(1.W))            // Output(Vec(3, Bool()))
-  val sh_cl_ddr_bid      = Vec(3, Vec(16, Analog(1.W)))   // Output(Vec(3, UInt(16.W)))
-  val sh_cl_ddr_bresp    = Vec(3, Vec(2, Analog(1.W)))    // Output(Vec(3, UInt(2.W)))
-  val sh_cl_ddr_bvalid   = Vec(3, Analog(1.W))            // Output(Vec(3, Bool()))
-  val cl_sh_ddr_bready   = Vec(3, Analog(1.W))            // Input(Vec(3, Bool()))
-  val cl_sh_ddr_arid     = Vec(3, Vec(16, Analog(1.W)))   // Input(Vec(3, UInt(16.W)))
-  val cl_sh_ddr_araddr   = Vec(3, Vec(64, Analog(1.W)))   // Input(Vec(3, UInt(64.W)))
-  val cl_sh_ddr_arlen    = Vec(3, Vec(8, Analog(1.W)))    // Input(Vec(3, UInt(8.W)))
-  val cl_sh_ddr_arsize   = Vec(3, Vec(3, Analog(1.W)))    // Input(Vec(3, UInt(3.W)))
-  val cl_sh_ddr_arburst  = Vec(3, Vec(2, Analog(1.W)))    // Input(Vec(3, UInt(2.W)))
-  val cl_sh_ddr_arvalid  = Vec(3, Analog(1.W))            // Input(Vec(3, Bool()))
-  val sh_cl_ddr_arready  = Vec(3, Analog(1.W))            // Output(Vec(3, Bool()))
-  val sh_cl_ddr_rid      = Vec(3, Vec(16, Analog(1.W)))   // Output(Vec(3, UInt(16.W)))
-  val sh_cl_ddr_rdata    = Vec(3, Vec(512, Analog(1.W)))  // Output(Vec(3, UInt(512.W)))
-  val sh_cl_ddr_rresp    = Vec(3, Vec(2, Analog(1.W)))    // Output(Vec(3, UInt(2.W)))
-  val sh_cl_ddr_rlast    = Vec(3, Analog(1.W))            // Output(Vec(3, Bool()))
-  val sh_cl_ddr_rvalid   = Vec(3, Analog(1.W))            // Output(Vec(3, Bool()))
-  val cl_sh_ddr_rready   = Vec(3, Analog(1.W))            // Input(Vec(3, Bool()))
-  val sh_cl_ddr_is_ready = Vec(3, Analog(1.W))            // Output(Vec(3, Bool()))
-}*/
