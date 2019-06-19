@@ -1,0 +1,27 @@
+[
+    {
+        "commit": "6a8db0404a667f8619ee5502aeb15b67b5abf3b9",
+        "name": "api-generator-sifive",
+        "source": "git@github.com:sifive/api-generator-sifive.git"
+    },
+    {
+        "commit": "152eafed78299de92b8bc45a930b6164c698cc85",
+        "name": "sifive-blocks",
+        "source": "git@github.com:sifive/sifive-blocks.git"
+    },
+    {
+        "commit": "e44e22beccdd5e1e43fd8a35f7c9c5687c821326",
+        "name": "rocket-chip",
+        "source": "git@github.com:freechipsproject/rocket-chip.git"
+    },
+    {
+        "commit": "e1aa5f3f5c0cdeb204047c3ca50801d9f7ea25f1",
+        "name": "chisel3",
+        "source": "git@github.com:freechipsproject/chisel3.git"
+    },
+    {
+        "commit": "228c9a4b7432ac52178d63b8f27fe064aec71e9c",
+        "name": "firrtl",
+        "source": "git@github.com:freechipsproject/firrtl.git"
+    }
+]
