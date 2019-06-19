@@ -5,7 +5,7 @@
         "source": "git@github.com:sifive/api-generator-sifive.git"
     },
     {
-        "commit": "152eafed78299de92b8bc45a930b6164c698cc85",
+        "commit": "58a2f90a376aaa07e73532b86cfcc686733a8893",
         "name": "sifive-blocks",
         "source": "git@github.com:sifive/sifive-blocks.git"
     },
@@ -26,7 +26,7 @@
     },
     {
         "commit": "9c4bcd00b1d3c2ca667e330303ee8fa26432d687",
-        "name": "scala-wake",
-        "source": "git@github.com:sifive/scala-wake.git"
+        "name": "api-scala-sifive",
+        "source": "git@github.com:sifive/api-scala-sifive.git"
     }
 ]
