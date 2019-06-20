@@ -10,11 +10,11 @@ import sifive.blocks.devices.pinctrl._
 
 // BlackBox definition for sh_ddr interface
 
-class F1VU9PDDRBlackBox(instantiate: Seq[Boolean]) extends BlackBox(Map(
+class sh_ddr(instantiate: Seq[Boolean]) extends BlackBox(Map(
   "DDR_A_PRESENT" -> (if (instantiate(0)) 1 else 0),
   "DDR_B_PRESENT" -> (if (instantiate(1)) 1 else 0),
   "DDR_D_PRESENT" -> (if (instantiate(2)) 1 else 0))) {
-  val io = IO(new F1VU9PDDRBase with F1VU9PDDRIO with F1VU9PAXISignals)
+  val io = IO(new F1VU9PDDRPads with F1VU9PAXISignals)
 }
 
 // toplevel interface
