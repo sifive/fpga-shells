@@ -69,14 +69,14 @@ class JTAGF1VU9POverlay(val shell: F1VU9PShellBasicOverlays, val name: String, p
   
 }
 
-case object F1VU9PDDRSize extends Field[BigInt](0x400000000L * 1) // 16 GiB (in bytes)
+case object F1VU9PDDRSize extends Field[BigInt](0x40000000L * 16) // 16 GiB (in bytes)
 class DisableDDRF1VU9POverlay(val shell: F1VU9PShellBasicOverlays, val name: String, params: DDROverlayParams)
   extends DDROverlay[F1VU9PDDRPads](params)
 {
   val size = p(F1VU9PDDRSize)
 	val ddrParams = XilinxF1VU9PDDRParams(addresses = Seq(AddressSet.misaligned(params.baseAddress, size),
-                                                        AddressSet.misaligned(params.baseAddress + size, size),
-                                                        AddressSet.misaligned(params.baseAddress + 3 * size, size)), // 3x because we want RAM D to be after C
+                                                      AddressSet.misaligned(params.baseAddress + size, size),
+                                                      AddressSet.misaligned(params.baseAddress + 3*size, size)),
                                         instantiate = Seq(false, false, false))
   val ddr = LazyModule(new XilinxF1VU9PDDR(ddrParams))
   val ddrDirectionedSource = BundleBridgeSource(() => new F1VU9PDDRBase)
@@ -111,72 +111,9 @@ class DisableDDRF1VU9POverlay(val shell: F1VU9PShellBasicOverlays, val name: Str
     attach(io.M_D_ECC,     analog.M_D_ECC)
     attach(io.M_D_DQS_DP,  analog.M_D_DQS_DP)
     attach(io.M_D_DQS_DN,  analog.M_D_DQS_DN)
-
-    directioned.CLK_300M_DIMM0_DP   := io.CLK_300M_DIMM0_DP  
-    directioned.CLK_300M_DIMM0_DN   := io.CLK_300M_DIMM0_DN  
-    io.M_A_ACT_N                    := directioned.M_A_ACT_N          
-    io.M_A_MA                       := directioned.M_A_MA             
-    io.M_A_BA                       := directioned.M_A_BA             
-    io.M_A_BG                       := directioned.M_A_BG             
-    io.M_A_CKE                      := directioned.M_A_CKE            
-    io.M_A_ODT                      := directioned.M_A_ODT            
-    io.M_A_CS_N                     := directioned.M_A_CS_N           
-    io.M_A_CLK_DN                   := directioned.M_A_CLK_DN         
-    io.M_A_CLK_DP                   := directioned.M_A_CLK_DP         
-    io.M_A_PAR                      := directioned.M_A_PAR            
-    io.cl_RST_DIMM_A_N              := directioned.cl_RST_DIMM_A_N    
-    directioned.CLK_300M_DIMM1_DP   := io.CLK_300M_DIMM1_DP  
-    directioned.CLK_300M_DIMM1_DN   := io.CLK_300M_DIMM1_DN  
-    io.M_B_ACT_N                    := directioned.M_B_ACT_N          
-    io.M_B_MA                       := directioned.M_B_MA             
-    io.M_B_BA                       := directioned.M_B_BA             
-    io.M_B_BG                       := directioned.M_B_BG             
-    io.M_B_CKE                      := directioned.M_B_CKE            
-    io.M_B_ODT                      := directioned.M_B_ODT            
-    io.M_B_CS_N                     := directioned.M_B_CS_N           
-    io.M_B_CLK_DN                   := directioned.M_B_CLK_DN         
-    io.M_B_CLK_DP                   := directioned.M_B_CLK_DP         
-    io.M_B_PAR                      := directioned.M_B_PAR            
-    io.cl_RST_DIMM_B_N              := directioned.cl_RST_DIMM_B_N    
-    directioned.CLK_300M_DIMM3_DP   := io.CLK_300M_DIMM3_DP  
-    directioned.CLK_300M_DIMM3_DN   := io.CLK_300M_DIMM3_DN  
-    io.M_D_ACT_N                    := directioned.M_D_ACT_N          
-    io.M_D_MA                       := directioned.M_D_MA             
-    io.M_D_BA                       := directioned.M_D_BA             
-    io.M_D_BG                       := directioned.M_D_BG             
-    io.M_D_CKE                      := directioned.M_D_CKE            
-    io.M_D_ODT                      := directioned.M_D_ODT            
-    io.M_D_CS_N                     := directioned.M_D_CS_N           
-    io.M_D_CLK_DN                   := directioned.M_D_CLK_DN         
-    io.M_D_CLK_DP                   := directioned.M_D_CLK_DP         
-    io.M_D_PAR                      := directioned.M_D_PAR            
-    io.cl_RST_DIMM_D_N              := directioned.cl_RST_DIMM_D_N    
-    directioned.clk                 := io.clk                
-    directioned.rst_n               := io.rst_n              
-    directioned.stat_clk            := io.stat_clk           
-    directioned.stat_rst_n          := io.stat_rst_n         
-    directioned.sh_ddr_stat_addr0   := io.sh_ddr_stat_addr0  
-    directioned.sh_ddr_stat_wr0     := io.sh_ddr_stat_wr0    
-    directioned.sh_ddr_stat_rd0     := io.sh_ddr_stat_rd0    
-    directioned.sh_ddr_stat_wdata0  := io.sh_ddr_stat_wdata0 
-    io.ddr_sh_stat_ack0             := directioned.ddr_sh_stat_ack0   
-    io.ddr_sh_stat_rdata0           := directioned.ddr_sh_stat_rdata0 
-    io.ddr_sh_stat_int0             := directioned.ddr_sh_stat_int0   
-    directioned.sh_ddr_stat_addr1   := io.sh_ddr_stat_addr1  
-    directioned.sh_ddr_stat_wr1     := io.sh_ddr_stat_wr1    
-    directioned.sh_ddr_stat_rd1     := io.sh_ddr_stat_rd1    
-    directioned.sh_ddr_stat_wdata1  := io.sh_ddr_stat_wdata1 
-    io.ddr_sh_stat_ack1             := directioned.ddr_sh_stat_ack1   
-    io.ddr_sh_stat_rdata1           := directioned.ddr_sh_stat_rdata1 
-    io.ddr_sh_stat_int1             := directioned.ddr_sh_stat_int1   
-    directioned.sh_ddr_stat_addr2   := io.sh_ddr_stat_addr2  
-    directioned.sh_ddr_stat_wr2     := io.sh_ddr_stat_wr2    
-    directioned.sh_ddr_stat_rd2     := io.sh_ddr_stat_rd2    
-    directioned.sh_ddr_stat_wdata2  := io.sh_ddr_stat_wdata2 
-    io.ddr_sh_stat_ack2             := directioned.ddr_sh_stat_ack2   
-    io.ddr_sh_stat_rdata2           := directioned.ddr_sh_stat_rdata2 
-    io.ddr_sh_stat_int2             := directioned.ddr_sh_stat_int2   
-
+    
+    unsafeBulkConnect(io.getWrappedValue, directioned)
+    /*
     directioned.clk := sys.clock.asUInt
     directioned.stat_clk := sys.clock.asUInt
     directioned.rst_n := !sys.reset
@@ -186,7 +123,7 @@ class DisableDDRF1VU9POverlay(val shell: F1VU9PShellBasicOverlays, val name: Str
     //directioned.cl_sh_ddr_arburst := Vec(1.U(2.W), 1.U(2.W), 1.U(2.W))
     directioned.ddr_sh_stat_ack0 := 1.U(1.W)
     directioned.ddr_sh_stat_ack1 := 1.U(1.W)
-    directioned.ddr_sh_stat_ack2 := 1.U(1.W)
+    directioned.ddr_sh_stat_ack2 := 1.U(1.W)*/
   } }
 }
 
