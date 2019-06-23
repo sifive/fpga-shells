@@ -12,7 +12,7 @@
     {
         "commit": "e44e22beccdd5e1e43fd8a35f7c9c5687c821326",
         "name": "rocket-chip",
-        "source": "git@github.com:freechipsproject/rocket-chip.git"
+        "source": "git@github.com:chipsalliance/rocket-chip.git"
     },
     {
         "commit": "e1aa5f3f5c0cdeb204047c3ca50801d9f7ea25f1",
