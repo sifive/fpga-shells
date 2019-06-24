@@ -25,7 +25,7 @@ class PolarFireClockDivider(implicit val p:Parameters) extends BlackBox
   }
   
   ElaborationArtefacts.add(
-    "Libero.polarfire_clock_divider.tcl",
+    "Libero.polarfire_clock_divider.libero.tcl",
     """ 
 create_design -id Actel:SgCore:PF_CLK_DIV:1.0.101 -design_name {pf_clk_divider} -config_file {} -params {} -inhibit_configurator 0
 open_smartdesign -design {pf_clk_divider}

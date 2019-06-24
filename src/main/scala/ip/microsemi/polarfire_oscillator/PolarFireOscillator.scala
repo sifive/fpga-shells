@@ -24,7 +24,7 @@ class PolarFireOscillator(implicit val p:Parameters) extends BlackBox
   }
   
   ElaborationArtefacts.add(
-    "Libero.polarfire_oscillator.tcl",
+    "Libero.polarfire_oscillator.libero.tcl",
     """ 
 create_design -id Actel:SgCore:PF_OSC:1.0.102 -design_name {pf_oscillator} -config_file {} -params {} -inhibit_configurator 0
 open_smartdesign -design {pf_oscillator}

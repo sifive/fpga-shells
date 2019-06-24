@@ -31,7 +31,7 @@ class PolarFireReset(implicit val p:Parameters) extends BlackBox
   
   
   ElaborationArtefacts.add(
-    "Libero.polarfire_reset.tcl",
+    "Libero.polarfire_reset.libero.tcl",
     """ 
 create_design -id Actel:DirectCore:CORERESET_PF:2.1.100 -design_name {polarfire_reset} -config_file {} -params {} -inhibit_configurator 0
 open_smartdesign -design {polarfire_reset}

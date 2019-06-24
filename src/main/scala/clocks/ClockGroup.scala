@@ -7,9 +7,20 @@ import freechips.rocketchip.config.Parameters
 import freechips.rocketchip.diplomacy._
 
 case class ClockGroupNode(groupName: String)(implicit valName: ValName)
-  extends MixedNexusNode(ClockGroupImp, ClockImp)(
-    dFn = { _ => ClockSourceParameters() },
-    uFn = { seq => ClockGroupSinkParameters(name = groupName, members = seq) })
+  extends MixedCustomNode(ClockGroupImp, ClockImp)
+{
+  def resolveStar(iKnown: Int, oKnown: Int, iStars: Int, oStars: Int): (Int, Int) = {
+    require (oStars == 0, s"${name} (a ClockGroupNode) cannot appear right of a :=*${lazyModule.line}")
+    require (iKnown + iStars == 1, s"${name} (a ClockGroupNode) must appear exactly once on the left of a :=${lazyModule.line}")
+    (1, 1)
+  }
+  def mapParamsD(n: Int, p: Seq[ClockGroupSourceParameters]): Seq[ClockSourceParameters] = {
+    Seq.tabulate(n) { i => ClockSourceParameters(() => p.head.sdcName(i)) }
+  }
+  def mapParamsU(n: Int, p: Seq[ClockSinkParameters]): Seq[ClockGroupSinkParameters] = {
+    Seq(ClockGroupSinkParameters(name = groupName, members = p))
+  }
+}
 
 class ClockGroup(groupName: String)(implicit p: Parameters) extends LazyModule
 {

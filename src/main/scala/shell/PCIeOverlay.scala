@@ -11,7 +11,8 @@ import sifive.fpgashells.clocks._
 case class PCIeOverlayParams(
   wrangler: ClockAdapterNode,
   bars: Seq[AddressSet] = Seq(AddressSet(0x40000000L, 0x1FFFFFFFL)),
-  ecam: BigInt = 0x2000000000L)(
+  ecam: BigInt = 0x2000000000L,
+  corePLL: PLLNode)(
   implicit val p: Parameters)
 
 case object PCIeOverlayKey extends Field[Seq[DesignOverlay[PCIeOverlayParams, (TLNode, IntOutwardNode)]]](Nil)

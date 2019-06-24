@@ -7,10 +7,21 @@ import freechips.rocketchip.diplomacy._
 import sifive.fpgashells.shell._
 import scala.collection.immutable.ListMap
 
-case class PLLNode(val feedback: Boolean)(implicit valName: ValName)
-  extends MixedNexusNode(ClockImp, ClockGroupImp)(
-    dFn = { _ => ClockGroupSourceParameters() },
-    uFn = { _ => ClockSinkParameters() })
+case class PLLNode(val feedback: Boolean, names: (Int, Int) => String)(implicit valName: ValName)
+  extends MixedCustomNode(ClockImp, ClockGroupImp)
+{
+  def resolveStar(iKnown: Int, oKnown: Int, iStars: Int, oStars: Int): (Int, Int) = {
+    require (oStars == 0, s"${name} (a PLLNode) cannot appear right of a :=*${lazyModule.line}")
+    require (iKnown + iStars == 1, s"${name} (a PLLNode) must appear exactly once on the left of a :=${lazyModule.line}")
+    (1, 1)
+  }
+  def mapParamsD(n: Int, p: Seq[ClockSourceParameters]): Seq[ClockGroupSourceParameters] = {
+    Seq.tabulate(n) { i => ClockGroupSourceParameters(j => names(i,j)) }
+  }
+  def mapParamsU(n: Int, p: Seq[ClockGroupSinkParameters]): Seq[ClockSinkParameters] = {
+    Seq(ClockSinkParameters())
+  }
+}
 
 case class PLLInClockParameters(
   freqMHz:  Double,
@@ -45,14 +56,13 @@ class PLLFactory(scope: IOShell, maxOutputs: Int, gen: PLLParameters => PLLInsta
   private var pllNodes: Seq[PLLNode] = Nil
 
   def apply(feedback: Boolean = false)(implicit valName: ValName, p: Parameters): PLLNode = {
-    val node = scope { PLLNode(feedback) }
+    val node = scope { PLLNode(feedback, names _) }
     pllNodes = node +: pllNodes
     node
   }
 
-  scope { InModuleBody {
-    // Require all clock group names to be distinct
-    val sdcGroups = Map() ++ pllNodes.flatMap { case node =>
+  val plls: ModuleValue[Seq[(PLLInstance, PLLNode)]] = scope { InModuleBody {
+    val plls = pllNodes.flatMap { case node =>
       require (node.in.size == 1)
       val (in, edgeIn) = node.in(0)
       val (out, edgeOut) = node.out.unzip
@@ -79,13 +89,22 @@ class PLLFactory(scope: IOShell, maxOutputs: Int, gen: PLLParameters => PLLInsta
         o.clock := i
         o.reset := !pll.getLocked || in.reset
       }
+      Some((pll, node))
+    }
 
+    // Require all clock group names to be distinct
+    val sdcGroups = Map() ++ plls.flatMap { case tuple =>
+    val (pll, node) = tuple
+    val (out, edgeOut) = node.out.unzip
       val groupLabels = edgeOut.flatMap(e => Seq.fill(e.members.size) { e.sink.name })
-      groupLabels zip pll.getClocks.map(x => IOPin(x))
+      groupLabels zip pll.getClockNames
     }.groupBy(_._1).mapValues(_.map(_._2))
 
     // Ensure there are no clock groups with the same name
     require (sdcGroups.size == pllNodes.map(_.edges.out.size).sum)
-    sdcGroups.foreach { case (_, clockPins) => scope.sdc.addGroup(pins = clockPins) }
+    sdcGroups.foreach { case (_, clockNames) => scope.sdc.addGroup(clockNames) }
+
+    plls
   } }
+  private def names(group: Int, clock: Int) = "WTF"
 }
