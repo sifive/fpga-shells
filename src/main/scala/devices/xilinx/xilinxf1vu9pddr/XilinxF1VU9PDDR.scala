@@ -11,9 +11,6 @@ import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
 import freechips.rocketchip.interrupts._
 import sifive.fpgashells.ip.xilinx.f1vu9pddr._
-import sifive.blocks.devices.pinctrl._
-import sifive.fpgashells.ip.xilinx._
-
 
 case class XilinxF1VU9PDDRParams(addresses : Seq[Seq[AddressSet]], instantiate : Seq[Boolean]) {
 }
@@ -44,10 +41,6 @@ class XilinxF1VU9PDDR(c: XilinxF1VU9PDDRParams)(implicit p: Parameters) extends 
     })
 
     io <> island.module.io
-    
-    // connect inferred clock/reset
-    //island.module.clock := io.port.clk
-    //island.module.reset := !io.port.rst_n
   }
 }
 
@@ -96,20 +89,8 @@ class XilinxF1VU9PDDRIsland(c: XilinxF1VU9PDDRParams)(implicit p: Parameters) ex
     val (axi_d,_) = slavenodes(2).in(0)
     val axi = Seq(axi_a, axi_b, axi_d)
 
-    // Analog (inout) connections
-    attach(blackbox.io.M_A_DQ,      io.analog.M_A_DQ)
-    attach(blackbox.io.M_A_ECC,     io.analog.M_A_ECC)
-    attach(blackbox.io.M_A_DQS_DP,  io.analog.M_A_DQS_DP)
-    attach(blackbox.io.M_A_DQS_DN,  io.analog.M_A_DQS_DN)
-    attach(blackbox.io.M_B_DQ,      io.analog.M_B_DQ)
-    attach(blackbox.io.M_B_ECC,     io.analog.M_B_ECC)
-    attach(blackbox.io.M_B_DQS_DP,  io.analog.M_B_DQS_DP)
-    attach(blackbox.io.M_B_DQS_DN,  io.analog.M_B_DQS_DN)
-    attach(blackbox.io.M_D_DQ,      io.analog.M_D_DQ)
-    attach(blackbox.io.M_D_ECC,     io.analog.M_D_ECC)
-    attach(blackbox.io.M_D_DQS_DP,  io.analog.M_D_DQS_DP)
-    attach(blackbox.io.M_D_DQS_DN,  io.analog.M_D_DQS_DN)
-    
+    // Connect Analog (inout)
+    unsafeBulkConnect(io.analog, blackbox.io)
     // Connect directioned IO
     unsafeBulkConnect(io.directioned, blackbox.io)
     

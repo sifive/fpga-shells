@@ -6,7 +6,6 @@ import chisel3.util._
 import chisel3.experimental._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.config.Parameters
-import sifive.blocks.devices.pinctrl._
 
 // BlackBox definition for sh_ddr interface
 
@@ -14,7 +13,7 @@ class sh_ddr(instantiate: Seq[Boolean]) extends BlackBox(Map(
   "DDR_A_PRESENT" -> (if (instantiate(0)) 1 else 0),
   "DDR_B_PRESENT" -> (if (instantiate(1)) 1 else 0),
   "DDR_D_PRESENT" -> (if (instantiate(2)) 1 else 0))) {
-  val io = IO(new F1VU9PDDRPads with F1VU9PAXISignals)
+  val io = IO(new F1VU9PDDRBase with F1VU9PDDRIO with F1VU9PAXISignals)
 }
 
 // toplevel interface
@@ -23,9 +22,9 @@ class F1VU9PDDRPads extends F1VU9PDDRBase with F1VU9PDDRIO
 //----------------
 // DDR IOs
 //----------------
-// F1VU9PDDRIO          - Analogs, should be used for toplevel ioFactory
-// F1VU9PDDRSignals     - BasePins/dirnIO,   used for BundleBridge
-// F1VU9PAXISignals     - dirnIO, should be used for BundleBridge
+// F1VU9PDDRIO          - Analogs
+// F1VU9PDDRSignals     - dirnIO
+// F1VU9PAXISignals     - dirnIO
 class F1VU9PDDRBase extends Bundle {
   // Block A
   val CLK_300M_DIMM0_DP  = Input(Bool())
