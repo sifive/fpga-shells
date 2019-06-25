@@ -67,18 +67,18 @@ class SwitchF1VU9POverlay(val shell: F1VU9PShellBasicOverlays, val name: String,
 {
   override val width = 16 // 16 virtual DIP switch inputs
 }
-
 /*
 class UARTF1VU9POverlay(val shell: F1VU9PShellBasicOverlays, val name: String, params: UARTOverlayParams)
-  extends UARTOverlay(params, true)
+  extends IOOverlay[EmptyBundle, VirtualUART]
 {
+  implicit val p = params.p
+
+  def ioFactory = new EmptyBundle
+  val designOutput 
   shell { InModuleBody {
-    // instantiate UART transceiver and connect FIFO to one of the AXIs
-    // probably want to use sifive-blocks/src/main/scala/devices/uart
-    // or figure out what PlatformIO is and use that instead
+    
   } }
-}
-*/
+}*/
 
 // need to create our own JTAGOverlay for F1
 class JTAGF1VU9POverlay(val shell: F1VU9PShellBasicOverlays, val name: String, params: JTAGDebugOverlayParams)
@@ -106,8 +106,10 @@ class JTAGF1VU9POverlay(val shell: F1VU9PShellBasicOverlays, val name: String, p
   } }
 }
 
+// each DDR chip is 16GiB
+case object F1VU9PDDRSize extends Field[BigInt](0x40000000L * 16) // 16 GiB (in bytes) --- 0x40000000L is 1 Gi
 
-case object F1VU9PDDRSize extends Field[BigInt](0x40000000L * 16) // 16 GiB (in bytes)
+// parameterizes DDROverlay with EmptyBundle to allow for manual creation of toplevel IO so we have control over naming
 class DDRF1VU9POverlay(val shell: F1VU9PShellBasicOverlays, val name: String, params: DDROverlayParams)
   extends DDROverlay[EmptyBundle](params)
 {
@@ -167,14 +169,9 @@ abstract class F1VU9PShellBasicOverlays()(implicit p: Parameters) extends UltraS
   val clk_main_a0       = Overlay(ClockInputOverlayKey) (new SysClockF1VU9POverlay  (_, _, _))
   val cl_sh_status_vled = Overlay(LEDOverlayKey)        (new LEDF1VU9POverlay       (_, _, _))
   val sh_cl_status_vdip = Overlay(SwitchOverlayKey)     (new SwitchF1VU9POverlay    (_, _, _))
-  //val uart            = Overlay(UARTOverlayKey)       (new UARTF1VU9POverlay      (_, _, _))
+//val uart              = Overlay(UARTOverlayKey)       (new UARTF1VU9POverlay      (_, _, _))
   val ddr               = Overlay(DDROverlayKey)        (new DDRF1VU9POverlay       (_, _, _))
-  //val wval = p(DDROverlayKey).headOption
-  //val g = wval.get
-  //val i = g.getWrappedValue
-  //g.suggestName("yo")
-  // select which JTAG to use by choosing which subclass of BasicOverlays is implemented
-  val jtag              = Overlay(JTAGDebugOverlayKey)  (new JTAGF1VU9POverlay   (_, _, _))
+  val jtag              = Overlay(JTAGDebugOverlayKey)  (new JTAGF1VU9POverlay      (_, _, _))
 }
 
 class F1VU9PShell()(implicit p: Parameters) extends F1VU9PShellBasicOverlays
@@ -194,7 +191,6 @@ class F1VU9PShell()(implicit p: Parameters) extends F1VU9PShellBasicOverlays
     val rst_main_n = IO(Input(Bool()))
     val cl_sh_id0  = IO(Output(UInt(32.W)))
     val cl_sh_id1  = IO(Output(UInt(32.W)))
-    //val M_A_MA = IO(Output(UInt(17.W)))
     
     // connect pllReset
     // unclear if it's necessary to synchronize rst_main_n with clk_main_a0
@@ -204,7 +200,54 @@ class F1VU9PShell()(implicit p: Parameters) extends F1VU9PShellBasicOverlays
     // default PCIe IDs used by cl_hello_world
     cl_sh_id0 := "h_f000_1d0f".U
     cl_sh_id1 := "h_1d51_fedd".U
-
-    //M_A_MA := ddr.getWrappedValue.get.io.M_A_MA
+    
+    def blacklist(name: String): Boolean = {
+      // any module that uses IOs will need to add a blacklist
+      if ( (new F1VU9PDDRPads).elements.contains(name) ) {
+        true
+      } else {
+        name match {
+          // comment these lines out if vLEDs and/or vDIPs aren't used
+          case "cl_sh_status_vled" => true
+          case "sh_cl_status_vdip" => true
+          // comment these lines out if JTAG is not being used
+          case "tck" => true 
+          case "tms" => true
+          case "tdi" => true
+          case "tdo" => true
+          // these are required
+          case "clk_main_a0" => true
+          case "rst_main_n" => true
+          case "cl_sh_id0" => true
+          case "cl_sh_id1" => true
+          case _ => false
+        }
+      }
+    }
+    
+    // loop over elements in CLPorts, creating IO for non blacklisted elements
+    for ( (name, direction, htype, width) <- CLPorts.elements) {
+      val hw: Data = htype match {
+        case "B" => Bool()
+        case "U" => UInt(width.W)
+        case "A" => Analog(width.W)
+        case _ => throw new Exception("unknown hwtype")
+      }
+      if (!blacklist(name)) {
+        direction match {
+          case "I" =>
+            val port = IO(Input(hw)).suggestName(name)
+          case "O" =>
+            val port = IO(Output(hw)).suggestName(name)
+            // tie down DDR-C non-zero outputs
+            if (name == "cl_sh_ddr_awburst" || name == "cl_sh_ddr_arburst") {
+              port := 1.U(2.W)
+            }
+          case "U" =>
+            val port = IO(hw).suggestName(name)
+        }
+      }
+    }
   }
 }
+
