@@ -29,7 +29,7 @@ class PolarFireDLL(name: String)(implicit val p:Parameters) extends BlackBox
   ElaborationArtefacts.add(
     "AddIPInstance." ++ modulename ++".libero.tcl",
     """ 
-create_design -id Actel:SgCore:PF_CCC:1.0.112 -design_name {""" ++ modulename ++"""} -config_file {} -params {} -inhibit_configurator 0
+create_design -id Actel:SgCore:PF_CCC:1.0.115 -design_name {""" ++ modulename ++"""} -config_file {} -params {} -inhibit_configurator 0
 open_smartdesign -design {""" ++ modulename ++"""}
 configure_design -component {""" ++ modulename ++"""} -library {} 
 configure_vlnv_instance -component {""" ++ modulename ++"""} -library {} -name {""" ++ modulename ++"""_0} \
