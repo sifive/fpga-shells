@@ -36,6 +36,7 @@ trait Overlay[DesignOutput]
   def designOutput: DesignOutput
   def name: String
   def shell: Shell
+  def shelltestbench: ShellTestbench
 }
 
 // DesignOverlays provide the method used to instantiate and place an Overlay
@@ -45,17 +46,20 @@ trait DesignOverlay[DesignInput, DesignOutput] {
   def apply(input: DesignInput): DesignOutput
 }
 
-abstract class Shell()(implicit p: Parameters) extends LazyModule with LazyScope
+abstract class ShellTestbench()(implicit p: Parameters) extends LazyModule with LazyScope
+
+abstract class Shell(testbench: ShellTestbench)(implicit p: Parameters) extends LazyModule with LazyScope
 {
   private var overlays = Parameters.empty
   def designParameters: Parameters = overlays ++ p
 
   def Overlay[DesignInput, DesignOutput, T <: Overlay[DesignOutput]](
     key: Field[Seq[DesignOverlay[DesignInput, DesignOutput]]])(
-    gen: (this.type, String, DesignInput) => T)(
+    gen: (testbench.type, this.type, String, DesignInput) => T)(
     implicit valName: ValName): ModuleValue[Option[T]] =
   {
     val self = this.asInstanceOf[this.type]
+    val testbenchself = testbench.asInstanceOf[testbench.type]
     val thunk = new ModuleValue[Option[T]] with DesignOverlay[DesignInput, DesignOutput] {
       var placement: Option[T] = None
       def getWrappedValue = placement
@@ -63,7 +67,7 @@ abstract class Shell()(implicit p: Parameters) extends LazyModule with LazyScope
       def name = valName.name
       def apply(input: DesignInput): DesignOutput = {
         require (placement.isEmpty, s"Overlay ${name} has already been placed by the design; cannot place again")
-        val it = gen(self, valName.name, input)
+        val it = gen(testbenchself, self, valName.name, input)
         placement = Some(it)
         it.designOutput
       }

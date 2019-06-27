@@ -45,7 +45,7 @@ class XDC(val name: String)
   }
 }
 
-abstract class XilinxShell()(implicit p: Parameters) extends IOShell
+abstract class XilinxShell(testbench: ShellTestbench)(implicit p: Parameters) extends IOShell(testbench)
 {
   val sdc = new SDC("shell.sdc")
   val xdc = new XDC("shell.xdc")
@@ -59,7 +59,7 @@ abstract class XilinxShell()(implicit p: Parameters) extends IOShell
       |""".stripMargin)
 }
 
-abstract class Series7Shell()(implicit p: Parameters) extends XilinxShell
+abstract class Series7Shell(testbench: ShellTestbench)(implicit p: Parameters) extends XilinxShell(testbench)
 {
   val pllFactory = new PLLFactory(this, 7, p => Module(new Series7MMCM(p)))
   override def designParameters = super.designParameters.alterPartial {
@@ -67,7 +67,7 @@ abstract class Series7Shell()(implicit p: Parameters) extends XilinxShell
   }
 }
 
-abstract class UltraScaleShell()(implicit p: Parameters) extends XilinxShell
+abstract class UltraScaleShell(testbench: ShellTestbench)(implicit p: Parameters) extends XilinxShell(testbench)
 {
   val pllFactory = new PLLFactory(this, 7, p => Module(new Series7MMCM(p)))
   override def designParameters = super.designParameters.alterPartial {

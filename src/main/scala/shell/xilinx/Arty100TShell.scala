@@ -12,7 +12,7 @@ import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 import sifive.fpgashells.devices.xilinx.xilinxarty100tmig._
 
-class SysClockArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: ClockInputOverlayParams)
+class SysClockArtyOverlay(val shelltestbench: ShellTestbench, val shell: Arty100TShellBasicOverlays, val name: String, params: ClockInputOverlayParams)
   extends SingleEndedClockInputXilinxOverlay(params)
 {
   val node = shell { ClockSourceNode(freqMHz = 100, jitterPS = 50)(ValName(name)) }
@@ -22,10 +22,11 @@ class SysClockArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Strin
     shell.xdc.addPackagePin(clk, "E3")
     shell.xdc.addIOStandard(clk, "LVCMOS33")
   } }
+
 }
 
 //PMOD JA used for SDIO
-class SDIOArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: SDIOOverlayParams)
+class SDIOArtyOverlay(val shelltestbench: ShellTestbench, val shell: Arty100TShellBasicOverlays, val name: String, params: SDIOOverlayParams)
   extends SDIOXilinxOverlay(params)
 {
   shell { InModuleBody {
@@ -47,7 +48,7 @@ class SDIOArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, p
   } }
 }
 
-class SPIFlashArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: SPIFlashOverlayParams)
+class SPIFlashArtyOverlay(val shelltestbench: ShellTestbench, val shell: Arty100TShellBasicOverlays, val name: String, params: SPIFlashOverlayParams)
   extends SPIFlashXilinxOverlay(params)
 {
 
@@ -69,7 +70,7 @@ class SPIFlashArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Strin
   } }
 }
 
-class GPIOPMODArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: GPIOPMODOverlayParams)
+class GPIOPMODArtyOverlay(val shelltestbench: ShellTestbench, val shell: Arty100TShellBasicOverlays, val name: String, params: GPIOPMODOverlayParams)
   extends GPIOPMODXilinxOverlay(params)
 {
 
@@ -90,7 +91,7 @@ class GPIOPMODArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Strin
   } }
 }
 
-class UARTArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: UARTOverlayParams)
+class UARTArtyOverlay(val shelltestbench: ShellTestbench, val shell: Arty100TShellBasicOverlays, val name: String, params: UARTOverlayParams)
   extends UARTXilinxOverlay(params, false)
 {
   shell { InModuleBody {
@@ -106,19 +107,19 @@ class UARTArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, p
 }
 
 //LEDS - 4 normal leds, r0, g0, b0, r1, g1, b1 ...
-class LEDArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: LEDOverlayParams)
+class LEDArtyOverlay(val shelltestbench: ShellTestbench, val shell: Arty100TShellBasicOverlays, val name: String, params: LEDOverlayParams)
   extends LEDXilinxOverlay(params, packagePins = Seq("H5", "J5", "T9", "T10", "G6", "F6", "E1", "G3", "J4", "G4", "J3", "J2", "H4", "K1", "H6", "K2"))
 
 //SWs
-class SwitchArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: SwitchOverlayParams)
+class SwitchArtyOverlay(val shelltestbench: ShellTestbench, val shell: Arty100TShellBasicOverlays, val name: String, params: SwitchOverlayParams)
   extends SwitchXilinxOverlay(params, packagePins = Seq("A8", "C11", "C10", "A10"))
 
 //Buttons
-class ButtonArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: ButtonOverlayParams)
+class ButtonArtyOverlay(val shelltestbench: ShellTestbench, val shell: Arty100TShellBasicOverlays, val name: String, params: ButtonOverlayParams)
   extends ButtonXilinxOverlay(params, packagePins = Seq("D9", "C9", "B9", "B8"))
 
 // PMOD JD used for JTAG
-class JTAGDebugArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: JTAGDebugOverlayParams)
+class JTAGDebugArtyOverlay(val shelltestbench: ShellTestbench, val shell: Arty100TShellBasicOverlays, val name: String, params: JTAGDebugOverlayParams)
   extends JTAGDebugXilinxOverlay(params)
 {
   shell { InModuleBody {
@@ -139,7 +140,7 @@ class JTAGDebugArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Stri
 }
 
 case object ArtyDDRSize extends Field[BigInt](0x10000000L * 1) // 256 MB
-class DDRArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: DDROverlayParams)
+class DDRArtyOverlay(val shelltestbench: ShellTestbench, val shell: Arty100TShellBasicOverlays, val name: String, params: DDROverlayParams)
   extends DDROverlay[XilinxArty100TMIGPads](params)
 {
   val size = p(ArtyDDRSize)
@@ -184,20 +185,30 @@ class DDRArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, pa
   shell.sdc.addGroup(clocks = Seq("clk_pll_i"))
 }
 
-abstract class Arty100TShellBasicOverlays()(implicit p: Parameters) extends Series7Shell {
+abstract class Arty100TShellBasicOverlays(testbench: ShellTestbench)(implicit p: Parameters) extends Series7Shell(testbench) {
   // Order matters; ddr depends on sys_clock
-  val sys_clock = Overlay(ClockInputOverlayKey)(new SysClockArtyOverlay   (_, _, _))
-  val led       = Overlay(LEDOverlayKey)       (new LEDArtyOverlay        (_, _, _))
-  val switch    = Overlay(SwitchOverlayKey)    (new SwitchArtyOverlay     (_, _, _))
-  val button    = Overlay(ButtonOverlayKey)    (new ButtonArtyOverlay     (_, _, _))
-  val ddr       = Overlay(DDROverlayKey)       (new DDRArtyOverlay        (_, _, _))
-  val uart      = Overlay(UARTOverlayKey)      (new UARTArtyOverlay       (_, _, _))
-  val sdio      = Overlay(SDIOOverlayKey)      (new SDIOArtyOverlay       (_, _, _))
-  val jtag      = Overlay(JTAGDebugOverlayKey) (new JTAGDebugArtyOverlay  (_, _, _))
-  val spi_flash = Overlay(SPIFlashOverlayKey)  (new SPIFlashArtyOverlay   (_, _, _))
+  val sys_clock = Overlay(ClockInputOverlayKey)(new SysClockArtyOverlay   (_, _, _, _))
+  val led       = Overlay(LEDOverlayKey)       (new LEDArtyOverlay        (_, _, _, _))
+  val switch    = Overlay(SwitchOverlayKey)    (new SwitchArtyOverlay     (_, _, _, _))
+  val button    = Overlay(ButtonOverlayKey)    (new ButtonArtyOverlay     (_, _, _, _))
+  val ddr       = Overlay(DDROverlayKey)       (new DDRArtyOverlay        (_, _, _, _))
+  val uart      = Overlay(UARTOverlayKey)      (new UARTArtyOverlay       (_, _, _, _))
+  val sdio      = Overlay(SDIOOverlayKey)      (new SDIOArtyOverlay       (_, _, _, _))
+  val jtag      = Overlay(JTAGDebugOverlayKey) (new JTAGDebugArtyOverlay  (_, _, _, _))
+  val spi_flash = Overlay(SPIFlashOverlayKey)  (new SPIFlashArtyOverlay   (_, _, _, _))
 }
 
-class Arty100TShell()(implicit p: Parameters) extends Arty100TShellBasicOverlays
+class Arty100TShellTestbench(implicit p: Parameters) extends ShellTestbench
+{
+  val dut = LazyModule(new Arty100TShell(this))
+  lazy val module = new LazyRawModuleImp(this) {
+    val reset = IO(Input(Bool()))
+    val resetout = IO(Output(Bool()))
+    resetout := reset
+  }
+}
+
+class Arty100TShell(testbench: ShellTestbench)(implicit p: Parameters) extends Arty100TShellBasicOverlays(testbench)
 {
   // PLL reset causes
   val pllReset = InModuleBody { Wire(Bool()) }
@@ -222,12 +233,12 @@ class Arty100TShell()(implicit p: Parameters) extends Arty100TShellBasicOverlays
   }
 }
 
-class Arty100TShellGPIOPMOD()(implicit p: Parameters) extends Arty100TShellBasicOverlays
+class Arty100TShellGPIOPMOD(testbench: ShellTestbench)(implicit p: Parameters) extends Arty100TShellBasicOverlays(testbench)
 {
   // PLL reset causes
   val pllReset = InModuleBody { Wire(Bool()) }
 
-  val gpio_pmod = Overlay(GPIOPMODOverlayKey) (new GPIOPMODArtyOverlay (_,_,_))
+  val gpio_pmod = Overlay(GPIOPMODOverlayKey) (new GPIOPMODArtyOverlay (_,_,_,_))
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 

@@ -48,4 +48,9 @@ abstract class UARTOverlay(
     io.txd := uartSink.bundle.txd
     uartSink.bundle.rxd := io.rxd
   } }
+
+  //UART model : TODO
+  shelltestbench { InModuleBody {
+    io.rxd := io.txd
+  } }
 }

@@ -151,7 +151,7 @@ trait IOOverlay[IO <: Data, DesignOutput] extends Overlay[DesignOutput]
   } }
 }
 
-abstract class IOShell()(implicit p: Parameters) extends Shell
+abstract class IOShell(testbench: ShellTestbench)(implicit p: Parameters) extends Shell(testbench)
 {
   // This can be overriden if a particular vendor needs customized SDC output
   def sdc: SDC
