@@ -83,7 +83,7 @@ class XilinxF1VU9PDDRIsland(c: XilinxF1VU9PDDRParams)(implicit p: Parameters) ex
       val directioned = new F1VU9PDDRBase
     })
 
-    val blackbox = Module(new sh_ddr(c.instantiate)) // has F1VU9PDDRIO with F1VU9PAXISignals
+    val blackbox = Module(new ddrwrapper(c.instantiate)) // has F1VU9PDDRIO with F1VU9PAXISignals
     val (axi_a,_) = slavenodes(0).in(0)
     val (axi_b,_) = slavenodes(1).in(0)
     val (axi_d,_) = slavenodes(2).in(0)

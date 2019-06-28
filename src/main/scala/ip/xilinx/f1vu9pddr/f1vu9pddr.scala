@@ -1,19 +1,90 @@
 // See LICENSE for license details.
 package sifive.fpgashells.ip.xilinx.f1vu9pddr
 
+import scala.collection.mutable.StringBuilder
 import chisel3._
+import chisel3.core.ActualDirection
 import chisel3.util._
 import chisel3.experimental._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.config.Parameters
 
-// BlackBox definition for sh_ddr interface
+// BlackBox definition for using Amazon's sh_ddr IP
 
-class sh_ddr(instantiate: Seq[Boolean]) extends BlackBox(Map(
+// Creates a SystemVerilog wrapper for sh_ddr with verilog-compliant
+// port definition for integration with Chisel-generated verilog
+
+class ddrwrapper(instantiate: Seq[Boolean]) extends BlackBox(Map(
   "DDR_A_PRESENT" -> (if (instantiate(0)) 1 else 0),
   "DDR_B_PRESENT" -> (if (instantiate(1)) 1 else 0),
-  "DDR_D_PRESENT" -> (if (instantiate(2)) 1 else 0))) {
+  "DDR_D_PRESENT" -> (if (instantiate(2)) 1 else 0))) with HasBlackBoxInline {
   val io = IO(new F1VU9PDDRBase with F1VU9PDDRIO with F1VU9PAXISignals)
+  
+  // generate sv wrapper from iodef
+  val ports = new StringBuilder
+  val wires = new StringBuilder
+  val assigns = new StringBuilder
+  val modinst = new StringBuilder
+  for ((name, data) <- io.elements) {
+    modinst ++= s"|  .$name($name),\n"
+    // get direction
+    val direction: String = DataMirror.directionOf(data) match {
+      case ActualDirection.Input => "input"
+      case ActualDirection.Output => "output logic"
+      case ActualDirection.Unspecified => "inout"
+      case ActualDirection.Bidirectional(_) => "inout"
+    }
+
+    // get width of underlying signals (if in a Vec)
+    val rawwidth = data match {
+      case vec: Vec[Data] => vec(0).widthOption.getOrElse(1)
+      case ele => ele.getWidth
+    }
+    val widthstring = if (rawwidth == 1) "" else s"[${rawwidth - 1}:0]"
+    // create n copies of verilog-compliant io for n-wide vectors
+    // i.e.
+    //    module mymodule (
+    //    ...    
+    //      input [7:0] bytearray_0,
+    //      input [7:0] bytearray_1,
+    //    ...
+    //    );
+    //    ...
+    //      logic [7:0] bytearray [n:0];
+    //      assign bytearray[0] = bytearray_0;
+    //      assign bytearrya[1] = bytearray_1;
+    //    ...
+    //
+    data match {
+      case v: Vec[Data] => {
+        // amazon port spec is inconsistent so we can't just make all the "adapter" arrays the same
+        // partially a result of defining F1VU9PAXISignals as all Vecs rather than UInts for Vecs of Bools
+        // however this would make instantiation in XilinxF1VU9PDDRIsland.scala unnecessarily complicated if
+        // fewer than 3 AXI ports are used (which is how this device wrapper was originally designed)
+        val newwire = if (rawwidth == 1 && name != "cl_sh_ddr_awvalid") { s"|  logic [${v.length-1}:0] $name;\n" }
+                      else                                              { s"|  logic $widthstring $name [${v.length-1}:0];\n" }
+        wires ++= newwire
+        for (i <- 0 until v.length) {
+          ports ++= s"|  $direction $widthstring $name" + s"_$i,\n"
+          val newassign = if (direction == "input") { s"|  assign $name[$i] = $name" + s"_$i;\n" }
+                          else /*output*/           { s"|  assign $name" + s"_$i = $name[$i];\n" }
+          assigns ++= newassign
+        }
+      }
+      case e => ports ++= s"|  $direction $widthstring $name,\n"
+    }
+  }
+
+  val sv = new StringBuilder
+  sv ++= "|module ddrwrapper #(parameter DDR_A_PRESENT = 1, parameter DDR_B_PRESENT = 1, parameter DDR_D_PRESENT = 1) (\n"
+  sv ++= ports.delete(ports.length-2,ports.length).toString
+  sv ++= "\n|);\n"
+  sv ++= wires.toString
+  sv ++= assigns.toString 
+  sv ++= "|sh_ddr #(.DDR_A_PRESENT(DDR_A_PRESENT), .DDR_B_PRESENT(DDR_B_PRESENT), .DDR_D_PRESENT(DDR_D_PRESENT)) wrapped_module (\n"
+  sv ++= modinst.delete(modinst.length-2,modinst.length).toString
+  sv ++= "\n|);\n|endmodule"
+  setInline("ddrwrapper.sv", sv.toString.stripMargin)
 }
 
 // toplevel interface

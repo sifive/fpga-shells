@@ -163,7 +163,6 @@ class DDRF1VU9POverlay(val shell: F1VU9PShellBasicOverlays, val name: String, pa
   } }
 }
 
-// don't need to extend UltraScaleShell or XilinxShell since we don't need a PLL nor do we have any xdc/sdc constraints
 abstract class F1VU9PShellBasicOverlays()(implicit p: Parameters) extends UltraScaleShell{
 
   val clk_main_a0       = Overlay(ClockInputOverlayKey) (new SysClockF1VU9POverlay  (_, _, _))
