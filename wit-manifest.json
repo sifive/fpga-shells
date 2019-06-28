@@ -1,0 +1,32 @@
+[
+    {
+        "commit": "50b9d6ffdfbff683fa25045d7f1ef3585a34f2dc",
+        "name": "api-generator-sifive",
+        "source": "git@github.com:sifive/api-generator-sifive.git"
+    },
+    {
+        "commit": "4374e58fc282f9670605ce5a741436d18242e520",
+        "name": "sifive-blocks",
+        "source": "git@github.com:sifive/sifive-blocks.git"
+    },
+    {
+        "commit": "e44e22beccdd5e1e43fd8a35f7c9c5687c821326",
+        "name": "rocket-chip",
+        "source": "git@github.com:chipsalliance/rocket-chip.git"
+    },
+    {
+        "commit": "e1aa5f3f5c0cdeb204047c3ca50801d9f7ea25f1",
+        "name": "chisel3",
+        "source": "git@github.com:freechipsproject/chisel3.git"
+    },
+    {
+        "commit": "228c9a4b7432ac52178d63b8f27fe064aec71e9c",
+        "name": "firrtl",
+        "source": "git@github.com:freechipsproject/firrtl.git"
+    },
+    {
+        "commit": "9c4bcd00b1d3c2ca667e330303ee8fa26432d687",
+        "name": "api-scala-sifive",
+        "source": "git@github.com:sifive/api-scala-sifive.git"
+    }
+]

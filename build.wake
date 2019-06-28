@@ -1,0 +1,14 @@
+def scalacOpts =
+  "-deprecation",
+  "-feature",
+  "-unchecked",
+  "-language:reflectiveCalls",
+  "-Xsource:2.11",
+  Nil
+
+global def fpgaShellsScalaModule =
+  def scalaVersion = rocketchipScalaModule.getScalaModuleScalaVersion
+  makeScalaModule "fpga-shells" here scalaVersion
+  | setScalaModuleDeps (sifiveBlocksScalaModule, rocketchipScalaModule, Nil)
+  | setScalaModuleScalacOptions scalacOpts
+  | addMacrosParadiseCompilerPlugin

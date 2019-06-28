@@ -5,6 +5,8 @@ import Chisel._
 import freechips.rocketchip.util.{ElaborationArtefacts}
 import freechips.rocketchip.config._
 
+import sifive.fpgashells.clocks._
+
 case class PolarFireCCCParameters(
   name:             String,
   pll_in_freq:      Double  = 50,
