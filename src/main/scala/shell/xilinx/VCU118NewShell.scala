@@ -12,6 +12,7 @@ import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 import sifive.blocks.devices.chiplink._
 import sifive.fpgashells.devices.xilinx.xilinxvcu118mig._
+import sifive.fpgashells.ip.xilinx.vcu118mig._
 import sifive.fpgashells.devices.xilinx.xdma._
 import sifive.fpgashells.ip.xilinx.xxv_ethernet._
 
@@ -220,6 +221,37 @@ class JTAGDebugVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: Stri
   } }
 }
 
+/*
+class AxiAccelVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: AxiAccelOverlayParams)
+  extends AxiAccelOverlay[Bundle](params)
+{
+
+  val accelParams = AxiAccelParams(address = AddressSet.misaligned(params.baseAddress, 0x1fffffff))
+  val accel = LazyModule(new AxiAccel(accelParams))
+  val ioNode = BundleBridgeSource(() => accel.module.io.cloneType)
+//  val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
+//  areset := reset
+  val topIONode = shell { ioNode.makeSink() }
+
+  def designOutput = Unit
+  def ioFactory = new VCU118AccelIO
+
+  InModuleBody { ioNode.bundle <> accel.module.io }
+
+  shell { InModuleBody {
+//    val (sys, _) = shell.sys_clock.get.node.out(0)
+//    val (ui, _) = ddrUI.out(0)
+//    val (ar, _) = areset.in(0)
+    val port = topIONode.bundle.port
+    io <> port
+//    ui.clock := port.c0_ddr4_ui_clk
+//    ui.reset := /*!port.mmcm_locked ||*/ port.c0_ddr4_ui_clk_sync_rst
+//    port.c0_sys_clk_i := sys.clock.asUInt
+//    port.sys_rst := sys.reset // pllReset
+//    port.c0_ddr4_aresetn := !ar.reset
+ }}
+}
+*/
 case object VCU118DDRSize extends Field[BigInt](0x40000000L * 2) // 2GB
 class DDRVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: DDROverlayParams)
   extends DDROverlay[XilinxVCU118MIGPads](params)
@@ -361,6 +393,8 @@ abstract class VCU118ShellBasicOverlays()(implicit p: Parameters) extends UltraS
   val qsfp2     = Overlay(EthernetOverlayKey)  (new QSFP2VCU118Overlay    (_, _, _))
   val chiplink  = Overlay(ChipLinkOverlayKey)  (new ChipLinkVCU118Overlay (_, _, _))
   val spi_flash = Overlay(SPIFlashOverlayKey)  (new SPIFlashVCU118Overlay (_, _, _))
+//  val accel = Overlay(AxiAccelOverlayKey)  (new AxiAccelVCU118Overlay (_, _, _))
+  //val accel_b = Overlay(AxiAccelOverlayKey)  (new AxiAccelVCU118Overlay (_, _, _))
 }
 
 class VCU118Shell()(implicit p: Parameters) extends VCU118ShellBasicOverlays
