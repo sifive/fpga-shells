@@ -1,10 +1,12 @@
 # Creating a Design Checkpoint (DCP) from RTL
 
 Generate verilog using `make verilog`
+(Make sure `<TopVerilogModule>Wrapper.sv` is included in verilog sources --- this is needed to interface with the Amazon shell's [0:0] packed vectors for some SDRAM control signals)
 
 Clone aws-fpga repo (or navigate to existing aws-fpga repo)
 
 ```bash
+(on AMI)
 $ git clone https://github.com/aws/aws-fpga.git
 $ cd aws-fpga
 ```
@@ -12,6 +14,7 @@ $ cd aws-fpga
 Set up CL directory and environment variables
 
 ```bash
+(on AMI)
 $ source hdk_setup.sh
 $ cd $HDK_DIR/cl/developer_designs
 $ mkdir <configname>
@@ -21,9 +24,21 @@ $ source $HDK_DIR/cl/developer_designs/prepare_new_cl.sh
 ```
 \***note**: Every login must source `hdk_setup.sh` and set `CL_DIR`
 
-Enter script directory and setup scripts
+Copy verilog files to `design` directory (assuming `aws-fpga` is cloned into user's home directory)
 
 ```bash
+(on build machine)
+$ mkdir vsources
+$ cp <configname>/verilog/<FullConfigName>/*.v vsources
+$ cp <configname>/memgen/<FullConfigName>.rams.v vsources
+$ cp <configname>/romgen/<FullConfigName>.roms.v vsources
+$ scp vsources/*.v user@ami:aws-fpga/hdk/cl/developer_designs/<configname>/design
+```
+
+Enter `build/scripts` directory and set up scripts
+
+```bash
+(on AMI)
 $ cd $CL_DIR/build/scripts
 $ mv synth_hello_world.tcl synth_<TopVerilogModule>.tcl
 $ ln -sf $HDK_DIR/common/shell_stable/build/scripts/aws_build_dcp_from_cl.sh
