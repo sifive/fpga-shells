@@ -12,11 +12,14 @@ $ cd aws-fpga
 ```
 
 Set up CL directory and environment variables
+\***note**: After doing making these manual changes, the freshly-modified templates can be sourced as a `cl_template`
+(either by modifying `$HDK_DIR/cl/developer_designs/prepare_new_cl.sh` or by creating a script that copies the files over into a new project)
+without having to go through this process in the future.
 
 ```bash
 (on AMI)
 $ source hdk_setup.sh
-$ cd $HDK_DIR/cl/developer_designs
+$ cd hdk/cl/developer_designs
 $ mkdir <configname>
 $ cd !$
 $ export CL_DIR=$(pwd)
@@ -24,14 +27,17 @@ $ source $HDK_DIR/cl/developer_designs/prepare_new_cl.sh
 ```
 \***note**: Every login must source `hdk_setup.sh` and set `CL_DIR`
 
-Copy verilog files to `design` directory (assuming `aws-fpga` is cloned into user's home directory)
+Copy verilog files to `design` directory (`scp` command assumes `aws-fpga` is cloned into user's home directory)
 
 ```bash
 (on build machine)
 $ mkdir vsources
-$ cp <configname>/verilog/<FullConfigName>/*.v vsources
-$ cp <configname>/memgen/<FullConfigName>.rams.v vsources
-$ cp <configname>/romgen/<FullConfigName>.roms.v vsources
+$ cp $BUILD_DIR/verilog/<FullConfigName>/*.{v,sv} vsources
+$ cp $BUILD_DIR/memgen/<FullConfigName>.rams.v vsources
+$ cp $BUILD_DIR/romgen/<FullConfigName>.roms.v vsources
+$ cp $BUILD_DIR/mcs/obj/ip/corePLL/corePLL.v vsources
+$ cp $BUILD_DIR/mcs/obj/ip/corePLL/corePLL_clk_wiz.v vsources
+$ cp $FPGA_SHELLS_DIR/xilinx/common/vsrc/PowerOnResetFPGAOnly.v vsources
 $ scp vsources/*.v user@ami:aws-fpga/hdk/cl/developer_designs/<configname>/design
 ```
 
@@ -139,3 +145,13 @@ Modify `<TopVerilogModule>_defines.vh`, replacing the tick-define for `CL_NAME`:
 ```verilog
 `define CL_NAME <TopVerilogModule>
 ```
+
+If you are using an FPGAShell with a PLL (the default `F1VU9PShell` has one), then you'll need to add the following line to `$CL_DIR/build/constraints/cl_pnr_user.xdc`:
+
+```
+set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets WRAPPER_INST/SH/kernel_clks_i/clkwiz_sys_clk/inst/CLK_CORE_DRP_I/clk_inst/clk_out1]
+```
+
+This is necessary to allow for cascading of the Amazon-provided shell MMCM through a BUFG to the clock generation in our own shell.
+Without this line, place and route fails with a "suboptimal placement for an MMCM-BUFGCE-MMCM cascade pair".
+Demoting this error to a warning tells the placer to not worry about routing delays for the clock signal.
