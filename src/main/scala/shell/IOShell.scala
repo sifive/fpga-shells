@@ -15,6 +15,7 @@ case class IOPin(element: Element, index: Int = 0)
   require (index >= 0 && index < width.get)
 
   def name = {
+    //replace all [#]'s with _# in the pin base name, then append on the final [#] (pindex) if width > 1
     val pin = element.instanceName.split("\\.").map(_.replaceAll("""\[(\d+)\]""", "_$1")).mkString("_")
     val path = element.parentPathName.split("\\.")
     val pindex = pin + (if (width.get > 1) s"[${index}]" else "")
