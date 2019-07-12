@@ -208,16 +208,13 @@ class DDRArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, pa
 }
 
 class EthernetArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: ArtyEthernetOverlayParams)
-  extends IOOverlay[XilinxArtyEthernetPads, TLInwardNode]
+  extends ArtyEthernetOverlay[XilinxArtyEthernetPads](params)
 {
-  implicit val p = params.p
-  val size = 0x2000
-  
   val ethclk = shell { ClockSinkNode(freqMHz = 25) }
   val ethgroup = shell { ClockGroup() }
   ethclk := params.wrangler := ethgroup := params.corePLL
 
-  val ethernetParams = XilinxArtyEthernetParams(address = AddressSet.misaligned(params.address, size))
+  val ethernetParams = XilinxArtyEthernetParams(baseAddress = params.address)
   val ethernet = LazyModule(new XilinxArtyEthernet(ethernetParams))
   val ethernetSource = BundleBridgeSource(() => ethernet.module.io.cloneType)
   val ethernetSink = shell {ethernetSource.makeSink() }

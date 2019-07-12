@@ -14,15 +14,13 @@ import sifive.fpgashells.ip.xilinx.artyethernet._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.clocks._
 
+case class XilinxArtyEthernetParams(baseAddress: BigInt)
+case object XilinxArtyEthernetKey extends Field[Seq[XilinxArtyEthernetParams]](Nil)
+
 class XilinxArtyEthernetPads extends ArtyEthernetPrimaryIO {
   val phy_mdio = Analog(1.W)
   val phy_mdc = Output(Bool())
 }
-
-case class ArtyEthernetOverlayParams(address: BigInt, wrangler: ClockAdapterNode, corePLL: PLLNode, intNode: IntInwardNode)(implicit val p: Parameters)
-case object ArtyEthernetOverlayKey extends Field[Seq[DesignOverlay[ArtyEthernetOverlayParams, TLInwardNode]]](Nil)
-
-case class XilinxArtyEthernetParams(address: Seq[AddressSet])
 
 class XilinxArtyEthernet(c: XilinxArtyEthernetParams)(implicit p: Parameters) extends LazyModule {
   val device = new SimpleDevice("ethernetlite", Seq("sifive,ethernetlite0"))
@@ -56,7 +54,7 @@ class XilinxArtyEthernetIsland(c: XilinxArtyEthernetParams, res: Seq[Resource])(
   val crossing = AsynchronousCrossing(8)
   val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
     slaves = Seq(AXI4SlaveParameters(
-      address = c.address,
+      address = AddressSet.misaligned(c.baseAddress, 0x2000),
       resources = (new SimpleDevice("ethernetlite", Seq("sifive,ethernetlite0"))).reg,
       regionType = RegionType.UNCACHED,
       executable = false,
