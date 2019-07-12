@@ -2,15 +2,17 @@
 package sifive.fpgashells.shell.xilinx
 
 import chisel3._
-import chisel3.experimental.{attach, IO, withClockAndReset}
+import chisel3.experimental.{attach, IO, Analog, withClockAndReset}
 import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
+import freechips.rocketchip.interrupts._
 import freechips.rocketchip.util.SyncResetSynchronizerShiftReg
 import sifive.fpgashells.clocks._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 import sifive.fpgashells.devices.xilinx.xilinxarty100tmig._
+import sifive.fpgashells.devices.xilinx.xilinxartyethernet._
 
 class SysClockArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: ClockInputOverlayParams)
   extends SingleEndedClockInputXilinxOverlay(params)
@@ -205,6 +207,79 @@ class DDRArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, pa
   shell.sdc.addGroup(clocks = Seq("clk_pll_i", "userClock1"))
 }
 
+class EthernetArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: ArtyEthernetOverlayParams)
+  extends IOOverlay[XilinxArtyEthernetPads, TLInwardNode]
+{
+  implicit val p = params.p
+  val size = 0x2000
+  
+  val ethclk = shell { ClockSinkNode(freqMHz = 25) }
+  val ethgroup = shell { ClockGroup() }
+  ethclk := params.wrangler := ethgroup := params.corePLL
+
+  val ethernetParams = XilinxArtyEthernetParams(address = AddressSet.misaligned(params.address, size))
+  val ethernet = LazyModule(new XilinxArtyEthernet(ethernetParams))
+  val ethernetSource = BundleBridgeSource(() => ethernet.module.io.cloneType)
+  val ethernetSink = shell {ethernetSource.makeSink() }
+
+  params.intNode := ethernet.intnode
+
+  def ioFactory = new XilinxArtyEthernetPads
+  val designOutput = ethernet.node
+
+  InModuleBody { ethernetSource.bundle <> ethernet.module.io }
+
+  shell { InModuleBody {
+    require (shell.sys_clock.isDefined, "Use of EthernetArtyOverlay depends on SysClockArtyOverlay")
+    val (sys,_) = shell.sys_clock.get.node.out(0)
+    val (refclk,_) = ethclk.in(0)
+    //val (io_int,_) = intMaster.out(0)
+    val port = ethernetSink.bundle
+
+    io <> port
+  
+    port.s_axi_aclk := sys.clock.asUInt
+    port.s_axi_aresetn := !sys.reset
+
+    val ethernet_phy_ref_clk = IO(Output(Bool())) suggestName "eth_ref_clk"
+    ethernet_phy_ref_clk := refclk.clock.asUInt
+  
+    // connect tristate IO
+    // similar to sifive.fpgashells.ip.xilinx.IOBUF's apply method
+    val mdio_buf = Module(new IOBUF())
+    mdio_buf.io.I := port.phy_mdio_o
+    mdio_buf.io.T := port.phy_mdio_t
+    port.phy_mdio_i := mdio_buf.io.O
+    attach(mdio_buf.io.IO, io.phy_mdio)
+    
+    val packagePinsWithPackageIOs = Seq(
+      ("D17", IOPin(io.phy_col)),
+      ("G14", IOPin(io.phy_crs)),
+      ("F16", IOPin(io.phy_mdc)),
+      ("K13", IOPin(io.phy_mdio)),
+      ("G18", IOPin(ethernet_phy_ref_clk)),
+      ("C16", IOPin(io.phy_rst_n)),
+      ("F15", IOPin(io.phy_rx_clk)),
+      ("G16", IOPin(io.phy_dv)),
+      ("D18", IOPin(io.phy_rx_data, 0)),
+      ("E17", IOPin(io.phy_rx_data, 1)),
+      ("E18", IOPin(io.phy_rx_data, 2)),
+      ("G17", IOPin(io.phy_rx_data, 3)),
+      ("C17", IOPin(io.phy_rx_er)),
+      ("H16", IOPin(io.phy_tx_clk)),
+      ("H15", IOPin(io.phy_tx_en)),
+      ("H14", IOPin(io.phy_tx_data, 0)),
+      ("J14", IOPin(io.phy_tx_data, 1)),
+      ("J13", IOPin(io.phy_tx_data, 2)),
+      ("H17", IOPin(io.phy_tx_data, 3))
+    )
+    packagePinsWithPackageIOs foreach { case (pin, io) => {
+      shell.xdc.addPackagePin(io, pin)
+      shell.xdc.addIOStandard(io, "LVCMOS33")
+    } }
+  } }
+}
+
 abstract class Arty100TShellBasicOverlays()(implicit p: Parameters) extends Series7Shell {
   // Order matters; ddr depends on sys_clock
   val sys_clock = Overlay(ClockInputOverlayKey)(new SysClockArtyOverlay   (_, _, _))
@@ -217,6 +292,7 @@ abstract class Arty100TShellBasicOverlays()(implicit p: Parameters) extends Seri
   val jtag      = Overlay(JTAGDebugOverlayKey) (new JTAGDebugArtyOverlay  (_, _, _))
   val cjtag     = Overlay(cJTAGDebugOverlayKey) (new cJTAGDebugArtyOverlay  (_, _, _))
   val spi_flash = Overlay(SPIFlashOverlayKey)  (new SPIFlashArtyOverlay   (_, _, _))
+  val ethernet  = Overlay(ArtyEthernetOverlayKey) (new EthernetArtyOverlay (_, _, _))
 }
 
 class Arty100TShell()(implicit p: Parameters) extends Arty100TShellBasicOverlays
