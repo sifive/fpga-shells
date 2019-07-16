@@ -1,9 +1,6 @@
 // See LICENSE for license details.
 package sifive.fpgashells.shell.xilinx
 
-import chisel3._
-import chisel3.experimental.{Analog, IO}
-
 // sequence of "iodefs" for moderately janky method
 // to procedurally generate toplevel io in FPGA shell
 object CLPorts {
