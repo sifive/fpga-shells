@@ -138,11 +138,10 @@ class JTAGDebugArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Stri
   } }
 }
 
-case object ArtyDDRSize extends Field[BigInt](0x10000000L * 1) // 256 MB
 class DDRArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: DDROverlayParams)
   extends DDROverlay[XilinxArty100TMIGPads](params)
 {
-  val size = p(ArtyDDRSize)
+  val size = params.size
 
   val ddrClk1 = shell { ClockSinkNode(freqMHz = 166.666)}
   val ddrClk2 = shell { ClockSinkNode(freqMHz = 200)}
