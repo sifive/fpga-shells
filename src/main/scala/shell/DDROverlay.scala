@@ -9,6 +9,7 @@ import sifive.fpgashells.clocks._
 
 case class DDROverlayParams(
   baseAddress: BigInt,
+  size: BigInt,
   wrangler: ClockAdapterNode,
   corePLL: PLLNode)(
   implicit val p: Parameters)

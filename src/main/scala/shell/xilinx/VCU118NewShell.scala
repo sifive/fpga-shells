@@ -220,11 +220,10 @@ class JTAGDebugVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: Stri
   } }
 }
 
-case object VCU118DDRSize extends Field[BigInt](0x40000000L * 2) // 2GB
 class DDRVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: DDROverlayParams)
   extends DDROverlay[XilinxVCU118MIGPads](params)
 {
-  val size = p(VCU118DDRSize)
+  val size = params.size
 
   val sdcClockName = "userClock1"
   val migParams = XilinxVCU118MIGParams(address = AddressSet.misaligned(params.baseAddress, size))
