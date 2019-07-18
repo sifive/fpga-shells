@@ -61,9 +61,10 @@ class XilinxArtyEthernetIsland(c: XilinxArtyEthernetParams, resource: Seq[Resour
       resources = resource,
       regionType = RegionType.UNCACHED,
       executable = false,
-      supportsWrite = TransferSizes(1, 64),
-      supportsRead = TransferSizes(1, 64))),
-    beatBytes = 8)
+      supportsWrite = TransferSizes(1, 4),
+      supportsRead = TransferSizes(1, 4),
+      interleavedId = Some(0))),
+    beatBytes = 4)
   ))
 
   lazy val module = new LazyModuleImp(this) {
