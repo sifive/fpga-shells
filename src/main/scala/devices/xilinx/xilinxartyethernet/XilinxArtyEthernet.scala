@@ -28,11 +28,12 @@ class XilinxArtyEthernet(c: XilinxArtyEthernetParams)(implicit p: Parameters) ex
   val island  = LazyModule(new XilinxArtyEthernetIsland(c, device.reg))
   val buffer  = LazyModule(new TLBuffer)
   val toaxi4  = LazyModule(new TLToAXI4(adapterName = Some("ethernet")))
-  val deint   = LazyModule(new AXI4Deinterleaver(p(CacheBlockBytes)))
-  val yank    = LazyModule(new AXI4UserYanker)
+//  val deint   = LazyModule(new AXI4Deinterleaver(p(CacheBlockBytes)))
+  val yank    = LazyModule(new AXI4UserYanker(capMaxFlight = Some(2)))
+  val frag    = LazyModule(new TLFragmenter(4, p(CacheBlockBytes), holdFirstDeny = true))
 
-  island.crossAXI4In(island.node) := yank.node := deint.node := toaxi4.node := buffer.node
-  val node: TLInwardNode = buffer.node
+  island.crossAXI4In(island.node) := buffer.node := yank.node := toaxi4.node := frag.node
+  val node: TLInwardNode = frag.node
 
   val intnode = IntSourceNode(IntSourcePortSimple(num=1, resources=device.int))
 
@@ -42,6 +43,9 @@ class XilinxArtyEthernet(c: XilinxArtyEthernetParams)(implicit p: Parameters) ex
       val s_axi_aresetn = Input(Bool())
     })
     
+    island.module.clock := io.s_axi_aclk
+    island.module.reset := ~io.s_axi_aresetn
+
     io <> island.module.io
 
     val (int,_) = intnode.out(0)
@@ -57,9 +61,10 @@ class XilinxArtyEthernetIsland(c: XilinxArtyEthernetParams, resource: Seq[Resour
       resources = resource,
       regionType = RegionType.UNCACHED,
       executable = false,
-      supportsWrite = TransferSizes(1, 64),
-      supportsRead = TransferSizes(1, 64))),
-    beatBytes = 8)
+      supportsWrite = TransferSizes(1, 4),
+      supportsRead = TransferSizes(1, 4),
+      interleavedId = Some(0))),
+    beatBytes = 4)
   ))
 
   lazy val module = new LazyModuleImp(this) {
