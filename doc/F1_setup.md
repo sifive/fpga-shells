@@ -155,3 +155,16 @@ set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets WRAPPER_INST/SH/kern
 This is necessary to allow for cascading of the Amazon-provided shell MMCM through a BUFG to the clock generation in our own shell.
 Without this line, place and route fails with a "suboptimal placement for an MMCM-BUFGCE-MMCM cascade pair".
 Demoting this error to a warning tells the placer to not worry about routing delays for the clock signal.
+
+Additionally, the `.tcl` script `create_dcp_from_cl.tcl` must be modified to prevent errors in bitstream generation.
+
+Please add the following line before synth scripts are sourced in `create_dcp_from_cl.tcl`:
+
+```tcl
+set_param hd.clockRoutingWireReduction false
+
+##################################################
+### CL XPR OOC Synthesis
+##################################################
+if {${cl.synth}} {
+```
