@@ -30,7 +30,7 @@ class XilinxArtyEthernet(c: XilinxArtyEthernetParams)(implicit p: Parameters) ex
   val ww      = LazyModule(new TLWidthWidget(8))
   val toaxi4  = LazyModule(new TLToAXI4(adapterName = Some("ethernet")))
 //  val deint   = LazyModule(new AXI4Deinterleaver(p(CacheBlockBytes)))
-  val yank    = LazyModule(new AXI4UserYanker(capMaxFlight = Some(2)))
+  val yank    = LazyModule(new AXI4UserYanker(Some(0)))
   val frag    = LazyModule(new TLFragmenter(4, p(CacheBlockBytes), holdFirstDeny = true))
 
   island.crossAXI4In(island.node) := buffer.node := yank.node := toaxi4.node := frag.node := ww.node

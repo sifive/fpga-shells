@@ -212,7 +212,10 @@ class EthernetArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Strin
 {
   val ethclk = shell { ClockSinkNode(freqMHz = 25) }
   val ethgroup = shell { ClockGroup() }
+  val uiclk = shell { ClockSinkNode(freqMHz = 83.333) }
+  val uiGroup = shell { ClockGroup() }
   ethclk := params.wrangler := ethgroup := params.corePLL
+  uiclk := params.wrangler := uiGroup := params.corePLL
 
   val ethernetParams = XilinxArtyEthernetParams(baseAddress = params.address)
   val ethernet = LazyModule(new XilinxArtyEthernet(ethernetParams))
@@ -230,13 +233,14 @@ class EthernetArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Strin
     require (shell.sys_clock.isDefined, "Use of EthernetArtyOverlay depends on SysClockArtyOverlay")
     val (sys,_) = shell.sys_clock.get.node.out(0)
     val (refclk,_) = ethclk.in(0)
+    val (uick,_) = uiclk.in(0)
     //val (io_int,_) = intMaster.out(0)
     val port = ethernetSink.bundle
 
     io <> port
   
-    port.s_axi_aclk := sys.clock.asUInt
-    port.s_axi_aresetn := !sys.reset
+    port.s_axi_aclk := uick.clock.asUInt
+    port.s_axi_aresetn := !shell.pllReset
 
     val ethernet_phy_ref_clk = IO(Output(Bool())) suggestName "eth_ref_clk"
     ethernet_phy_ref_clk := refclk.clock.asUInt
