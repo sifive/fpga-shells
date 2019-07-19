@@ -146,6 +146,8 @@ Modify `<TopVerilogModule>_defines.vh`, replacing the tick-define for `CL_NAME`:
 `define CL_NAME <TopVerilogModule>
 ```
 
+Make sure that your PCI vendor/device IDs are set properly in `cl_id_defines.vh`
+
 If you are using an FPGAShell with a PLL (the default `F1VU9PShell` has one), then you'll need to add the following line to `$CL_DIR/build/constraints/cl_pnr_user.xdc`:
 
 ```
