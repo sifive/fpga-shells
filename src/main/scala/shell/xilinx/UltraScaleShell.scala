@@ -53,7 +53,7 @@ abstract class EthernetUltraScaleOverlay(config: XXVEthernetParams, params: Ethe
 
     macIO.gt_loopback_in_0 := pcsIO.loopback
     pcsIO.rx_lock := macIO.stat_rx_block_lock_0
-    pcsIO.sfp_detect := Bool(true)
+    pcsIO.sfp_detect := true.B
 
     pcsIO.rx_clock := clocks.tx_mii_clk_0
     pcsIO.rx_reset := clocks.user_rx_reset_0
