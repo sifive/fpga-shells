@@ -269,18 +269,18 @@ module F1VU9PWrapper(
 	assign M_A_CKE[0] = M_A_CKE0;
 	assign M_A_ODT[0] = M_A_ODT0;
 	assign M_A_CS_N[0] = M_A_CS_N0;
-	assign M_A_CLK_DN[0] = M_A_CKE0;
-	assign M_A_CLK_DP[0] = M_A_CKE0;
+	assign M_A_CLK_DN[0] = M_A_CLK_DN0;
+	assign M_A_CLK_DP[0] = M_A_CLK_DP0;
 	assign M_B_CKE[0] = M_B_CKE0;
 	assign M_B_ODT[0] = M_B_ODT0;
 	assign M_B_CS_N[0] = M_B_CS_N0;
-	assign M_B_CLK_DN[0] = M_B_CKE0;
-	assign M_B_CLK_DP[0] = M_B_CKE0;
+	assign M_B_CLK_DN[0] = M_B_CLK_DN0;
+	assign M_B_CLK_DP[0] = M_B_CLK_DP0;
 	assign M_D_CKE[0] = M_D_CKE0;
 	assign M_D_ODT[0] = M_D_ODT0;
 	assign M_D_CS_N[0] = M_D_CS_N0;
-	assign M_D_CLK_DN[0] = M_D_CKE0;
-	assign M_D_CLK_DP[0] = M_D_CKE0;
+	assign M_D_CLK_DN[0] = M_D_CLK_DN0;
+	assign M_D_CLK_DP[0] = M_D_CLK_DP0;
 	F1VU9PShell shell (
 	  .clk_main_a0(clk_main_a0),
     .tck(tck),
