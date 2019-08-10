@@ -70,21 +70,21 @@ class SPIFlashArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Strin
 }
 
 class TracePMODArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: TracePMODOverlayParams)
-  extends TracePMODXilinxOverlay(params, packagePins = Seq("E15", "E16", "D15", "C15", "J17", "J18", "K15", "J15"))
+  extends TracePMODXilinxOverlay(params, packagePins = Seq("U12", "V12", "V10", "V11", "U14", "V14", "T13", "U13"))
 
 class GPIOPMODArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: GPIOPMODOverlayParams)
   extends GPIOPMODXilinxOverlay(params)
 {
 
   shell { InModuleBody {
-    val packagePinsWithPackageIOs = Seq(("U12", IOPin(io.gpio_pmod_0)), //These are PMOD B
-      ("V12", IOPin(io.gpio_pmod_1)),
-      ("V10", IOPin(io.gpio_pmod_2)),
-      ("V11", IOPin(io.gpio_pmod_3)),
-      ("U14", IOPin(io.gpio_pmod_4)),
-      ("V14", IOPin(io.gpio_pmod_5)),
-      ("T13", IOPin(io.gpio_pmod_6)),
-      ("U13", IOPin(io.gpio_pmod_7)))
+    val packagePinsWithPackageIOs = Seq(("E15", IOPin(io.gpio_pmod_0)), //These are PMOD B
+      ("E16", IOPin(io.gpio_pmod_1)),
+      ("D15", IOPin(io.gpio_pmod_2)),
+      ("C15", IOPin(io.gpio_pmod_3)),
+      ("J17", IOPin(io.gpio_pmod_4)),
+      ("J18", IOPin(io.gpio_pmod_5)),
+      ("K15", IOPin(io.gpio_pmod_6)),
+      ("J15", IOPin(io.gpio_pmod_7)))
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
