@@ -69,12 +69,15 @@ class SPIFlashArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Strin
   } }
 }
 
+class TracePMODArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: TracePMODOverlayParams)
+  extends TracePMODXilinxOverlay(params, packagePins = Seq("U12", "V12", "V10", "V11", "U14", "V14", "T13", "U13"))
+
 class GPIOPMODArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: GPIOPMODOverlayParams)
   extends GPIOPMODXilinxOverlay(params)
 {
 
   shell { InModuleBody {
-    val packagePinsWithPackageIOs = Seq(("E15", IOPin(io.gpio_pmod_0)), //These are PMOD B. Can be changed
+    val packagePinsWithPackageIOs = Seq(("E15", IOPin(io.gpio_pmod_0)), //These are PMOD B
       ("E16", IOPin(io.gpio_pmod_1)),
       ("D15", IOPin(io.gpio_pmod_2)),
       ("C15", IOPin(io.gpio_pmod_3)),
@@ -245,11 +248,13 @@ class Arty100TShell()(implicit p: Parameters) extends Arty100TShellBasicOverlays
 }
 
 class Arty100TShellGPIOPMOD()(implicit p: Parameters) extends Arty100TShellBasicOverlays
+//This is the Shell used for coreip arty builds, with GPIOS and trace signals on the pmods
 {
   // PLL reset causes
   val pllReset = InModuleBody { Wire(Bool()) }
 
   val gpio_pmod = Overlay(GPIOPMODOverlayKey) (new GPIOPMODArtyOverlay (_,_,_))
+  val trace_pmod = Overlay(TracePMODOverlayKey) (new TracePMODArtyOverlay (_,_,_))
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
