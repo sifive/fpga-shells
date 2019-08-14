@@ -27,11 +27,4 @@ abstract class GPIOOverlay(
 
   val tlgpioSink = shell { tlgpio.ioNode.makeSink }
   val designOutput = tlgpio
-
-  shell { InModuleBody {
-      tlgpioSink.bundle.pins.zipWithIndex.foreach{ case (tlpin, idx) => {
-        UIntToAnalog(tlpin.o.oval, io.gpio(idx), tlpin.o.oe)
-        tlpin.i.ival := AnalogToUInt(io.gpio(idx))
-      } }
-  } }
 }
