@@ -106,6 +106,26 @@ class JTAGF1VU9POverlay(val shell: F1VU9PShellBasicOverlays, val name: String, p
   } }
 }
 
+class AXI4PCISF1VU9POverlay(val shell: F1VU9PShellBasicOverlays, val name: String, params: AXI4PCISOverlayParams)
+  extends IOOverlay[EmptyBundle, TLOutwardNode]
+{
+  implicit val p = params.p
+  val axi4pcisParams = AXI4PCISParams(name = "", mIDBits = 0)
+  val axi4pcis = LazyModule(new XilinxF1VU9PAXI4PCIS(axi4pcisParams))
+  val ioSource = BundleBridgeSource(() => new AXI4PCISPads)
+  val ioSink = shell { ioSource.makeSink() }
+
+  def designOutput = axi4pcis.master
+  def ioFactory = new EmptyBundle
+
+  InModuleBody { ioSource.bundle <> axi4pcis.io }
+
+  shell { InModuleBody {
+    connectSink(ioSink.bundle)
+  } }
+}
+
+
 // each DDR chip is 16GiB
 case object F1VU9PDDRSize extends Field[BigInt](0x40000000L * 16) // 16 GiB (in bytes) --- 0x40000000L is 1 Gi
 
@@ -153,7 +173,7 @@ class DDRF1VU9POverlay(val shell: F1VU9PShellBasicOverlays, val name: String, pa
       case "rst_n" => true
       case "stat_rst_n" => true
       case _ => false
-    }) // match function creates set of blacklisted names; we don't want to create IOs for these
+    }) // match function creates a "set" of blacklisted names; we don't want to create IOs for these
 
     directioned.clk := sys.clock.asUInt
     directioned.stat_clk := sys.clock.asUInt
@@ -171,6 +191,7 @@ abstract class F1VU9PShellBasicOverlays()(implicit p: Parameters) extends UltraS
 //val uart              = Overlay(UARTOverlayKey)       (new UARTF1VU9POverlay      (_, _, _))
   val ddr               = Overlay(DDROverlayKey)        (new DDRF1VU9POverlay       (_, _, _))
   val jtag              = Overlay(JTAGDebugOverlayKey)  (new JTAGF1VU9POverlay      (_, _, _))
+  val axi4pcis          = Overlay(AXI4PCISOverlayKey)   (new AXI4PCISOverlay        (_, _, _))
 }
 
 class F1VU9PShell()(implicit p: Parameters) extends F1VU9PShellBasicOverlays
