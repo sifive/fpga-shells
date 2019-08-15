@@ -14,6 +14,8 @@ import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 import sifive.fpgashells.devices.xilinx.xilinxf1vu9pddr._
 import sifive.fpgashells.ip.xilinx.f1vu9pddr.{F1VU9PDDRPads, F1VU9PDDRBase, F1VU9PDDRIO, F1VU9PAXISignals}
+import sifive.fpgashells.devices.xilinx.xilinxf1vu9paxi4pcis._
+import sifive.fpgashells.shell.AXI4PCISOverlayKey
 
 // EmptyBundle and connectSink are used to produce custom-named IO at the shell level
 // this prevents Chisel from inserting overlayname_ before each IO element, which is necessary for integration with AWS's F1
@@ -110,15 +112,15 @@ class AXI4PCISF1VU9POverlay(val shell: F1VU9PShellBasicOverlays, val name: Strin
   extends IOOverlay[EmptyBundle, TLOutwardNode]
 {
   implicit val p = params.p
-  val axi4pcisParams = AXI4PCISParams(name = "", mIDBits = 0)
+  val axi4pcisParams = AXI4PCISParams(name = "", mIDBits = 0, busBytes = 8)
   val axi4pcis = LazyModule(new XilinxF1VU9PAXI4PCIS(axi4pcisParams))
   val ioSource = BundleBridgeSource(() => new AXI4PCISPads)
   val ioSink = shell { ioSource.makeSink() }
 
-  def designOutput = axi4pcis.master
+  def designOutput = axi4pcis.node
   def ioFactory = new EmptyBundle
 
-  InModuleBody { ioSource.bundle <> axi4pcis.io }
+  InModuleBody { ioSource.bundle <> axi4pcis.module.io }
 
   shell { InModuleBody {
     connectSink(ioSink.bundle)
@@ -191,7 +193,7 @@ abstract class F1VU9PShellBasicOverlays()(implicit p: Parameters) extends UltraS
 //val uart              = Overlay(UARTOverlayKey)       (new UARTF1VU9POverlay      (_, _, _))
   val ddr               = Overlay(DDROverlayKey)        (new DDRF1VU9POverlay       (_, _, _))
   val jtag              = Overlay(JTAGDebugOverlayKey)  (new JTAGF1VU9POverlay      (_, _, _))
-  val axi4pcis          = Overlay(AXI4PCISOverlayKey)   (new AXI4PCISOverlay        (_, _, _))
+  val axi4pcis          = Overlay(AXI4PCISOverlayKey)   (new AXI4PCISF1VU9POverlay  (_, _, _))
 }
 
 class F1VU9PShell()(implicit p: Parameters) extends F1VU9PShellBasicOverlays
@@ -224,6 +226,8 @@ class F1VU9PShell()(implicit p: Parameters) extends F1VU9PShellBasicOverlays
     def blacklist(name: String): Boolean = {
       // any module that uses IOs will need to add a blacklist
       if ( (new F1VU9PDDRPads).elements.contains(name) ) {
+        true
+      } else if ( (new AXI4PCISPads).elements.contains(name) ) {
         true
       } else {
         name match {

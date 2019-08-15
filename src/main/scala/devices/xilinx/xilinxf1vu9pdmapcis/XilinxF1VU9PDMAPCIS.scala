@@ -5,13 +5,14 @@ import chisel3._
 import chisel3.util._
 import chisel3.experimental._
 import freechips.rocketchip.amba.axi4._
+import freechips.rocketchip.amba.axi4.AXI4MasterParameters
 import freechips.rocketchip.config.Parameters
 import freechips.rocketchip.subsystem._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
 import freechips.rocketchip.interrupts._
 
-case class AXI4PCISParams(name: String, mIDBits: Integer) {}
+case class AXI4PCISParams(name: String, mIDBits: Integer, busBytes: Integer) {}
 
 class AXI4PCISPads extends Bundle {
 val sh_cl_dma_pcis_awid     = Input(UInt(6.W))
@@ -50,13 +51,13 @@ val cl_sh_dma_pcis_rready   = Input(Bool())
 class XilinxF1VU9PAXI4PCIS(c: AXI4PCISParams)(implicit p: Parameters) extends LazyModule {
   
   val master = AXI4MasterNode(Seq(AXI4MasterPortParameters(
-    masters = Seq(AXI4MasterParamters(
+    masters = Seq(AXI4MasterParameters(
       name = c.name,
       id   = IdRange(0, 1 << c.mIDBits),
       aligned = false)))))
   
   val node: TLOutwardNode =
-    (TLWidthWidge(c.busBytes)
+    (TLWidthWidget(c.busBytes)
       := AXI4ToTL()
       := AXI4UserYanker(capMaxFlight=Some(16))
       := AXI4Fragmenter()
