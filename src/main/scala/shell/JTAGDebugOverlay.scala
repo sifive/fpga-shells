@@ -2,38 +2,36 @@
 package sifive.fpgashells.shell
 
 import chisel3._
+import chisel3.experimental._
 import freechips.rocketchip.config._
 import freechips.rocketchip.util._
 import freechips.rocketchip.diplomacy._
+import freechips.rocketchip.jtag._
 import freechips.rocketchip.devices.debug._
 import freechips.rocketchip.subsystem.{BaseSubsystem, PeripheryBus, PeripheryBusKey}
 import sifive.fpgashells.ip.xilinx._
 
 case class JTAGDebugOverlayParams()(implicit val p: Parameters)
-case object JTAGDebugOverlayKey extends Field[Seq[DesignOverlay[JTAGDebugOverlayParams, ModuleValue[FPGAJTAGIO]]]](Nil)
+case object JTAGDebugOverlayKey extends Field[Seq[DesignOverlay[JTAGDebugOverlayParams, ModuleValue[JTAGIO]]]](Nil)
 
-class FPGAJTAGIO extends Bundle {
+class ShellJTAGIO extends Bundle {
   // JTAG
-  val jtag_TCK = Input(Clock())
-  val jtag_TMS = Input(Bool())
-  val jtag_TDI = Input(Bool())
-  val jtag_TDO = Output(Bool())
+  val jtag_TCK = Analog(1.W)
+  val jtag_TMS = Analog(1.W)
+  val jtag_TDI = Analog(1.W)
+  val jtag_TDO = Analog(1.W)
 }
 
 abstract class JTAGDebugOverlay(
   val params: JTAGDebugOverlayParams)
-    extends IOOverlay[FPGAJTAGIO, ModuleValue[FPGAJTAGIO]]
+    extends IOOverlay[ShellJTAGIO, ModuleValue[JTAGIO]]
 {
   implicit val p = params.p
 
-  def ioFactory = new FPGAJTAGIO
+  def ioFactory = new ShellJTAGIO
 
-  val jtagDebugSource = BundleBridgeSource(() => new FPGAJTAGIO)
+  val jtagDebugSource = BundleBridgeSource(() => new JTAGIO())
   val jtagDebugSink = shell { jtagDebugSource.makeSink }
 
   val designOutput = InModuleBody { jtagDebugSource.bundle}
-
-  shell { InModuleBody {
-    io <> jtagDebugSink.bundle
-  } }
 }

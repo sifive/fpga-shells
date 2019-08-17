@@ -10,4 +10,11 @@ abstract class JTAGDebugXilinxOverlay(params: JTAGDebugOverlayParams)
   extends JTAGDebugOverlay(params)
 {
   def shell: XilinxShell
+
+  shell { InModuleBody {
+    jtagDebugSink.bundle.TCK := AnalogToUInt(io.jtag_TCK)
+    jtagDebugSink.bundle.TMS := AnalogToUInt(io.jtag_TMS)
+    jtagDebugSink.bundle.TDI := AnalogToUInt(io.jtag_TDI)
+    UIntToAnalog(jtagDebugSink.bundle.TDO.data,io.jtag_TDO,jtagDebugSink.bundle.TDO.driven)
+  } }
 }
