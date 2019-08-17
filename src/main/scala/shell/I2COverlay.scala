@@ -30,12 +30,4 @@ abstract class I2COverlay(
   val tli2cSink = shell { tli2c.ioNode.makeSink }
 
   val designOutput = tli2c
-
-  shell { InModuleBody {
-    UIntToAnalog(tli2cSink.bundle.scl.out, io.scl, tli2cSink.bundle.scl.oe)
-    UIntToAnalog(tli2cSink.bundle.sda.out, io.sda, tli2cSink.bundle.sda.oe)
-
-    tli2cSink.bundle.scl.in := AnalogToUInt(io.scl)
-    tli2cSink.bundle.sda.in := AnalogToUInt(io.sda)
-  } }
 }
