@@ -70,10 +70,10 @@ class SPIFlashVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: Strin
   shell { InModuleBody { 
     val packagePinsWithPackageIOs = Seq(("AF13", IOPin(io.qspi_sck)),
       ("AJ11", IOPin(io.qspi_cs)),
-      ("AP11", IOPin(io.qspi_dq_0)),
-      ("AN11", IOPin(io.qspi_dq_1)),
-      ("AM11", IOPin(io.qspi_dq_2)),
-      ("AL11", IOPin(io.qspi_dq_3)))
+      ("AP11", IOPin(io.qspi_dq(0))),
+      ("AN11", IOPin(io.qspi_dq(1))),
+      ("AM11", IOPin(io.qspi_dq(2))),
+      ("AL11", IOPin(io.qspi_dq(3))))
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
