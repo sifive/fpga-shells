@@ -13,30 +13,20 @@ import freechips.rocketchip.interrupts.IntInwardNode
 case class PWMOverlayParams(pwmParams: PWMParams, controlBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
 case object PWMOverlayKey extends Field[Seq[DesignOverlay[PWMOverlayParams, TLPWM]]](Nil)
 
-class FPGAPWMPortIO extends Bundle {
-  val pwm_gpio_0 = Output(Bool())
-  val pwm_gpio_1 = Output(Bool())
-  val pwm_gpio_2 = Output(Bool())
-  val pwm_gpio_3 = Output(Bool())
+class ShellPWMPortIO extends Bundle {
+  val pwm_gpio = Vec(4, Analog(1.W))
 }
 
 abstract class PWMOverlay(
   val params: PWMOverlayParams)
-    extends IOOverlay[FPGAPWMPortIO, TLPWM]
+    extends IOOverlay[ShellPWMPortIO, TLPWM]
 {
   implicit val p = params.p
 
-  def ioFactory = new FPGAPWMPortIO
+  def ioFactory = new ShellPWMPortIO
 
   val tlpwm = PWM.attach(PWMAttachParams(params.pwmParams, params.controlBus, params.intNode))
   val tlpwmSink = shell { tlpwm.ioNode.makeSink }
 
   val designOutput = tlpwm
-
-  shell { InModuleBody {
-    io.pwm_gpio_0 := tlpwmSink.bundle.gpio(0)
-    io.pwm_gpio_1 := tlpwmSink.bundle.gpio(1)
-    io.pwm_gpio_2 := tlpwmSink.bundle.gpio(2)
-    io.pwm_gpio_3 := tlpwmSink.bundle.gpio(3)
-  } }
 }
