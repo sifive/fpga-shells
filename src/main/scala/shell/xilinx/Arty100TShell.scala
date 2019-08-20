@@ -54,10 +54,10 @@ class SPIFlashArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Strin
   shell { InModuleBody {
     val packagePinsWithPackageIOs = Seq(("L16", IOPin(io.qspi_sck)),
       ("L13", IOPin(io.qspi_cs)),
-      ("K17", IOPin(io.qspi_dq_0)),
-      ("K18", IOPin(io.qspi_dq_1)),
-      ("L14", IOPin(io.qspi_dq_2)),
-      ("M14", IOPin(io.qspi_dq_3)))
+      ("K17", IOPin(io.qspi_dq(0))),
+      ("K18", IOPin(io.qspi_dq(1))),
+      ("L14", IOPin(io.qspi_dq(2))),
+      ("M14", IOPin(io.qspi_dq(3))))
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
