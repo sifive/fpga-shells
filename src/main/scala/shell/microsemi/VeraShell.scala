@@ -148,7 +148,7 @@ class PCIeVeraOverlay(val shell: VeraShell, val name: String, params: PCIeOverla
     led_test2.suggestName("led_test2")
 
     withClockAndReset(coreClock, !sys_reset_n) {
-      val timer = RegInit(UInt(268435456, width=29))
+      val timer = RegInit(268435456.U(29.W))
       timer := timer - timer.orR
       val pf_rstb_i= !(!pf_reset.io.FABRIC_RESET_N || timer.orR)
 
