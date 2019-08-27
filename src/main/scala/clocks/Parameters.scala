@@ -20,6 +20,7 @@ case class ClockParameters(
 }
 
 case class ClockSourceParameters(
+  sdcName:  () => String,
   jitterPS: Option[Double] = None, // if known at chisel elaboration
   give:     Option[ClockParameters] = None)
 
@@ -54,7 +55,8 @@ case class ClockEdgeParameters(
 
 // ClockGroups exist as the output of a PLL
 
-case class ClockGroupSourceParameters()
+case class ClockGroupSourceParameters(
+  sdcName: Int => String)
 case class ClockGroupSinkParameters(
   name: String,
   members: Seq[ClockSinkParameters])
@@ -68,7 +70,7 @@ case class ClockGroupEdgeParameters(
   params:     Parameters,
   sourceInfo: SourceInfo)
 {
-  val sourceParameters = ClockSourceParameters()
+  val sourceParameters = ClockSourceParameters(() => "")
   val members = sink.members.map { s =>
     ClockEdgeParameters(sourceParameters, s, params, sourceInfo)
   }

@@ -29,7 +29,7 @@ class PolarFireTxPLL(implicit val p:Parameters) extends BlackBox
   }
 
   ElaborationArtefacts.add(
-    "Libero.polarfire_tx_pll.tcl",
+    "Libero.polarfire_tx_pll.libero.tcl",
     """ 
 create_design -id Actel:SgCore:PF_TX_PLL:2.0.002 -design_name {transmit_pll} -config_file {} -params {} -inhibit_configurator 0
 open_smartdesign -design {transmit_pll}

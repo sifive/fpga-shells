@@ -37,6 +37,7 @@ if { [llength [get_ports -quiet {ulpi_clk}]] > 0 } { create_clock -add -name ULP
 set group_jtag [get_clocks -quiet {JTCK}]
 
 if { [llength [get_ports -quiet {ulpi_clk}]] > 0 } { set group_ulpi [get_clocks -quiet {ULPI_CLK}] }
+else {set group_ulpi {} }
 
 puts "group_mem: $group_mem"
 puts "group_sys: $group_sys"
@@ -55,3 +56,5 @@ if { [llength $group_ulpi]   > 0 } { lappend groups -group $group_ulpi }
 
 puts "set_clock_groups -asynchronous $groups"
 set_clock_groups -asynchronous {*}$groups
+
+set_false_path -from [get_clocks JTCK] -to [get_clocks -of_objects [get_pins lazysys/xilinxvc707mig_1/island/blackbox/u_vc707mig4gb_mig/u_iodelay_ctrl/clk_ref_mmcm_gen.mmcm_i/CLKOUT1]]

@@ -27,7 +27,7 @@ class PolarFireGlitchlessMux(implicit val p:Parameters) extends BlackBox
   }
   
   ElaborationArtefacts.add(
-    "Libero.polarfire_glitchless_mux.tcl",
+    "Libero.polarfire_glitchless_mux.libero.tcl",
     """ 
 create_design -id Actel:SgCore:PF_NGMUX:1.0.101 -design_name {pf_glitchless_mux} -config_file {} -params {} -inhibit_configurator 0
 open_smartdesign -design {pf_glitchless_mux}

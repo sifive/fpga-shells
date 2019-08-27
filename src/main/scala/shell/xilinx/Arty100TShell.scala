@@ -15,7 +15,7 @@ import sifive.fpgashells.devices.xilinx.xilinxarty100tmig._
 class SysClockArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: ClockInputOverlayParams)
   extends SingleEndedClockInputXilinxOverlay(params)
 {
-  val node = shell { ClockSourceNode(freqMHz = 100, jitterPS = 50)(ValName(name)) }
+  val node = shell { ClockSourceNode(name, freqMHz = 100, jitterPS = 50) }
 
   shell { InModuleBody {
     val clk: Clock = io
@@ -69,12 +69,15 @@ class SPIFlashArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Strin
   } }
 }
 
+class TracePMODArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: TracePMODOverlayParams)
+  extends TracePMODXilinxOverlay(params, packagePins = Seq("U12", "V12", "V10", "V11", "U14", "V14", "T13", "U13"))
+
 class GPIOPMODArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: GPIOPMODOverlayParams)
   extends GPIOPMODXilinxOverlay(params)
 {
 
   shell { InModuleBody {
-    val packagePinsWithPackageIOs = Seq(("E15", IOPin(io.gpio_pmod_0)), //These are PMOD B. Can be changed
+    val packagePinsWithPackageIOs = Seq(("E15", IOPin(io.gpio_pmod_0)), //These are PMOD B
       ("E16", IOPin(io.gpio_pmod_1)),
       ("D15", IOPin(io.gpio_pmod_2)),
       ("C15", IOPin(io.gpio_pmod_3)),
@@ -138,6 +141,26 @@ class JTAGDebugArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Stri
   } }
 }
 
+//cjtag
+class cJTAGDebugArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: cJTAGDebugOverlayParams)
+  extends cJTAGDebugXilinxOverlay(params)
+{
+  shell { InModuleBody {
+    shell.sdc.addClock("JTCKC", IOPin(io.cjtag_TCKC), 10)
+    shell.sdc.addGroup(clocks = Seq("JTCKC"))
+    shell.xdc.clockDedicatedRouteFalse(IOPin(io.cjtag_TCKC))
+    val packagePinsWithPackageIOs = Seq(("F4", IOPin(io.cjtag_TCKC)),  //pin JD-3
+      ("D2", IOPin(io.cjtag_TMSC)),  //pin JD-8
+      ("H2", IOPin(io.srst_n)))
+
+    packagePinsWithPackageIOs foreach { case (pin, io) => {
+      shell.xdc.addPackagePin(io, pin)
+      shell.xdc.addIOStandard(io, "LVCMOS33")
+      shell.xdc.addPullup(io)
+    } }
+  } }
+}
+
 case object ArtyDDRSize extends Field[BigInt](0x10000000L * 1) // 256 MB
 class DDRArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: DDROverlayParams)
   extends DDROverlay[XilinxArty100TMIGPads](params)
@@ -150,11 +173,12 @@ class DDRArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, pa
   ddrClk1 := params.wrangler := ddrGroup := params.corePLL
   ddrClk2 := params.wrangler := ddrGroup
   
+  val sdcClockName = "userclk1"
   val migParams = XilinxArty100TMIGParams(address = AddressSet.misaligned(params.baseAddress, size))
   val mig = LazyModule(new XilinxArty100TMIG(migParams))
   val ioNode = BundleBridgeSource(() => mig.module.io.cloneType)
   val topIONode = shell { ioNode.makeSink() }
-  val ddrUI     = shell { ClockSourceNode(freqMHz = 100) }
+  val ddrUI     = shell { ClockSourceNode(sdcClockName, freqMHz = 100) }
   val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
   areset := params.wrangler := ddrUI
 
@@ -181,7 +205,7 @@ class DDRArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, pa
     port.aresetn := !ar.reset
   } }
 
-  shell.sdc.addGroup(clocks = Seq("clk_pll_i"))
+  shell.sdc.addGroup(clocks = Seq("clk_pll_i", "userClock1"))
 }
 
 abstract class Arty100TShellBasicOverlays()(implicit p: Parameters) extends Series7Shell {
@@ -194,6 +218,7 @@ abstract class Arty100TShellBasicOverlays()(implicit p: Parameters) extends Seri
   val uart      = Overlay(UARTOverlayKey)      (new UARTArtyOverlay       (_, _, _))
   val sdio      = Overlay(SDIOOverlayKey)      (new SDIOArtyOverlay       (_, _, _))
   val jtag      = Overlay(JTAGDebugOverlayKey) (new JTAGDebugArtyOverlay  (_, _, _))
+  val cjtag     = Overlay(cJTAGDebugOverlayKey) (new cJTAGDebugArtyOverlay  (_, _, _))
   val spi_flash = Overlay(SPIFlashOverlayKey)  (new SPIFlashArtyOverlay   (_, _, _))
 }
 
@@ -223,11 +248,13 @@ class Arty100TShell()(implicit p: Parameters) extends Arty100TShellBasicOverlays
 }
 
 class Arty100TShellGPIOPMOD()(implicit p: Parameters) extends Arty100TShellBasicOverlays
+//This is the Shell used for coreip arty builds, with GPIOS and trace signals on the pmods
 {
   // PLL reset causes
   val pllReset = InModuleBody { Wire(Bool()) }
 
   val gpio_pmod = Overlay(GPIOPMODOverlayKey) (new GPIOPMODArtyOverlay (_,_,_))
+  val trace_pmod = Overlay(TracePMODOverlayKey) (new TracePMODArtyOverlay (_,_,_))
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 

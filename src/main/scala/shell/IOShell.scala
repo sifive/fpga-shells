@@ -15,7 +15,8 @@ case class IOPin(element: Element, index: Int = 0)
   require (index >= 0 && index < width.get)
 
   def name = {
-    val pin = element.instanceName.split("\\.").mkString("_")
+    //replace all [#]'s with _# in the pin base name, then append on the final [#] (pindex) if width > 1
+    val pin = element.instanceName.split("\\.").map(_.replaceAll("""\[(\d+)\]""", "_$1")).mkString("_")
     val path = element.parentPathName.split("\\.")
     val pindex = pin + (if (width.get > 1) s"[${index}]" else "")
     (path.drop(1) :+ pindex).mkString("/")
@@ -25,8 +26,6 @@ case class IOPin(element: Element, index: Int = 0)
     val path = name
     if (path.contains("/")) s"[get_pins {${path}}]" else s"[get_ports {${path}}]"
   }
-
-  def sdcClock = s"[get_clocks -of_objects ${sdcPin}]"
 
   def isOutput = {
     import chisel3.core.ActualDirection._
@@ -97,23 +96,21 @@ class SDC(val name: String)
 
   def addClock(name: => String, pin: => IOPin, freqMHz: => Double, jitterNs: => Double = 0.5) {
     addRawClock(s"create_clock -name ${name} -period ${1000/freqMHz} ${pin.sdcPin}")
-    addRawClock(s"set_input_jitter ${name} ${jitterNs}")
+    //addRawClock(s"set_input_jitter ${name} ${jitterNs}")
   }
 
-  def addDerivedClock(name: => String, source: => IOPin, sink: => IOPin) {
-    addRawClock(s"create_generated_clock -name ${name} -divide_by 1 -source ${source.sdcPin} ${sink.sdcPin}")
+  def addDerivedClock(name: => String, source: => String, sink: => IOPin) {
+    addRawClock(s"create_generated_clock -name ${name} -divide_by 1 -source ${source} ${sink.sdcPin}")
   }
 
-  def addGroup(clocks: => Seq[String] = Nil, pins: => Seq[IOPin] = Nil) {
+  def addGroup(clocks: => Seq[String] = Nil) {
     def thunk = {
       val clocksList = clocks
-      val (pinsList, portsList) = pins.map(_.name).partition(_.contains("/"))
-      val sep = " \\\n      "
-      val clocksStr = (" [get_clocks {" +: clocksList).mkString(sep) + " \\\n    }]"
-      val pinsStr   = (" [get_clocks -of_objects [get_pins {"  +: pinsList ).mkString(sep) + " \\\n    }]]"
-      val portsStr  = (" [get_clocks -of_objects [get_ports {" +: portsList).mkString(sep) + " \\\n    }]]"
-      val str = s"  -group [list${if (clocksList.isEmpty) "" else clocksStr}${if (pinsList.isEmpty) "" else pinsStr}${if (portsList.isEmpty) "" else portsStr}]"
-      if (clocksList.isEmpty && pinsList.isEmpty && portsList.isEmpty) "" else str
+      if (clocksList.isEmpty) {
+        ""
+      } else {
+        (s"  -group {" +: clocksList).mkString(" \\\n      ") + " \\\n    }"
+      }
     }
     addRawGroup(thunk)
   }
