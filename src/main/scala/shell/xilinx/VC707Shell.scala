@@ -21,10 +21,10 @@ import sifive.fpgashells.ip.xilinx.{IBUFDS, PowerOnResetFPGAOnly, sdio_spi_bridg
 //vc707_sys_clock_mmcm0, vc707_sys_clock_, vc707_sys_clock_mmcm2 , vc707reset}
 import sifive.fpgashells.clocks._
 //-------------------------------------------------------------------------
-// VC707BaseShell
+// VC707Shell
 //-------------------------------------------------------------------------
 
-trait HasDDR3 { this: VC707BaseShell =>
+trait HasDDR3 { this: VC707Shell =>
   
   require(!p.lift(MemoryXilinxDDRKey).isEmpty)
   val ddr = IO(new XilinxVC707MIGPads(p(MemoryXilinxDDRKey)))
@@ -42,7 +42,7 @@ trait HasDDR3 { this: VC707BaseShell =>
   }
 }
 
-trait HasPCIe { this: VC707BaseShell =>
+trait HasPCIe { this: VC707Shell =>
   val pcie = IO(new XilinxVC707PCIeX1Pads)
 
   def connectPCIe(dut: HasSystemXilinxVC707PCIeX1ModuleImp): Unit = {
@@ -57,7 +57,7 @@ trait HasPCIe { this: VC707BaseShell =>
   }
 }
 
-trait HasDebugJTAG { this: VC707BaseShell =>
+trait HasDebugJTAG { this: VC707Shell =>
   // JTAG
   val jtag_TCK             = IO(Input(Clock()))
   val jtag_TMS             = IO(Input(Bool()))
@@ -123,7 +123,7 @@ trait HasDebugJTAG { this: VC707BaseShell =>
   }
 }
 
-trait HasVC707ChipLink { this: VC707BaseShell =>
+trait HasVC707ChipLink { this: VC707Shell =>
 
   val chiplink = IO(new WideDataLayerPort(ChipLinkParams(Nil,Nil)))
   val ereset_n = IO(Bool(INPUT))
@@ -381,7 +381,7 @@ trait HasVC707ChipLink { this: VC707BaseShell =>
 
   
 
-abstract class VC707BaseShell(implicit val p: Parameters) extends RawModule {
+abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
 
   //-----------------------------------------------------------------------
   // Interface
