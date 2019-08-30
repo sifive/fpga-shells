@@ -379,6 +379,7 @@ trait HasVC707ChipLink { this: VC707Shell =>
   }
 }
 
+
 abstract class VC707Shell(implicit val p: Parameters) extends RawModule {
 
   //-----------------------------------------------------------------------
