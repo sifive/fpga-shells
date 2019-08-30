@@ -14,7 +14,7 @@ import sifive.blocks.devices.chiplink._
 import sifive.fpgashells.devices.xilinx.xilinxvc707mig._
 import sifive.fpgashells.devices.xilinx.xilinxvc707pciex1._
 
-class SysClockVC707Overlay(val shell: VC707Shell, val name: String, params: ClockInputOverlayParams)
+class SysClockVC707Overlay(val shell: VC707BaseShell, val name: String, params: ClockInputOverlayParams)
   extends LVDSClockInputXilinxOverlay(params)
 {
   val node = shell { ClockSourceNode(freqMHz = 200, jitterPS = 50)(ValName(name)) }
@@ -25,7 +25,7 @@ class SysClockVC707Overlay(val shell: VC707Shell, val name: String, params: Cloc
   } }
 }
 
-class SDIOVC707Overlay(val shell: VC707Shell, val name: String, params: SDIOOverlayParams)
+class SDIOVC707Overlay(val shell: VC707BaseShell, val name: String, params: SDIOOverlayParams)
   extends SDIOXilinxOverlay(params)
 {
   shell { InModuleBody {
@@ -47,7 +47,7 @@ class SDIOVC707Overlay(val shell: VC707Shell, val name: String, params: SDIOOver
   } }
 }
 
-class UARTVC707Overlay(val shell: VC707Shell, val name: String, params: UARTOverlayParams)
+class UARTVC707Overlay(val shell: VC707BaseShell, val name: String, params: UARTOverlayParams)
   extends UARTXilinxOverlay(params)
 {
   shell { InModuleBody {
@@ -64,13 +64,13 @@ class UARTVC707Overlay(val shell: VC707Shell, val name: String, params: UARTOver
   } }
 }
 
-class LEDVC707Overlay(val shell: VC707Shell, val name: String, params: LEDOverlayParams)
+class LEDVC707Overlay(val shell: VC707BaseShell, val name: String, params: LEDOverlayParams)
   extends LEDXilinxOverlay(params, boardPins = Seq.tabulate(8) { i => s"leds_8bits_tri_o_$i" })
 
-class SwitchVC707Overlay(val shell: VC707Shell, val name: String, params: SwitchOverlayParams)
+class SwitchVC707Overlay(val shell: VC707BaseShell, val name: String, params: SwitchOverlayParams)
   extends SwitchXilinxOverlay(params, boardPins = Seq.tabulate(8) { i => s"dip_switches_tri_i_$i" })
 
-class ChipLinkVC707Overlay(val shell: VC707Shell, val name: String, params: ChipLinkOverlayParams)
+class ChipLinkVC707Overlay(val shell: VC707BaseShell, val name: String, params: ChipLinkOverlayParams)
   extends ChipLinkXilinxOverlay(params, rxPhase=280, txPhase=220, rxMargin=0.3, txMargin=0.3)
 {
   val ereset_n = shell { InModuleBody {
@@ -99,7 +99,7 @@ class ChipLinkVC707Overlay(val shell: VC707Shell, val name: String, params: Chip
 }
 
 // TODO: JTAG is untested
-class JTAGDebugVC707Overlay(val shell: VC707Shell, val name: String, params: JTAGDebugOverlayParams)
+class JTAGDebugVC707Overlay(val shell: VC707BaseShell, val name: String, params: JTAGDebugOverlayParams)
   extends JTAGDebugXilinxOverlay(params)
 {
   shell { InModuleBody {
@@ -120,7 +120,7 @@ class JTAGDebugVC707Overlay(val shell: VC707Shell, val name: String, params: JTA
 }
 
 case object VC707DDRSize extends Field[BigInt](0x40000000L * 1) // 1GB
-class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverlayParams)
+class DDRVC707Overlay(val shell: VC707BaseShell, val name: String, params: DDROverlayParams)
   extends DDROverlay[XilinxVC707MIGPads](params)
 {
   val size = p(VC707DDRSize)
@@ -155,7 +155,7 @@ class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverla
   shell.sdc.addGroup(clocks = Seq("clk_pll_i"))
 }
 
-class PCIeVC707Overlay(val shell: VC707Shell, val name: String, params: PCIeOverlayParams)
+class PCIeVC707Overlay(val shell: VC707BaseShell, val name: String, params: PCIeOverlayParams)
   extends PCIeOverlay[XilinxVC707PCIeX1Pads](params)
 {
   val pcie = LazyModule(new XilinxVC707PCIeX1)
@@ -199,7 +199,7 @@ class PCIeVC707Overlay(val shell: VC707Shell, val name: String, params: PCIeOver
   shell.sdc.addGroup(clocks = Seq("txoutclk", "userclk1"))
 }
 
-class VC707Shell()(implicit p: Parameters) extends Series7Shell
+class VC707BaseShell()(implicit p: Parameters) extends Series7Shell
 {
   // PLL reset causes
   val pllReset = InModuleBody { Wire(Bool()) }
@@ -210,7 +210,6 @@ class VC707Shell()(implicit p: Parameters) extends Series7Shell
   val switch    = Overlay(SwitchOverlayKey)    (new SwitchVC707Overlay  (_, _, _))
   val chiplink  = Overlay(ChipLinkOverlayKey)  (new ChipLinkVC707Overlay(_, _, _))
   val ddr       = Overlay(DDROverlayKey)       (new DDRVC707Overlay     (_, _, _))
-  val pcie      = Overlay(PCIeOverlayKey)      (new PCIeVC707Overlay    (_, _, _))
   val uart      = Overlay(UARTOverlayKey)      (new UARTVC707Overlay    (_, _, _))
   val sdio      = Overlay(SDIOOverlayKey)      (new SDIOVC707Overlay    (_, _, _))
   val jtag      = Overlay(JTAGDebugOverlayKey)      (new JTAGDebugVC707Overlay    (_, _, _))
@@ -234,4 +233,9 @@ class VC707Shell()(implicit p: Parameters) extends Series7Shell
       reset_ibuf.io.O || powerOnReset ||
       chiplink.map(!_.ereset_n).getOrElse(false.B)
   }
+}
+
+class VC707PCIeShell()(implicit p: Parameters) extends VC707BaseShell
+{
+  val pcie      = Overlay(PCIeOverlayKey)      (new PCIeVC707Overlay    (_, _, _))
 }
