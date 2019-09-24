@@ -12,7 +12,7 @@ abstract class JTAGDebugXilinxOverlay(params: JTAGDebugOverlayParams)
   def shell: XilinxShell
 
   shell { InModuleBody {
-    jtagDebugSink.bundle.TCK := AnalogToUInt(io.jtag_TCK)
+    jtagDebugSink.bundle.TCK := AnalogToUInt(io.jtag_TCK).asBool.asClock
     jtagDebugSink.bundle.TMS := AnalogToUInt(io.jtag_TMS)
     jtagDebugSink.bundle.TDI := AnalogToUInt(io.jtag_TDI)
     UIntToAnalog(jtagDebugSink.bundle.TDO.data,io.jtag_TDO,jtagDebugSink.bundle.TDO.driven)
