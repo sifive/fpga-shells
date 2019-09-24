@@ -12,7 +12,7 @@ import freechips.rocketchip.subsystem.{BaseSubsystem, PeripheryBus, PeripheryBus
 import sifive.fpgashells.ip.xilinx._
 
 case class JTAGDebugOverlayParams()(implicit val p: Parameters)
-case object JTAGDebugOverlayKey extends Field[Seq[DesignOverlay[JTAGDebugOverlayParams, ModuleValue[JTAGIO]]]](Nil)
+case object JTAGDebugOverlayKey extends Field[Seq[DesignOverlay[JTAGDebugOverlayParams, ModuleValue[FlippedJTAGIO]]]](Nil)
 
 class ShellJTAGIO extends Bundle {
   // JTAG
@@ -22,15 +22,23 @@ class ShellJTAGIO extends Bundle {
   val jtag_TDO = Analog(1.W)
 }
 
+// TODO: Fix interaction of BundleBridge/Flipped to get rid of this Bundle
+class FlippedJTAGIO extends Bundle {
+  val TCK = Input(Clock())
+  val TMS = Input(Bool())
+  val TDI = Input(Bool())
+  val TDO = Output(new Tristate())
+}
+
 abstract class JTAGDebugOverlay(
   val params: JTAGDebugOverlayParams)
-    extends IOOverlay[ShellJTAGIO, ModuleValue[JTAGIO]]
+    extends IOOverlay[ShellJTAGIO, ModuleValue[FlippedJTAGIO]]
 {
   implicit val p = params.p
 
   def ioFactory = new ShellJTAGIO
 
-  val jtagDebugSource = BundleBridgeSource(() => new JTAGIO())
+  val jtagDebugSource = BundleBridgeSource(() => new FlippedJTAGIO())
   val jtagDebugSink = shell { jtagDebugSource.makeSink }
 
   val designOutput = InModuleBody { jtagDebugSource.bundle}
