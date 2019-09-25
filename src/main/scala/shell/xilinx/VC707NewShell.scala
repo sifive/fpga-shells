@@ -24,6 +24,10 @@ class SysClockVC707Overlay(val shell: VC707Shell, val name: String, params: Cloc
     shell.xdc.addBoardPin(io.n, "clk_n")
   } }
 }
+object SysClockVC707Overlay {
+  implicit object SysClockVC707Metadata extends HasMetadata[SysClockVC707Overlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class SDIOVC707Overlay(val shell: VC707Shell, val name: String, params: SDIOOverlayParams)
   extends SDIOXilinxOverlay(params)
@@ -46,6 +50,10 @@ class SDIOVC707Overlay(val shell: VC707Shell, val name: String, params: SDIOOver
     } }
   } }
 }
+object SDIOVC707Overlay {
+  implicit object SDIOVC707Metadata extends HasMetadata[SDIOVC707Overlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class UARTVC707Overlay(val shell: VC707Shell, val name: String, params: UARTOverlayParams)
   extends UARTXilinxOverlay(params, true)
@@ -63,12 +71,24 @@ class UARTVC707Overlay(val shell: VC707Shell, val name: String, params: UARTOver
     } }
   } }
 }
+object UARTVC707Overlay {
+  implicit object UARTVC707Metadata extends HasMetadata[UARTVC707Overlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class LEDVC707Overlay(val shell: VC707Shell, val name: String, params: LEDOverlayParams)
   extends LEDXilinxOverlay(params, boardPins = Seq.tabulate(8) { i => s"leds_8bits_tri_o_$i" })
+object LEDVC707Overlay {
+  implicit object LEDVC707Metadata extends HasMetadata[LEDVC707Overlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class SwitchVC707Overlay(val shell: VC707Shell, val name: String, params: SwitchOverlayParams)
   extends SwitchXilinxOverlay(params, boardPins = Seq.tabulate(8) { i => s"dip_switches_tri_i_$i" })
+object SwitchVC707Overlay {
+  implicit object SwitchVC707Metadata extends HasMetadata[SwitchVC707Overlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class ChipLinkVC707Overlay(val shell: VC707Shell, val name: String, params: ChipLinkOverlayParams)
   extends ChipLinkXilinxOverlay(params, rxPhase=280, txPhase=220, rxMargin=0.3, txMargin=0.3)
@@ -97,6 +117,10 @@ class ChipLinkVC707Overlay(val shell: VC707Shell, val name: String, params: Chip
     (IOPin.of(io.c2b) zip dir2) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
   } }
 }
+object ChipLinkVC707Overlay {
+  implicit object ChipLinkVC707Metadata extends HasMetadata[ChipLinkVC707Overlay] {
+    def metadata = OverlayMetadata()
+} }
 
 // TODO: JTAG is untested
 class JTAGDebugVC707Overlay(val shell: VC707Shell, val name: String, params: JTAGDebugOverlayParams)
@@ -136,6 +160,10 @@ class JTAGDebugVC707Overlay(val shell: VC707Shell, val name: String, params: JTA
     } }
   } }
 }
+object JTAGDebugVC707Overlay {
+  implicit object JTAGDebugVC707Metadata extends HasMetadata[JTAGDebugVC707Overlay] {
+    def metadata = OverlayMetadata()
+} }
 
 case object VC707DDRSize extends Field[BigInt](0x40000000L * 1) // 1GB
 class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverlayParams)
@@ -173,6 +201,10 @@ class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverla
 
   shell.sdc.addGroup(clocks = Seq("clk_pll_i"))
 }
+object DDRVC707Overlay {
+  implicit object DDRVC707Metadata extends HasMetadata[DDRVC707Overlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class PCIeVC707Overlay(val shell: VC707Shell, val name: String, params: PCIeOverlayParams)
   extends PCIeOverlay[XilinxVC707PCIeX1Pads](params)
@@ -218,6 +250,10 @@ class PCIeVC707Overlay(val shell: VC707Shell, val name: String, params: PCIeOver
 
   shell.sdc.addGroup(clocks = Seq("txoutclk", "userclk1", "axiClock"))
 }
+object PCIeVC707Overlay {
+  implicit object PCIeVC707Metadata extends HasMetadata[PCIeVC707Overlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class VC707Shell()(implicit p: Parameters) extends Series7Shell
 {

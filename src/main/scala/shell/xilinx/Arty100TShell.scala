@@ -23,6 +23,10 @@ class SysClockArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Strin
     shell.xdc.addIOStandard(clk, "LVCMOS33")
   } }
 }
+object SysClockArtyOverlay {
+  implicit object SysClockArtyMetadata extends HasMetadata[SysClockArtyOverlay] {
+    def metadata = OverlayMetadata()
+} }
 
 //PMOD JA used for SDIO
 class SDIOArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: SDIOOverlayParams)
@@ -46,6 +50,10 @@ class SDIOArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, p
     } }
   } }
 }
+object SDIOArtyOverlay {
+  implicit object SDIOArtyMetadata extends HasMetadata[SDIOArtyOverlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class SPIFlashArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: SPIFlashOverlayParams)
   extends SPIFlashXilinxOverlay(params)
@@ -68,14 +76,21 @@ class SPIFlashArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Strin
     } }
   } }
 }
+object SPIFlashArtyOverlay {
+  implicit object SPIFlashArtyMetadata extends HasMetadata[SPIFlashArtyOverlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class TracePMODArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: TracePMODOverlayParams)
   extends TracePMODXilinxOverlay(params, packagePins = Seq("U12", "V12", "V10", "V11", "U14", "V14", "T13", "U13"))
+object TracePMODArtyOverlay {
+  implicit object TracePMODArtyMetadata extends HasMetadata[TracePMODArtyOverlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class GPIOPMODArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: GPIOPMODOverlayParams)
   extends GPIOPMODXilinxOverlay(params)
 {
-
   shell { InModuleBody {
     val packagePinsWithPackageIOs = Seq(("E15", IOPin(io.gpio_pmod_0)), //These are PMOD B
       ("E16", IOPin(io.gpio_pmod_1)),
@@ -92,6 +107,10 @@ class GPIOPMODArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Strin
     } }
   } }
 }
+object GPIOPMODArtyOverlay {
+  implicit object GPIOPMODArtyMetadata extends HasMetadata[GPIOPMODArtyOverlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class UARTArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: UARTOverlayParams)
   extends UARTXilinxOverlay(params, false)
@@ -107,18 +126,34 @@ class UARTArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, p
     } }
   } }
 }
+object UARTArtyOverlay {
+  implicit object UARTArtyMetadata extends HasMetadata[UARTArtyOverlay] {
+    def metadata = OverlayMetadata()
+} }
 
 //LEDS - 4 normal leds, r0, g0, b0, r1, g1, b1 ...
 class LEDArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: LEDOverlayParams)
   extends LEDXilinxOverlay(params, packagePins = Seq("H5", "J5", "T9", "T10", "G6", "F6", "E1", "G3", "J4", "G4", "J3", "J2", "H4", "K1", "H6", "K2"))
+object LEDArtyOverlay {
+  implicit object LEDArtyMetadata extends HasMetadata[LEDArtyOverlay] {
+    def metadata = OverlayMetadata()
+} }
 
 //SWs
 class SwitchArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: SwitchOverlayParams)
   extends SwitchXilinxOverlay(params, packagePins = Seq("A8", "C11", "C10", "A10"))
+object SwitchArtyOverlay {
+  implicit object SwitchArtyMetadata extends HasMetadata[SwitchArtyOverlay] {
+    def metadata = OverlayMetadata()
+} }
 
 //Buttons
 class ButtonArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: ButtonOverlayParams)
   extends ButtonXilinxOverlay(params, packagePins = Seq("D9", "C9", "B9", "B8"))
+object ButtonArtyOverlay {
+  implicit object ButtonArtyMetadata extends HasMetadata[ButtonArtyOverlay] {
+    def metadata = OverlayMetadata()
+} }
 
 // PMOD JD used for JTAG
 class JTAGDebugArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: JTAGDebugOverlayParams)
@@ -140,6 +175,10 @@ class JTAGDebugArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Stri
     } }
   } }
 }
+object JTAGDebugArtyOverlay {
+  implicit object JTAGDebugArtyMetadata extends HasMetadata[JTAGDebugArtyOverlay] {
+    def metadata = OverlayMetadata()
+} }
 
 //cjtag
 class cJTAGDebugArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: cJTAGDebugOverlayParams)
@@ -160,6 +199,10 @@ class cJTAGDebugArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Str
     } }
   } }
 }
+object cJTAGDebugArtyOverlay {
+  implicit object cJTAGDebugArtyMetadata extends HasMetadata[cJTAGDebugArtyOverlay] {
+    def metadata = OverlayMetadata()
+} }
 
 case object ArtyDDRSize extends Field[BigInt](0x10000000L * 1) // 256 MB
 class DDRArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: DDROverlayParams)
@@ -207,6 +250,10 @@ class DDRArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, pa
 
   shell.sdc.addGroup(clocks = Seq("clk_pll_i", "userClock1"))
 }
+object DDRArtyOverlay {
+  implicit object DDRArtyMetadata extends HasMetadata[DDRArtyOverlay] {
+    def metadata = OverlayMetadata()
+} }
 
 abstract class Arty100TShellBasicOverlays()(implicit p: Parameters) extends Series7Shell {
   // Order matters; ddr depends on sys_clock
