@@ -11,6 +11,17 @@ import firrtl.analyses._
 import firrtl.annotations._
 //import firrtl.ir._
 import freechips.rocketchip.util.DontTouch
+
+case class OverlayMetadata(
+  color: Option[String] = None,
+  header: Option[String] = None,
+  rgb: Bool = false.B,
+  number: Option[Int] = None)
+
+trait HasMetadata[T] {
+  def metadata: OverlayMetadata
+}
+
 case object DesignKey extends Field[Parameters => LazyModule]
 
 // Overlays are declared by the Shell and placed somewhere by the Design
@@ -27,6 +38,7 @@ trait Overlay[DesignOutput]
 trait DesignOverlay[DesignInput, DesignOutput] {
   def isPlaced: Boolean
   def name: String
+  def metadata: OverlayMetadata
   def apply(input: DesignInput): DesignOutput
 }
 
@@ -38,7 +50,8 @@ abstract class Shell()(implicit p: Parameters) extends LazyModule with LazyScope
   def Overlay[DesignInput, DesignOutput, T <: Overlay[DesignOutput]](
     key: Field[Seq[DesignOverlay[DesignInput, DesignOutput]]])(
     gen: (this.type, String, DesignInput) => T)(
-    implicit valName: ValName): ModuleValue[Option[T]] =
+    //mdata: Option[OverlayMetadata] = None)(
+    implicit valName: ValName, mdata: HasMetadata[T]): ModuleValue[Option[T]] =
   {
     val self = this.asInstanceOf[this.type]
     val thunk = new ModuleValue[Option[T]] with DesignOverlay[DesignInput, DesignOutput] {
@@ -46,6 +59,7 @@ abstract class Shell()(implicit p: Parameters) extends LazyModule with LazyScope
       def getWrappedValue = placement
       def isPlaced = !placement.isEmpty
       def name = valName.name
+      def metadata = mdata.metadata
       def apply(input: DesignInput): DesignOutput = {
         require (placement.isEmpty, s"Overlay ${name} has already been placed by the design; cannot place again")
         val it = gen(self, valName.name, input)

@@ -34,9 +34,17 @@ class SysClockVeraOverlay(val shell: VeraShell, val name: String, params: ClockI
     shell.io_pdc.addPin(io:Clock, "AG4")
   } }
 }
+object SysClockVeraOverlay {
+  implicit object SysClockVeraMetadata extends HasMetadata[SysClockVeraOverlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class LEDVeraOverlay(val shell: VeraShell, val name: String, params: LEDOverlayParams)
   extends LEDMicrosemiOverlay(params, Seq("AK17", "AN17", "AM17", "AL18"))
+object LEDVeraOverlay {
+  implicit object LEDVeraMetadata extends HasMetadata[LEDVeraOverlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class ChipLinkVeraOverlay(val shell: VeraShell, val name: String, params: ChipLinkOverlayParams)
   extends ChipLinkPolarFireOverlay(params)
@@ -70,6 +78,10 @@ class ChipLinkVeraOverlay(val shell: VeraShell, val name: String, params: ChipLi
     rx.reset := shell.pllReset
   } }
 }
+object ChipLinkVeraOverlay {
+  implicit object ChipLinkVeraMetadata extends HasMetadata[ChipLinkVeraOverlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class PCIeVeraOverlay(val shell: VeraShell, val name: String, params: PCIeOverlayParams)
   extends PCIeOverlay[PolarFireEvalKitPCIeX4Pads](params)
@@ -208,6 +220,10 @@ class PCIeVeraOverlay(val shell: VeraShell, val name: String, params: PCIeOverla
 
   shell.sdc.addGroup(clocks = Seq("osc_rc160mhz"))
 }
+object PCIeVeraOverlay {
+  implicit object PCIeVeraMetadata extends HasMetadata[PCIeVeraOverlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class VeraShell()(implicit p: Parameters) extends PolarFireShell
 {

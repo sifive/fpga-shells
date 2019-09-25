@@ -27,6 +27,10 @@ class SysClockVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: Strin
     shell.xdc.addIOStandard(io.n, "DIFF_SSTL12")
   } }
 }
+object SysClockVCU118Overlay {
+  implicit object SysClockVCU118Metadata extends HasMetadata[SysClockVCU118Overlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class RefClockVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: ClockInputOverlayParams)
   extends LVDSClockInputXilinxOverlay(params)
@@ -40,6 +44,10 @@ class RefClockVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: Strin
     shell.xdc.addIOStandard(io.n, "LVDS")
   } }
 }
+object RefClockVCU118Overlay {
+  implicit object RefClockVCU118Metadata extends HasMetadata[RefClockVCU118Overlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class SDIOVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: SDIOOverlayParams)
   extends SDIOXilinxOverlay(params)
@@ -62,6 +70,10 @@ class SDIOVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, p
     } }
   } }
 }
+object SDIOVCU118Overlay {
+  implicit object SDIOVCU118Metadata extends HasMetadata[SDIOVCU118Overlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class SPIFlashVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: SPIFlashOverlayParams)
   extends SPIFlashXilinxOverlay(params)
@@ -84,6 +96,10 @@ class SPIFlashVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: Strin
     //} }
   } }
 }
+object SPIFlashVCU118Overlay {
+  implicit object SPIFlashVCU118Metadata extends HasMetadata[SPIFlashVCU118Overlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class UARTVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: UARTOverlayParams)
   extends UARTXilinxOverlay(params, true)
@@ -101,6 +117,10 @@ class UARTVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, p
     } }
   } }
 }
+object UARTVCU118Overlay {
+  implicit object UARTVCU118Metadata extends HasMetadata[UARTVCU118Overlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class QSFP1VCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: EthernetOverlayParams)
   extends EthernetUltraScaleOverlay(XXVEthernetParams(
@@ -123,6 +143,10 @@ class QSFP1VCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, 
     shell.xdc.addPackagePin(io.refclk_n, "W8")
   } }
 }
+object QSFP1VCU118Overlay {
+  implicit object QSFP1VCU118Metadata extends HasMetadata[QSFP1VCU118Overlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class QSFP2VCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: EthernetOverlayParams)
   extends EthernetUltraScaleOverlay(XXVEthernetParams(
@@ -145,6 +169,10 @@ class QSFP2VCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, 
     shell.xdc.addPackagePin(io.refclk_n, "R8")
   } }
 }
+object QSFP2VCU118Overlay {
+  implicit object QSFP2VCU118Metadata extends HasMetadata[QSFP2VCU118Overlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class LEDVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: LEDOverlayParams)
   extends LEDXilinxOverlay(params, packagePins = Seq("AT32", "AV34", "AY30", "BB32", "BF32", "AU37", "AV36", "BA37"))
@@ -153,6 +181,10 @@ class LEDVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, pa
     IOPin.of(io).foreach { shell.xdc.addIOStandard(_, "LVCMOS12") }
   } }
 }
+object LEDVCU118Overlay {
+  implicit object LEDVCU118Metadata extends HasMetadata[LEDVCU118Overlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class SwitchVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: SwitchOverlayParams)
   extends SwitchXilinxOverlay(params, packagePins = Seq("B17", "G16", "J16", "D21"))
@@ -161,6 +193,10 @@ class SwitchVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String,
     IOPin.of(io).foreach { shell.xdc.addIOStandard(_, "LVCMOS12") }
   } }
 }
+object SwitchVCU118Overlay {
+  implicit object SwitchVCU118Metadata extends HasMetadata[SwitchVCU118Overlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class ChipLinkVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: ChipLinkOverlayParams)
   extends ChipLinkXilinxOverlay(params, rxPhase= -120, txPhase= -90, rxMargin=0.6, txMargin=0.5)
@@ -198,6 +234,10 @@ class ChipLinkVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: Strin
     (IOPin.of(io.c2b) zip dir2) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
   } }
 }
+object ChipLinkVCU118Overlay {
+  implicit object ChipLinkVCU118Metadata extends HasMetadata[ChipLinkVCU118Overlay] {
+    def metadata = OverlayMetadata()
+} }
 
 // TODO: JTAG is untested
 class JTAGDebugVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: JTAGDebugOverlayParams)
@@ -219,6 +259,10 @@ class JTAGDebugVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: Stri
     } }
   } }
 }
+object JTAGDebugVCU118Overlay {
+  implicit object JTAGDebugVCU118Metadata extends HasMetadata[JTAGDebugVCU118Overlay] {
+    def metadata = OverlayMetadata()
+} }
 
 case object VCU118DDRSize extends Field[BigInt](0x40000000L * 2) // 2GB
 class DDRVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: DDROverlayParams)
@@ -271,6 +315,10 @@ class DDRVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, pa
 
   shell.sdc.addGroup(clocks = Seq("userClock1"))
 }
+object DDRVCU118Overlay {
+  implicit object DDRVCU118Metadata extends HasMetadata[DDRVCU118Overlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class PCIeVCU118FMCOverlay(val shell: VCU118ShellBasicOverlays, val name: String, params: PCIeOverlayParams)
   extends PCIeUltraScaleOverlay(XDMAParams(
@@ -307,6 +355,10 @@ class PCIeVCU118FMCOverlay(val shell: VCU118ShellBasicOverlays, val name: String
     bind(IOPin.of(io.lanes.pci_exp_rxn), rxn)
   } }
 }
+object PCIeVCU118FMCOverlay {
+  implicit object PCIeVCU118FMCMetadata extends HasMetadata[PCIeVCU118FMCOverlay] {
+    def metadata = OverlayMetadata()
+} }
 
 class PCIeVCU118EdgeOverlay(val shell: VCU118ShellBasicOverlays, val name: String, params: PCIeOverlayParams)
   extends PCIeUltraScaleOverlay(XDMAParams(
@@ -348,6 +400,10 @@ class PCIeVCU118EdgeOverlay(val shell: VCU118ShellBasicOverlays, val name: Strin
     bind(IOPin.of(io.lanes.pci_exp_rxn), rxn)
   } }
 }
+object PCIeVCU118EdgeOverlay {
+  implicit object PCIeVCU118FMCMetadata extends HasMetadata[PCIeVCU118EdgeOverlay] {
+    def metadata = OverlayMetadata()
+} }
 
 abstract class VCU118ShellBasicOverlays()(implicit p: Parameters) extends UltraScaleShell{
   val sys_clock = Overlay(ClockInputOverlayKey)(new SysClockVCU118Overlay (_, _, _))
