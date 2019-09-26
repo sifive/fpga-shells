@@ -10,4 +10,14 @@ abstract class SPIFlashXilinxOverlay(params: SPIFlashOverlayParams)
   extends SPIFlashOverlay(params)
 {
   def shell: XilinxShell
+
+  shell { InModuleBody {
+    UIntToAnalog(tlqspiSink.bundle.sck  , io.qspi_sck, true.B)
+    UIntToAnalog(tlqspiSink.bundle.cs(0), io.qspi_cs , true.B)
+
+    tlqspiSink.bundle.dq.zip(io.qspi_dq).foreach { case(design_dq, io_dq) => 
+      UIntToAnalog(design_dq.o, io_dq, design_dq.oe)
+      design_dq.i := AnalogToUInt(io_dq)
+    }
+  } }
 }

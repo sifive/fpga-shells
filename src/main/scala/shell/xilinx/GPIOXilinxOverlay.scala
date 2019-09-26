@@ -10,4 +10,11 @@ abstract class GPIOXilinxOverlay(params: GPIOOverlayParams)
   extends GPIOOverlay(params)
 {
   def shell: XilinxShell
+
+  shell { InModuleBody {
+      tlgpioSink.bundle.pins.zipWithIndex.foreach{ case (tlpin, idx) => {
+        UIntToAnalog(tlpin.o.oval, io.gpio(idx), tlpin.o.oe)
+        tlpin.i.ival := AnalogToUInt(io.gpio(idx))
+      } }
+  } }
 }

@@ -10,4 +10,12 @@ import sifive.fpgashells.ip.xilinx._
   extends I2COverlay(params)
 {
   def shell: XilinxShell
+
+  shell { InModuleBody {
+    UIntToAnalog(tli2cSink.bundle.scl.out, io.scl, tli2cSink.bundle.scl.oe)
+    UIntToAnalog(tli2cSink.bundle.sda.out, io.sda, tli2cSink.bundle.sda.oe)
+
+    tli2cSink.bundle.scl.in := AnalogToUInt(io.scl)
+    tli2cSink.bundle.sda.in := AnalogToUInt(io.sda)
+  } }
 }
