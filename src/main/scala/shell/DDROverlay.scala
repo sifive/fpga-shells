@@ -10,7 +10,8 @@ import sifive.fpgashells.clocks._
 case class DDROverlayParams(
   baseAddress: BigInt,
   wrangler: ClockAdapterNode,
-  corePLL: PLLNode)(
+  corePLL: PLLNode,
+  vc7074gbdimm: Boolean = false)(
   implicit val p: Parameters)
 
 case object DDROverlayKey extends Field[Seq[DesignOverlay[DDROverlayParams, TLInwardNode]]](Nil)

@@ -137,11 +137,12 @@ class JTAGDebugVC707Overlay(val shell: VC707Shell, val name: String, params: JTA
   } }
 }
 
-case object VC707DDRSize extends Field[BigInt](0x40000000L * 1) // 1GB
+case object VC7071GDDRSize extends Field[BigInt](0x40000000L * 1) // 1GB
+case object VC7074GDDRSize extends Field[BigInt](0x40000000L * 4) // 4GB
 class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverlayParams)
   extends DDROverlay[XilinxVC707MIGPads](params)
 {
-  val size = p(VC707DDRSize)
+  val size = if (params.vc7074gbdimm) p(VC7074GDDRSize) else p(VC7071GDDRSize)
 
   val sdcClockName = "userClock1"
   val migParams = XilinxVC707MIGParams(address = AddressSet.misaligned(params.baseAddress, size))
