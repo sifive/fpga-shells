@@ -11,7 +11,7 @@ case class DDROverlayParams(
   baseAddress: BigInt,
   wrangler: ClockAdapterNode,
   corePLL: PLLNode,
-  vc7074gbdimm: Bool = false)(
+  vc7074gbdimm: Boolean = false)(
   implicit val p: Parameters)
 
 case object DDROverlayKey extends Field[Seq[DesignOverlay[DDROverlayParams, TLInwardNode]]](Nil)
