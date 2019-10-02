@@ -15,7 +15,7 @@ abstract class SwitchXilinxOverlay(params: SwitchOverlayParams, boardPins: Seq[S
   shell { InModuleBody {
     val vec = Wire(Vec(width, Bool()))
     switchSource.out(0)._1 := vec.asUInt
-    (vec zip io.toBools).zipWithIndex.foreach { case ((o, i), idx) =>
+    (vec zip io.asBools).zipWithIndex.foreach { case ((o, i), idx) =>
       val ibuf = Module(new IBUF)
       ibuf.suggestName(s"switch_ibuf_${idx}")
       ibuf.io.I := i

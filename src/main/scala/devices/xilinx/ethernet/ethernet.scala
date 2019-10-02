@@ -44,8 +44,8 @@ abstract class EthernetMAC(busWidthBytes: Int, base: BigInt)(implicit p: Paramet
     mac.io.reset := reset // combined with locked to reset MAC RX/TX FSMs
     mac.io.tx_dcm_locked := !port.pcs.tx_reset
     mac.io.rx_dcm_locked := !port.pcs.rx_reset
-    mac.io.tx_axis_aresetn := !ResetCatchAndSync(port.pcs.tx_clock, reset.toBool)
-    mac.io.rx_axis_aresetn := !ResetCatchAndSync(port.pcs.rx_clock, reset.toBool)
+    mac.io.tx_axis_aresetn := !ResetCatchAndSync(port.pcs.tx_clock, reset.asBool)
+    mac.io.rx_axis_aresetn := !ResetCatchAndSync(port.pcs.rx_clock, reset.asBool)
 
     // FIFO interface
     val txen = RegInit(false.B)
