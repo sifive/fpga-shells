@@ -15,7 +15,7 @@ abstract class ButtonXilinxOverlay(params: ButtonOverlayParams, boardPins: Seq[S
   shell { InModuleBody {
     val vec = Wire(Vec(width, Bool()))
     buttonSource.out(0)._1 := vec.asUInt
-    (vec zip io.toBools).zipWithIndex.foreach { case ((o, i), idx) =>
+    (vec zip io.asBools).zipWithIndex.foreach { case ((o, i), idx) =>
       val ibuf = Module(new IBUF)
       ibuf.suggestName(s"button_ibuf_${idx}")
       ibuf.io.I := i
