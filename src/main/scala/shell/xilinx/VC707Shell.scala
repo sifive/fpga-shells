@@ -118,7 +118,7 @@ trait HasDebugJTAG { this: VC707Shell =>
     djtag.mfr_id   := p(JtagDTMKey).idcodeManufId.U(11.W)
 
     djtag.reset    := PowerOnResetFPGAOnly(dut_clock)
-    dut_ndreset    := dut.debug.ndreset
+    dut_ndreset    := dut.debug.ndreset.get
     djtag
   }
 }
