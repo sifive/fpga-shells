@@ -156,8 +156,9 @@ class cJTAGDebugArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Str
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
       shell.xdc.addIOStandard(io, "LVCMOS33")
-      shell.xdc.addPullup(io)
     } }
+      shell.xdc.addPullup(IOPin(io.cjtag_TCKC))
+      shell.xdc.addPullup(IOPin(io.srst_n))
   } }
 }
 
