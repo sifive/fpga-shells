@@ -6,8 +6,8 @@ import freechips.rocketchip.diplomacy._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 
-abstract class SDIOXilinxOverlay(params: SDIOOverlayParams)
-  extends SDIOOverlay(params)
+abstract class SDIOXilinxPlacedOverlay(name: String, di: SDIODesignInput, si: SDIOShellInput)
+  extends SDIOPlacedOverlay(name, di, si)
 {
   def shell: XilinxShell
 }

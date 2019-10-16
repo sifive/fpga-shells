@@ -6,8 +6,8 @@ import freechips.rocketchip.diplomacy._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 
-abstract class SwitchXilinxOverlay(params: SwitchOverlayParams, boardPins: Seq[String] = Nil, packagePins: Seq[String] = Nil, ioStandard: String = "LVCMOS33")
-  extends SwitchOverlay(params)
+abstract class SwitchXilinxPlacedOverlay(name: String, di: SwitchDesignInput, si: SwitchShellInput, boardPins: Seq[String] = Nil, packagePins: Seq[String] = Nil, ioStandard: String = "LVCMOS33")
+  extends SwitchPlacedOverlay(name, di, si)
 {
   def shell: XilinxShell
   val width = boardPins.size + packagePins.size

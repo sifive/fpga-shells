@@ -6,8 +6,8 @@ import freechips.rocketchip.diplomacy._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 
-abstract class JTAGDebugXilinxOverlay(params: JTAGDebugOverlayParams)
-  extends JTAGDebugOverlay(params)
+abstract class JTAGDebugXilinxPlacedOverlay(name: String, di: JTAGDebugDesignInput, si: JTAGDebugShellInput)
+  extends JTAGDebugPlacedOverlay(name, di, si)
 {
   def shell: XilinxShell
 

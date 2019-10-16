@@ -6,8 +6,8 @@ import freechips.rocketchip.diplomacy._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 
-abstract class LVDSClockInputXilinxOverlay(params: ClockInputOverlayParams)
-  extends LVDSClockInputOverlay(params)
+abstract class LVDSClockInputXilinxPlacedOverlay(name: String, di: ClockInputDesignInput, si: ClockInputShellInput)
+  extends LVDSClockInputPlacedOverlay(name, di, si)
 {
   def shell: XilinxShell
 
@@ -24,8 +24,8 @@ abstract class LVDSClockInputXilinxOverlay(params: ClockInputOverlayParams)
 }
 
 
-abstract class SingleEndedClockInputXilinxOverlay(params: ClockInputOverlayParams)
-  extends SingleEndedClockInputOverlay(params)
+abstract class SingleEndedClockInputXilinxPlacedOverlay(name: String, di: ClockInputDesignInput, si: ClockInputShellInput)
+  extends SingleEndedClockInputPlacedOverlay(name, di, si)
 {
   def shell: XilinxShell
 

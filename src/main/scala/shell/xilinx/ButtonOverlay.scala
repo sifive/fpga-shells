@@ -6,21 +6,19 @@ import freechips.rocketchip.diplomacy._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 
-abstract class ButtonXilinxOverlay(params: ButtonOverlayParams, boardPins: Seq[String] = Nil, packagePins: Seq[String] = Nil, ioStandard: String = "LVCMOS33")
-  extends ButtonOverlay(params)
+abstract class ButtonXilinxPlacedOverlay(name: String, di: ButtonDesignInput, si: ButtonShellInput, boardPins: Seq[String] = Nil, packagePins: Seq[String] = Nil, ioStandard: String = "LVCMOS33")
+  extends ButtonPlacedOverlay(name, di, si)
 {
   def shell: XilinxShell
   val width = boardPins.size + packagePins.size
 
   shell { InModuleBody {
-    val vec = Wire(Vec(width, Bool()))
-    buttonSource.out(0)._1 := vec.asUInt
-    (vec zip io.toBools).zipWithIndex.foreach { case ((o, i), idx) =>
-      val ibuf = Module(new IBUF)
-      ibuf.suggestName(s"button_ibuf_${idx}")
-      ibuf.io.I := i
-      o := ibuf.io.O
-    }
+    val but  = Wire(Bool())
+    buttonSource.out(0)._1 := but
+    val ibuf = Module(new IBUF)
+    ibuf.suggestName(s"button_ibuf_${si.number}")
+    ibuf.io.I := io
+    but := ibuf.io.O
 
     val cutAt = boardPins.size
     val ios = IOPin.of(io)

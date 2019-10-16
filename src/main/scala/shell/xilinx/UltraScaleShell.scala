@@ -24,8 +24,8 @@ class XDMABridge(val numLanes: Int) extends Bundle {
   val ODIV2 = Input(Clock())
 }
 
-abstract class EthernetUltraScaleOverlay(config: XXVEthernetParams, params: EthernetOverlayParams)
-  extends EthernetOverlay(params)
+abstract class EthernetUltraScalePlacedOverlay(name: String, di: EthernetDesignInput, si: EthernetShellInput, config: XXVEthernetParams)
+  extends EthernetPlacedOverlay(name, di, si)
 {
   def shell: UltraScaleShell
 
@@ -45,7 +45,7 @@ abstract class EthernetUltraScaleOverlay(config: XXVEthernetParams, params: Ethe
     clocks.sys_reset     := Module.reset
 
     val macIO = pcs.module.io.mac
-    val pcsIO = designOutput
+    val pcsIO = overlayOutput.eth
     macIO.tx_mii_d_0 := pcsIO.tx_d
     macIO.tx_mii_c_0 := pcsIO.tx_c
     pcsIO.rx_d := macIO.rx_mii_d_0
@@ -76,8 +76,8 @@ abstract class EthernetUltraScaleOverlay(config: XXVEthernetParams, params: Ethe
   } }
 }
 
-abstract class PCIeUltraScaleOverlay(config: XDMAParams, params: PCIeOverlayParams)
-  extends PCIeOverlay[XDMATopPads](params)
+abstract class PCIeUltraScalePlacedOverlay(name: String, di: PCIeDesignInput, si: PCIeShellInput, config: XDMAParams)
+  extends PCIePlacedOverlay[XDMATopPads](name, di, si)
 {
   def shell: UltraScaleShell
 
@@ -87,7 +87,7 @@ abstract class PCIeUltraScaleOverlay(config: XDMAParams, params: PCIeOverlayPara
   val topBridge = shell { bridge.makeSink() }
   val axiClk    = ClockSourceNode(sdcClockName, freqMHz = config.axiMHz)
   val areset    = ClockSinkNode(Seq(ClockSinkParameters()))
-  areset := params.wrangler := axiClk
+  areset := di.wrangler := axiClk
 
   val slaveSide = TLIdentityNode()
   pcie.crossTLIn(pcie.slave)   := slaveSide
@@ -95,7 +95,7 @@ abstract class PCIeUltraScaleOverlay(config: XDMAParams, params: PCIeOverlayPara
   val node = NodeHandle(slaveSide, pcie.crossTLOut(pcie.master))
   val intnode = pcie.crossIntOut(pcie.intnode)
 
-  def designOutput = (node, intnode)
+  def overlayOutput = PCIeOverlayOutput(node, intnode)
   def ioFactory = new XDMATopPads(config.lanes)
 
   InModuleBody {

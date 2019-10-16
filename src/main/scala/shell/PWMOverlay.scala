@@ -10,23 +10,27 @@ import freechips.rocketchip.subsystem.{BaseSubsystem, PeripheryBus, PeripheryBus
 import freechips.rocketchip.tilelink.TLBusWrapper
 import freechips.rocketchip.interrupts.IntInwardNode
 
-case class PWMOverlayParams(pwmParams: PWMParams, controlBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
-case object PWMOverlayKey extends Field[Seq[DesignOverlay[PWMOverlayParams, TLPWM]]](Nil)
+//another one that makes the controller... remove this
+case class PWMShellInput()
+case class PWMDesignInput(pwmParams: PWMParams, controlBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
+case class PWMOverlayOutput(pwm: TLPWM)
+case object PWMOverlayKey extends Field[Seq[DesignPlacer[PWMDesignInput, PWMShellInput, PWMOverlayOutput]]](Nil)
+trait PWMShellPlacer[Shell] extends ShellPlacer[PWMDesignInput, PWMShellInput, PWMOverlayOutput]
 
 class ShellPWMPortIO extends Bundle {
   val pwm_gpio = Vec(4, Analog(1.W))
 }
 
-abstract class PWMOverlay(
-  val params: PWMOverlayParams)
-    extends IOOverlay[ShellPWMPortIO, TLPWM]
+abstract class PWMPlacedOverlay(
+  val name: String, val di: PWMDesignInput, val si: PWMShellInput)
+    extends IOPlacedOverlay[ShellPWMPortIO, PWMDesignInput, PWMShellInput, PWMOverlayOutput]
 {
-  implicit val p = params.p
+  implicit val p = di.p
 
   def ioFactory = new ShellPWMPortIO
 
-  val tlpwm = PWM.attach(PWMAttachParams(params.pwmParams, params.controlBus, params.intNode))
+  val tlpwm = PWM.attach(PWMAttachParams(di.pwmParams, di.controlBus, di.intNode))
   val tlpwmSink = shell { tlpwm.ioNode.makeSink }
 
-  val designOutput = tlpwm
+  def overlayOutput = PWMOverlayOutput(pwm = tlpwm)
 }

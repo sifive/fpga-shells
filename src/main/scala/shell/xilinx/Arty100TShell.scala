@@ -12,8 +12,8 @@ import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 import sifive.fpgashells.devices.xilinx.xilinxarty100tmig._
 
-class SysClockArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: ClockInputOverlayParams)
-  extends SingleEndedClockInputXilinxOverlay(params)
+class SysClockArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: ClockInputDesignInput, val shellInput: ClockInputShellInput)
+  extends SingleEndedClockInputXilinxPlacedOverlay(name, designInput, shellInput)
 {
   val node = shell { ClockSourceNode(name, freqMHz = 100, jitterPS = 50) }
 
@@ -23,14 +23,14 @@ class SysClockArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Strin
     shell.xdc.addIOStandard(clk, "LVCMOS33")
   } }
 }
-object SysClockArtyOverlay {
-  implicit object SysClockArtyMetadata extends HasMetadata[SysClockArtyOverlay] {
-    def metadata = OverlayMetadata()
-} }
+class SysClockArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: ClockInputShellInput)(implicit val valName: ValName)
+  extends ClockInputShellPlacer[Arty100TShellBasicOverlays] {
+  def place(designInput: ClockInputDesignInput) = new SysClockArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
+}
 
 //PMOD JA used for SDIO
-class SDIOArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: SDIOOverlayParams)
-  extends SDIOXilinxOverlay(params)
+class SDIOArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: SDIODesignInput, val shellInput: SDIOShellInput)
+  extends SDIOXilinxPlacedOverlay(name, designInput, shellInput)
 {
   shell { InModuleBody {
     val packagePinsWithPackageIOs = Seq(("D12", IOPin(io.sdio_clk)),
@@ -50,13 +50,13 @@ class SDIOArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, p
     } }
   } }
 }
-object SDIOArtyOverlay {
-  implicit object SDIOArtyMetadata extends HasMetadata[SDIOArtyOverlay] {
-    def metadata = OverlayMetadata()
-} }
+class SDIOArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: SDIOShellInput)(implicit val valName: ValName)
+  extends SDIOShellPlacer[Arty100TShellBasicOverlays] {
+  def place(designInput: SDIODesignInput) = new SDIOArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
+}
 
-class SPIFlashArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: SPIFlashOverlayParams)
-  extends SPIFlashXilinxOverlay(params)
+class SPIFlashArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: SPIFlashDesignInput, val shellInput: SPIFlashShellInput)
+  extends SPIFlashXilinxPlacedOverlay(name, designInput, shellInput)
 {
 
   shell { InModuleBody {
@@ -76,20 +76,20 @@ class SPIFlashArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Strin
     } }
   } }
 }
-object SPIFlashArtyOverlay {
-  implicit object SPIFlashArtyMetadata extends HasMetadata[SPIFlashArtyOverlay] {
-    def metadata = OverlayMetadata()
-} }
+class SPIFlashArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: SPIFlashShellInput)(implicit val valName: ValName)
+  extends SPIFlashShellPlacer[Arty100TShellBasicOverlays] {
+  def place(designInput: SPIFlashDesignInput) = new SPIFlashArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
+}
 
-class TracePMODArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: TracePMODOverlayParams)
-  extends TracePMODXilinxOverlay(params, packagePins = Seq("U12", "V12", "V10", "V11", "U14", "V14", "T13", "U13"))
-object TracePMODArtyOverlay {
-  implicit object TracePMODArtyMetadata extends HasMetadata[TracePMODArtyOverlay] {
-    def metadata = OverlayMetadata()
-} }
+class TracePMODArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: TracePMODDesignInput, val shellInput: TracePMODShellInput)
+  extends TracePMODXilinxPlacedOverlay(name, designInput, shellInput, packagePins = Seq("U12", "V12", "V10", "V11", "U14", "V14", "T13", "U13"))
+class TracePMODArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: TracePMODShellInput)(implicit val valName: ValName)
+  extends TracePMODShellPlacer[Arty100TShellBasicOverlays] {
+  def place(designInput: TracePMODDesignInput) = new TracePMODArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
+}
 
-class GPIOPMODArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: GPIOPMODOverlayParams)
-  extends GPIOPMODXilinxOverlay(params)
+class GPIOPMODArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: GPIOPMODDesignInput, val shellInput: GPIOPMODShellInput)
+  extends GPIOPMODXilinxPlacedOverlay(name, designInput, shellInput)
 {
   shell { InModuleBody {
     val packagePinsWithPackageIOs = Seq(("E15", IOPin(io.gpio_pmod_0)), //These are PMOD B
@@ -107,13 +107,13 @@ class GPIOPMODArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Strin
     } }
   } }
 }
-object GPIOPMODArtyOverlay {
-  implicit object GPIOPMODArtyMetadata extends HasMetadata[GPIOPMODArtyOverlay] {
-    def metadata = OverlayMetadata()
-} }
+class GPIOPMODArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: GPIOPMODShellInput)(implicit val valName: ValName)
+  extends GPIOPMODShellPlacer[Arty100TShellBasicOverlays] {
+  def place(designInput: GPIOPMODDesignInput) = new GPIOPMODArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
+}
 
-class UARTArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: UARTOverlayParams)
-  extends UARTXilinxOverlay(params, false)
+class UARTArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: UARTDesignInput, val shellInput: UARTShellInput)
+  extends UARTXilinxPlacedOverlay(name, designInput, shellInput, false)
 {
   shell { InModuleBody {
     val packagePinsWithPackageIOs = Seq(("A9", IOPin(io.rxd)),
@@ -126,38 +126,38 @@ class UARTArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, p
     } }
   } }
 }
-object UARTArtyOverlay {
-  implicit object UARTArtyMetadata extends HasMetadata[UARTArtyOverlay] {
-    def metadata = OverlayMetadata()
-} }
+class UARTArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: UARTShellInput)(implicit val valName: ValName)
+  extends UARTShellPlacer[Arty100TShellBasicOverlays] {
+  def place(designInput: UARTDesignInput) = new UARTArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
+}
 
 //LEDS - 4 normal leds, r0, g0, b0, r1, g1, b1 ...
-class LEDArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: LEDOverlayParams)
-  extends LEDXilinxOverlay(params, packagePins = Seq("H5", "J5", "T9", "T10", "G6", "F6", "E1", "G3", "J4", "G4", "J3", "J2", "H4", "K1", "H6", "K2"))
-object LEDArtyOverlay {
-  implicit object LEDArtyMetadata extends HasMetadata[LEDArtyOverlay] {
-    def metadata = OverlayMetadata()
-} }
+class LEDArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: LEDDesignInput, val shellInput: LEDShellInput)
+  extends LEDXilinxPlacedOverlay(name, designInput, shellInput, packagePins = Seq("H5", "J5", "T9", "T10", "G6", "F6", "E1", "G3", "J4", "G4", "J3", "J2", "H4", "K1", "H6", "K2"))
+class LEDArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: LEDShellInput)(implicit val valName: ValName)
+  extends LEDShellPlacer[Arty100TShellBasicOverlays] {
+  def place(designInput: LEDDesignInput) = new LEDArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
+}
 
 //SWs
-class SwitchArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: SwitchOverlayParams)
-  extends SwitchXilinxOverlay(params, packagePins = Seq("A8", "C11", "C10", "A10"))
-object SwitchArtyOverlay {
-  implicit object SwitchArtyMetadata extends HasMetadata[SwitchArtyOverlay] {
-    def metadata = OverlayMetadata()
-} }
+class SwitchArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: SwitchDesignInput, val shellInput: SwitchShellInput)
+  extends SwitchXilinxPlacedOverlay(name, designInput, shellInput, packagePins = Seq("A8", "C11", "C10", "A10"))
+class SwitchArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: SwitchShellInput)(implicit val valName: ValName)
+  extends SwitchShellPlacer[Arty100TShellBasicOverlays] {
+  def place(designInput: SwitchDesignInput) = new SwitchArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
+}
 
 //Buttons
-class ButtonArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: ButtonOverlayParams)
-  extends ButtonXilinxOverlay(params, packagePins = Seq("D9", "C9", "B9", "B8"))
-object ButtonArtyOverlay {
-  implicit object ButtonArtyMetadata extends HasMetadata[ButtonArtyOverlay] {
-    def metadata = OverlayMetadata()
-} }
+class ButtonArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: ButtonDesignInput, val shellInput: ButtonShellInput)
+  extends ButtonXilinxPlacedOverlay(name, designInput, shellInput, packagePins = Seq("D9", "C9", "B9", "B8"))
+class ButtonArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: ButtonShellInput)(implicit val valName: ValName)
+  extends ButtonShellPlacer[Arty100TShellBasicOverlays] {
+  def place(designInput: ButtonDesignInput) = new ButtonArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
+}
 
 // PMOD JD used for JTAG
-class JTAGDebugArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: JTAGDebugOverlayParams)
-  extends JTAGDebugXilinxOverlay(params)
+class JTAGDebugArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: JTAGDebugDesignInput, val shellInput: JTAGDebugShellInput)
+  extends JTAGDebugXilinxPlacedOverlay(name, designInput, shellInput)
 {
   shell { InModuleBody {
     shell.sdc.addClock("JTCK", IOPin(io.jtag_TCK), 10)
@@ -175,14 +175,14 @@ class JTAGDebugArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Stri
     } }
   } }
 }
-object JTAGDebugArtyOverlay {
-  implicit object JTAGDebugArtyMetadata extends HasMetadata[JTAGDebugArtyOverlay] {
-    def metadata = OverlayMetadata()
-} }
+class JTAGDebugArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: JTAGDebugShellInput)(implicit val valName: ValName)
+  extends JTAGDebugShellPlacer[Arty100TShellBasicOverlays] {
+  def place(designInput: JTAGDebugDesignInput) = new JTAGDebugArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
+}
 
 //cjtag
-class cJTAGDebugArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: cJTAGDebugOverlayParams)
-  extends cJTAGDebugXilinxOverlay(params)
+class cJTAGDebugArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: cJTAGDebugDesignInput, val shellInput: cJTAGDebugShellInput)
+  extends cJTAGDebugXilinxPlacedOverlay(name, designInput, shellInput)
 {
   shell { InModuleBody {
     shell.sdc.addClock("JTCKC", IOPin(io.cjtag_TCKC), 10)
@@ -199,40 +199,40 @@ class cJTAGDebugArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: Str
     } }
   } }
 }
-object cJTAGDebugArtyOverlay {
-  implicit object cJTAGDebugArtyMetadata extends HasMetadata[cJTAGDebugArtyOverlay] {
-    def metadata = OverlayMetadata()
-} }
+class cJTAGDebugArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: cJTAGDebugShellInput)(implicit val valName: ValName)
+  extends cJTAGDebugShellPlacer[Arty100TShellBasicOverlays] {
+  def place(designInput: cJTAGDebugDesignInput) = new cJTAGDebugArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
+}
 
 case object ArtyDDRSize extends Field[BigInt](0x10000000L * 1) // 256 MB
-class DDRArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: DDROverlayParams)
-  extends DDROverlay[XilinxArty100TMIGPads](params)
+class DDRArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: DDRDesignInput, val shellInput: DDRShellInput)
+  extends DDRPlacedOverlay[XilinxArty100TMIGPads](name, designInput, shellInput)
 {
   val size = p(ArtyDDRSize)
 
   val ddrClk1 = shell { ClockSinkNode(freqMHz = 166.666)}
   val ddrClk2 = shell { ClockSinkNode(freqMHz = 200)}
   val ddrGroup = shell { ClockGroup() }
-  ddrClk1 := params.wrangler := ddrGroup := params.corePLL
-  ddrClk2 := params.wrangler := ddrGroup
+  ddrClk1 := di.wrangler := ddrGroup := di.corePLL
+  ddrClk2 := di.wrangler := ddrGroup
   
   val sdcClockName = "userclk1"
-  val migParams = XilinxArty100TMIGParams(address = AddressSet.misaligned(params.baseAddress, size))
+  val migParams = XilinxArty100TMIGParams(address = AddressSet.misaligned(di.baseAddress, size))
   val mig = LazyModule(new XilinxArty100TMIG(migParams))
   val ioNode = BundleBridgeSource(() => mig.module.io.cloneType)
   val topIONode = shell { ioNode.makeSink() }
   val ddrUI     = shell { ClockSourceNode(sdcClockName, freqMHz = 100) }
   val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
-  areset := params.wrangler := ddrUI
+  areset := di.wrangler := ddrUI
 
-  def designOutput = mig.node
+  def overlayOutput = DDROverlayOutput(ddr = mig.node)
   def ioFactory = new XilinxArty100TMIGPads(size)
 
   InModuleBody { ioNode.bundle <> mig.module.io }
 
   shell { InModuleBody {
-    require (shell.sys_clock.isDefined, "Use of DDRArtyOverlay depends on SysClockArtyOverlay")
-    val (sys, _) = shell.sys_clock.get.node.out(0)
+    require (shell.sys_clock.get.isDefined, "Use of DDRArtyPlacedOverlay depends on SysClockArtyPlacedOverlay")
+    val (sys, _) = shell.sys_clock.get.get.overlayOutput.node.out(0)
     val (ui, _) = ddrUI.out(0)
     val (dclk1, _) = ddrClk1.in(0)
     val (dclk2, _) = ddrClk2.in(0)
@@ -250,23 +250,23 @@ class DDRArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, pa
 
   shell.sdc.addGroup(clocks = Seq("clk_pll_i", "userClock1"))
 }
-object DDRArtyOverlay {
-  implicit object DDRArtyMetadata extends HasMetadata[DDRArtyOverlay] {
-    def metadata = OverlayMetadata()
-} }
+class DDRArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: DDRShellInput)(implicit val valName: ValName)
+  extends DDRShellPlacer[Arty100TShellBasicOverlays] {
+  def place(designInput: DDRDesignInput) = new DDRArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
+}
 
 abstract class Arty100TShellBasicOverlays()(implicit p: Parameters) extends Series7Shell {
   // Order matters; ddr depends on sys_clock
-  val sys_clock = Overlay(ClockInputOverlayKey)(new SysClockArtyOverlay   (_, _, _))
-  val led       = Overlay(LEDOverlayKey)       (new LEDArtyOverlay        (_, _, _))
-  val switch    = Overlay(SwitchOverlayKey)    (new SwitchArtyOverlay     (_, _, _))
-  val button    = Overlay(ButtonOverlayKey)    (new ButtonArtyOverlay     (_, _, _))
-  val ddr       = Overlay(DDROverlayKey)       (new DDRArtyOverlay        (_, _, _))
-  val uart      = Overlay(UARTOverlayKey)      (new UARTArtyOverlay       (_, _, _))
-  val sdio      = Overlay(SDIOOverlayKey)      (new SDIOArtyOverlay       (_, _, _))
-  val jtag      = Overlay(JTAGDebugOverlayKey) (new JTAGDebugArtyOverlay  (_, _, _))
-  val cjtag     = Overlay(cJTAGDebugOverlayKey) (new cJTAGDebugArtyOverlay  (_, _, _))
-  val spi_flash = Overlay(SPIFlashOverlayKey)  (new SPIFlashArtyOverlay   (_, _, _))
+  val sys_clock = Overlay(ClockInputOverlayKey, new SysClockArtyShellPlacer(this, ClockInputShellInput()))
+  val led       = Overlay(LEDOverlayKey, new LEDArtyShellPlacer(this, LEDShellInput()))
+  val switch    = Overlay(SwitchOverlayKey, new SwitchArtyShellPlacer(this, SwitchShellInput()))
+  val button    = Overlay(ButtonOverlayKey, new ButtonArtyShellPlacer(this, ButtonShellInput()))
+  val ddr       = Overlay(DDROverlayKey, new DDRArtyShellPlacer(this, DDRShellInput()))
+  val uart      = Overlay(UARTOverlayKey, new UARTArtyShellPlacer(this, UARTShellInput()))
+  val sdio      = Overlay(SDIOOverlayKey, new SDIOArtyShellPlacer(this, SDIOShellInput()))
+  val jtag      = Overlay(JTAGDebugOverlayKey, new JTAGDebugArtyShellPlacer(this, JTAGDebugShellInput()))
+  val cjtag     = Overlay(cJTAGDebugOverlayKey, new cJTAGDebugArtyShellPlacer(this, cJTAGDebugShellInput()))
+  val spi_flash = Overlay(SPIFlashOverlayKey, new SPIFlashArtyShellPlacer(this, SPIFlashShellInput()))
 }
 
 class Arty100TShell()(implicit p: Parameters) extends Arty100TShellBasicOverlays
@@ -277,7 +277,7 @@ class Arty100TShell()(implicit p: Parameters) extends Arty100TShellBasicOverlays
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
   // Place the sys_clock at the Shell if the user didn't ask for it
-  p(ClockInputOverlayKey).foreach(_(ClockInputOverlayParams()))
+  p(ClockInputOverlayKey).foreach(_.place(ClockInputDesignInput()))
 
   override lazy val module = new LazyRawModuleImp(this) {
     val reset = IO(Input(Bool()))
@@ -285,8 +285,10 @@ class Arty100TShell()(implicit p: Parameters) extends Arty100TShellBasicOverlays
 
     val reset_ibuf = Module(new IBUF)
     reset_ibuf.io.I := reset
-
-    val powerOnReset = PowerOnResetFPGAOnly(sys_clock.get.clock)
+    val sysclk: Clock = sys_clock.get() match {
+      case Some(x: SysClockArtyPlacedOverlay) => x.clock
+    }
+    val powerOnReset = PowerOnResetFPGAOnly(sysclk)
     sdc.addAsyncPath(Seq(powerOnReset))
 
     pllReset :=
@@ -300,13 +302,13 @@ class Arty100TShellGPIOPMOD()(implicit p: Parameters) extends Arty100TShellBasic
   // PLL reset causes
   val pllReset = InModuleBody { Wire(Bool()) }
 
-  val gpio_pmod = Overlay(GPIOPMODOverlayKey) (new GPIOPMODArtyOverlay (_,_,_))
-  val trace_pmod = Overlay(TracePMODOverlayKey) (new TracePMODArtyOverlay (_,_,_))
+  val gpio_pmod = Overlay(GPIOPMODOverlayKey, new GPIOPMODArtyShellPlacer(this, GPIOPMODShellInput()))
+  val trace_pmod = Overlay(TracePMODOverlayKey, new TracePMODArtyShellPlacer(this, TracePMODShellInput()))
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
   // Place the sys_clock at the Shell if the user didn't ask for it
-  p(ClockInputOverlayKey).foreach(_(ClockInputOverlayParams()))
+  p(ClockInputOverlayKey).foreach(_.place(ClockInputDesignInput()))
 
   override lazy val module = new LazyRawModuleImp(this) {
     val reset = IO(Input(Bool()))
@@ -314,8 +316,10 @@ class Arty100TShellGPIOPMOD()(implicit p: Parameters) extends Arty100TShellBasic
 
     val reset_ibuf = Module(new IBUF)
     reset_ibuf.io.I := reset
-
-    val powerOnReset = PowerOnResetFPGAOnly(sys_clock.get.clock)
+    val sysclk: Clock = sys_clock.get() match {
+      case Some(x: SysClockArtyPlacedOverlay) => x.clock
+    }
+    val powerOnReset = PowerOnResetFPGAOnly(sysclk)
     sdc.addAsyncPath(Seq(powerOnReset))
 
     pllReset :=

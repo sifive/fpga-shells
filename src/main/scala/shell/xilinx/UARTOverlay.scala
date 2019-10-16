@@ -6,8 +6,8 @@ import freechips.rocketchip.diplomacy._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 
-abstract class UARTXilinxOverlay(params: UARTOverlayParams, flowControl: Boolean)
-  extends UARTOverlay(params, flowControl)
+abstract class UARTXilinxPlacedOverlay(name: String, di: UARTDesignInput, si: UARTShellInput, flowControl: Boolean)
+  extends UARTPlacedOverlay(name, di, si, flowControl)
 {
   def shell: XilinxShell
 

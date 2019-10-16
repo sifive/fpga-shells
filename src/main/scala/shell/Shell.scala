@@ -12,34 +12,34 @@ import firrtl.annotations._
 //import firrtl.ir._
 import freechips.rocketchip.util.DontTouch
 
-case class OverlayMetadata(
-  color: Option[String] = None,
-  header: Option[String] = None,
-  rgb: Bool = false.B,
-  number: Option[Int] = None)
-
-trait HasMetadata[T] {
-  def metadata: OverlayMetadata
-}
-
 case object DesignKey extends Field[Parameters => LazyModule]
 
 // Overlays are declared by the Shell and placed somewhere by the Design
 // ... they inject diplomatic code both where they were placed and in the shell
 // ... they are instantiated with DesignInput and return DesignOutput
-trait Overlay[DesignOutput]
-{
-  def designOutput: DesignOutput
+// placed overlay has been invoked by the design
+trait PlacedOverlay[DesignInput, ShellInput, OverlayOutput] {
   def name: String
-  def shell: Shell
+  def designInput: DesignInput
+  def shellInput: ShellInput
+  def overlayOutput: OverlayOutput
 }
 
-// DesignOverlays provide the method used to instantiate and place an Overlay
-trait DesignOverlay[DesignInput, DesignOutput] {
+trait ShellPlacer[DesignInput, ShellInput, OverlayOutput] {
+  def valName: ValName
+  def shellInput: ShellInput
+  def place(di: DesignInput): PlacedOverlay[DesignInput, ShellInput, OverlayOutput]
+}
+
+trait DesignPlacer[DesignInput, ShellInput, OverlayOutput] {
   def isPlaced: Boolean
   def name: String
-  def metadata: OverlayMetadata
-  def apply(input: DesignInput): DesignOutput
+  def shellInput: ShellInput
+  def place(di: DesignInput): PlacedOverlay[DesignInput, ShellInput, OverlayOutput]
+}
+
+trait ShellOverlayAccessor[DesignInput, ShellInput, OverlayOutput] {
+  def get(): Option[PlacedOverlay[DesignInput, ShellInput, OverlayOutput]]
 }
 
 abstract class Shell()(implicit p: Parameters) extends LazyModule with LazyScope
@@ -47,24 +47,23 @@ abstract class Shell()(implicit p: Parameters) extends LazyModule with LazyScope
   private var overlays = Parameters.empty
   def designParameters: Parameters = overlays ++ p
 
-  def Overlay[DesignInput, DesignOutput, T <: Overlay[DesignOutput]](
-    key: Field[Seq[DesignOverlay[DesignInput, DesignOutput]]])(
-    gen: (this.type, String, DesignInput) => T)(
-    //mdata: Option[OverlayMetadata] = None)(
-    implicit valName: ValName, mdata: HasMetadata[T]): ModuleValue[Option[T]] =
-  {
-    val self = this.asInstanceOf[this.type]
-    val thunk = new ModuleValue[Option[T]] with DesignOverlay[DesignInput, DesignOutput] {
-      var placement: Option[T] = None
-      def getWrappedValue = placement
-      def isPlaced = !placement.isEmpty
-      def name = valName.name
-      def metadata = mdata.metadata
-      def apply(input: DesignInput): DesignOutput = {
-        require (placement.isEmpty, s"Overlay ${name} has already been placed by the design; cannot place again")
-        val it = gen(self, valName.name, input)
-        placement = Some(it)
-        it.designOutput
+  def Overlay[DesignInput, ShellInput, OverlayOutput](
+      key: Field[Seq[DesignPlacer[DesignInput, ShellInput, OverlayOutput]]],
+      placer: ShellPlacer[DesignInput, ShellInput, OverlayOutput]): 
+    ShellOverlayAccessor[DesignInput, ShellInput, OverlayOutput] = {
+    val thunk = new Object
+        with ShellOverlayAccessor[DesignInput, ShellInput, OverlayOutput]
+        with DesignPlacer[DesignInput, ShellInput, OverlayOutput] {
+      var placedOverlay: Option[PlacedOverlay[DesignInput, ShellInput, OverlayOutput]] = None
+      def get() = placedOverlay
+      def isPlaced = !placedOverlay.isEmpty
+      def name = placer.valName.name
+      def shellInput = placer.shellInput
+      def place(input: DesignInput): PlacedOverlay[DesignInput, ShellInput, OverlayOutput] = {
+        require (!isPlaced, s"Overlay ${name} has already been placed by the design; cannot place again")
+        val it = placer.place(input)
+        placedOverlay = Some(it)
+        it
       }
     }
     overlays = overlays ++ Parameters((site, here, up) => {

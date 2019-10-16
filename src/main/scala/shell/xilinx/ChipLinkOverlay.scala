@@ -7,8 +7,8 @@ import freechips.rocketchip.util._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 
-abstract class ChipLinkXilinxOverlay(params: ChipLinkOverlayParams, rxPhase: Double, txPhase: Double, rxMargin: Double, txMargin: Double)
-  extends ChipLinkOverlay(params.copy(params = params.params.copy(fpgaReset = true))(params.p), rxPhase, txPhase)
+abstract class ChipLinkXilinxPlacedOverlay(name: String, di: ChipLinkDesignInput, si: ChipLinkShellInput, rxPhase: Double, txPhase: Double, rxMargin: Double, txMargin: Double)
+  extends ChipLinkPlacedOverlay(name, di.copy(di = di.di.copy(fpgaReset = true))(di.p), si, rxPhase, txPhase)
 {
   def shell: XilinxShell
 

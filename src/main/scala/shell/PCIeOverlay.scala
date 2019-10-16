@@ -8,17 +8,24 @@ import freechips.rocketchip.tilelink._
 import freechips.rocketchip.interrupts._
 import sifive.fpgashells.clocks._
 
-case class PCIeOverlayParams(
+case class PCIeShellInput()
+case class PCIeDesignInput(
   wrangler: ClockAdapterNode,
   bars: Seq[AddressSet] = Seq(AddressSet(0x40000000L, 0x1FFFFFFFL)),
   ecam: BigInt = 0x2000000000L,
   corePLL: PLLNode)(
   implicit val p: Parameters)
 
-case object PCIeOverlayKey extends Field[Seq[DesignOverlay[PCIeOverlayParams, (TLNode, IntOutwardNode)]]](Nil)
+case class PCIeOverlayOutput(
+  pcieNode: TLNode,
+  intNode: IntOutwardNode)
+trait PCIeShellPlacer[Shell] extends ShellPlacer[PCIeDesignInput, PCIeShellInput, PCIeOverlayOutput]
 
-abstract class PCIeOverlay[IO <: Data](val params: PCIeOverlayParams)
-  extends IOOverlay[IO, (TLNode, IntOutwardNode)]
+case object PCIeOverlayKey extends Field[Seq[DesignPlacer[PCIeDesignInput, PCIeShellInput, PCIeOverlayOutput]]](Nil)
+
+abstract class PCIePlacedOverlay[IO <: Data](
+  val name: String, val di: PCIeDesignInput, val si: PCIeShellInput)
+    extends IOPlacedOverlay[IO, PCIeDesignInput, PCIeShellInput, PCIeOverlayOutput]
 {
-  implicit val p = params.p
+  implicit val p = di.p
 }

@@ -9,25 +9,28 @@ import freechips.rocketchip.tilelink.TLBusWrapper
 import freechips.rocketchip.interrupts.IntInwardNode
 import chisel3.experimental._
 
-case class PinOverlayParams()(implicit val p: Parameters)
-case object PinOverlayKey extends Field[Seq[DesignOverlay[PinOverlayParams, ModuleValue[PinPortIO]]]](Nil)
+case class PinShellInput()
+case class PinDesignInput()(implicit val p: Parameters)
+case class PinOverlayOutput(pin: ModuleValue[PinPortIO])
+case object PinOverlayKey extends Field[Seq[DesignPlacer[PinDesignInput, PinShellInput, PinOverlayOutput]]](Nil)
+trait PinShellPlacer[Shell] extends ShellPlacer[PinDesignInput, PinShellInput, PinOverlayOutput]
 
 class PinPortIO extends Bundle {
   val pins = Vec(8, Analog(1.W))
 }
 
-abstract class PinOverlay(
-  val params: PinOverlayParams)
-    extends IOOverlay[PinPortIO, ModuleValue[PinPortIO]]
+abstract class PinPlacedOverlay(
+  val name: String, val di: PinDesignInput, val si: PinShellInput)
+    extends IOPlacedOverlay[PinPortIO, PinDesignInput, PinShellInput, PinOverlayOutput]
 {
-  implicit val p = params.p
+  implicit val p = di.p
 
   def ioFactory = new PinPortIO
 
   val pinSource = BundleBridgeSource(() => new PinPortIO)
   val pinSink = shell { pinSource.makeSink }
 
-  val designOutput = InModuleBody { pinSource.bundle }
+  def overlayOutput = PinOverlayOutput(pin = InModuleBody { pinSource.bundle } )
 
   shell { InModuleBody {
     io <> pinSink.bundle

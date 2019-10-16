@@ -6,8 +6,8 @@ import freechips.rocketchip.diplomacy._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.microsemi._
 
- abstract class ClockInputMicrosemiOverlay(params: ClockInputOverlayParams)
-  extends SingleEndedClockInputOverlay(params)
+ abstract class ClockInputMicrosemiPlacedOverlay(name: String, di: ClockInputDesignInput, si: ClockInputShellInput)
+  extends SingleEndedClockInputPlacedOverlay(name, di, si)
 {
   def shell: MicrosemiShell
 

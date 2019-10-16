@@ -9,8 +9,12 @@ import freechips.rocketchip.tilelink.TLBusWrapper
 import freechips.rocketchip.interrupts.IntInwardNode
 import chisel3.experimental._
 
-case class SPIFlashOverlayParams(spiFlashParam: SPIFlashParams, controlBus: TLBusWrapper, memBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
-case object SPIFlashOverlayKey extends Field[Seq[DesignOverlay[SPIFlashOverlayParams, TLSPIFlash]]](Nil)
+//This one does controller also
+case class SPIFlashShellInput()
+case class SPIFlashDesignInput(spiFlashParam: SPIFlashParams, controlBus: TLBusWrapper, memBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
+case class SPIFlashOverlayOutput(spiflash: TLSPIFlash)
+case object SPIFlashOverlayKey extends Field[Seq[DesignPlacer[SPIFlashDesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]]](Nil)
+trait SPIFlashShellPlacer[Shell] extends ShellPlacer[SPIFlashDesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]
 
 
 class ShellSPIFlashPortIO extends Bundle {
@@ -19,15 +23,15 @@ class ShellSPIFlashPortIO extends Bundle {
   val qspi_dq  = Vec(4, Analog(1.W))
 }
 
-abstract class SPIFlashOverlay(
-  val params: SPIFlashOverlayParams)
-    extends IOOverlay[ShellSPIFlashPortIO, TLSPIFlash]
+abstract class SPIFlashPlacedOverlay(
+  val name: String, val di: SPIFlashDesignInput, val si: SPIFlashShellInput)
+    extends IOPlacedOverlay[ShellSPIFlashPortIO, SPIFlashDesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]
 {
-  implicit val p = params.p
+  implicit val p = di.p
 
   def ioFactory = new ShellSPIFlashPortIO
-  val tlqspi = SPI.attachFlash(SPIFlashAttachParams(params.spiFlashParam, params.controlBus, params.memBus, params.intNode))
+  val tlqspi = SPI.attachFlash(SPIFlashAttachParams(di.spiFlashParam, di.controlBus, di.memBus, di.intNode))
 
   val tlqspiSink = shell { tlqspi.ioNode.makeSink }
-  val designOutput = tlqspi
+  def overlayOutput = SPIFlashOverlayOutput(spiflash = tlqspi)
 }
