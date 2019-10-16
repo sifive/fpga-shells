@@ -184,6 +184,7 @@ abstract class ArtyShell(implicit val p: Parameters) extends RawModule {
 
   def connectDebugJTAG(dut: HasPeripheryDebugModuleImp): SystemJTAGIO = {
 
+    require(dut.debug.ndreset.isDefined, "Connecting JTAG requires that debug module exists")
     //-------------------------------------------------------------------
     // JTAG Reset
     //-------------------------------------------------------------------
@@ -221,6 +222,8 @@ abstract class ArtyShell(implicit val p: Parameters) extends RawModule {
     dut_jtag_TDO   := djtag.jtag.TDO.data
 
     djtag.mfr_id   := p(JtagDTMKey).idcodeManufId.U(11.W)
+    djtag.pert_number := p(JtagDTMKey).idcodePartNum.U(16.W)
+    djtag.version  := p(JtagDTMKey).idcodeVersion.U(4.W)
 
     djtag.reset    := dut_jtag_reset
     dut_ndreset    := dut.debug.ndreset.get

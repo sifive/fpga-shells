@@ -66,6 +66,7 @@ trait HasDebugJTAG { this: VC707Shell =>
 
   def connectDebugJTAG(dut: HasPeripheryDebugModuleImp, fmcxm105: Boolean = true): SystemJTAGIO = {
   
+    require(dut.debug.ndreset.isDefined, "Connecting JTAG requires that debug module exists")
     ElaborationArtefacts.add(
     """debugjtag.vivado.tcl""",
     """set vc707debugjtag_vivado_tcl_dir [file dirname [file normalize [info script]]]
