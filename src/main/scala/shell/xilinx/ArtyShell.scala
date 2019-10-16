@@ -222,7 +222,7 @@ abstract class ArtyShell(implicit val p: Parameters) extends RawModule {
     dut_jtag_TDO   := djtag.jtag.TDO.data
 
     djtag.mfr_id   := p(JtagDTMKey).idcodeManufId.U(11.W)
-    djtag.pert_number := p(JtagDTMKey).idcodePartNum.U(16.W)
+    djtag.part_number := p(JtagDTMKey).idcodePartNum.U(16.W)
     djtag.version  := p(JtagDTMKey).idcodeVersion.U(4.W)
 
     djtag.reset    := dut_jtag_reset
