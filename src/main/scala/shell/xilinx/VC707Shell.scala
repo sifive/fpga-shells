@@ -66,7 +66,7 @@ trait HasDebugJTAG { this: VC707Shell =>
 
   def connectDebugJTAG(dut: HasPeripheryDebugModuleImp, fmcxm105: Boolean = true): SystemJTAGIO = {
   
-    require(dut.debug.ndreset.isDefined, "Connecting JTAG requires that debug module exists")
+    require(dut.debug.isDefined, "Connecting JTAG requires that debug module exists")
     ElaborationArtefacts.add(
     """debugjtag.vivado.tcl""",
     """set vc707debugjtag_vivado_tcl_dir [file dirname [file normalize [info script]]]
@@ -109,7 +109,7 @@ trait HasDebugJTAG { this: VC707Shell =>
       )
     }
    
-    val djtag     = dut.debug.systemjtag.get
+    val djtag     = dut.debug.get.systemjtag.get
 
     djtag.jtag.TCK := jtag_TCK
     djtag.jtag.TMS := jtag_TMS
@@ -121,7 +121,7 @@ trait HasDebugJTAG { this: VC707Shell =>
     djtag.version  := p(JtagDTMKey).idcodeVersion.U(4.W)
 
     djtag.reset    := PowerOnResetFPGAOnly(dut_clock)
-    dut_ndreset    := dut.debug.ndreset.get
+    dut_ndreset    := dut.debug.get.ndreset
     djtag
   }
 }
