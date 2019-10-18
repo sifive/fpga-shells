@@ -274,7 +274,6 @@ abstract class VC707Shell()(implicit p: Parameters) extends Series7Shell
   val button    = Seq.tabulate(5)(i => Overlay(ButtonOverlayKey, new ButtonVC707ShellPlacer(this, ButtonShellInput())(valName = ValName(s"button_$i"))))
   val chiplink  = Overlay(ChipLinkOverlayKey, new ChipLinkVC707ShellPlacer(this, ChipLinkShellInput()))
   val ddr       = Overlay(DDROverlayKey, new DDRVC707ShellPlacer(this, DDRShellInput()))
-  val pcie      = Overlay(PCIeOverlayKey, new PCIeVC707ShellPlacer(this, PCIeShellInput()))
   val uart      = Overlay(UARTOverlayKey, new UARTVC707ShellPlacer(this, UARTShellInput()))
   val sdio      = Overlay(SDIOOverlayKey, new SDIOVC707ShellPlacer(this, SDIOShellInput()))
   val jtag      = Overlay(JTAGDebugOverlayKey, new JTAGDebugVC707ShellPlacer(this, JTAGDebugShellInput()))
@@ -285,7 +284,7 @@ class VC707BaseShell()(implicit p: Parameters) extends VC707Shell
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
   // Place the sys_clock at the Shell if the user didn't ask for it
-  p(ClockInputOverlayKey).foreach(_(ClockInputOverlayParams()))
+  p(ClockInputOverlayKey).foreach(_.place(ClockInputDesignInput()))
 
   override lazy val module = new LazyRawModuleImp(this) {
     val reset = IO(Input(Bool()))
