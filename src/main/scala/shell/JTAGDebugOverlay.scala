@@ -43,6 +43,6 @@ abstract class JTAGDebugPlacedOverlay(
 
   val jtagDebugSource = BundleBridgeSource(() => new FlippedJTAGIO())
   val jtagDebugSink = shell { jtagDebugSource.makeSink }
-
-  def overlayOutput = JTAGDebugOverlayOutput(jtag = InModuleBody { jtagDebugSource.bundle} )
+  val jtout = InModuleBody { jtagDebugSource.bundle}
+  def overlayOutput = JTAGDebugOverlayOutput(jtag = jtout)
 }

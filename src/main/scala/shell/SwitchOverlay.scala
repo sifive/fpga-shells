@@ -17,7 +17,6 @@ abstract class SwitchPlacedOverlay(
 {
   implicit val p = di.p
 
-  def width: Int
   def ioFactory = Input(Bool())
 
   val switchSource = shell { BundleBridgeSource(() => Bool()) }

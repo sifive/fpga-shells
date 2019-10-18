@@ -168,25 +168,21 @@ class QSFP2VCU118ShellPlacer(shell: VCU118ShellBasicOverlays, val shellInput: Et
   def place(designInput: EthernetDesignInput) = new QSFP2VCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-class LEDVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: LEDDesignInput, val shellInput: LEDShellInput)
-  extends LEDXilinxPlacedOverlay(name, designInput, shellInput, packagePins = Seq("AT32", "AV34", "AY30", "BB32", "BF32", "AU37", "AV36", "BA37"))
-{
-  shell { InModuleBody {
-    IOPin.of(io).foreach { shell.xdc.addIOStandard(_, "LVCMOS12") }
-  } }
+object LEDVCU118PinConstraints {
+  val pins = Seq("AT32", "AV34", "AY30", "BB32", "BF32", "AU37", "AV36", "BA37")
 }
+class LEDVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: LEDDesignInput, val shellInput: LEDShellInput)
+  extends LEDXilinxPlacedOverlay(name, designInput, shellInput, packagePin = Some(LEDVCU118PinConstraints.pins(shellInput.number)), ioStandard = "LVCMOS12")
 class LEDVCU118ShellPlacer(shell: VCU118ShellBasicOverlays, val shellInput: LEDShellInput)(implicit val valName: ValName)
   extends LEDShellPlacer[VCU118ShellBasicOverlays] {
   def place(designInput: LEDDesignInput) = new LEDVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-class SwitchVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: SwitchDesignInput, val shellInput: SwitchShellInput)
-  extends SwitchXilinxPlacedOverlay(name, designInput, shellInput, packagePins = Seq("B17", "G16", "J16", "D21"))
-{
-  shell { InModuleBody {
-    IOPin.of(io).foreach { shell.xdc.addIOStandard(_, "LVCMOS12") }
-  } }
+object SwitchVCU118PinConstraints {
+  val pins = Seq("B17", "G16", "J16", "D21")
 }
+class SwitchVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: SwitchDesignInput, val shellInput: SwitchShellInput)
+  extends SwitchXilinxPlacedOverlay(name, designInput, shellInput, packagePin = Some(SwitchVCU118PinConstraints.pins(shellInput.number)), ioStandard = "LVCMOS12")
 class SwitchVCU118ShellPlacer(shell: VCU118ShellBasicOverlays, val shellInput: SwitchShellInput)(implicit val valName: ValName)
   extends SwitchShellPlacer[VCU118ShellBasicOverlays] {
   def place(designInput: SwitchDesignInput) = new SwitchVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
@@ -402,8 +398,8 @@ class PCIeVCU118EdgeShellPlacer(shell: VCU118ShellBasicOverlays, val shellInput:
 abstract class VCU118ShellBasicOverlays()(implicit p: Parameters) extends UltraScaleShell{
   val sys_clock = Overlay(ClockInputOverlayKey, new SysClockVCU118ShellPlacer(this, ClockInputShellInput()))
   val ref_clock = Overlay(ClockInputOverlayKey, new RefClockVCU118ShellPlacer(this, ClockInputShellInput()))
-  val led       = Overlay(LEDOverlayKey, new LEDVCU118ShellPlacer(this, LEDShellInput()))
-  val switch    = Overlay(SwitchOverlayKey, new SwitchVCU118ShellPlacer(this, SwitchShellInput()))
+  val led       = Seq.tabulate(8)(i => Overlay(LEDOverlayKey, new LEDVCU118ShellPlacer(this, LEDShellInput(color = "red", number = i))(valName = ValName(s"led_$i"))))
+  val switch    = Seq.tabulate(4)(i => Overlay(SwitchOverlayKey, new SwitchVCU118ShellPlacer(this, SwitchShellInput(number = i))(valName = ValName(s"switch_$i"))))
   val ddr       = Overlay(DDROverlayKey, new DDRVCU118ShellPlacer(this, DDRShellInput()))
   val uart      = Overlay(UARTOverlayKey, new UARTVCU118ShellPlacer(this, UARTShellInput()))
   val sdio      = Overlay(SDIOOverlayKey, new SDIOVCU118ShellPlacer(this, SDIOShellInput()))

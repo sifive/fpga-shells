@@ -6,29 +6,27 @@ import freechips.rocketchip.diplomacy._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 
-abstract class SwitchXilinxPlacedOverlay(name: String, di: SwitchDesignInput, si: SwitchShellInput, boardPins: Seq[String] = Nil, packagePins: Seq[String] = Nil, ioStandard: String = "LVCMOS33")
+abstract class SwitchXilinxPlacedOverlay(name: String, di: SwitchDesignInput, si: SwitchShellInput, boardPin: Option[String] = None, packagePin: Option[String] = None, ioStandard: String = "LVCMOS33")
   extends SwitchPlacedOverlay(name, di, si)
 {
   def shell: XilinxShell
-  val width = boardPins.size + packagePins.size
 
   shell { InModuleBody {
-    val vec = Wire(Vec(width, Bool()))
-    switchSource.out(0)._1 := vec.asUInt
-    (vec zip io.toBools).zipWithIndex.foreach { case ((o, i), idx) =>
-      val ibuf = Module(new IBUF)
-      ibuf.suggestName(s"switch_ibuf_${idx}")
-      ibuf.io.I := i
-      o := ibuf.io.O
-    }
+    val bwire = Wire(Bool())
+    switchSource.out(0)._1 := bwire.asUInt
+    val ibuf = Module(new IBUF)
+    ibuf.suggestName(s"switch_ibuf_${si.number}")
+    ibuf.io.I := io
+    bwire := ibuf.io.O
 
-    val cutAt = boardPins.size
+    require((boardPin.isEmpty || packagePin.isEmpty), "can't provide both boardpin and packagepin, this is ambiguous")
+    val cutAt = if(boardPin.isDefined) 1 else 0
     val ios = IOPin.of(io)
-    val boardIOs = ios.take(cutAt)
-    val packageIOs = ios.drop(cutAt)
+    val boardIO = ios.take(cutAt)
+    val packageIO = ios.drop(cutAt)
 
-    (boardPins   zip boardIOs)   foreach { case (pin, io) => shell.xdc.addBoardPin  (io, pin) }
-    (packagePins zip packageIOs) foreach { case (pin, io) =>
+    (boardPin   zip boardIO)   foreach { case (pin, io) => shell.xdc.addBoardPin  (io, pin) }
+    (packagePin zip packageIO) foreach { case (pin, io) =>
       shell.xdc.addPackagePin(io, pin)
       shell.xdc.addIOStandard(io, ioStandard)
     }

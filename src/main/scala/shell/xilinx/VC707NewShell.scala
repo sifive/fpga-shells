@@ -77,17 +77,24 @@ class UARTVC707ShellPlacer(val shell: VC707Shell, val shellInput: UARTShellInput
 }
 
 class LEDVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: LEDDesignInput, val shellInput: LEDShellInput)
-  extends LEDXilinxPlacedOverlay(name, designInput, shellInput, boardPins = Seq.tabulate(8) { i => s"leds_8bits_tri_o_$i" })
+  extends LEDXilinxPlacedOverlay(name, designInput, shellInput, boardPin = Some("leds_8bits_tri_o_$(shellInput.number)"))
 class LEDVC707ShellPlacer(val shell: VC707Shell, val shellInput: LEDShellInput)(implicit val valName: ValName)
   extends LEDShellPlacer[VC707Shell] {
   def place(designInput: LEDDesignInput) = new LEDVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
 class SwitchVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: SwitchDesignInput, val shellInput: SwitchShellInput)
-  extends SwitchXilinxPlacedOverlay(name, designInput, shellInput, boardPins = Seq.tabulate(8) { i => s"dip_switches_tri_i_$i" })
+  extends SwitchXilinxPlacedOverlay(name, designInput, shellInput, boardPin = Some("dip_switches_tri_i_$(shellInput.number)"))
 class SwitchVC707ShellPlacer(val shell: VC707Shell, val shellInput: SwitchShellInput)(implicit val valName: ValName)
   extends SwitchShellPlacer[VC707Shell] {
   def place(designInput: SwitchDesignInput) = new SwitchVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
+}
+
+class ButtonVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: ButtonDesignInput, val shellInput: ButtonShellInput)
+  extends ButtonXilinxPlacedOverlay(name, designInput, shellInput, boardPin = Some("push_buttons_5bits_tri_i_$(shellInput.number)"))
+class ButtonVC707ShellPlacer(val shell: VC707Shell, val shellInput: ButtonShellInput)(implicit val valName: ValName)
+  extends ButtonShellPlacer[VC707Shell] {
+  def place(designInput: ButtonDesignInput) = new ButtonVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
 class ChipLinkVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: ChipLinkDesignInput, val shellInput: ChipLinkShellInput)
@@ -262,8 +269,9 @@ abstract class VC707Shell()(implicit p: Parameters) extends Series7Shell
 
   // Order matters; ddr depends on sys_clock
   val sys_clock = Overlay(ClockInputOverlayKey, new SysClockVC707ShellPlacer(this, ClockInputShellInput()))
-  val led       = Overlay(LEDOverlayKey, new LEDVC707ShellPlacer(this, LEDShellInput()))
-  val switch    = Overlay(SwitchOverlayKey, new SwitchVC707ShellPlacer(this, SwitchShellInput()))
+  val led       = Seq.tabulate(8)(i => Overlay(LEDOverlayKey, new LEDVC707ShellPlacer(this, LEDShellInput(color = "red", number = i))(valName = ValName(s"led_$i"))))
+  val switch    = Seq.tabulate(8)(i => Overlay(SwitchOverlayKey, new SwitchVC707ShellPlacer(this, SwitchShellInput())(valName = ValName(s"switch_$i"))))
+  val button    = Seq.tabulate(5)(i => Overlay(ButtonOverlayKey, new ButtonVC707ShellPlacer(this, ButtonShellInput())(valName = ValName(s"button_$i"))))
   val chiplink  = Overlay(ChipLinkOverlayKey, new ChipLinkVC707ShellPlacer(this, ChipLinkShellInput()))
   val ddr       = Overlay(DDROverlayKey, new DDRVC707ShellPlacer(this, DDRShellInput()))
   val pcie      = Overlay(PCIeOverlayKey, new PCIeVC707ShellPlacer(this, PCIeShellInput()))

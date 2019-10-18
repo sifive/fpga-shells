@@ -25,5 +25,6 @@ abstract class TracePMODPlacedOverlay(
 
   val pmodTraceSource = BundleBridgeSource(() => UInt(8.W))
   val pmodTraceSink = shell { pmodTraceSource.makeSink }
-  def overlayOutput = TracePMODOverlayOutput(trace = InModuleBody { pmodTraceSource.out(0)._1 } )
+  val traceout = InModuleBody { pmodTraceSource.out(0)._1 }
+  def overlayOutput = TracePMODOverlayOutput(trace = traceout )
 }

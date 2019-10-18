@@ -132,24 +132,33 @@ class UARTArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput:
 }
 
 //LEDS - 4 normal leds, r0, g0, b0, r1, g1, b1 ...
+object LEDArtyPinConstraints{
+  val pins = Seq("H5", "J5", "T9", "T10", "G6", "F6", "E1", "G3", "J4", "G4", "J3", "J2", "H4", "K1", "H6", "K2")
+}
 class LEDArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: LEDDesignInput, val shellInput: LEDShellInput)
-  extends LEDXilinxPlacedOverlay(name, designInput, shellInput, packagePins = Seq("H5", "J5", "T9", "T10", "G6", "F6", "E1", "G3", "J4", "G4", "J3", "J2", "H4", "K1", "H6", "K2"))
+  extends LEDXilinxPlacedOverlay(name, designInput, shellInput, packagePin = Some(LEDArtyPinConstraints.pins(shellInput.number)))
 class LEDArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: LEDShellInput)(implicit val valName: ValName)
   extends LEDShellPlacer[Arty100TShellBasicOverlays] {
   def place(designInput: LEDDesignInput) = new LEDArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
 //SWs
+object SwitchArtyPinConstraints{
+  val pins = Seq("A8", "C11", "C10", "A10")
+}
 class SwitchArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: SwitchDesignInput, val shellInput: SwitchShellInput)
-  extends SwitchXilinxPlacedOverlay(name, designInput, shellInput, packagePins = Seq("A8", "C11", "C10", "A10"))
+  extends SwitchXilinxPlacedOverlay(name, designInput, shellInput, packagePin = Some(SwitchArtyPinConstraints.pins(shellInput.number)))
 class SwitchArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: SwitchShellInput)(implicit val valName: ValName)
   extends SwitchShellPlacer[Arty100TShellBasicOverlays] {
   def place(designInput: SwitchDesignInput) = new SwitchArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
 //Buttons
+object ButtonArtyPinConstraints {
+  val pins = Seq("D9", "C9", "B9", "B8")
+}
 class ButtonArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: ButtonDesignInput, val shellInput: ButtonShellInput)
-  extends ButtonXilinxPlacedOverlay(name, designInput, shellInput, packagePins = Seq("D9", "C9", "B9", "B8"))
+  extends ButtonXilinxPlacedOverlay(name, designInput, shellInput, packagePin = Some(ButtonArtyPinConstraints.pins(shellInput.number)))
 class ButtonArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: ButtonShellInput)(implicit val valName: ValName)
   extends ButtonShellPlacer[Arty100TShellBasicOverlays] {
   def place(designInput: ButtonDesignInput) = new ButtonArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
@@ -255,18 +264,25 @@ class DDRArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: 
   def place(designInput: DDRDesignInput) = new DDRArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
+
 abstract class Arty100TShellBasicOverlays()(implicit p: Parameters) extends Series7Shell {
   // Order matters; ddr depends on sys_clock
   val sys_clock = Overlay(ClockInputOverlayKey, new SysClockArtyShellPlacer(this, ClockInputShellInput()))
-  val led       = Overlay(LEDOverlayKey, new LEDArtyShellPlacer(this, LEDShellInput()))
-  val switch    = Overlay(SwitchOverlayKey, new SwitchArtyShellPlacer(this, SwitchShellInput()))
-  val button    = Overlay(ButtonOverlayKey, new ButtonArtyShellPlacer(this, ButtonShellInput()))
+  val led       = Seq.tabulate(16)(i => Overlay(LEDOverlayKey, new LEDArtyShellPlacer(this, LEDMetas(i))(valName = ValName(s"led_$i"))))
+  val switch    = Seq.tabulate(4)(i => Overlay(SwitchOverlayKey, new SwitchArtyShellPlacer(this, SwitchShellInput(number = i))(valName = ValName(s"switch_$i"))))
+  val button    = Seq.tabulate(4)(i => Overlay(ButtonOverlayKey, new ButtonArtyShellPlacer(this, ButtonShellInput(number = i))(valName = ValName(s"button_$i"))))
   val ddr       = Overlay(DDROverlayKey, new DDRArtyShellPlacer(this, DDRShellInput()))
   val uart      = Overlay(UARTOverlayKey, new UARTArtyShellPlacer(this, UARTShellInput()))
   val sdio      = Overlay(SDIOOverlayKey, new SDIOArtyShellPlacer(this, SDIOShellInput()))
   val jtag      = Overlay(JTAGDebugOverlayKey, new JTAGDebugArtyShellPlacer(this, JTAGDebugShellInput()))
   val cjtag     = Overlay(cJTAGDebugOverlayKey, new cJTAGDebugArtyShellPlacer(this, cJTAGDebugShellInput()))
   val spi_flash = Overlay(SPIFlashOverlayKey, new SPIFlashArtyShellPlacer(this, SPIFlashShellInput()))
+
+  def LEDMetas(i: Int): LEDShellInput =
+    LEDShellInput(
+      color = if((i < 12) && (i % 3 == 1)) "green" else if((i < 12) && (i % 3 == 2)) "blue" else "red",
+      rgb = (i < 12),
+      number = i)
 }
 
 class Arty100TShell()(implicit p: Parameters) extends Arty100TShellBasicOverlays

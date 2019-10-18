@@ -8,7 +8,7 @@ import freechips.rocketchip.diplomacy._
 case class LEDShellInput(
   color: String = "",
   header: String = "",
-  rgb: Bool = false.B,
+  rgb: Boolean = false,
   number: Int = 0)
 
 case class LEDDesignInput()(implicit val p: Parameters)
