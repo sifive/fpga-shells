@@ -206,17 +206,19 @@ abstract class VCU118Shell(implicit val p: Parameters) extends RawModule {
   //---------------------------------------------------------------------
 
   def connectDebugJTAG(dut: HasPeripheryDebugModuleImp): SystemJTAGIO = {
-    val djtag     = dut.debug.systemjtag.get
-
+    require(dut.debug.isDefined, "Connecting JTAG requires that debug module exists")
+    val djtag     = dut.debug.get.systemjtag.get
     djtag.jtag.TCK := jtag_TCK
     djtag.jtag.TMS := jtag_TMS
     djtag.jtag.TDI := jtag_TDI
     jtag_TDO       := djtag.jtag.TDO.data
 
     djtag.mfr_id   := p(JtagDTMKey).idcodeManufId.U(11.W)
+    djtag.part_number := p(JtagDTMKey).idcodePartNum.U(16.W)
+    djtag.version  := p(JtagDTMKey).idcodeVersion.U(4.W)
 
     djtag.reset    := PowerOnResetFPGAOnly(dut_clock)
-    dut_ndreset    := dut.debug.ndreset
+    dut_ndreset    := dut.debug.get.ndreset
     djtag
   }
 
@@ -267,7 +269,7 @@ abstract class VCU118Shell(implicit val p: Parameters) extends RawModule {
     // SPI
     ip_sdio_spi.io.spi_sck  := sd_spi_sck
     ip_sdio_spi.io.spi_cs   := sd_spi_cs
-    sd_spi_dq_i             := ip_sdio_spi.io.spi_dq_i.toBools
+    sd_spi_dq_i             := ip_sdio_spi.io.spi_dq_i.asBools
     ip_sdio_spi.io.spi_dq_o := sd_spi_dq_o.asUInt
   }
 

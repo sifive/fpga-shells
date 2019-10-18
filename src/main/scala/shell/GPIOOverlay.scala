@@ -30,7 +30,6 @@ abstract class GPIOPlacedOverlay(
 
   def ioFactory = new ShellGPIOPortIO(di.gpioParam.width)
   val tlgpio = GPIO.attach(GPIOAttachParams(di.gpioParam, di.controlBus, di.intNode))
-
   val tlgpioSink = shell { tlgpio.ioNode.makeSink }
   def overlayOutput = GPIOOverlayOutput(gpio = tlgpio)
 }

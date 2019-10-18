@@ -172,11 +172,12 @@ class JTAGDebugVC707ShellPlacer(val shell: VC707Shell, val shellInput: JTAGDebug
   def place(designInput: JTAGDebugDesignInput) = new JTAGDebugVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-case object VC707DDRSize extends Field[BigInt](0x40000000L * 1) // 1GB
+case object VC7071GDDRSize extends Field[BigInt](0x40000000L * 1) // 1GB
+case object VC7074GDDRSize extends Field[BigInt](0x40000000L * 4) // 4GB
 class DDRVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: DDRDesignInput, val shellInput: DDRShellInput)
   extends DDRPlacedOverlay[XilinxVC707MIGPads](name, designInput, shellInput)
 {
-  val size = p(VC707DDRSize)
+  val size = if (designInput.vc7074gbdimm) p(VC7074GDDRSize) else p(VC7071GDDRSize)
 
   val sdcClockName = "userClock1"
   val migParams = XilinxVC707MIGParams(address = AddressSet.misaligned(designInput.baseAddress, size))
