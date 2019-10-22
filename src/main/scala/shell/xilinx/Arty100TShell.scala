@@ -14,7 +14,7 @@ import sifive.fpgashells.devices.xilinx.xilinxarty100tmig._
 class SysClockArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: ClockInputDesignInput, val shellInput: ClockInputShellInput)
   extends SingleEndedClockInputXilinxPlacedOverlay(name, designInput, shellInput)
 {
-  val node = shell { ClockSourceNode(name, freqMHz = 100, jitterPS = 50) }
+  val node = shell { ClockSourceNode(freqMHz = 100, jitterPS = 50) }
 
   shell { InModuleBody {
     val clk: Clock = io
@@ -228,12 +228,11 @@ class DDRArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, 
   ddrClk1 := di.wrangler := ddrGroup := di.corePLL
   ddrClk2 := di.wrangler := ddrGroup
   
-  val sdcClockName = "userclk1"
-  val migParams = XilinxArty100TMIGParams(address = AddressSet.misaligned(di.baseAddress, size))
+  val migParams = XilinxArty100TMIGParams(address = AddressSet.misaligned(di..baseAddress, size))
   val mig = LazyModule(new XilinxArty100TMIG(migParams))
   val ioNode = BundleBridgeSource(() => mig.module.io.cloneType)
   val topIONode = shell { ioNode.makeSink() }
-  val ddrUI     = shell { ClockSourceNode(sdcClockName, freqMHz = 100) }
+  val ddrUI     = shell { ClockSourceNode(freqMHz = 100) }
   val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
   areset := di.wrangler := ddrUI
 
@@ -260,7 +259,7 @@ class DDRArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, 
     port.aresetn := !ar.reset
   } }
 
-  shell.sdc.addGroup(clocks = Seq("clk_pll_i", "userClock1"))
+  shell.sdc.addGroup(clocks = Seq("clk_pll_i"), pins = Seq(mig.island.module.blackbox.io.ui_clk))
 }
 class DDRArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: DDRShellInput)(implicit val valName: ValName)
   extends DDRShellPlacer[Arty100TShellBasicOverlays] {

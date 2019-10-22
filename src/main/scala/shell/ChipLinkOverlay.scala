@@ -34,14 +34,11 @@ abstract class ChipLinkPlacedOverlay(
   val freqMHz  = di.txData.portParams.head.take.get.freqMHz
   val phaseDeg = di.txData.portParams.head.phaseDeg
 
-  val sdcRxClockName = s"${name}_b2c_clk"
-  val sdcTxClockName = s"${name}_c2b_clk"
-
   def fpgaReset = false
   val link = LazyModule(new ChipLink(di.di.copy(fpgaReset = fpgaReset)))
   val rxPLL   = p(PLLFactoryKey)(feedback = true)
   val ioSink  = shell { link.ioNode.makeSink() }
-  val rxI     = shell { ClockSourceNode(sdcRxClockName, freqMHz = freqMHz, jitterPS = 100) }
+  val rxI     = shell { ClockSourceNode(freqMHz = freqMHz, jitterPS = 100) }
   val rxGroup = shell { ClockGroup() }
   val rxO     = shell { ClockSinkNode(freqMHz = freqMHz, phaseDeg = rxPhase) }
   val txClock = shell { ClockSinkNode(freqMHz = freqMHz, phaseDeg = phaseDeg + txPhase) }

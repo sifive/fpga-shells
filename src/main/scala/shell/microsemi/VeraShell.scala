@@ -26,7 +26,7 @@ import sifive.fpgashells.ip.microsemi.polarfirereset._
 class SysClockVeraPlacedOverlay(val shell: VeraShell, name: String, val designInput: ClockInputDesignInput, val shellInput: ClockInputShellInput)
   extends ClockInputMicrosemiPlacedOverlay(name, designInput, shellInput)
 {
-  val node = shell { ClockSourceNode(name, freqMHz = 50, jitterPS = 50)(ValName(name)) }
+  val node = shell { ClockSourceNode(freqMHz = 50, jitterPS = 50)(ValName(name)) }
 
   shell { InModuleBody {
     val (c, _) = node.out(0)
