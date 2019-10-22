@@ -18,7 +18,7 @@ import sifive.fpgashells.ip.xilinx.xxv_ethernet._
 class SysClockVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: ClockInputOverlayParams)
   extends LVDSClockInputXilinxOverlay(params)
 {
-  val node = shell { ClockSourceNode(name, freqMHz = 250, jitterPS = 50) }
+  val node = shell { ClockSourceNode(freqMHz = 250, jitterPS = 50)(ValName(name)) }
 
   shell { InModuleBody {
     shell.xdc.addPackagePin(io.p, "E12")
@@ -31,7 +31,7 @@ class SysClockVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: Strin
 class RefClockVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: ClockInputOverlayParams)
   extends LVDSClockInputXilinxOverlay(params)
 {
-  val node = shell { ClockSourceNode(name, freqMHz = 125, jitterPS = 50) }
+  val node = shell { ClockSourceNode(freqMHz = 125, jitterPS = 50)(ValName(name)) }
 
   shell { InModuleBody {
     shell.xdc.addPackagePin(io.p, "AY24")
@@ -147,20 +147,10 @@ class QSFP2VCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, 
 }
 
 class LEDVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: LEDOverlayParams)
-  extends LEDXilinxOverlay(params, packagePins = Seq("AT32", "AV34", "AY30", "BB32", "BF32", "AU37", "AV36", "BA37"))
-{
-  shell { InModuleBody {
-    IOPin.of(io).foreach { shell.xdc.addIOStandard(_, "LVCMOS12") }
-  } }
-}
+  extends LEDXilinxOverlay(params, packagePins = Seq("AT32", "AV34", "AY30", "BB32", "BF32", "AU37", "AV36", "BA37"), ioStandard = "LVCMOS12")
 
 class SwitchVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: SwitchOverlayParams)
-  extends SwitchXilinxOverlay(params, packagePins = Seq("B17", "G16", "J16", "D21"))
-{
-  shell { InModuleBody {
-    IOPin.of(io).foreach { shell.xdc.addIOStandard(_, "LVCMOS12") }
-  } }
-}
+  extends SwitchXilinxOverlay(params, packagePins = Seq("B17", "G16", "J16", "D21"), ioStandard = "LVCMOS12")
 
 class ChipLinkVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, params: ChipLinkOverlayParams)
   extends ChipLinkXilinxOverlay(params, rxPhase= -120, txPhase= -90, rxMargin=0.6, txMargin=0.5)
@@ -226,12 +216,11 @@ class DDRVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, pa
 {
   val size = p(VCU118DDRSize)
 
-  val sdcClockName = "userClock1"
   val migParams = XilinxVCU118MIGParams(address = AddressSet.misaligned(params.baseAddress, size))
   val mig = LazyModule(new XilinxVCU118MIG(migParams))
   val ioNode = BundleBridgeSource(() => mig.module.io.cloneType)
   val topIONode = shell { ioNode.makeSink() }
-  val ddrUI     = shell { ClockSourceNode(sdcClockName, freqMHz = 200) }
+  val ddrUI     = shell { ClockSourceNode(freqMHz = 200) }
   val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
   areset := params.wrangler := ddrUI
 
@@ -269,7 +258,7 @@ class DDRVCU118Overlay(val shell: VCU118ShellBasicOverlays, val name: String, pa
     (IOPin.of(io) zip allddrpins) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
   } }
 
-  shell.sdc.addGroup(clocks = Seq("userClock1"))
+  shell.sdc.addGroup(pins = Seq(mig.island.module.blackbox.io.c0_ddr4_ui_clk))
 }
 
 class PCIeVCU118FMCOverlay(val shell: VCU118ShellBasicOverlays, val name: String, params: PCIeOverlayParams)

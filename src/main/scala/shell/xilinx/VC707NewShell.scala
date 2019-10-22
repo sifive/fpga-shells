@@ -17,7 +17,7 @@ import sifive.fpgashells.devices.xilinx.xilinxvc707pciex1._
 class SysClockVC707Overlay(val shell: VC707Shell, val name: String, params: ClockInputOverlayParams)
   extends LVDSClockInputXilinxOverlay(params)
 {
-  val node = shell { ClockSourceNode(name, freqMHz = 200, jitterPS = 50) }
+  val node = shell { ClockSourceNode(freqMHz = 200, jitterPS = 50)(ValName(name)) }
 
   shell { InModuleBody {
     shell.xdc.addBoardPin(io.p, "clk_p")
@@ -144,12 +144,11 @@ class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverla
 {
   val size = if (params.vc7074gbdimm) p(VC7074GDDRSize) else p(VC7071GDDRSize)
 
-  val sdcClockName = "userClock1"
   val migParams = XilinxVC707MIGParams(address = AddressSet.misaligned(params.baseAddress, size))
   val mig = LazyModule(new XilinxVC707MIG(migParams))
   val ioNode = BundleBridgeSource(() => mig.module.io.cloneType)
   val topIONode = shell { ioNode.makeSink() }
-  val ddrUI     = shell { ClockSourceNode(sdcClockName, freqMHz = 200) }
+  val ddrUI     = shell { ClockSourceNode(freqMHz = 200) }
   val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
   areset := params.wrangler := ddrUI
 
@@ -178,11 +177,10 @@ class DDRVC707Overlay(val shell: VC707Shell, val name: String, params: DDROverla
 class PCIeVC707Overlay(val shell: VC707Shell, val name: String, params: PCIeOverlayParams)
   extends PCIeOverlay[XilinxVC707PCIeX1Pads](params)
 {
-  val sdcClockName = "axiClock"
   val pcie = LazyModule(new XilinxVC707PCIeX1)
   val ioNode = BundleBridgeSource(() => pcie.module.io.cloneType)
   val topIONode = shell { ioNode.makeSink() }
-  val axiClk    = shell { ClockSourceNode(sdcClockName, freqMHz = 125) }
+  val axiClk    = shell { ClockSourceNode(freqMHz = 125) }
   val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
   areset := params.wrangler := axiClk
 
@@ -217,7 +215,7 @@ class PCIeVC707Overlay(val shell: VC707Shell, val name: String, params: PCIeOver
     shell.sdc.addClock(s"${name}_ref_clk", io.REFCLK_rxp, 100)
   } }
 
-  shell.sdc.addGroup(clocks = Seq("txoutclk", "userclk1", "axiClock"))
+  shell.sdc.addGroup(clocks = Seq("txoutclk", "userclk1"))
 }
 
 abstract class VC707Shell()(implicit p: Parameters) extends Series7Shell
