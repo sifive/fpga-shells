@@ -2,8 +2,8 @@
 package sifive.fpgashells.shell.xilinx.vcu118shell
 
 import Chisel._
-import chisel3.core.{Input, Output, attach}
-import chisel3.experimental.{RawModule, Analog, withClockAndReset}
+import chisel3.{Input, Output, RawModule, withClockAndReset}
+import chisel3.experimental.{Analog, attach}
 
 import freechips.rocketchip.config._
 import freechips.rocketchip.devices.debug._
