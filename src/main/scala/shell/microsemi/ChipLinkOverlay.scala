@@ -7,8 +7,8 @@ import freechips.rocketchip.util._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.microsemi._
 
- abstract class ChipLinkPolarFireOverlay(params: ChipLinkOverlayParams)
-  extends ChipLinkOverlay(params, rxPhase=180, txPhase=270)
+ abstract class ChipLinkPolarFirePlacedOverlay(name: String, di: ChipLinkDesignInput, si: ChipLinkShellInput)
+  extends ChipLinkPlacedOverlay(name, di, si, rxPhase=180, txPhase=270)
 {
   def shell: PolarFireShell
 

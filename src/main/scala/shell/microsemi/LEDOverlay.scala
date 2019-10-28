@@ -6,8 +6,8 @@ import freechips.rocketchip.diplomacy._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.microsemi._
 
- abstract class LEDMicrosemiOverlay(params: LEDOverlayParams, pins: Seq[String] = Nil)
-  extends LEDOverlay(params)
+ abstract class LEDMicrosemiPlacedOverlay(name: String, di: LEDDesignInput, si: LEDShellInput, pins: Seq[String] = Nil)
+  extends LEDPlacedOverlay(name, di, si)
 {
   def shell: MicrosemiShell
   val width = pins.size

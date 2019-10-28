@@ -10,9 +10,13 @@ import freechips.rocketchip.subsystem.{BaseSubsystem, PeripheryBus, PeripheryBus
 import freechips.rocketchip.tilelink.TLBusWrapper
 import freechips.rocketchip.interrupts.IntInwardNode
 
-//TODO: Can this be combined with UARTAttachParams?
-case class UARTOverlayParams(uartParams: UARTParams, divInit: Int, controlBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
-case object UARTOverlayKey extends Field[Seq[DesignOverlay[UARTOverlayParams, TLUART]]](Nil)
+//dont make the controller here
+//move flowcontrol to shell input?? 
+case class UARTShellInput()
+case class UARTDesignInput(uartParams: UARTParams, divInit: Int, controlBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
+case class UARTOverlayOutput(uart: TLUART)
+case object UARTOverlayKey extends Field[Seq[DesignPlacer[UARTDesignInput, UARTShellInput, UARTOverlayOutput]]](Nil)
+trait UARTShellPlacer[Shell] extends ShellPlacer[UARTDesignInput, UARTShellInput, UARTOverlayOutput]
 
 // Tack on cts, rts signals available on some FPGAs. They are currently unused
 // by our designs.
@@ -25,18 +29,18 @@ class ShellUARTPortIO(flowControl: Boolean) extends Bundle {
 
 //class UARTReplacementBundle extends Bundle with HasUARTTopBundleContents
 
-abstract class UARTOverlay(
-  val params: UARTOverlayParams, flowControl: Boolean)
-    extends IOOverlay[ShellUARTPortIO, TLUART]
+abstract class UARTPlacedOverlay(
+  val name: String, val di: UARTDesignInput, val si: UARTShellInput, val flowControl: Boolean)
+    extends IOPlacedOverlay[ShellUARTPortIO, UARTDesignInput, UARTShellInput, UARTOverlayOutput]
 {
-  implicit val p = params.p
+  implicit val p = di.p
 
   def ioFactory = new ShellUARTPortIO(flowControl)
 
-  val tluart = UART.attach(UARTAttachParams(params.uartParams, params.divInit, params.controlBus, params.intNode))
+  val tluart = UART.attach(UARTAttachParams(di.uartParams, di.divInit, di.controlBus, di.intNode))
   val tluartSink = tluart.ioNode.makeSink
   val uartSource = BundleBridgeSource(() => new UARTPortIO())
   val uartSink = shell { uartSource.makeSink }
 
-  val designOutput = tluart
+  def overlayOutput = UARTOverlayOutput(uart = tluart)
 }

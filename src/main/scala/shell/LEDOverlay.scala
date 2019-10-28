@@ -5,19 +5,26 @@ import chisel3._
 import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
 
-case class LEDOverlayParams()(implicit val p: Parameters)
-case object LEDOverlayKey extends Field[Seq[DesignOverlay[LEDOverlayParams, ModuleValue[UInt]]]](Nil)
+case class LEDShellInput(
+  color: String = "",
+  header: String = "",
+  rgb: Boolean = false,
+  number: Int = 0)
 
-abstract class LEDOverlay(
-  val params: LEDOverlayParams)
-    extends IOOverlay[UInt, ModuleValue[UInt]]
+case class LEDDesignInput()(implicit val p: Parameters)
+case class LEDOverlayOutput(led: ModuleValue[Bool])
+case object LEDOverlayKey extends Field[Seq[DesignPlacer[LEDDesignInput, LEDShellInput, LEDOverlayOutput]]](Nil)
+trait LEDShellPlacer[Shell] extends ShellPlacer[LEDDesignInput, LEDShellInput, LEDOverlayOutput]
+
+abstract class LEDPlacedOverlay(
+  val name: String, val di: LEDDesignInput, si: LEDShellInput)
+    extends IOPlacedOverlay[Bool, LEDDesignInput, LEDShellInput, LEDOverlayOutput]
 {
-  implicit val p = params.p
+  implicit val p = di.p
 
-  def width: Int
-  def ioFactory = Output(UInt(width.W))
+  def ioFactory = Output(Bool())
 
-  val ledSource = BundleBridgeSource(() => UInt(width.W))
+  val ledSource = BundleBridgeSource(() => Bool())
   val ledSink = shell { ledSource.makeSink() }
-  val designOutput = InModuleBody { ledSource.out(0)._1 }
+  def overlayOutput = LEDOverlayOutput(InModuleBody { ledSource.out(0)._1 })
 }

@@ -23,8 +23,8 @@ import sifive.fpgashells.ip.microsemi.polarfireclockdivider._
 import sifive.fpgashells.ip.microsemi.polarfireglitchlessmux._
 import sifive.fpgashells.ip.microsemi.polarfirereset._
 
-class SysClockVeraOverlay(val shell: VeraShell, val name: String, params: ClockInputOverlayParams)
-  extends ClockInputMicrosemiOverlay(params)
+class SysClockVeraPlacedOverlay(val shell: VeraShell, name: String, val designInput: ClockInputDesignInput, val shellInput: ClockInputShellInput)
+  extends ClockInputMicrosemiPlacedOverlay(name, designInput, shellInput)
 {
   val node = shell { ClockSourceNode(name, freqMHz = 50, jitterPS = 50)(ValName(name)) }
 
@@ -34,12 +34,20 @@ class SysClockVeraOverlay(val shell: VeraShell, val name: String, params: ClockI
     shell.io_pdc.addPin(io:Clock, "AG4")
   } }
 }
+class SysClockVeraShellPlacer(val shell: VeraShell, val shellInput: ClockInputShellInput)(implicit val valName: ValName)
+  extends ClockInputShellPlacer[VeraShell] {
+  def place(designInput: ClockInputDesignInput) = new SysClockVeraPlacedOverlay(shell, valName.name, designInput, shellInput)
+}
 
-class LEDVeraOverlay(val shell: VeraShell, val name: String, params: LEDOverlayParams)
-  extends LEDMicrosemiOverlay(params, Seq("AK17", "AN17", "AM17", "AL18"))
+class LEDVeraPlacedOverlay(val shell: VeraShell, name: String, val designInput: LEDDesignInput, val shellInput: LEDShellInput)
+  extends LEDMicrosemiPlacedOverlay(name, designInput, shellInput, Seq("AK17", "AN17", "AM17", "AL18"))
+class LEDVeraShellPlacer(val shell: VeraShell, val shellInput: LEDShellInput)(implicit val valName: ValName)
+  extends LEDShellPlacer[VeraShell] {
+  def place(designInput: LEDDesignInput) = new LEDVeraPlacedOverlay(shell, valName.name, designInput, shellInput)
+}
 
-class ChipLinkVeraOverlay(val shell: VeraShell, val name: String, params: ChipLinkOverlayParams)
-  extends ChipLinkPolarFireOverlay(params)
+class ChipLinkVeraPlacedOverlay(val shell: VeraShell, name: String, val designInput: ChipLinkDesignInput, val shellInput: ChipLinkShellInput)
+  extends ChipLinkPolarFirePlacedOverlay(name, designInput, shellInput)
 {
   val ereset_n = shell { InModuleBody {
     val ereset_n = IO(Input(Bool()))
@@ -70,9 +78,13 @@ class ChipLinkVeraOverlay(val shell: VeraShell, val name: String, params: ChipLi
     rx.reset := shell.pllReset
   } }
 }
+class ChipLinkVeraShellPlacer(val shell: VeraShell, val shellInput: ChipLinkShellInput)(implicit val valName: ValName)
+  extends ChipLinkShellPlacer[VeraShell] {
+  def place(designInput: ChipLinkDesignInput) = new ChipLinkVeraPlacedOverlay(shell, valName.name, designInput, shellInput)
+}
 
-class PCIeVeraOverlay(val shell: VeraShell, val name: String, params: PCIeOverlayParams)
-  extends PCIeOverlay[PolarFireEvalKitPCIeX4Pads](params)
+class PCIeVeraPlacedOverlay(val shell: VeraShell, name: String, val designInput: PCIeDesignInput, val shellInput: PCIeShellInput)
+  extends PCIePlacedOverlay[PolarFireEvalKitPCIeX4Pads](name, designInput, shellInput)
 {
   val sdcClockName = "axiClock"
   val pcie = LazyModule(new PolarFireEvalKitPCIeX4)
@@ -80,7 +92,7 @@ class PCIeVeraOverlay(val shell: VeraShell, val name: String, params: PCIeOverla
   val topIONode = shell { ioNode.makeSink() }
   val pcieClk_125 = shell { ClockSinkNode(freqMHz = 125)}
   val pcieGroup = shell { ClockGroup()}
-  pcieClk_125 := params.wrangler := pcieGroup := params.corePLL
+  pcieClk_125 := designInput.wrangler := pcieGroup := designInput.corePLL
 
   val slaveSide = TLIdentityNode()
   pcie.crossTLIn(pcie.slave) := slaveSide
@@ -88,13 +100,13 @@ class PCIeVeraOverlay(val shell: VeraShell, val name: String, params: PCIeOverla
   val node = NodeHandle(slaveSide, pcie.crossTLOut(pcie.master))
   val intnode = pcie.crossIntOut(pcie.intnode)
 
-  def designOutput = (node, intnode)
+  def overlayOutput = PCIeOverlayOutput(node, intnode)
   def ioFactory = new PolarFireEvalKitPCIeX4Pads
 
   InModuleBody { ioNode.bundle <> pcie.module.io }
 
   shell { InModuleBody {
-    val (sys, _) = shell.sys_clock.get.node.out(0)
+    val (sys, _) = shell.sys_clock.get.get.overlayOutput.node.out(0)
     val (pcieClk, _) = pcieClk_125.in(0)
     val port = topIONode.bundle.port
     val coreClock = shell.pllFactory.plls.getWrappedValue(1)._1.getClocks(0)
@@ -208,27 +220,32 @@ class PCIeVeraOverlay(val shell: VeraShell, val name: String, params: PCIeOverla
 
   shell.sdc.addGroup(clocks = Seq("osc_rc160mhz"))
 }
+class PCIeVeraShellPlacer(val shell: VeraShell, val shellInput: PCIeShellInput)(implicit val valName: ValName)
+  extends PCIeShellPlacer[VeraShell] {
+  def place(designInput: PCIeDesignInput) = new PCIeVeraPlacedOverlay(shell, valName.name, designInput, shellInput)
+}
 
 class VeraShell()(implicit p: Parameters) extends PolarFireShell
 {
   // PLL reset causes
   val pllReset = InModuleBody { Wire(Bool()) }
 
-  val sys_clock = Overlay(ClockInputOverlayKey)(new SysClockVeraOverlay(_, _, _))
-//  val led       = Overlay(LEDOverlayKey)       (new LEDVeraOverlay     (_, _, _))
-  val chiplink  = Overlay(ChipLinkOverlayKey)  (new ChipLinkVeraOverlay(_, _, _))
-  val pcie      = Overlay(PCIeOverlayKey)      (new PCIeVeraOverlay    (_, _, _))
+  val sys_clock = Overlay(ClockInputOverlayKey, new SysClockVeraShellPlacer(this, ClockInputShellInput()))
+  val led       = Overlay(LEDOverlayKey, new LEDVeraShellPlacer(this, LEDShellInput()))
+  val chiplink  = Overlay(ChipLinkOverlayKey, new ChipLinkVeraShellPlacer(this, ChipLinkShellInput()))
+  val pcie      = Overlay(PCIeOverlayKey, new PCIeVeraShellPlacer(this, PCIeShellInput()))
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
   override lazy val module = new LazyRawModuleImp(this) {
     val pf_user_reset_n = IO(Input(Bool()))
     io_pdc.addPin(pf_user_reset_n, "AK18")
-
+    val ereset: Bool = chiplink.get() match {
+      case Some(x: ChipLinkVeraPlacedOverlay) => !x.ereset_n
+      case _ => false.B
+    }
     pllReset :=
       !pf_user_reset_n ||
-      !initMonitor.io.DEVICE_INIT_DONE ||
-      chiplink.map(!_.ereset_n).getOrElse(false.B)
-
+      !initMonitor.io.DEVICE_INIT_DONE || ereset
   }
 }

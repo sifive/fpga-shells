@@ -5,19 +5,24 @@ import chisel3._
 import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
 
-case class ButtonOverlayParams()(implicit val p: Parameters)
-case object ButtonOverlayKey extends Field[Seq[DesignOverlay[ButtonOverlayParams, ModuleValue[UInt]]]](Nil)
+case class ButtonShellInput(
+  header: String = "",
+  number: Int = 0)
 
-abstract class ButtonOverlay(
-  val params: ButtonOverlayParams)
-    extends IOOverlay[UInt, ModuleValue[UInt]]
+case class ButtonDesignInput()(implicit val p: Parameters)
+case class ButtonOverlayOutput(but: ModuleValue[Bool])
+case object ButtonOverlayKey extends Field[Seq[DesignPlacer[ButtonDesignInput, ButtonShellInput, ButtonOverlayOutput]]](Nil)
+trait ButtonShellPlacer[Shell] extends ShellPlacer[ButtonDesignInput, ButtonShellInput, ButtonOverlayOutput]
+
+abstract class ButtonPlacedOverlay(
+  val name: String, val di: ButtonDesignInput, si:ButtonShellInput)
+    extends IOPlacedOverlay[Bool, ButtonDesignInput, ButtonShellInput, ButtonOverlayOutput]
 {
-  implicit val p = params.p
+  implicit val p = di.p
 
-  def width: Int
-  def ioFactory = Input(UInt(width.W))
+  def ioFactory = Input(Bool())
 
-  val buttonSource = shell { BundleBridgeSource(() => UInt(width.W)) }
+  val buttonSource = shell { BundleBridgeSource(() => Bool()) }
   val buttonSink = buttonSource.makeSink()
-  val designOutput = InModuleBody { buttonSink.bundle }
+  def overlayOutput = ButtonOverlayOutput(but = InModuleBody { buttonSink.bundle })
 }

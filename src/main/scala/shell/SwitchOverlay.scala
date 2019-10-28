@@ -5,19 +5,21 @@ import chisel3._
 import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
 
-case class SwitchOverlayParams()(implicit val p: Parameters)
-case object SwitchOverlayKey extends Field[Seq[DesignOverlay[SwitchOverlayParams, ModuleValue[UInt]]]](Nil)
+case class SwitchShellInput(number: Int = 0)
+case class SwitchDesignInput()(implicit val p: Parameters)
+case class SwitchOverlayOutput(sw: ModuleValue[Bool])
+case object SwitchOverlayKey extends Field[Seq[DesignPlacer[SwitchDesignInput, SwitchShellInput, SwitchOverlayOutput]]](Nil)
+trait SwitchShellPlacer[Shell] extends ShellPlacer[SwitchDesignInput, SwitchShellInput, SwitchOverlayOutput]
 
-abstract class SwitchOverlay(
-  val params: SwitchOverlayParams)
-    extends IOOverlay[UInt, ModuleValue[UInt]]
+abstract class SwitchPlacedOverlay(
+  val name: String, val di: SwitchDesignInput, val si: SwitchShellInput)
+    extends IOPlacedOverlay[Bool, SwitchDesignInput, SwitchShellInput, SwitchOverlayOutput]
 {
-  implicit val p = params.p
+  implicit val p = di.p
 
-  def width: Int
-  def ioFactory = Input(UInt(width.W))
+  def ioFactory = Input(Bool())
 
-  val switchSource = shell { BundleBridgeSource(() => UInt(width.W)) }
+  val switchSource = shell { BundleBridgeSource(() => Bool()) }
   val switchSink = switchSource.makeSink()
-  val designOutput = InModuleBody { switchSink.bundle }
+  def overlayOutput = SwitchOverlayOutput(sw = InModuleBody { switchSink.bundle } )
 }

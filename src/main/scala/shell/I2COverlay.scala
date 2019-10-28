@@ -10,24 +10,29 @@ import freechips.rocketchip.subsystem.{BaseSubsystem, PeripheryBus, PeripheryBus
 import freechips.rocketchip.tilelink.TLBusWrapper
 import freechips.rocketchip.interrupts.IntInwardNode
 
-case class I2COverlayParams(i2cParams: I2CParams, controlBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
-case object I2COverlayKey extends Field[Seq[DesignOverlay[I2COverlayParams, TLI2C]]](Nil)
+//This should NOT do the device placement, just return the bundlebridge
+case class I2CShellInput()
+case class I2CDesignInput(i2cParams: I2CParams, controlBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
+case class I2COverlayOutput(i2c: TLI2C)
+trait I2CShellPlacer[Shell] extends ShellPlacer[I2CDesignInput, I2CShellInput, I2COverlayOutput]
+
+case object I2COverlayKey extends Field[Seq[DesignPlacer[I2CDesignInput, I2CShellInput, I2COverlayOutput]]](Nil)
 
 class FPGAI2CPortIO extends Bundle {
   val scl = Analog(1.W)
   val sda = Analog(1.W)
 }
 
-abstract class I2COverlay(
-  val params: I2COverlayParams)
-    extends IOOverlay[FPGAI2CPortIO, TLI2C]
+abstract class I2CPlacedOverlay(
+  val name: String, val di: I2CDesignInput, val si: I2CShellInput)
+    extends IOPlacedOverlay[FPGAI2CPortIO, I2CDesignInput, I2CShellInput, I2COverlayOutput]
 {
-  implicit val p = params.p
+  implicit val p = di.p
 
   def ioFactory = new FPGAI2CPortIO
 
-  val tli2c = I2C.attach(I2CAttachParams(params.i2cParams, params.controlBus, params.intNode))
+  val tli2c = I2C.attach(I2CAttachParams(di.i2cParams, di.controlBus, di.intNode))
   val tli2cSink = shell { tli2c.ioNode.makeSink }
 
-  val designOutput = tli2c
+  def overlayOutput = I2COverlayOutput(i2c = tli2c)
 }

@@ -6,8 +6,8 @@ import freechips.rocketchip.diplomacy._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 
-abstract class PinXilinxOverlay(params: PinOverlayParams)
-  extends PinOverlay(params)
+abstract class PinXilinxPlacedOverlay(name: String, di: PinDesignInput, si: PinShellInput)
+  extends PinPlacedOverlay(name, di, si)
 {
   def shell: XilinxShell
 }

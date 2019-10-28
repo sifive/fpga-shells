@@ -6,11 +6,18 @@ import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
 import sifive.fpgashells.clocks._
 
-case class ClockInputOverlayParams()(implicit val p: Parameters)
-case class ClockOutputOverlayParams()(implicit val p: Parameters)
+case class ClockInputShellInput()
+case class ClockOutputShellInput()
+case class ClockInputDesignInput()(implicit val p: Parameters)
+case class ClockOutputDesignInput()(implicit val p: Parameters)
+case class ClockInputOverlayOutput(node: ClockSourceNode)
+case class ClockOutputOverlayOutput(clock: ClockSinkNode)
 
-case object ClockInputOverlayKey  extends Field[Seq[DesignOverlay[ClockInputOverlayParams, ClockSourceNode]]](Nil)
-case object ClockOutputOverlayKey extends Field[Seq[DesignOverlay[ClockOutputOverlayParams, ClockSinkNode]]](Nil)
+trait ClockInputShellPlacer[Shell] extends ShellPlacer[ClockInputDesignInput, ClockInputShellInput, ClockInputOverlayOutput]
+trait ClockOutputShellPlacer[Shell] extends ShellPlacer[ClockOutputDesignInput, ClockOutputShellInput, ClockOutputOverlayOutput]
+
+case object ClockInputOverlayKey  extends Field[Seq[DesignPlacer[ClockInputDesignInput, ClockInputShellInput, ClockInputOverlayOutput]]](Nil)
+case object ClockOutputOverlayKey extends Field[Seq[DesignPlacer[ClockOutputDesignInput, ClockOutputShellInput, ClockOutputOverlayOutput]]](Nil)
 
 class LVDSClock extends Bundle
 {
@@ -18,37 +25,37 @@ class LVDSClock extends Bundle
   val n = Clock()
 }
 
-abstract class LVDSClockInputOverlay(
-  val params: ClockInputOverlayParams)
-    extends IOOverlay[LVDSClock, ClockSourceNode]
+abstract class LVDSClockInputPlacedOverlay(
+  val name: String, val di: ClockInputDesignInput, val si: ClockInputShellInput)
+    extends IOPlacedOverlay[LVDSClock, ClockInputDesignInput, ClockInputShellInput, ClockInputOverlayOutput]
 {
-  implicit val p = params.p
+  implicit val p = di.p
   def node: ClockSourceNode
 
   def ioFactory = Input(new LVDSClock)
-  def designOutput = node
 
   val clock = shell { InModuleBody {
     val (bundle, edge) = node.out.head
     shell.sdc.addClock(name, io.p, edge.clock.freqMHz)
     bundle.clock
   } }
+  def overlayOutput = ClockInputOverlayOutput(node)
 }
 
 
-abstract class SingleEndedClockInputOverlay(
-  val params: ClockInputOverlayParams)
-    extends IOOverlay[Clock, ClockSourceNode]
+abstract class SingleEndedClockInputPlacedOverlay(
+  val name: String, val di: ClockInputDesignInput, val si: ClockInputShellInput)
+    extends IOPlacedOverlay[Clock, ClockInputDesignInput, ClockInputShellInput, ClockInputOverlayOutput]
 {
-  implicit val p = params.p
+  implicit val p = di.p
   def node: ClockSourceNode
 
   def ioFactory = Input(Clock())
-  def designOutput = node
 
   val clock = shell { InModuleBody {
     val (bundle, edge) = node.out.head
     shell.sdc.addClock(name, io:Clock, edge.clock.freqMHz)
     bundle.clock
   } }
+  def overlayOutput = ClockInputOverlayOutput(node)
 }

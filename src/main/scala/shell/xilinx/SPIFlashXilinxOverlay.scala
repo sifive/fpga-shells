@@ -6,8 +6,8 @@ import freechips.rocketchip.diplomacy._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 
-abstract class SPIFlashXilinxOverlay(params: SPIFlashOverlayParams)
-  extends SPIFlashOverlay(params)
+abstract class SPIFlashXilinxPlacedOverlay(name: String, di: SPIFlashDesignInput, si: SPIFlashShellInput)
+  extends SPIFlashPlacedOverlay(name, di, si)
 {
   def shell: XilinxShell
 

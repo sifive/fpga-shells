@@ -9,9 +9,12 @@ import sifive.blocks.devices.spi._
 import freechips.rocketchip.tilelink.TLBusWrapper
 import freechips.rocketchip.interrupts.IntInwardNode
 
-// TODO: Can this be combined with SPIAttachParams?
-case class SDIOOverlayParams(spiParam: SPIParams, controlBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
-case object SDIOOverlayKey extends Field[Seq[DesignOverlay[SDIOOverlayParams, TLSPI]]](Nil)
+//This should not do the controller placement either
+case class SDIOShellInput()
+case class SDIODesignInput(spiParam: SPIParams, controlBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
+case class SDIOOverlayOutput(spi: TLSPI)
+case object SDIOOverlayKey extends Field[Seq[DesignPlacer[SDIODesignInput, SDIOShellInput, SDIOOverlayOutput]]](Nil)
+trait SDIOShellPlacer[Shell] extends ShellPlacer[SDIODesignInput, SDIOShellInput, SDIOOverlayOutput]
 
 // SDIO Port. Not sure how generic this is, it might need to move.
 class FPGASDIOPortIO extends Bundle {
@@ -23,19 +26,19 @@ class FPGASDIOPortIO extends Bundle {
   val sdio_dat_3 = Output(Bool())
 }
 
-abstract class SDIOOverlay(
-  val params: SDIOOverlayParams)
-    extends IOOverlay[FPGASDIOPortIO, TLSPI]
+abstract class SDIOPlacedOverlay(
+  val name: String, val di: SDIODesignInput, val si: SDIOShellInput)
+    extends IOPlacedOverlay[FPGASDIOPortIO, SDIODesignInput, SDIOShellInput, SDIOOverlayOutput]
 {
-  implicit val p = params.p
+  implicit val p = di.p
 
   def ioFactory = new FPGASDIOPortIO
-  val tlspi = SPI.attach(SPIAttachParams(params.spiParam, params.controlBus, params.intNode))
+  val tlspi = SPI.attach(SPIAttachParams(di.spiParam, di.controlBus, di.intNode))
   val tlspiSink = tlspi.ioNode.makeSink
 
-  val spiSource = BundleBridgeSource(() => new SPIPortIO(params.spiParam))
+  val spiSource = BundleBridgeSource(() => new SPIPortIO(di.spiParam))
   val spiSink = shell { spiSource.makeSink }
-  val designOutput = tlspi
+  def overlayOutput = SDIOOverlayOutput(spi = tlspi)
 
   InModuleBody {
     val (io, _) = spiSource.out(0)

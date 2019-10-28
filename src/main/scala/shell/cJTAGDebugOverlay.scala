@@ -11,8 +11,17 @@ import freechips.rocketchip.subsystem.{BaseSubsystem, PeripheryBus, PeripheryBus
 import sifive.fpgashells.ip.xilinx._
 import sifive.blocks.devices.pinctrl._
 
-case class cJTAGDebugOverlayParams()(implicit val p: Parameters)
-case object cJTAGDebugOverlayKey extends Field[Seq[DesignOverlay[cJTAGDebugOverlayParams, ModuleValue[FPGAcJTAGSignals]]]](Nil)
+case class cJTAGDebugShellInput(
+  color: String = "",
+  header: String = "",
+  rgb: Bool = false.B,
+  number: Int = 0)
+
+case class cJTAGDebugDesignInput()(implicit val p: Parameters)
+case class cJTAGDebugOverlayOutput(cjtag: ModuleValue[FPGAcJTAGSignals])
+trait cJTAGDebugShellPlacer[Shell] extends ShellPlacer[cJTAGDebugDesignInput, cJTAGDebugShellInput, cJTAGDebugOverlayOutput]
+
+case object cJTAGDebugOverlayKey extends Field[Seq[DesignPlacer[cJTAGDebugDesignInput, cJTAGDebugShellInput, cJTAGDebugOverlayOutput]]](Nil)
 
 class FPGAcJTAGIO extends Bundle {
   // cJTAG
@@ -26,17 +35,17 @@ class FPGAcJTAGSignals extends Bundle {
   val tmsc_pin = new BasePin()
 }
 
-abstract class cJTAGDebugOverlay(
-  val params: cJTAGDebugOverlayParams)
-    extends IOOverlay[FPGAcJTAGIO, ModuleValue[FPGAcJTAGSignals]]
+abstract class cJTAGDebugPlacedOverlay(
+  val name: String, val di: cJTAGDebugDesignInput, val si: cJTAGDebugShellInput)
+    extends IOPlacedOverlay[FPGAcJTAGIO, cJTAGDebugDesignInput, cJTAGDebugShellInput, cJTAGDebugOverlayOutput]
 {
-  implicit val p = params.p
+  implicit val p = di.p
   def ioFactory = new FPGAcJTAGIO
 
   val cjtagDebugSource = BundleBridgeSource(() => new FPGAcJTAGSignals)
   val cjtagDebugSink = shell { cjtagDebugSource.makeSink }
 
-  val designOutput = InModuleBody { cjtagDebugSource.bundle}
+  def overlayOutput = cJTAGDebugOverlayOutput(cjtag = InModuleBody { cjtagDebugSource.bundle} )
 
   shell { InModuleBody {
     cjtagDebugSink.bundle.tckc_pin := IOBUF(io.cjtag_TCKC).asClock

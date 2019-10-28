@@ -136,7 +136,8 @@ class SDC(val name: String)
 }
 
 // An IOOverlay is an Overlay with a public shell-level IO
-trait IOOverlay[IO <: Data, DesignOutput] extends Overlay[DesignOutput]
+
+trait IOPlacedOverlay[IO <: Data, DesignInput, ShellInput, OverlayOutput] extends PlacedOverlay[DesignInput, ShellInput, OverlayOutput]
 {
   def ioFactory: IO
   def shell: IOShell

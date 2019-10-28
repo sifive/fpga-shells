@@ -6,8 +6,8 @@ import freechips.rocketchip.diplomacy._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 
- abstract class I2CXilinxOverlay(params: I2COverlayParams)
-  extends I2COverlay(params)
+ abstract class I2CXilinxPlacedOverlay(name: String, di: I2CDesignInput, si: I2CShellInput)
+  extends I2CPlacedOverlay(name, di, si)
 {
   def shell: XilinxShell
 

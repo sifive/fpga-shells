@@ -8,30 +8,37 @@ import freechips.rocketchip.tilelink._
 import sifive.blocks.devices.chiplink._
 import sifive.fpgashells.clocks._
 
-case class ChipLinkOverlayParams(
-  params:   ChipLinkParams,
+case class ChipLinkShellInput(
+  fmc: String = "")
+
+case class ChipLinkDesignInput(
+  di:   ChipLinkParams,
   txGroup:  ClockGroupNode,
   txData:   ClockSinkNode,
   wrangler: ClockAdapterNode)(
   implicit val p: Parameters)
 
-case object ChipLinkOverlayKey extends Field[Seq[DesignOverlay[ChipLinkOverlayParams, TLNode]]](Nil)
+case class ChipLinkOverlayOutput(node: TLNode)
+case object ChipLinkOverlayKey extends Field[Seq[DesignPlacer[ChipLinkDesignInput, ChipLinkShellInput, ChipLinkOverlayOutput]]](Nil)
+trait ChipLinkShellPlacer[Shell] extends ShellPlacer[ChipLinkDesignInput, ChipLinkShellInput, ChipLinkOverlayOutput]
 
-abstract class ChipLinkOverlay(
-  val params: ChipLinkOverlayParams,
+abstract class ChipLinkPlacedOverlay(
+  val name: String,
+  val di: ChipLinkDesignInput,
+  val si: ChipLinkShellInput,
   val rxPhase: Double,
   val txPhase: Double)
-    extends IOOverlay[WideDataLayerPort, TLNode]
+    extends IOPlacedOverlay[WideDataLayerPort, ChipLinkDesignInput, ChipLinkShellInput, ChipLinkOverlayOutput]
 {
-  implicit val p = params.p
-  val freqMHz  = params.txData.portParams.head.take.get.freqMHz
-  val phaseDeg = params.txData.portParams.head.phaseDeg
+  implicit val p = di.p
+  val freqMHz  = di.txData.portParams.head.take.get.freqMHz
+  val phaseDeg = di.txData.portParams.head.phaseDeg
 
   val sdcRxClockName = s"${name}_b2c_clk"
   val sdcTxClockName = s"${name}_c2b_clk"
 
   def fpgaReset = false
-  val link = LazyModule(new ChipLink(params.params.copy(fpgaReset = fpgaReset)))
+  val link = LazyModule(new ChipLink(di.di.copy(fpgaReset = fpgaReset)))
   val rxPLL   = p(PLLFactoryKey)(feedback = true)
   val ioSink  = shell { link.ioNode.makeSink() }
   val rxI     = shell { ClockSourceNode(sdcRxClockName, freqMHz = freqMHz, jitterPS = 100) }
@@ -39,10 +46,10 @@ abstract class ChipLinkOverlay(
   val rxO     = shell { ClockSinkNode(freqMHz = freqMHz, phaseDeg = rxPhase) }
   val txClock = shell { ClockSinkNode(freqMHz = freqMHz, phaseDeg = phaseDeg + txPhase) }
 
-  rxO := params.wrangler := rxGroup := rxPLL := rxI
-  txClock := params.wrangler := params.txGroup
+  rxO := di.wrangler := rxGroup := rxPLL := rxI
+  txClock := di.wrangler := di.txGroup
 
-  def designOutput = link.node
+  def overlayOutput = ChipLinkOverlayOutput(node = link.node)
   def ioFactory = new WideDataLayerPort(ChipLinkParams(Nil,Nil))
 
   shell { InModuleBody {

@@ -6,8 +6,8 @@ import freechips.rocketchip.diplomacy._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 
-abstract class GPIOXilinxOverlay(params: GPIOOverlayParams)
-  extends GPIOOverlay(params)
+abstract class GPIOXilinxPlacedOverlay(name: String, di: GPIODesignInput, si: GPIOShellInput)
+  extends GPIOPlacedOverlay(name, di, si)
 {
   def shell: XilinxShell
 

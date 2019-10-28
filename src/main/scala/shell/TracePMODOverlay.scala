@@ -9,18 +9,22 @@ import freechips.rocketchip.tilelink.TLBusWrapper
 import freechips.rocketchip.interrupts.IntInwardNode
 import chisel3.experimental._
 
-case class TracePMODOverlayParams()(implicit val p: Parameters)
-case object TracePMODOverlayKey extends Field[Seq[DesignOverlay[TracePMODOverlayParams, ModuleValue[UInt]]]](Nil)
+case class TracePMODShellInput()
+case class TracePMODDesignInput()(implicit val p: Parameters)
+case class TracePMODOverlayOutput(trace: ModuleValue[UInt])
+case object TracePMODOverlayKey extends Field[Seq[DesignPlacer[TracePMODDesignInput, TracePMODShellInput, TracePMODOverlayOutput]]](Nil)
+trait TracePMODShellPlacer[Shell] extends ShellPlacer[TracePMODDesignInput, TracePMODShellInput, TracePMODOverlayOutput]
 
-abstract class TracePMODOverlay(
-  val params: TracePMODOverlayParams)
-    extends IOOverlay[UInt, ModuleValue[UInt]]
+abstract class TracePMODPlacedOverlay(
+  val name: String, val di: TracePMODDesignInput, val si: TracePMODShellInput)
+    extends IOPlacedOverlay[UInt, TracePMODDesignInput, TracePMODShellInput, TracePMODOverlayOutput]
 {
-  implicit val p = params.p
+  implicit val p = di.p
 
   def ioFactory = Output(UInt(8.W))
 
   val pmodTraceSource = BundleBridgeSource(() => UInt(8.W))
   val pmodTraceSink = shell { pmodTraceSource.makeSink }
-  val designOutput = InModuleBody { pmodTraceSource.out(0)._1 }
+  val traceout = InModuleBody { pmodTraceSource.out(0)._1 }
+  def overlayOutput = TracePMODOverlayOutput(trace = traceout )
 }
