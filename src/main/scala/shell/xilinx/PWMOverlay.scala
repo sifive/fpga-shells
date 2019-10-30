@@ -12,7 +12,7 @@ abstract class PWMXilinxPlacedOverlay(name: String, di: PWMDesignInput, si: PWMS
   def shell: XilinxShell
 
   shell { InModuleBody {
-    tlpwmSink.bundle.gpio.zip(io.pwm_gpio).foreach { case(design_pwm, io_pwm) =>
+    pwmSink.bundle.gpio.zip(io.pwm_gpio).foreach { case(design_pwm, io_pwm) =>
       io_pwm := design_pwm 
     }
   } }

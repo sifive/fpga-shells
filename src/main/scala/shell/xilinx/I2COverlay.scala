@@ -12,10 +12,10 @@ import sifive.fpgashells.ip.xilinx._
   def shell: XilinxShell
 
   shell { InModuleBody {
-    UIntToAnalog(tli2cSink.bundle.scl.out, io.scl, tli2cSink.bundle.scl.oe)
-    UIntToAnalog(tli2cSink.bundle.sda.out, io.sda, tli2cSink.bundle.sda.oe)
+    UIntToAnalog(i2cSink.bundle.scl.out, io.scl, i2cSink.bundle.scl.oe)
+    UIntToAnalog(i2cSink.bundle.sda.out, io.sda, i2cSink.bundle.sda.oe)
 
-    tli2cSink.bundle.scl.in := AnalogToUInt(io.scl)
-    tli2cSink.bundle.sda.in := AnalogToUInt(io.sda)
+    i2cSink.bundle.scl.in := AnalogToUInt(io.scl)
+    i2cSink.bundle.sda.in := AnalogToUInt(io.sda)
   } }
 }

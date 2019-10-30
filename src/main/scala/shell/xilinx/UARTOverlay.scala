@@ -11,13 +11,6 @@ abstract class UARTXilinxPlacedOverlay(name: String, di: UARTDesignInput, si: UA
 {
   def shell: XilinxShell
 
-  InModuleBody {
-    val (io, _) = uartSource.out(0)
-    val tluartport = tluartSink.bundle
-    io <> tluartport
-    tluartport.rxd := RegNext(RegNext(io.rxd))
-  }
-
   shell { InModuleBody {
     UIntToAnalog(uartSink.bundle.txd, io.txd, true.B)
     uartSink.bundle.rxd := AnalogToUInt(io.rxd)

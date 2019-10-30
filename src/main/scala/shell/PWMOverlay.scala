@@ -13,12 +13,12 @@ import freechips.rocketchip.interrupts.IntInwardNode
 //another one that makes the controller... remove this
 case class PWMShellInput()
 case class PWMDesignInput(pwmParams: PWMParams, controlBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
-case class PWMOverlayOutput(pwm: TLPWM)
+case class PWMOverlayOutput(pwm: BundleBridgeSource[PWMPortIO])
 case object PWMOverlayKey extends Field[Seq[DesignPlacer[PWMDesignInput, PWMShellInput, PWMOverlayOutput]]](Nil)
 trait PWMShellPlacer[Shell] extends ShellPlacer[PWMDesignInput, PWMShellInput, PWMOverlayOutput]
 
-class ShellPWMPortIO extends Bundle {
-  val pwm_gpio = Vec(4, Analog(1.W))
+class ShellPWMPortIO(ncmp: Int = 4) extends Bundle {
+  val pwm_gpio = Vec(ncmp, Analog(1.W))
 }
 
 abstract class PWMPlacedOverlay(
@@ -27,10 +27,10 @@ abstract class PWMPlacedOverlay(
 {
   implicit val p = di.p
 
-  def ioFactory = new ShellPWMPortIO
+  def ioFactory = new ShellPWMPortIO(di.pwmParams.ncmp)
 
-  val tlpwm = PWM.attach(PWMAttachParams(di.pwmParams, di.controlBus, di.intNode))
-  val tlpwmSink = shell { tlpwm.ioNode.makeSink }
+  val pwmSource = BundleBridgeSource(() => new PWMPortIO(di.pwmParams))
+  val pwmSink = shell { pwmSource.makeSink() }
 
-  def overlayOutput = PWMOverlayOutput(pwm = tlpwm)
+  def overlayOutput = PWMOverlayOutput(pwm = pwmSource)
 }

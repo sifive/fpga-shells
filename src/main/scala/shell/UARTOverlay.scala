@@ -14,7 +14,7 @@ import freechips.rocketchip.interrupts.IntInwardNode
 //move flowcontrol to shell input?? 
 case class UARTShellInput()
 case class UARTDesignInput(uartParams: UARTParams, divInit: Int, controlBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
-case class UARTOverlayOutput(uart: TLUART)
+case class UARTOverlayOutput(uart: BundleBridgeSource[UARTPortIO])
 case object UARTOverlayKey extends Field[Seq[DesignPlacer[UARTDesignInput, UARTShellInput, UARTOverlayOutput]]](Nil)
 trait UARTShellPlacer[Shell] extends ShellPlacer[UARTDesignInput, UARTShellInput, UARTOverlayOutput]
 
@@ -37,10 +37,8 @@ abstract class UARTPlacedOverlay(
 
   def ioFactory = new ShellUARTPortIO(flowControl)
 
-  val tluart = UART.attach(UARTAttachParams(di.uartParams, di.divInit, di.controlBus, di.intNode))
-  val tluartSink = tluart.ioNode.makeSink
   val uartSource = BundleBridgeSource(() => new UARTPortIO())
   val uartSink = shell { uartSource.makeSink }
 
-  def overlayOutput = UARTOverlayOutput(uart = tluart)
+  def overlayOutput = UARTOverlayOutput(uart = uartSource)
 }

@@ -13,7 +13,7 @@ import freechips.rocketchip.interrupts.IntInwardNode
 //This should NOT do the device placement, just return the bundlebridge
 case class I2CShellInput()
 case class I2CDesignInput(i2cParams: I2CParams, controlBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
-case class I2COverlayOutput(i2c: TLI2C)
+case class I2COverlayOutput(i2c: BundleBridgeSource[I2CPort])
 trait I2CShellPlacer[Shell] extends ShellPlacer[I2CDesignInput, I2CShellInput, I2COverlayOutput]
 
 case object I2COverlayKey extends Field[Seq[DesignPlacer[I2CDesignInput, I2CShellInput, I2COverlayOutput]]](Nil)
@@ -31,8 +31,8 @@ abstract class I2CPlacedOverlay(
 
   def ioFactory = new FPGAI2CPortIO
 
-  val tli2c = I2C.attach(I2CAttachParams(di.i2cParams, di.controlBus, di.intNode))
-  val tli2cSink = shell { tli2c.ioNode.makeSink }
+  val i2cSource = BundleBridgeSource(() => new I2CPort)
+  val i2cSink = shell { i2cSource.makeSink() }
 
-  def overlayOutput = I2COverlayOutput(i2c = tli2c)
+  def overlayOutput = I2COverlayOutput(i2c = i2cSource)
 }

@@ -12,7 +12,7 @@ import chisel3.experimental._
 //This one does controller also
 case class SPIFlashShellInput()
 case class SPIFlashDesignInput(spiFlashParam: SPIFlashParams, controlBus: TLBusWrapper, memBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
-case class SPIFlashOverlayOutput(spiflash: TLSPIFlash)
+case class SPIFlashOverlayOutput(spiflash: BundleBridgeSource[SPIPortIO])
 case object SPIFlashOverlayKey extends Field[Seq[DesignPlacer[SPIFlashDesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]]](Nil)
 trait SPIFlashShellPlacer[Shell] extends ShellPlacer[SPIFlashDesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]
 
@@ -30,8 +30,9 @@ abstract class SPIFlashPlacedOverlay(
   implicit val p = di.p
 
   def ioFactory = new ShellSPIFlashPortIO
-  val tlqspi = SPI.attachFlash(SPIFlashAttachParams(di.spiFlashParam, di.controlBus, di.memBus, di.intNode))
 
-  val tlqspiSink = shell { tlqspi.ioNode.makeSink }
-  def overlayOutput = SPIFlashOverlayOutput(spiflash = tlqspi)
+  val spiFlashSource = BundleBridgeSource(() => new SPIPortIO(di.spiFlashParam))
+  val spiFlashSink = shell { spiFlashSource.makeSink }
+
+  def overlayOutput = SPIFlashOverlayOutput(spiflash = spiFlashSource)
 }
