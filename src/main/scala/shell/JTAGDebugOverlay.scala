@@ -17,7 +17,7 @@ case class JTAGDebugOverlayOutput(jtag: ModuleValue[FlippedJTAGIO])
 case object JTAGDebugOverlayKey extends Field[Seq[DesignPlacer[JTAGDebugDesignInput, JTAGDebugShellInput, JTAGDebugOverlayOutput]]](Nil)
 trait JTAGDebugShellPlacer[Shell] extends ShellPlacer[JTAGDebugDesignInput, JTAGDebugShellInput, JTAGDebugOverlayOutput]
 
-class ShellJTAGIO extends Bundle {
+class ShellJTAGIO extends Bundle { // st: should be redefined with an additoinal signal: tdo_en as it's in patch verilog 
   // JTAG
   val jtag_TCK = Analog(1.W)
   val jtag_TMS = Analog(1.W)

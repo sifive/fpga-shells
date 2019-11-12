@@ -8,16 +8,10 @@ import freechips.rocketchip.util.{ElaborationArtefacts}
 
 import sifive.blocks.devices.pinctrl.{BasePin}
 import sifive.fpgashells.clocks._
+import freechips.rocketchip.diplomacy.LazyModule
 
 
-//=============================================================
-// Translation Logic for JTAG Tunneling which translates Sifive 
-// coreip JTAG protocol (used for internal debugging with gdb and openocd) 
-// to BSCAN JTAG protocol (used for Xilinx FPGA bitstream programming)
-// Note that an overaly should connect coreip JTAG protocols to 
-// Xilinx BSCAN resource using this module JTAGTUNNEL
-// ============================================================
- 
+
 class JTAGTUNNEL extends BlackBox { 
 //class JTAGTUNNEL extends BlackBox with HasBlackBoxInline { 
 //class JTAGTUNNEL extends Module { 
@@ -141,21 +135,18 @@ class JTAGTUNNEL extends BlackBox {
       |endmodule 
     """.stripMargin) 
 }
+
 object JTAGTUNNEL { 
  
-    def apply (DUT_TCK: BasePin, DUT_TMS: BasePin, DUT_TDI: BasePin, DUT_TDO: BasePin): Unit = { 
-      val inst_jtag_tunnel = Module(new JTAGTUNNEL()) 
-      DUT_TCK.i.ival := inst_jtag_tunnel.io.jtag_tck 
-      DUT_TMS.i.ival := inst_jtag_tunnel.io.jtag_tms 
-      DUT_TDI.i.ival := inst_jtag_tunnel.io.jtag_tdi 
-      //attach(inst_jtag_tunnel.io.jtag_tdo, DUT_TDO) 
-      inst_jtag_tunnel.io.jtag_tdo := DUT_TDO.o.oval 
-      inst_jtag_tunnel.io.jtag_tdo_en := DUT_TDO.o.oe 
+    def apply (DUT_TCK: Bool, DUT_TMS: Bool, DUT_TDI: Bool, DUT_TDO:Bool, DUT_TDO_en: Bool): Unit = { 
+      val inst_jtag_tunnel = Module(new JTAGTUNNEL())
+      DUT_TCK := inst_jtag_tunnel.io.jtag_tck 
+      DUT_TMS := inst_jtag_tunnel.io.jtag_tms 
+      DUT_TDI := inst_jtag_tunnel.io.jtag_tdi
+      inst_jtag_tunnel.io.jtag_tdo := DUT_TDO 
+      inst_jtag_tunnel.io.jtag_tdo_en := DUT_TDO_en
   }
 }
-
-
-//======================================
 
 //========================================================================
 // This file contains common devices used by our Xilinx FPGA flows and some

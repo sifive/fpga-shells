@@ -166,6 +166,14 @@ class ButtonArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInpu
   def place(designInput: ButtonDesignInput) = new ButtonArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
+//TODO: JTAG Tunneling Overlay (JTAG translation logic from Xilinx BSCAN to Coreip
+class JTAGDebugBScanArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: JTAGDebugBScanDesignInput, val shellInput: JTAGDebugBScanShellInput)
+ extends JTAGDebugBScanXilinxPlacedOverlay(name, designInput, shellInput)
+class JTAGDebugBScanArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: JTAGDebugBScanShellInput)(implicit val valName: ValName)
+  extends JTAGDebugBScanShellPlacer[Arty100TShellBasicOverlays] {
+  def place(designInput: JTAGDebugBScanDesignInput) = new JTAGDebugBScanArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
+}
+
 // PMOD JD used for JTAG
 class JTAGDebugArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: JTAGDebugDesignInput, val shellInput: JTAGDebugShellInput)
   extends JTAGDebugXilinxPlacedOverlay(name, designInput, shellInput)
@@ -289,6 +297,7 @@ abstract class Arty100TShellBasicOverlays()(implicit p: Parameters) extends Seri
   val cjtag     = Overlay(cJTAGDebugOverlayKey, new cJTAGDebugArtyShellPlacer(this, cJTAGDebugShellInput()))
   val spi_flash = Overlay(SPIFlashOverlayKey, new SPIFlashArtyShellPlacer(this, SPIFlashShellInput()))
   val cts_reset = Overlay(CTSResetOverlayKey, new CTSResetArtyShellPlacer(this, CTSResetShellInput()))
+  val jtagBScan = Overlay(JTAGDebugBScanOverlayKey, new JTAGDebugBScanArtyOverlay(this, JTAGDebugBScanShellInput()))
 
   def LEDMetas(i: Int): LEDShellInput =
     LEDShellInput(
