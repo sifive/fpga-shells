@@ -120,10 +120,18 @@ class SwitchArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String,
 class ButtonArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: ButtonOverlayParams)
   extends ButtonXilinxOverlay(params, packagePins = Seq("D9", "C9", "B9", "B8"))
 
-// PMOD JD used for JTAG
+
+//TODO: JTAG Tunneling Overlay (JTAG translation logic from Xilinx BSCAN to Coreip
+class JTAGDebugBScanArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: JTAGDebugBScanOverlayParams)
+ extends JTAGDebugBScanXilinxOverlay(params)
+
+
+ // PMOD JD used for JTAG
 class JTAGDebugArtyOverlay(val shell: Arty100TShellBasicOverlays, val name: String, params: JTAGDebugOverlayParams)
   extends JTAGDebugXilinxOverlay(params)
 {
+
+
   shell { InModuleBody {
     shell.sdc.addClock("JTCK", IOPin(io.jtag_TCK), 10)
     shell.sdc.addGroup(clocks = Seq("JTCK"))
@@ -218,6 +226,7 @@ abstract class Arty100TShellBasicOverlays()(implicit p: Parameters) extends Seri
   val uart      = Overlay(UARTOverlayKey)      (new UARTArtyOverlay       (_, _, _))
   val sdio      = Overlay(SDIOOverlayKey)      (new SDIOArtyOverlay       (_, _, _))
   val jtag      = Overlay(JTAGDebugOverlayKey) (new JTAGDebugArtyOverlay  (_, _, _))
+  val jtagBScan = Overlay(JTAGDebugBScanOverlayKey) (new JTAGDebugBScanArtyOverlay(_, _, _))
   val cjtag     = Overlay(cJTAGDebugOverlayKey) (new cJTAGDebugArtyOverlay  (_, _, _))
   val spi_flash = Overlay(SPIFlashOverlayKey)  (new SPIFlashArtyOverlay   (_, _, _))
 }

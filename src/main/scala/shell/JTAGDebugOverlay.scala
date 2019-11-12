@@ -14,7 +14,7 @@ import sifive.fpgashells.ip.xilinx._
 case class JTAGDebugOverlayParams()(implicit val p: Parameters)
 case object JTAGDebugOverlayKey extends Field[Seq[DesignOverlay[JTAGDebugOverlayParams, ModuleValue[FlippedJTAGIO]]]](Nil)
 
-class ShellJTAGIO extends Bundle {
+class ShellJTAGIO extends Bundle { // st: should be redefined with an additoinal signal: tdo_en as it's in patch verilog 
   // JTAG
   val jtag_TCK = Analog(1.W)
   val jtag_TMS = Analog(1.W)
