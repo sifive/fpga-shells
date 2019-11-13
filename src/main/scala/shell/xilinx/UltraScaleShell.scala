@@ -113,7 +113,7 @@ abstract class PCIeUltraScalePlacedOverlay(name: String, di: PCIeDesignInput, si
     pcie.module.io.clocks.sys_clk_gt := b.O
 
     shell.sdc.addGroup(clocks = Seq(s"${name}_ref_clk"), pins = Seq(pcie.imp.module.blackbox.io.axi_aclk))
-    shell.sdc.addGroup(pins = Seq(pcie.imp.module.blackbox.io.sys_clk_gt))
+//    shell.sdc.addGroup(pins = Seq(pcie.imp.module.blackbox.io.sys_clk_gt))
     shell.sdc.addAsyncPath(Seq(pcie.imp.module.blackbox.io.axi_aresetn))
   }
 

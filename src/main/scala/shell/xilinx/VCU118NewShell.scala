@@ -63,10 +63,10 @@ class SDIOVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String,
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
       shell.xdc.addIOStandard(io, "LVCMOS18")
-      shell.xdc.addIOB(io)
     } }
     packagePinsWithPackageIOs drop 1 foreach { case (pin, io) => {
       shell.xdc.addPullup(io)
+      shell.xdc.addIOB(io)
     } }
   } }
 }
