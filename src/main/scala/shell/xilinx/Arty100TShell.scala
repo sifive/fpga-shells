@@ -105,6 +105,9 @@ class GPIOPMODArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: Str
       shell.xdc.addPackagePin(io, pin)
       shell.xdc.addIOStandard(io, "LVCMOS33")
     } }
+    packagePinsWithPackageIOs drop 7 foreach { case (pin, io) => {
+      shell.xdc.addPullup(io)
+    } }
   } }
 }
 class GPIOPMODArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: GPIOPMODShellInput)(implicit val valName: ValName)
@@ -265,6 +268,14 @@ class DDRArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: 
   def place(designInput: DDRDesignInput) = new DDRArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
+//Core to shell external resets
+class CTSResetArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: CTSResetDesignInput, val shellInput: CTSResetShellInput)
+  extends CTSResetPlacedOverlay(name, designInput, shellInput)
+class CTSResetArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: CTSResetShellInput)(implicit val valName: ValName)
+  extends CTSResetShellPlacer[Arty100TShellBasicOverlays] {
+  def place(designInput: CTSResetDesignInput) = new CTSResetArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
+}
+
 
 abstract class Arty100TShellBasicOverlays()(implicit p: Parameters) extends Series7Shell {
   // Order matters; ddr depends on sys_clock
@@ -278,6 +289,7 @@ abstract class Arty100TShellBasicOverlays()(implicit p: Parameters) extends Seri
   val jtag      = Overlay(JTAGDebugOverlayKey, new JTAGDebugArtyShellPlacer(this, JTAGDebugShellInput()))
   val cjtag     = Overlay(cJTAGDebugOverlayKey, new cJTAGDebugArtyShellPlacer(this, cJTAGDebugShellInput()))
   val spi_flash = Overlay(SPIFlashOverlayKey, new SPIFlashArtyShellPlacer(this, SPIFlashShellInput()))
+  val cts_reset = Overlay(CTSResetOverlayKey, new CTSResetArtyShellPlacer(this, CTSResetShellInput()))
 
   def LEDMetas(i: Int): LEDShellInput =
     LEDShellInput(
@@ -333,13 +345,18 @@ class Arty100TShellGPIOPMOD()(implicit p: Parameters) extends Arty100TShellBasic
 
     val reset_ibuf = Module(new IBUF)
     reset_ibuf.io.I := reset
+
     val sysclk: Clock = sys_clock.get() match {
       case Some(x: SysClockArtyPlacedOverlay) => x.clock
     }
     val powerOnReset = PowerOnResetFPGAOnly(sysclk)
     sdc.addAsyncPath(Seq(powerOnReset))
+    val ctsReset: Bool = cts_reset.get() match {
+      case Some(x: CTSResetArtyPlacedOverlay) => x.designInput.rst
+      case None => false.B
+    }
 
     pllReset :=
-      (!reset_ibuf.io.O) || powerOnReset //Arty100T is active low reset
+      (!reset_ibuf.io.O) || powerOnReset || ctsReset //Arty100T is active low reset
   }
 }
