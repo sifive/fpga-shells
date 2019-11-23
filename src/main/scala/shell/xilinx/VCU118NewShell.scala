@@ -449,6 +449,5 @@ class VCU118Shell()(implicit p: Parameters) extends VCU118ShellBasicOverlays
     }
 
     pllReset := (reset_ibuf.io.O || powerOnReset || ereset)
-    val hi = "hi"
   }
 }
