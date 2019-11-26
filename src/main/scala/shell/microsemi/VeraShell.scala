@@ -2,7 +2,7 @@
 package sifive.fpgashells.shell.microsemi
 
 import chisel3._
-import chisel3.experimental.{IO, withClockAndReset}
+import chisel3.experimental.IO
 import freechips.rocketchip.config._
 import freechips.rocketchip.util._
 import freechips.rocketchip.diplomacy._

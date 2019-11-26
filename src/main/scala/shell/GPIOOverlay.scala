@@ -7,7 +7,7 @@ import freechips.rocketchip.diplomacy._
 import sifive.blocks.devices.gpio._
 import freechips.rocketchip.tilelink.TLBusWrapper
 import freechips.rocketchip.interrupts.IntInwardNode
-import chisel3.experimental._
+import chisel3.experimental.Analog
 
 //Might delete later...
 //Should GPIO be an overlay? Probably not, PinOverlay might take over this use case
