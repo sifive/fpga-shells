@@ -10,7 +10,8 @@ import freechips.rocketchip.interrupts._
 import freechips.rocketchip.util.{ElaborationArtefacts}
 
 
-import chisel3.core.{Input, Output, attach}
+import chisel3.{Input, Output}
+import chisel3.experimental.attach
 
 // Black Box for Microsemi PolarFire PCIe root port
 

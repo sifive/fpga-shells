@@ -2,7 +2,7 @@
 package sifive.fpgashells.shell.xilinx
 
 import chisel3._
-import chisel3.experimental.{attach, Analog, IO, withClockAndReset}
+import chisel3.experimental.{attach, Analog, IO}
 import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._

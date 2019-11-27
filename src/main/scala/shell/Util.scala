@@ -1,7 +1,7 @@
 package sifive.fpgashells.shell
 
 import chisel3._
-import chisel3.experimental._
+import chisel3.experimental.{Analog, attach, IntParam}
 
 class AnalogToUInt(w: Int = 1) extends BlackBox(Map("WIDTH" -> IntParam(w))) {
   val io = IO(new Bundle {

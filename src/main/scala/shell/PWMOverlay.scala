@@ -2,7 +2,7 @@
 package sifive.fpgashells.shell
 
 import chisel3._
-import chisel3.experimental._
+import chisel3.experimental.Analog
 import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
 import sifive.blocks.devices.pwm._
