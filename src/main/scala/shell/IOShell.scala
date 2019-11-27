@@ -2,8 +2,7 @@
 package sifive.fpgashells.shell
 
 import chisel3._
-import chisel3.experimental.IO
-import chisel3.core.DataMirror
+import chisel3.experimental.{DataMirror, IO}
 import freechips.rocketchip.config._
 import freechips.rocketchip.util._
 import freechips.rocketchip.diplomacy._
@@ -28,7 +27,7 @@ case class IOPin(element: Element, index: Int = 0)
   }
 
   def isOutput = {
-    import chisel3.core.ActualDirection._
+    import chisel3.ActualDirection._
     DataMirror.directionOf(element) match {
       case Output => true
       case Input => false
@@ -38,7 +37,7 @@ case class IOPin(element: Element, index: Int = 0)
   }
 
   def isInput = {
-    import chisel3.core.ActualDirection._
+    import chisel3.ActualDirection._
     DataMirror.directionOf(element) match {
       case Output => false
       case Input => true
