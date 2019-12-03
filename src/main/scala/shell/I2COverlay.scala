@@ -11,7 +11,7 @@ import freechips.rocketchip.tilelink.TLBusWrapper
 import freechips.rocketchip.interrupts.IntInwardNode
 
 //This should NOT do the device placement, just return the bundlebridge
-case class I2CShellInput()
+case class I2CShellInput(number: Int = 0)
 case class I2CDesignInput(i2cParams: I2CParams, controlBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
 case class I2COverlayOutput(i2c: TLI2C)
 trait I2CShellPlacer[Shell] extends ShellPlacer[I2CDesignInput, I2CShellInput, I2COverlayOutput]

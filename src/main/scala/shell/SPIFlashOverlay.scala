@@ -10,7 +10,7 @@ import freechips.rocketchip.interrupts.IntInwardNode
 import chisel3.experimental.Analog
 
 //This one does controller also
-case class SPIFlashShellInput()
+case class SPIFlashShellInput(number: Int = 0)
 case class SPIFlashDesignInput(spiFlashParam: SPIFlashParams, controlBus: TLBusWrapper, memBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
 case class SPIFlashOverlayOutput(spiflash: TLSPIFlash)
 case object SPIFlashOverlayKey extends Field[Seq[DesignPlacer[SPIFlashDesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]]](Nil)

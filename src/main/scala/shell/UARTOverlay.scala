@@ -12,7 +12,7 @@ import freechips.rocketchip.interrupts.IntInwardNode
 
 //dont make the controller here
 //move flowcontrol to shell input?? 
-case class UARTShellInput()
+case class UARTShellInput(number: Int = 0)
 case class UARTDesignInput(uartParams: UARTParams, divInit: Int, controlBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
 case class UARTOverlayOutput(uart: TLUART)
 case object UARTOverlayKey extends Field[Seq[DesignPlacer[UARTDesignInput, UARTShellInput, UARTOverlayOutput]]](Nil)
