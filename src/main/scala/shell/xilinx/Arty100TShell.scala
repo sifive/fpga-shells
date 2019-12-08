@@ -228,7 +228,7 @@ class DDRArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, 
   ddrClk1 := di.wrangler := ddrGroup := di.corePLL
   ddrClk2 := di.wrangler := ddrGroup
   
-  val migParams = XilinxArty100TMIGParams(address = AddressSet.misaligned(di..baseAddress, size))
+  val migParams = XilinxArty100TMIGParams(address = AddressSet.misaligned(di.baseAddress, size))
   val mig = LazyModule(new XilinxArty100TMIG(migParams))
   val ioNode = BundleBridgeSource(() => mig.module.io.cloneType)
   val topIONode = shell { ioNode.makeSink() }
