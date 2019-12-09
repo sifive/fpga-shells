@@ -94,6 +94,10 @@ proc load_vsrc_manifest {obj vsrc_manifest} {
       lappend relative_files [file join [file dirname $vsrc_manifest] $path]
     }
   }
+  if {[info exists ::env(WAKE_IP_RESOURCE_FILES)]} {
+    set resources [split $::env(WAKE_IP_RESOURCE_FILES) :]
+    set relative_files [list {*}$relative_files {*}$resources]
+  }
   add_files -norecurse -fileset $obj {*}$relative_files
   close $fp
 }
