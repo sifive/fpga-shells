@@ -11,17 +11,22 @@ import freechips.rocketchip.devices.debug._
 import freechips.rocketchip.subsystem.{BaseSubsystem, PeripheryBus, PeripheryBusKey}
 import sifive.fpgashells.ip.xilinx._
 
-case class  JTAGDebugBScanOverlayParams()(implicit val p: Parameters)
+case class JTAGDebugBScanShellInput()
+case class JTAGDebugBScanDesignInput()(implicit val p: Parameters)
+case class JTAGDebugBScanOverlayOutput(jtag: ModuleValue[FlippedJTAGIO])
+case object JTAGDebugBScanOverlayKey extends Field[Seq[DesignPlacer[JTAGDebugDesignInput, JTAGDebugShellInput, JTAGDebugOverlayOutput]]](Nil)
+trait JTAGDebugBScanShellPlacer[Shell] extends ShellPlacer[JTAGDebugDesignInput, JTAGDebugShellInput, JTAGDebugOverlayOutput]
+
 case object JTAGDebugBScanOverlayKey extends Field[Seq[DesignOverlay[JTAGDebugBScanOverlayParams, ModuleValue[FlippedJTAGIO]]]](Nil)
 
-abstract class JTAGDebugBScanOverlay(
-  val params: JTAGDebugBScanOverlayParams)
-    extends Overlay[ModuleValue[FlippedJTAGIO]]
+abstract class JTAGDebugBScanPlacedOverlay(
+  val name: String, val di: JTAGDebugBScanDesignInput, val si: JTAGDebugBScanShellInput)
+    extends PlacedOverlay[ModuleValue[FlippedJTAGIO]]
 {
-  implicit val p = params.p
+  implicit val p = di.p
 
   val jtagDebugSource = BundleBridgeSource(() => new FlippedJTAGIO())
   val jtagDebugSink = shell { jtagDebugSource.makeSink }
-
-  val designOutput = InModuleBody { jtagDebugSource.bundle}
+  val jtout = InModuleBody { jtagDebugSource.bundle}
+  def overlayOutput = JTAGDebugOverlayOutput(jtag = jtout)
 }
