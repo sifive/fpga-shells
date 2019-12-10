@@ -14,19 +14,18 @@ import sifive.fpgashells.ip.xilinx._
 case class JTAGDebugBScanShellInput()
 case class JTAGDebugBScanDesignInput()(implicit val p: Parameters)
 case class JTAGDebugBScanOverlayOutput(jtag: ModuleValue[FlippedJTAGIO])
-case object JTAGDebugBScanOverlayKey extends Field[Seq[DesignPlacer[JTAGDebugDesignInput, JTAGDebugShellInput, JTAGDebugOverlayOutput]]](Nil)
-trait JTAGDebugBScanShellPlacer[Shell] extends ShellPlacer[JTAGDebugDesignInput, JTAGDebugShellInput, JTAGDebugOverlayOutput]
-
-case object JTAGDebugBScanOverlayKey extends Field[Seq[DesignOverlay[JTAGDebugBScanOverlayParams, ModuleValue[FlippedJTAGIO]]]](Nil)
+case object JTAGDebugBScanOverlayKey extends Field[Seq[DesignPlacer[JTAGDebugBScanDesignInput, JTAGDebugBScanShellInput, JTAGDebugBScanOverlayOutput]]](Nil)
+trait JTAGDebugBScanShellPlacer[Shell] extends ShellPlacer[JTAGDebugBScanDesignInput, JTAGDebugBScanShellInput, JTAGDebugBScanOverlayOutput]
 
 abstract class JTAGDebugBScanPlacedOverlay(
   val name: String, val di: JTAGDebugBScanDesignInput, val si: JTAGDebugBScanShellInput)
-    extends PlacedOverlay[ModuleValue[FlippedJTAGIO]]
+    extends PlacedOverlay[JTAGDebugBScanDesignInput, JTAGDebugBScanShellInput, JTAGDebugBScanOverlayOutput]
 {
   implicit val p = di.p
+  def shell: Shell
 
   val jtagDebugSource = BundleBridgeSource(() => new FlippedJTAGIO())
   val jtagDebugSink = shell { jtagDebugSource.makeSink }
   val jtout = InModuleBody { jtagDebugSource.bundle}
-  def overlayOutput = JTAGDebugOverlayOutput(jtag = jtout)
+  def overlayOutput = JTAGDebugBScanOverlayOutput(jtag = jtout)
 }

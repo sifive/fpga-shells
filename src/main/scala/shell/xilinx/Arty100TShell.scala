@@ -297,7 +297,7 @@ abstract class Arty100TShellBasicOverlays()(implicit p: Parameters) extends Seri
   val cjtag     = Overlay(cJTAGDebugOverlayKey, new cJTAGDebugArtyShellPlacer(this, cJTAGDebugShellInput()))
   val spi_flash = Overlay(SPIFlashOverlayKey, new SPIFlashArtyShellPlacer(this, SPIFlashShellInput()))
   val cts_reset = Overlay(CTSResetOverlayKey, new CTSResetArtyShellPlacer(this, CTSResetShellInput()))
-  val jtagBScan = Overlay(JTAGDebugBScanOverlayKey, new JTAGDebugBScanArtyOverlay(this, JTAGDebugBScanShellInput()))
+  val jtagBScan = Overlay(JTAGDebugBScanOverlayKey, new JTAGDebugBScanArtyShellPlacer(this, JTAGDebugBScanShellInput()))
 
   def LEDMetas(i: Int): LEDShellInput =
     LEDShellInput(
