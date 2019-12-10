@@ -30,6 +30,10 @@ trait DesignOverlay[DesignInput, DesignOutput] {
   def apply(input: DesignInput): DesignOutput
 }
 
+case class FPGAParams (
+  hasJtagBSCAN : Boolean = false
+)
+
 abstract class Shell()(implicit p: Parameters) extends LazyModule with LazyScope
 {
   private var overlays = Parameters.empty
