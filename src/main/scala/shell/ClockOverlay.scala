@@ -59,3 +59,23 @@ abstract class SingleEndedClockInputPlacedOverlay(
   } }
   def overlayOutput = ClockInputOverlayOutput(node)
 }
+
+abstract class SingleEndedClockBundleInputPlacedOverlay(
+  val name: String, val di: ClockInputDesignInput, val si: ClockInputShellInput)
+    extends IOPlacedOverlay[ClockBundle, ClockInputDesignInput, ClockInputShellInput, ClockInputOverlayOutput]
+{
+  implicit val p = di.p
+  def node: ClockSourceNode
+
+  def ioFactory = Input(new ClockBundle(ClockBundleParameters()))
+
+  val clock = shell { InModuleBody {
+    val (bundle, edge) = node.out.head
+    bundle.clock
+  } }
+  val reset = shell { InModuleBody {
+    val (bundle, edge) = node.out.head
+    bundle.reset
+  } }
+  def overlayOutput = ClockInputOverlayOutput(node)
+}
