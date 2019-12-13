@@ -56,14 +56,14 @@ abstract class XilinxShell()(implicit p: Parameters) extends IOShell
       |set shell_vivado_idx [string last ".shell.vivado.tcl" $shell_vivado_tcl]
       |add_files -fileset [current_fileset -constrset] [string replace $shell_vivado_tcl $shell_vivado_idx 999 ".shell.sdc"]
       |add_files -fileset [current_fileset -constrset] [string replace $shell_vivado_tcl $shell_vivado_idx 999 ".shell.xdc"]
-      |set hca_constr [string replace $shell_vivado_tcl $shell_vivado_idx 999 ".hca.shell.xdc"]
-      |if [file exist $hca_constr] {
-      |  add_files -fileset [current_fileset -constrset] [string replace $shell_vivado_tcl $shell_vivado_idx 999 ".hca.shell.xdc"]
+      |set extra_constr [string replace $shell_vivado_tcl $shell_vivado_idx 999 ".extra.shell.xdc"]
+      |if [file exist $extra_constr] {
+      |  add_files -fileset [current_fileset -constrset] [string replace $shell_vivado_tcl $shell_vivado_idx 999 ".extra.shell.xdc"]
       |}
       |""".stripMargin)
 
-    //Including the hce .xdc file in this way is a bit of a hack since ElaborationArtefacts can't append, and this tcl will only read specific
-    // files. The long term solution is to make an overlay for hca that does nothing but include .xdc constraints
+    //Including the extra .xdc file in this way is a bit of a hack since ElaborationArtefacts can't append, and this tcl will only read specific
+    // files. The long term solution is to make an overlay that does nothing but include .xdc constraints
 }
 
 abstract class Series7Shell()(implicit p: Parameters) extends XilinxShell
