@@ -7,13 +7,14 @@ import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
 import sifive.blocks.devices.uart._
 import freechips.rocketchip.subsystem.{BaseSubsystem, PeripheryBus, PeripheryBusKey}
+import freechips.rocketchip.prci._
 import freechips.rocketchip.tilelink.TLBusWrapper
 import freechips.rocketchip.interrupts.IntInwardNode
 
 //dont make the controller here
 //move flowcontrol to shell input?? 
 case class UARTShellInput()
-case class UARTDesignInput(uartParams: UARTParams, divInit: Int, controlBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
+case class UARTDesignInput(uartParams: UARTParams, divInit: Int, controlBus: TLBusWrapper, intNode: IntInwardNode, clockNode: ClockGroupBroadcastNode)(implicit val p: Parameters)
 case class UARTOverlayOutput(uart: TLUART)
 case object UARTOverlayKey extends Field[Seq[DesignPlacer[UARTDesignInput, UARTShellInput, UARTOverlayOutput]]](Nil)
 trait UARTShellPlacer[Shell] extends ShellPlacer[UARTDesignInput, UARTShellInput, UARTOverlayOutput]
@@ -37,7 +38,7 @@ abstract class UARTPlacedOverlay(
 
   def ioFactory = new ShellUARTPortIO(flowControl)
 
-  val tluart = UART.attach(UARTAttachParams(di.uartParams, di.divInit, di.controlBus, di.intNode))
+  val tluart = UART.attach(UARTAttachParams(di.uartParams, di.divInit, di.controlBus, di.intNode, di.clockNode))
   val tluartSink = tluart.ioNode.makeSink
   val uartSource = BundleBridgeSource(() => new UARTPortIO())
   val uartSink = shell { uartSource.makeSink }
