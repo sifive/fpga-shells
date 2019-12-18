@@ -26,6 +26,9 @@ while {[llength $argv]} {
     -post-impl-debug-tcl {
       set argv [lassign $argv[set argv {}] post_impl_debug_tcl]
     }
+    -env-var-srcs {
+      set argv [lassign $argv[set argv {}] env_var_srcs]
+    }
     default {
       return -code error [list {unknown option} $flag]
     }
@@ -94,9 +97,11 @@ proc load_vsrc_manifest {obj vsrc_manifest} {
       lappend relative_files [file join [file dirname $vsrc_manifest] $path]
     }
   }
-  if {[info exists ::env(WAKE_IP_RESOURCE_FILES)]} {
-    set resources [split $::env(WAKE_IP_RESOURCE_FILES) :]
-    set relative_files [list {*}$relative_files {*}$resources]
+  if {[info exists env_var_srcs)]} {
+    if {[info exists ::env($env_var_srcs)]} {
+      set resources [split $::env($env_var_srcs) :]
+      set relative_files [list {*}$relative_files {*}$resources]
+    }
   }
   add_files -norecurse -fileset $obj {*}$relative_files
   close $fp
