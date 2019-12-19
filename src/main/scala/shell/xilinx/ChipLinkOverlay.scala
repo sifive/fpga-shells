@@ -61,13 +61,13 @@ abstract class ChipLinkXilinxPlacedOverlay(name: String, di: ChipLinkDesignInput
       minOutput = -0.65 - txMargin,
       maxOutput =  1.85 + txMargin)
 
-    shell.sdc.addClock(sdcRxClockName, io.b2c.clk, rxEdge.clock.freqMHz, 0.3)
-    shell.sdc.addDerivedClock(sdcTxClockName, oddr.io.C.sdcPin, io.c2b.clk)
+    shell.sdc.addClock(s"${name}_b2c_clock", io.b2c.clk, rxEdge.clock.freqMHz, 0.3)
+    shell.sdc.addDerivedClock(s"${name}_c2b_clock", oddr.io.C, io.c2b.clk)
     IOPin.of(io).filter(p => p.isInput  && !(p.element eq io.b2c.clk)).foreach { e =>
-      shell.sdc.addIOTiming(e, sdcRxClockName, timing)
+      shell.sdc.addIOTiming(e, s"${name}_b2c_clock", timing)
     }
     IOPin.of(io).filter(p => p.isOutput && !(p.element eq io.c2b.clk)).foreach { e =>
-      shell.sdc.addIOTiming(e, sdcTxClockName, timing)
+      shell.sdc.addIOTiming(e, s"${name}_c2b_clock", timing)
     }
   } }
 }

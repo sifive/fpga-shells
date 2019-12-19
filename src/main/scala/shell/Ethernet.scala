@@ -44,6 +44,8 @@ abstract class EthernetPlacedOverlay(
 {
   implicit val p = di.p
 
+  val pcsPads = InModuleBody { Wire(new EthernetPCS) }
+
   def ioFactory = new EthernetPads
-  def overlayOutput = EthernetOverlayOutput(eth = InModuleBody { Wire(new EthernetPCS) } )
+  def overlayOutput = EthernetOverlayOutput(eth = pcsPads)
 }

@@ -18,7 +18,7 @@ import sifive.fpgashells.ip.xilinx.xxv_ethernet._
 class SysClockVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: ClockInputDesignInput, val shellInput: ClockInputShellInput)
   extends LVDSClockInputXilinxPlacedOverlay(name, designInput, shellInput) 
 {
-  val node = shell { ClockSourceNode(name, freqMHz = 250, jitterPS = 50) }
+  val node = shell { ClockSourceNode(freqMHz = 250, jitterPS = 50)(ValName(name)) }
 
   shell { InModuleBody {
     shell.xdc.addPackagePin(io.p, "E12")
@@ -35,7 +35,7 @@ class SysClockVCU118ShellPlacer(shell: VCU118ShellBasicOverlays, val shellInput:
 
 class RefClockVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: ClockInputDesignInput, val shellInput: ClockInputShellInput)
   extends LVDSClockInputXilinxPlacedOverlay(name, designInput, shellInput) {
-  val node = shell { ClockSourceNode(name, freqMHz = 125, jitterPS = 50) }
+  val node = shell { ClockSourceNode(freqMHz = 125, jitterPS = 50)(ValName(name)) }
 
   shell { InModuleBody {
     shell.xdc.addPackagePin(io.p, "AY24")
@@ -63,10 +63,10 @@ class SDIOVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String,
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
       shell.xdc.addIOStandard(io, "LVCMOS18")
-      shell.xdc.addIOB(io)
     } }
     packagePinsWithPackageIOs drop 1 foreach { case (pin, io) => {
       shell.xdc.addPullup(io)
+      shell.xdc.addIOB(io)
     } }
   } }
 }
@@ -260,12 +260,11 @@ class DDRVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, 
 {
   val size = p(VCU118DDRSize)
 
-  val sdcClockName = "userClock1"
-  val migParams = XilinxVCU118MIGParams(address = AddressSet.misaligned(designInput.baseAddress, size))
+  val migParams = XilinxVCU118MIGParams(address = AddressSet.misaligned(di.baseAddress, size))
   val mig = LazyModule(new XilinxVCU118MIG(migParams))
   val ioNode = BundleBridgeSource(() => mig.module.io.cloneType)
   val topIONode = shell { ioNode.makeSink() }
-  val ddrUI     = shell { ClockSourceNode(sdcClockName, freqMHz = 200) }
+  val ddrUI     = shell { ClockSourceNode(freqMHz = 200) }
   val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
   areset := designInput.wrangler := ddrUI
 
@@ -303,7 +302,7 @@ class DDRVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, 
     (IOPin.of(io) zip allddrpins) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
   } }
 
-  shell.sdc.addGroup(clocks = Seq("userClock1"))
+  shell.sdc.addGroup(pins = Seq(mig.island.module.blackbox.io.c0_ddr4_ui_clk))
 }
 class DDRVCU118ShellPlacer(shell: VCU118ShellBasicOverlays, val shellInput: DDRShellInput)(implicit val valName: ValName)
   extends DDRShellPlacer[VCU118ShellBasicOverlays] {

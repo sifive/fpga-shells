@@ -61,8 +61,7 @@ abstract class EthernetUltraScalePlacedOverlay(name: String, di: EthernetDesignI
     pcsIO.tx_reset := clocks.user_tx_reset_0
 
     // refclk_p is added by the IP xdc's anonymous create_clock [get_pins name_refclk_p]
-    //shell.sdc.addGroup(clocks = Seq(s"${name}_refclk_p"), pins = Seq(pcs.module.blackbox.io.tx_mii_clk_0))
-    shell.sdc.addGroup(clocks = Seq(s"${name}_refclk_p"))
+    shell.sdc.addGroup(clocks = Seq(s"${name}_refclk_p"), pins = Seq(pcs.module.blackbox.io.tx_mii_clk_0))
   }
 
   shell { InModuleBody {
@@ -81,11 +80,10 @@ abstract class PCIeUltraScalePlacedOverlay(name: String, di: PCIeDesignInput, si
 {
   def shell: UltraScaleShell
 
-  val sdcClockName = "axiClock"
   val pcie      = LazyModule(new XDMA(config))
   val bridge    = BundleBridgeSource(() => new XDMABridge(config.lanes))
   val topBridge = shell { bridge.makeSink() }
-  val axiClk    = ClockSourceNode(sdcClockName, freqMHz = config.axiMHz)
+  val axiClk    = ClockSourceNode(freqMHz = config.axiMHz)
   val areset    = ClockSinkNode(Seq(ClockSinkParameters()))
   areset := di.wrangler := axiClk
 
@@ -114,8 +112,8 @@ abstract class PCIeUltraScalePlacedOverlay(name: String, di: PCIeDesignInput, si
     pcie.module.io.clocks.sys_clk    := b.ODIV2
     pcie.module.io.clocks.sys_clk_gt := b.O
 
-    shell.sdc.addGroup(clocks = Seq(s"${name}_ref_clk"))
-    //shell.sdc.addGroup(clocks = Seq(s"${name}_ref_clk"), pins = Seq(pcie.imp.module.blackbox.io.axi_aclk))
+    shell.sdc.addGroup(clocks = Seq(s"${name}_ref_clk"), pins = Seq(pcie.imp.module.blackbox.io.axi_aclk))
+//    shell.sdc.addGroup(pins = Seq(pcie.imp.module.blackbox.io.sys_clk_gt))
     shell.sdc.addAsyncPath(Seq(pcie.imp.module.blackbox.io.axi_aresetn))
   }
 
