@@ -26,16 +26,16 @@ while {[llength $argv]} {
     -post-impl-debug-tcl {
       set argv [lassign $argv[set argv {}] post_impl_debug_tcl]
     }
-    # Command line argument to pass the name of an environment variable that contains additional vsrcs 
-    # (from what is contained in .F file) that you want to have read in
     -env-var-srcs {
-      set argv [lassign $argv[set argv {}] env_var_srcs]
+      set argv [lassign $argv[set argv {}] env_var_srcs] # See comment below
     }
     default {
       return -code error [list {unknown option} $flag]
     }
   }
 }
+# tcl-env-srcs: Command line argument to pass the name of an environment variable that contains additional vsrcs 
+# (from what is contained in .F file) that you want to have read in
 
 if {![info exists top]} {
   return -code error [list {--top-module option is required}]
