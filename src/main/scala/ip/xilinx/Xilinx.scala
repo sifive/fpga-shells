@@ -10,11 +10,7 @@ import sifive.blocks.devices.pinctrl.{BasePin}
 import sifive.fpgashells.clocks._
 import freechips.rocketchip.diplomacy.LazyModule
 
-
-
 class JTAGTUNNEL extends BlackBox { 
-//class JTAGTUNNEL extends BlackBox with HasBlackBoxInline { 
-//class JTAGTUNNEL extends Module { 
   val io = new Bundle { 
     val jtag_tck = Output(Bool()) 
     val jtag_tms = Output(Bool()) 

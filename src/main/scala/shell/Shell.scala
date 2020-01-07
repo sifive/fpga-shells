@@ -42,7 +42,6 @@ trait ShellOverlayAccessor[DesignInput, ShellInput, OverlayOutput] {
   def get(): Option[PlacedOverlay[DesignInput, ShellInput, OverlayOutput]]
 }
 
-
 abstract class Shell()(implicit p: Parameters) extends LazyModule with LazyScope
 {
   private var overlays = Parameters.empty

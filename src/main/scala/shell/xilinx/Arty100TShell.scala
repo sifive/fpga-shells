@@ -166,7 +166,6 @@ class ButtonArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInpu
   def place(designInput: ButtonDesignInput) = new ButtonArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-//TODO: JTAG Tunneling Overlay (JTAG translation logic from Xilinx BSCAN to Coreip
 class JTAGDebugBScanArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: JTAGDebugBScanDesignInput, val shellInput: JTAGDebugBScanShellInput)
  extends JTAGDebugBScanXilinxPlacedOverlay(name, designInput, shellInput)
 class JTAGDebugBScanArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: JTAGDebugBScanShellInput)(implicit val valName: ValName)
