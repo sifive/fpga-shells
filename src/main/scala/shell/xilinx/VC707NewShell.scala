@@ -17,7 +17,7 @@ import sifive.fpgashells.devices.xilinx.xilinxvc707pciex1._
 class SysClockVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: ClockInputDesignInput, val shellInput: ClockInputShellInput)
   extends LVDSClockInputXilinxPlacedOverlay(name, designInput, shellInput)
 {
-  val node = shell { ClockSourceNode(name, freqMHz = 200, jitterPS = 50) }
+  val node = shell { ClockSourceNode(freqMHz = 200, jitterPS = 50)(ValName(name)) }
 
   shell { InModuleBody {
     shell.xdc.addBoardPin(io.p, "clk_p")
@@ -179,12 +179,11 @@ class DDRVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput
 {
   val size = if (designInput.vc7074gbdimm) p(VC7074GDDRSize) else p(VC7071GDDRSize)
 
-  val sdcClockName = "userClock1"
-  val migParams = XilinxVC707MIGParams(address = AddressSet.misaligned(designInput.baseAddress, size))
+  val migParams = XilinxVC707MIGParams(address = AddressSet.misaligned(di.baseAddress, size))
   val mig = LazyModule(new XilinxVC707MIG(migParams))
   val ioNode = BundleBridgeSource(() => mig.module.io.cloneType)
   val topIONode = shell { ioNode.makeSink() }
-  val ddrUI     = shell { ClockSourceNode(sdcClockName, freqMHz = 200) }
+  val ddrUI     = shell { ClockSourceNode(freqMHz = 200) }
   val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
   areset := designInput.wrangler := ddrUI
 
@@ -217,11 +216,10 @@ class DDRVC707ShellPlacer(val shell: VC707Shell, val shellInput: DDRShellInput)(
 class PCIeVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: PCIeDesignInput, val shellInput: PCIeShellInput)
   extends PCIePlacedOverlay[XilinxVC707PCIeX1Pads](name, designInput, shellInput)
 {
-  val sdcClockName = "axiClock"
   val pcie = LazyModule(new XilinxVC707PCIeX1)
   val ioNode = BundleBridgeSource(() => pcie.module.io.cloneType)
   val topIONode = shell { ioNode.makeSink() }
-  val axiClk    = shell { ClockSourceNode(sdcClockName, freqMHz = 125) }
+  val axiClk    = shell { ClockSourceNode(freqMHz = 125) }
   val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
   areset := designInput.wrangler := axiClk
 
@@ -256,7 +254,7 @@ class PCIeVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInpu
     shell.sdc.addClock(s"${name}_ref_clk", io.REFCLK_rxp, 100)
   } }
 
-  shell.sdc.addGroup(clocks = Seq("txoutclk", "userclk1", "axiClock"))
+  shell.sdc.addGroup(clocks = Seq("txoutclk", "userclk1"))
 }
 class PCIeVC707ShellPlacer(val shell: VC707Shell, val shellInput: PCIeShellInput)(implicit val valName: ValName)
   extends PCIeShellPlacer[VC707Shell] {

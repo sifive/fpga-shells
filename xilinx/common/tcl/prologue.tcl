@@ -26,11 +26,16 @@ while {[llength $argv]} {
     -post-impl-debug-tcl {
       set argv [lassign $argv[set argv {}] post_impl_debug_tcl]
     }
+    -env-var-srcs {
+      set argv [lassign $argv[set argv {}] env_var_srcs]
+    }
     default {
       return -code error [list {unknown option} $flag]
     }
   }
 }
+# tcl-env-srcs: Command line argument to pass the name of an environment variable that contains additional vsrcs 
+# (from what is contained in .F file) that you want to have read in
 
 if {![info exists top]} {
   return -code error [list {--top-module option is required}]
@@ -92,6 +97,13 @@ proc load_vsrc_manifest {obj vsrc_manifest} {
       lappend relative_files $path
     } elseif {![string match {#*} $path]} {
       lappend relative_files [file join [file dirname $vsrc_manifest] $path]
+    }
+  }
+  # Read environment variable vsrcs and append to relative_files
+  if {[info exists env_var_srcs)]} {
+    if {[info exists ::env($env_var_srcs)]} {
+      set resources [split $::env($env_var_srcs) :]
+      set relative_files [list {*}$relative_files {*}$resources]
     }
   }
   add_files -norecurse -fileset $obj {*}$relative_files
