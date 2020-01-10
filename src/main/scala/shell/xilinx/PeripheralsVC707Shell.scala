@@ -16,13 +16,11 @@ import sifive.fpgashells.ip.xilinx._
 import sifive.blocks.devices.gpio._
 import sifive.blocks.devices.pinctrl._
 
-import sifive.enterprise.firrtl._
-
 class UARTPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: UARTDesignInput, val shellInput: UARTShellInput)
   extends UARTXilinxPlacedOverlay(name, designInput, shellInput, true)
 {
     shell { InModuleBody {
-    val uartLocations = List(List("AT32", "AR34", "AU33", "AU36"), List("FILL", "THIS", "IN", "PINS"))
+    val uartLocations = List(List("AT32", "AR34", "AU33", "AU36"), List("V34", "T35", "V33", "U34")) //uart0 - USB, uart1 - FMC 105 debug card J20 p1-rx p2-tx p3-ctsn p4-rtsn
     val packagePinsWithPackageIOs = Seq((uartLocations(shellInput.number)(0), IOPin(io.ctsn.get)),
                                         (uartLocations(shellInput.number)(1), IOPin(io.rtsn.get)),
                                         (uartLocations(shellInput.number)(2), IOPin(io.rxd)),
@@ -46,7 +44,7 @@ class I2CPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val d
   extends I2CXilinxPlacedOverlay(name, designInput, shellInput)
 {
     shell { InModuleBody {
-    val i2cLocations = List(List("A", "B"), List("FILL", "IN"))
+    val i2cLocations = List(List("AJ38", "U32"), List("AK38", "U33")) //i2c0: J1 p37-scl p38-sda i2c1: J2 p39-scl p40-sda
     val packagePinsWithPackageIOs = Seq((i2cLocations(shellInput.number)(0), IOPin(io.scl)),
                                         (i2cLocations(shellInput.number)(1), IOPin(io.sda)))
 
@@ -68,7 +66,7 @@ class QSPIPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val 
   extends SPIFlashXilinxPlacedOverlay(name, designInput, shellInput)
 {
     shell { InModuleBody {
-    val qspiLocations = List(List("A", "B", "C", "D", "E", "F"), List("FILL", "THIS", "IN", "WITH", "PINS", "LATER"))
+    val qspiLocations = List(List("AD40", "AB41", "AD41", "AB42", "AF41", "Y42"), List("AG41", "AA42", "AK39", "Y39", "AL39", "AA39")) //J1 pins 1-6 and 7-12 (sck, cs, dq0-3)
     val packagePinsWithPackageIOs = Seq((qspiLocations(shellInput.number)(0), IOPin(io.qspi_sck)),
                                         (qspiLocations(shellInput.number)(1), IOPin(io.qspi_cs)),
                                         (qspiLocations(shellInput.number)(2), IOPin(io.qspi_dq(0))),
@@ -97,10 +95,10 @@ class PWMPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val d
   extends PWMXilinxPlacedOverlay(name, designInput, shellInput)
 {
     shell { InModuleBody {
-    val packagePinsWithPackageIOs = Seq(("A", IOPin(io.pwm_gpio(0))),
-                                        ("B", IOPin(io.pwm_gpio(1))),
-                                        ("C", IOPin(io.pwm_gpio(2))),
-                                        ("D", IOPin(io.pwm_gpio(3))))
+    val packagePinsWithPackageIOs = Seq(("AD36", IOPin(io.pwm_gpio(0))), //J23 pins 5-8
+                                        ("Y35", IOPin(io.pwm_gpio(1))),
+                                        ("AD37", IOPin(io.pwm_gpio(2))),
+                                        ("AA36", IOPin(io.pwm_gpio(3))))
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
@@ -119,7 +117,7 @@ class GPIOPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val 
   extends GPIOXilinxPlacedOverlay(name, designInput, shellInput)
 {
     shell { InModuleBody {
-    val gpioLocations = List("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M")
+    val gpioLocations = List("AB33", "AF31", "AC33", "AF32", "AD32", "AE34", "AD33", "AE35", "AC30", "AF34", "AD30", "AG34", "AA29", "AE32", "AA30", "AE33") //J3 pins 1-16
     val iosWithLocs = io.gpio.zip(gpioLocations)
     val packagePinsWithPackageIOs = iosWithLocs.map { case (io, pin) => (pin, IOPin(io)) }
     println(packagePinsWithPackageIOs)
@@ -151,11 +149,10 @@ class PeripheralVC707Shell(implicit p: Parameters) extends VC707Shell {
   p(ClockInputOverlayKey).foreach(_.place(ClockInputDesignInput()))
 
   override lazy val module = new LazyRawModuleImp(this) {
-    topDesign.module.asInstanceOf[LazyRawModuleImp with MarkDUT].markDUT()
 
     val reset = IO(Input(Bool()))
     val clock = IO(Input(Clock()))
-
+    xdc.addBoardPin(reset, "reset")
     val por_clock = sys_clock.get.get.asInstanceOf[SysClockVC707PlacedOverlay].clock
     val powerOnReset = PowerOnResetFPGAOnly(por_clock)
 
