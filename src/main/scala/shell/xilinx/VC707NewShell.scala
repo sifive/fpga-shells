@@ -309,6 +309,7 @@ class VC707BaseShell()(implicit p: Parameters) extends VC707Shell
 
 class VC707PCIeShell()(implicit p: Parameters) extends VC707Shell
 {
+  val uart      = Seq.tabulate(1)(i => Overlay(UARTOverlayKey, new UARTVC707ShellPlacer(this, UARTShellInput(index = 0))))
   val pcie      = Overlay(PCIeOverlayKey, new PCIeVC707ShellPlacer(this, PCIeShellInput()))
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
