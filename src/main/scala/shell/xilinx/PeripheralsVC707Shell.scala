@@ -21,10 +21,10 @@ class UARTPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val 
 {
     shell { InModuleBody {
     val uartLocations = List(List("AT32", "AR34", "AU33", "AU36"), List("V34", "T35", "V33", "U34")) //uart0 - USB, uart1 - FMC 105 debug card J20 p1-rx p2-tx p3-ctsn p4-rtsn
-    val packagePinsWithPackageIOs = Seq((uartLocations(shellInput.number)(0), IOPin(io.ctsn.get)),
-                                        (uartLocations(shellInput.number)(1), IOPin(io.rtsn.get)),
-                                        (uartLocations(shellInput.number)(2), IOPin(io.rxd)),
-                                        (uartLocations(shellInput.number)(3), IOPin(io.txd)))
+    val packagePinsWithPackageIOs = Seq((uartLocations(shellInput.index)(0), IOPin(io.ctsn.get)),
+                                        (uartLocations(shellInput.index)(1), IOPin(io.rtsn.get)),
+                                        (uartLocations(shellInput.index)(2), IOPin(io.rxd)),
+                                        (uartLocations(shellInput.index)(3), IOPin(io.txd)))
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
@@ -45,8 +45,8 @@ class I2CPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val d
 {
     shell { InModuleBody {
     val i2cLocations = List(List("AJ38", "U32"), List("AK38", "U33")) //i2c0: J1 p37-scl p38-sda i2c1: J2 p39-scl p40-sda
-    val packagePinsWithPackageIOs = Seq((i2cLocations(shellInput.number)(0), IOPin(io.scl)),
-                                        (i2cLocations(shellInput.number)(1), IOPin(io.sda)))
+    val packagePinsWithPackageIOs = Seq((i2cLocations(shellInput.index)(0), IOPin(io.scl)),
+                                        (i2cLocations(shellInput.index)(1), IOPin(io.sda)))
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
@@ -67,12 +67,12 @@ class QSPIPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val 
 {
     shell { InModuleBody {
     val qspiLocations = List(List("AD40", "AB41", "AD41", "AB42", "AF41", "Y42"), List("AG41", "AA42", "AK39", "Y39", "AL39", "AA39")) //J1 pins 1-6 and 7-12 (sck, cs, dq0-3)
-    val packagePinsWithPackageIOs = Seq((qspiLocations(shellInput.number)(0), IOPin(io.qspi_sck)),
-                                        (qspiLocations(shellInput.number)(1), IOPin(io.qspi_cs)),
-                                        (qspiLocations(shellInput.number)(2), IOPin(io.qspi_dq(0))),
-                                        (qspiLocations(shellInput.number)(3), IOPin(io.qspi_dq(1))),
-                                        (qspiLocations(shellInput.number)(4), IOPin(io.qspi_dq(2))),
-                                        (qspiLocations(shellInput.number)(5), IOPin(io.qspi_dq(3))))
+    val packagePinsWithPackageIOs = Seq((qspiLocations(shellInput.index)(0), IOPin(io.qspi_sck)),
+                                        (qspiLocations(shellInput.index)(1), IOPin(io.qspi_cs)),
+                                        (qspiLocations(shellInput.index)(2), IOPin(io.qspi_dq(0))),
+                                        (qspiLocations(shellInput.index)(3), IOPin(io.qspi_dq(1))),
+                                        (qspiLocations(shellInput.index)(4), IOPin(io.qspi_dq(2))),
+                                        (qspiLocations(shellInput.index)(5), IOPin(io.qspi_dq(3))))
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
@@ -139,10 +139,10 @@ class GPIOPeripheralVC707ShellPlacer(val shell: VC707Shell, val shellInput: GPIO
 class PeripheralVC707Shell(implicit p: Parameters) extends VC707Shell {
 
   val gpio           = Overlay(GPIOOverlayKey,       new GPIOPeripheralVC707ShellPlacer(this, GPIOShellInput()))
-  val uart  = Seq.tabulate(2) { i => Overlay(UARTOverlayKey, new UARTPeripheralVC707ShellPlacer(this, UARTShellInput(number = i))(valName = ValName(s"uart$i"))) }
-  val qspi      = Seq.tabulate(2) { i => Overlay(SPIFlashOverlayKey, new QSPIPeripheralVC707ShellPlacer(this, SPIFlashShellInput(number = i))(valName = ValName(s"qspi$i"))) }
-  val pwm       = Seq.tabulate(1) { i => Overlay(PWMOverlayKey, new PWMPeripheralVC707ShellPlacer(this, PWMShellInput(number = i))(valName = ValName(s"pwm$i"))) }
-  val i2c       = Seq.tabulate(2) { i => Overlay(I2COverlayKey, new I2CPeripheralVC707ShellPlacer(this, I2CShellInput(number = i))(valName = ValName(s"i2c$i"))) }
+  val uart  = Seq.tabulate(2) { i => Overlay(UARTOverlayKey, new UARTPeripheralVC707ShellPlacer(this, UARTShellInput(index = i))(valName = ValName(s"uart$i"))) }
+  val qspi      = Seq.tabulate(2) { i => Overlay(SPIFlashOverlayKey, new QSPIPeripheralVC707ShellPlacer(this, SPIFlashShellInput(index = i))(valName = ValName(s"qspi$i"))) }
+  val pwm       = Seq.tabulate(1) { i => Overlay(PWMOverlayKey, new PWMPeripheralVC707ShellPlacer(this, PWMShellInput(index = i))(valName = ValName(s"pwm$i"))) }
+  val i2c       = Seq.tabulate(2) { i => Overlay(I2COverlayKey, new I2CPeripheralVC707ShellPlacer(this, I2CShellInput(index = i))(valName = ValName(s"i2c$i"))) }
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 

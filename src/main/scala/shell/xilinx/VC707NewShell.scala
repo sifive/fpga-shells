@@ -279,7 +279,7 @@ abstract class VC707Shell()(implicit p: Parameters) extends Series7Shell
 
 class VC707BaseShell()(implicit p: Parameters) extends VC707Shell
 {
-  val uart      = Seq.tabulate(1)(i => Overlay(UARTOverlayKey, new UARTVC707ShellPlacer(this, UARTShellInput())))
+  val uart      = Seq.tabulate(1)(i => Overlay(UARTOverlayKey, new UARTVC707ShellPlacer(this, UARTShellInput(index = 0))))
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
   // Place the sys_clock at the Shell if the user didn't ask for it
