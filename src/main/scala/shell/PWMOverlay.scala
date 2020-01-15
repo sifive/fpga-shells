@@ -11,7 +11,7 @@ import freechips.rocketchip.tilelink.TLBusWrapper
 import freechips.rocketchip.interrupts.IntInwardNode
 
 //another one that makes the controller... remove this
-case class PWMShellInput()
+case class PWMShellInput(index: Int = 0)
 case class PWMDesignInput(pwmParams: PWMParams, controlBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
 case class PWMOverlayOutput(pwm: TLPWM)
 case object PWMOverlayKey extends Field[Seq[DesignPlacer[PWMDesignInput, PWMShellInput, PWMOverlayOutput]]](Nil)
