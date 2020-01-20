@@ -1,13 +1,21 @@
 package sifive.fpgashells.shell
 
 import chisel3._
-import chisel3.experimental.{Analog, attach, IntParam}
+import chisel3.experimental.{Analog, attach}
+import chisel3.util.HasBlackBoxInline
 
-class AnalogToUInt(w: Int = 1) extends BlackBox(Map("WIDTH" -> IntParam(w))) {
+class AnalogToUInt(w: Int = 1) extends BlackBox with HasBlackBoxInline {
   val io = IO(new Bundle {
     val a = Analog(w.W)
     val b = Output(UInt(w.W))
   })
+  setInline(s"AnalogToUInt_${w.toString}.v",
+    s"""module AnalogToUInt (a, b);
+       |  inout [${w - 1}:0] a;
+       |  output [${w - 1}:0] b;
+       |  assign b = a;
+       |endmodule
+       |""".stripMargin)
 }
 
 object AnalogToUInt {
@@ -18,12 +26,21 @@ object AnalogToUInt {
   }
 }
 
-class UIntToAnalog(w: Int = 1) extends BlackBox(Map("WIDTH" -> IntParam(w))) {
+class UIntToAnalog(w: Int = 1) extends BlackBox with HasBlackBoxInline {
   val io = IO(new Bundle {
     val a = Analog(w.W)
     val b = Input(UInt(w.W))
     val b_en = Input(Bool())
   })
+  require(w >= 1)
+  setInline(s"UIntToAnalog_${w.toString}.v",
+    s"""module UIntToAnalog (a, b, b_en);
+       |  inout [${w - 1}:0] a;
+       |  input [${w - 1}:0] b;
+       |  input b_en;
+       |  assign a = b_en ? b : $w'b${"z".repeat(w)};
+       |endmodule
+       |""".stripMargin)
 }
 
 object UIntToAnalog {
