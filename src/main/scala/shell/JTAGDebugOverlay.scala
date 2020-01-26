@@ -18,6 +18,7 @@ class FPGAJTAGIO extends Bundle {
   val jtag_TMS = Input(Bool())
   val jtag_TDI = Input(Bool())
   val jtag_TDO = Output(Bool())
+  val srst_n   = Input(Bool())
 }
 
 abstract class JTAGDebugOverlay(
