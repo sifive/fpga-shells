@@ -184,7 +184,8 @@ class JTAGDebugArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: St
     val packagePinsWithPackageIOs = Seq(("F4", IOPin(io.jtag_TCK)),  //pin JD-3
       ("D2", IOPin(io.jtag_TMS)),  //pin JD-8
       ("E2", IOPin(io.jtag_TDI)),  //pin JD-7
-      ("D4", IOPin(io.jtag_TDO)))  //pin JD-1
+      ("D4", IOPin(io.jtag_TDO)),  //pin JD-1
+      ("H2", IOPin(io.srst_n)))
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)

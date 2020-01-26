@@ -33,6 +33,7 @@ class FPGAcJTAGIO extends Bundle {
 class FPGAcJTAGSignals extends Bundle {
   val tckc_pin = Input(Clock())
   val tmsc_pin = new BasePin()
+  val srst_n   = Input(Bool())
 }
 
 abstract class cJTAGDebugPlacedOverlay(
@@ -51,5 +52,6 @@ abstract class cJTAGDebugPlacedOverlay(
     cjtagDebugSink.bundle.tckc_pin := IOBUF(io.cjtag_TCKC).asClock
     IOBUF(io.cjtag_TMSC, cjtagDebugSink.bundle.tmsc_pin)
     KEEPER(io.cjtag_TMSC)
+    cjtagDebugSink.bundle.srst_n := IOBUF(io.srst_n)
   } }
 }

@@ -23,6 +23,7 @@ class ShellJTAGIO extends Bundle {
   val jtag_TMS = Analog(1.W)
   val jtag_TDI = Analog(1.W)
   val jtag_TDO = Analog(1.W)
+  val srst_n   = Analog(1.W)
 }
 
 // TODO: Fix interaction of BundleBridge/Flipped to get rid of this Bundle
@@ -31,6 +32,7 @@ class FlippedJTAGIO extends Bundle {
   val TMS = Input(Bool())
   val TDI = Input(Bool())
   val TDO = Output(new Tristate())
+  val srst_n = Input(Bool())
 }
 
 abstract class JTAGDebugPlacedOverlay(
