@@ -16,5 +16,6 @@ abstract class JTAGDebugXilinxPlacedOverlay(name: String, di: JTAGDebugDesignInp
     jtagDebugSink.bundle.TMS := AnalogToUInt(io.jtag_TMS)
     jtagDebugSink.bundle.TDI := AnalogToUInt(io.jtag_TDI)
     UIntToAnalog(jtagDebugSink.bundle.TDO.data,io.jtag_TDO,jtagDebugSink.bundle.TDO.driven)
+    jtagDebugSink.bundle.srst_n := AnalogToUInt(io.srst_n)
   } }
 }
