@@ -25,11 +25,11 @@ class ShellI2CPortIO extends Bundle {
 
 abstract class I2CPlacedOverlay(
   val name: String, val di: I2CDesignInput, val si: I2CShellInput)
-    extends IOPlacedOverlay[FPGAI2CPortIO, I2CDesignInput, I2CShellInput, I2COverlayOutput]
+    extends IOPlacedOverlay[ShellI2CPortIO, I2CDesignInput, I2CShellInput, I2COverlayOutput]
 {
   implicit val p = di.p
 
-  def ioFactory = new FPGAI2CPortIO
+  def ioFactory = new ShellI2CPortIO
 
   val tli2c = I2C.attach(I2CAttachParams(di.i2cParams, di.controlBus, di.intNode))
   val tli2cSink = shell { tli2c.ioNode.makeSink }
