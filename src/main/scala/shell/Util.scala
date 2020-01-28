@@ -38,7 +38,7 @@ class UIntToAnalog(w: Int = 1) extends BlackBox with HasBlackBoxInline {
        |  inout [${w - 1}:0] a;
        |  input [${w - 1}:0] b;
        |  input b_en;
-       |  assign a = b_en ? b : $w'b${"z".repeat(w)};
+       |  assign a = b_en ? b : $w'b${"z"*w};
        |endmodule
        |""".stripMargin)
 }
