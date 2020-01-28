@@ -20,7 +20,7 @@ trait UARTShellPlacer[Shell] extends ShellPlacer[UARTDesignInput, UARTShellInput
 
 // Tack on cts, rts signals available on some FPGAs. They are currently unused
 // by our designs.
-class ShellUARTPortIO(flowControl: Boolean) extends Bundle {
+class ShellUARTPortIO(val flowControl: Boolean) extends Bundle {
   val txd = Analog(1.W)
   val rxd = Analog(1.W)
   val rtsn = if (flowControl) Some(Analog(1.W)) else None

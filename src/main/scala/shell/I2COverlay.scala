@@ -18,7 +18,7 @@ trait I2CShellPlacer[Shell] extends ShellPlacer[I2CDesignInput, I2CShellInput, I
 
 case object I2COverlayKey extends Field[Seq[DesignPlacer[I2CDesignInput, I2CShellInput, I2COverlayOutput]]](Nil)
 
-class FPGAI2CPortIO extends Bundle {
+class ShellI2CPortIO extends Bundle {
   val scl = Analog(1.W)
   val sda = Analog(1.W)
 }
