@@ -34,7 +34,7 @@ class UIntToAnalog(w: Int = 1) extends BlackBox with HasBlackBoxInline {
   })
   require(w >= 1)
   setInline(s"UIntToAnalog_${w.toString}.v",
-    s"""module UIntToAnalog (a, b, b_en);
+    s"""module UIntToAnalog_${w.toString} (a, b, b_en);
        |  inout [${w - 1}:0] a;
        |  input [${w - 1}:0] b;
        |  input b_en;
