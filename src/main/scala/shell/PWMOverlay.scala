@@ -3,16 +3,23 @@ package sifive.fpgashells.shell
 
 import chisel3._
 import chisel3.experimental.Analog
+
 import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
-import sifive.blocks.devices.pwm._
 import freechips.rocketchip.subsystem.{BaseSubsystem, PeripheryBus, PeripheryBusKey}
 import freechips.rocketchip.tilelink.TLBusWrapper
 import freechips.rocketchip.interrupts.IntInwardNode
+import freechips.rocketchip.diplomaticobjectmodel.logicaltree.LogicalTreeNode
+
+import sifive.blocks.devices.pwm._
 
 //another one that makes the controller... remove this
 case class PWMShellInput(index: Int = 0)
-case class PWMDesignInput(pwmParams: PWMParams, controlBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
+case class PWMDesignInput(
+  pwmParams: PWMParams,
+  controlBus: TLBusWrapper,
+  intNode: IntInwardNode,
+  parentLogicalTreeNode: Option[LogicalTreeNode] = None)(implicit val p: Parameters)
 case class PWMOverlayOutput(pwm: TLPWM)
 case object PWMOverlayKey extends Field[Seq[DesignPlacer[PWMDesignInput, PWMShellInput, PWMOverlayOutput]]](Nil)
 trait PWMShellPlacer[Shell] extends ShellPlacer[PWMDesignInput, PWMShellInput, PWMOverlayOutput]
@@ -29,7 +36,11 @@ abstract class PWMPlacedOverlay(
 
   def ioFactory = new ShellPWMPortIO
 
-  val tlpwm = PWM.attach(PWMAttachParams(di.pwmParams, di.controlBus, di.intNode))
+  val tlpwm = PWM.attach(PWMAttachParams(
+    pwm = di.pwmParams,
+    controlBus = di.controlBus,
+    intNode = di.intNode,
+    parentLogicalTreeNode = di.parentLogicalTreeNode))
   val tlpwmSink = shell { tlpwm.ioNode.makeSink }
 
   def overlayOutput = PWMOverlayOutput(pwm = tlpwm)
