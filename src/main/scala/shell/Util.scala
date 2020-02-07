@@ -4,6 +4,10 @@ import chisel3._
 import chisel3.experimental.{Analog, attach}
 import chisel3.util.HasBlackBoxInline
 
+import freechips.rocketchip.config.Field
+
+case object FPGAFrequencyKey extends Field[Double](100.0)
+
 class AnalogToUInt(w: Int = 1) extends BlackBox with HasBlackBoxInline {
   val io = IO(new Bundle {
     val a = Analog(w.W)
