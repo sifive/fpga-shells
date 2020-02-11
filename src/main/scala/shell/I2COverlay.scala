@@ -19,7 +19,7 @@ case class I2CDesignInput(
   i2cParams: I2CParams,
   controlBus: TLBusWrapper,
   intNode: IntInwardNode)(implicit val p: Parameters)
-case class I2COverlayOutput(i2c: TLI2C)
+case class I2COverlayOutput(i2c: ModuleValue[I2CPort])
 trait I2CShellPlacer[Shell] extends ShellPlacer[I2CDesignInput, I2CShellInput, I2COverlayOutput]
 
 case object I2COverlayKey extends Field[Seq[DesignPlacer[I2CDesignInput, I2CShellInput, I2COverlayOutput]]](Nil)
@@ -37,11 +37,9 @@ abstract class I2CPlacedOverlay(
 
   def ioFactory = new ShellI2CPortIO
 
-  val tli2c = I2C.attach(I2CAttachParams(
-    i2c = di.i2cParams,
-    controlBus = di.controlBus,
-    intNode = di.intNode))
-  val tli2cSink = shell { tli2c.ioNode.makeSink }
+  val tli2cSource = BundleBridgeSource(() => new I2CPort)
+  val tli2cSink = shell { tli2cSource.makeSink }
+  val i2c = InModuleBody { tli2cSource.bundle }
 
-  def overlayOutput = I2COverlayOutput(i2c = tli2c)
+  def overlayOutput = I2COverlayOutput(i2c = i2c)
 }

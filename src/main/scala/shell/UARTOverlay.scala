@@ -18,11 +18,10 @@ import sifive.blocks.devices.uart._
 case class UARTShellInput(index: Int = 0)
 case class UARTDesignInput(
   uartParams: UARTParams,
-  divInit: Int,
   controlBus: TLBusWrapper,
   intNode: IntInwardNode,
   parentLogicalTreeNode: Option[LogicalTreeNode])(implicit val p: Parameters)
-case class UARTOverlayOutput(uart: TLUART)
+case class UARTOverlayOutput(uart: ModuleValue[UARTPortIO])
 case object UARTOverlayKey extends Field[Seq[DesignPlacer[UARTDesignInput, UARTShellInput, UARTOverlayOutput]]](Nil)
 trait UARTShellPlacer[Shell] extends ShellPlacer[UARTDesignInput, UARTShellInput, UARTOverlayOutput]
 
@@ -45,15 +44,8 @@ abstract class UARTPlacedOverlay(
 
   def ioFactory = new ShellUARTPortIO(flowControl)
 
-  val tluart = UART.attach(UARTAttachParams(
-    uart = di.uartParams,
-    divinit = di.divInit,
-    controlBus = di.controlBus,
-    intNode = di.intNode,
-    parentLogicalTreeNode = di.parentLogicalTreeNode))
-  val tluartSink = tluart.ioNode.makeSink
-  val uartSource = BundleBridgeSource(() => new UARTPortIO())
-  val uartSink = shell { uartSource.makeSink }
+  val tluartSource = BundleBridgeSource(() => new UARTPortIO())
+  val tluartSink = shell { tluartSource.makeSink }
 
-  def overlayOutput = UARTOverlayOutput(uart = tluart)
+  def overlayOutput = UARTOverlayOutput(uart = InModuleBody{ tluartSource.bundle })
 }
