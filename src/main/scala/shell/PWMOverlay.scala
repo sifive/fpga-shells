@@ -20,7 +20,7 @@ case class PWMDesignInput(
   controlBus: TLBusWrapper,
   intNode: IntInwardNode,
   parentLogicalTreeNode: Option[LogicalTreeNode] = None)(implicit val p: Parameters)
-case class PWMOverlayOutput(pwm: TLPWM)
+case class PWMOverlayOutput(pwm: ModuleValue[PWMPortIO])
 case object PWMOverlayKey extends Field[Seq[DesignPlacer[PWMDesignInput, PWMShellInput, PWMOverlayOutput]]](Nil)
 trait PWMShellPlacer[Shell] extends ShellPlacer[PWMDesignInput, PWMShellInput, PWMOverlayOutput]
 
@@ -36,12 +36,8 @@ abstract class PWMPlacedOverlay(
 
   def ioFactory = new ShellPWMPortIO
 
-  val tlpwm = PWM.attach(PWMAttachParams(
-    pwm = di.pwmParams,
-    controlBus = di.controlBus,
-    intNode = di.intNode,
-    parentLogicalTreeNode = di.parentLogicalTreeNode))
-  val tlpwmSink = shell { tlpwm.ioNode.makeSink }
+  val tlpwmSource = BundleBridgeSource(() => new PWMPortIO(di.pwmParams))
+  val tlpwmSink = shell { tlpwmSource.makeSink }
 
-  def overlayOutput = PWMOverlayOutput(pwm = tlpwm)
+  def overlayOutput = PWMOverlayOutput(pwm = InModuleBody{ tlpwmSource.bundle })
 }
