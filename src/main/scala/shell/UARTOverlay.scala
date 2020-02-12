@@ -47,5 +47,12 @@ abstract class UARTPlacedOverlay(
   val tluartSource = BundleBridgeSource(() => new UARTPortIO())
   val tluartSink = shell { tluartSource.makeSink }
 
-  def overlayOutput = UARTOverlayOutput(uart = InModuleBody{ tluartSource.bundle })
+  def overlayOutput = UARTOverlayOutput(uart =
+    InModuleBody {
+      val uartPort = Wire(new UARTPortIO())
+      uartPort.rxd := RegNext(RegNext(tluartSource.bundle))
+      tluartSource.bundle.txd := uartPort.txd
+      uartPort
+    }
+  )
 }
