@@ -20,7 +20,7 @@ case class SPIFlashDesignInput(
   memBus: TLBusWrapper,
   intNode: IntInwardNode,
   parentLogicalTreeNode: Option[LogicalTreeNode])(implicit val p: Parameters)
-case class SPIFlashOverlayOutput(spiflash: TLSPIFlash)
+case class SPIFlashOverlayOutput(spiflash: ModuleValue[SPIPortIO])
 case object SPIFlashOverlayKey extends Field[Seq[DesignPlacer[SPIFlashDesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]]](Nil)
 trait SPIFlashShellPlacer[Shell] extends ShellPlacer[SPIFlashDesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]
 
@@ -38,13 +38,8 @@ abstract class SPIFlashPlacedOverlay(
   implicit val p = di.p
 
   def ioFactory = new ShellSPIFlashPortIO
-  val tlqspi = SPI.attachFlash(SPIFlashAttachParams(
-    spi = di.spiFlashParam,
-    controlBus = di.controlBus,
-    memBus = di.memBus,
-    intNode = di.intNode,
-    parentLogicalTreeNode = di.parentLogicalTreeNode))
 
-  val tlqspiSink = shell { tlqspi.ioNode.makeSink }
-  def overlayOutput = SPIFlashOverlayOutput(spiflash = tlqspi)
+  val tlqspiSource = BundleBridgeSource(() => new SPIPortIO(di.spiFlashParam))
+  val tlqspiSink = shell { tlqspiSource.makeSink }
+  def overlayOutput = SPIFlashOverlayOutput(spiflash = InModuleBody{ tlqspiSource.bundle })
 }
