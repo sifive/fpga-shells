@@ -15,10 +15,7 @@ import sifive.blocks.devices.i2c._
 
 //This should NOT do the device placement, just return the bundlebridge
 case class I2CShellInput(index: Int = 0)
-case class I2CDesignInput(
-  i2cParams: I2CParams,
-  controlBus: TLBusWrapper,
-  intNode: IntInwardNode)(implicit val p: Parameters)
+case class I2CDesignInput()(implicit val p: Parameters)
 case class I2COverlayOutput(i2c: ModuleValue[I2CPort])
 trait I2CShellPlacer[Shell] extends ShellPlacer[I2CDesignInput, I2CShellInput, I2COverlayOutput]
 

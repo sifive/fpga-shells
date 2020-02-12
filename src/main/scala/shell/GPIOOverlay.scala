@@ -15,11 +15,7 @@ import sifive.blocks.devices.gpio._
 //Might delete later...
 //Should GPIO be an overlay? Probably not, PinOverlay might take over this use case
 case class GPIOShellInput()
-case class GPIODesignInput(
-  gpioParams: GPIOParams,
-  controlBus: TLBusWrapper,
-  intNode: IntInwardNode,
-  parentLogicalTreeNode: Option[LogicalTreeNode] = None)(implicit val p: Parameters)
+case class GPIODesignInput(gpioParams: GPIOParams)(implicit val p: Parameters)
 case class GPIOOverlayOutput(gpio: ModuleValue[GPIOPortIO])
 case object GPIOOverlayKey extends Field[Seq[DesignPlacer[GPIODesignInput, GPIOShellInput, GPIOOverlayOutput]]](Nil)
 trait GPIOShellPlacer[Shell] extends ShellPlacer[GPIODesignInput, GPIOShellInput, GPIOOverlayOutput]

@@ -14,12 +14,7 @@ import sifive.blocks.devices.spi._
 
 //This one does controller also
 case class SPIFlashShellInput(index: Int = 0)
-case class SPIFlashDesignInput(
-  spiFlashParam: SPIFlashParams,
-  controlBus: TLBusWrapper,
-  memBus: TLBusWrapper,
-  intNode: IntInwardNode,
-  parentLogicalTreeNode: Option[LogicalTreeNode])(implicit val p: Parameters)
+case class SPIFlashDesignInput(spiFlashParam: SPIFlashParams)(implicit val p: Parameters)
 case class SPIFlashOverlayOutput(spiflash: ModuleValue[SPIPortIO])
 case object SPIFlashOverlayKey extends Field[Seq[DesignPlacer[SPIFlashDesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]]](Nil)
 trait SPIFlashShellPlacer[Shell] extends ShellPlacer[SPIFlashDesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]

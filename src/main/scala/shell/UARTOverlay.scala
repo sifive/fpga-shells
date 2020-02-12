@@ -16,11 +16,7 @@ import sifive.blocks.devices.uart._
 //dont make the controller here
 //move flowcontrol to shell input?? 
 case class UARTShellInput(index: Int = 0)
-case class UARTDesignInput(
-  uartParams: UARTParams,
-  controlBus: TLBusWrapper,
-  intNode: IntInwardNode,
-  parentLogicalTreeNode: Option[LogicalTreeNode])(implicit val p: Parameters)
+case class UARTDesignInput()(implicit val p: Parameters)
 case class UARTOverlayOutput(uart: ModuleValue[UARTPortIO])
 case object UARTOverlayKey extends Field[Seq[DesignPlacer[UARTDesignInput, UARTShellInput, UARTOverlayOutput]]](Nil)
 trait UARTShellPlacer[Shell] extends ShellPlacer[UARTDesignInput, UARTShellInput, UARTOverlayOutput]

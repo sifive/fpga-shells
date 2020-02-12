@@ -11,7 +11,7 @@ import freechips.rocketchip.interrupts.IntInwardNode
 
 //This should not do the controller placement either
 case class SDIOShellInput()
-case class SDIODesignInput(spiParam: SPIParams, controlBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
+case class SDIODesignInput(spiParam: SPIParams)(implicit val p: Parameters)
 case class SDIOOverlayOutput(spi: ModuleValue[SPIPortIO])
 case object SDIOOverlayKey extends Field[Seq[DesignPlacer[SDIODesignInput, SDIOShellInput, SDIOOverlayOutput]]](Nil)
 trait SDIOShellPlacer[Shell] extends ShellPlacer[SDIODesignInput, SDIOShellInput, SDIOOverlayOutput]
