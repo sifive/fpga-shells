@@ -12,7 +12,7 @@ import freechips.rocketchip.interrupts.IntInwardNode
 //This should not do the controller placement either
 case class SDIOShellInput()
 case class SDIODesignInput(spiParam: SPIParams, controlBus: TLBusWrapper, intNode: IntInwardNode)(implicit val p: Parameters)
-case class SDIOOverlayOutput(spi: TLSPI)
+case class SDIOOverlayOutput(spi: ModuleValue[SPIPortIO])
 case object SDIOOverlayKey extends Field[Seq[DesignPlacer[SDIODesignInput, SDIOShellInput, SDIOOverlayOutput]]](Nil)
 trait SDIOShellPlacer[Shell] extends ShellPlacer[SDIODesignInput, SDIOShellInput, SDIOOverlayOutput]
 
@@ -33,12 +33,12 @@ abstract class SDIOPlacedOverlay(
   implicit val p = di.p
 
   def ioFactory = new FPGASDIOPortIO
-  val tlspi = SPI.attach(SPIAttachParams(di.spiParam, di.controlBus, di.intNode))
-  val tlspiSink = tlspi.ioNode.makeSink
+  val tlspiSource = BundleBridgeSource(() => new SPIPortIO(di.spiParam))
+  val tlspiSink = tlspiSource.makeSink
 
   val spiSource = BundleBridgeSource(() => new SPIPortIO(di.spiParam))
   val spiSink = shell { spiSource.makeSink }
-  def overlayOutput = SDIOOverlayOutput(spi = tlspi)
+  def overlayOutput = SDIOOverlayOutput(spi = InModuleBody{ tlspiSource.bundle })
 
   InModuleBody {
     val (io, _) = spiSource.out(0)
