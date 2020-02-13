@@ -56,7 +56,7 @@ class LATCH extends BlackBox {
 }
 
 class FIFO (val width: Int, lglength: Int, showahead: Boolean) extends BlackBox(Map(
-  "intended_device_family" -> StringParam("Cyclone IV E"),
+  "intended_device_family" -> StringParam("Stratix X"),
   "lpm_showahead" -> StringParam(if (showahead) "ON" else "OFF"),
   "lpm_type" -> StringParam("dcfifo"),
   "lpm_widthu" -> IntParam(lglength),
