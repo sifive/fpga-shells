@@ -87,31 +87,46 @@ class TracePMODArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellI
   def place(designInput: TracePMODDesignInput) = new TracePMODArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-class GPIOPMODArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: GPIOPMODDesignInput, val shellInput: GPIOPMODShellInput)
+class GPIOPMODArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: GPIOPMODDesignInput, val shellInput: GPIOPMODShellInput, val pmodId: String = "B")
   extends GPIOPMODXilinxPlacedOverlay(name, designInput, shellInput)
 {
   shell { InModuleBody {
-    val packagePinsWithPackageIOs = Seq(("E15", IOPin(io.gpio_pmod_0)), //These are PMOD B
-      ("E16", IOPin(io.gpio_pmod_1)),
-      ("D15", IOPin(io.gpio_pmod_2)),
-      ("C15", IOPin(io.gpio_pmod_3)),
-      ("J17", IOPin(io.gpio_pmod_4)),
-      ("J18", IOPin(io.gpio_pmod_5)),
-      ("K15", IOPin(io.gpio_pmod_6)),
-      ("J15", IOPin(io.gpio_pmod_7)))
+    val packagePinsWithPackageIOs = if(pmodId == "A") {
+      Seq(
+        ("G13", IOPin(io.gpio_pmod_0)), //These are PMOD A
+        ("B11", IOPin(io.gpio_pmod_1)),
+        ("A11", IOPin(io.gpio_pmod_2)),
+        ("D12", IOPin(io.gpio_pmod_3)),
+        ("D13", IOPin(io.gpio_pmod_4)),
+        ("B18", IOPin(io.gpio_pmod_5)),
+        ("A18", IOPin(io.gpio_pmod_6)),
+        ("K16", IOPin(io.gpio_pmod_7)))
+    } else {
+      Seq(
+        ("E15", IOPin(io.gpio_pmod_0)), //These are PMOD B
+        ("E16", IOPin(io.gpio_pmod_1)),
+        ("D15", IOPin(io.gpio_pmod_2)),
+        ("C15", IOPin(io.gpio_pmod_3)),
+        ("J17", IOPin(io.gpio_pmod_4)),
+        ("J18", IOPin(io.gpio_pmod_5)),
+        ("K15", IOPin(io.gpio_pmod_6)),
+        ("J15", IOPin(io.gpio_pmod_7)))
+    }
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
       shell.xdc.addIOStandard(io, "LVCMOS33")
     } }
+
     packagePinsWithPackageIOs drop 7 foreach { case (pin, io) => {
       shell.xdc.addPullup(io)
     } }
   } }
 }
-class GPIOPMODArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: GPIOPMODShellInput)(implicit val valName: ValName)
+
+class GPIOPMODArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: GPIOPMODShellInput, val pmodId: String)(implicit val valName: ValName)
   extends GPIOPMODShellPlacer[Arty100TShellBasicOverlays] {
-  def place(designInput: GPIOPMODDesignInput) = new GPIOPMODArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
+  def place(designInput: GPIOPMODDesignInput) = new GPIOPMODArtyPlacedOverlay(shell, valName.name, designInput, shellInput, pmodId)
 }
 
 class UARTArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: UARTDesignInput, val shellInput: UARTShellInput)
@@ -290,7 +305,7 @@ abstract class Arty100TShellBasicOverlays()(implicit p: Parameters) extends Seri
   val switch    = Seq.tabulate(4)(i => Overlay(SwitchOverlayKey, new SwitchArtyShellPlacer(this, SwitchShellInput(number = i))(valName = ValName(s"switch_$i"))))
   val button    = Seq.tabulate(4)(i => Overlay(ButtonOverlayKey, new ButtonArtyShellPlacer(this, ButtonShellInput(number = i))(valName = ValName(s"button_$i"))))
   val ddr       = Overlay(DDROverlayKey, new DDRArtyShellPlacer(this, DDRShellInput()))
-  val uart      = Overlay(UARTOverlayKey, new UARTArtyShellPlacer(this, UARTShellInput()))
+  //val uart      = Overlay(UARTOverlayKey, new UARTArtyShellPlacer(this, UARTShellInput()))
   val sdio      = Overlay(SDIOOverlayKey, new SDIOArtyShellPlacer(this, SDIOShellInput()))
   val jtag      = Overlay(JTAGDebugOverlayKey, new JTAGDebugArtyShellPlacer(this, JTAGDebugShellInput()))
   val cjtag     = Overlay(cJTAGDebugOverlayKey, new cJTAGDebugArtyShellPlacer(this, cJTAGDebugShellInput()))
@@ -338,8 +353,9 @@ class Arty100TShellGPIOPMOD()(implicit p: Parameters) extends Arty100TShellBasic
   // PLL reset causes
   val pllReset = InModuleBody { Wire(Bool()) }
 
-  val gpio_pmod = Overlay(GPIOPMODOverlayKey, new GPIOPMODArtyShellPlacer(this, GPIOPMODShellInput()))
-  val trace_pmod = Overlay(TracePMODOverlayKey, new TracePMODArtyShellPlacer(this, TracePMODShellInput()))
+  val uart0_pmod = Overlay(GPIOPMODOverlayKey, new GPIOPMODArtyShellPlacer(this, GPIOPMODShellInput(), "A"))
+  val uart1_pmod = Overlay(GPIOPMODOverlayKey, new GPIOPMODArtyShellPlacer(this, GPIOPMODShellInput(), "B"))
+  //val trace_pmod = Overlay(TracePMODOverlayKey, new TracePMODArtyShellPlacer(this, TracePMODShellInput()))
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
