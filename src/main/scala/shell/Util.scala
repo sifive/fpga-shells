@@ -13,7 +13,7 @@ class AnalogToUInt(w: Int = 1) extends BlackBox with HasBlackBoxInline {
     val a = Analog(w.W)
     val b = Output(UInt(w.W))
   })
-  setInline(s"AnalogToUInt.v",
+  setInline(s"AnalogToUInt_${w.toString}.v",
     s"""module AnalogToUInt (a, b);
        |  inout [${w - 1}:0] a;
        |  output [${w - 1}:0] b;
@@ -37,8 +37,8 @@ class UIntToAnalog(w: Int = 1) extends BlackBox with HasBlackBoxInline {
     val b_en = Input(Bool())
   })
   require(w >= 1)
-  setInline(s"UIntToAnalog.v",
-    s"""module UIntToAnalog(a, b, b_en);
+  setInline(s"UIntToAnalog_${w.toString}.v",
+    s"""module UIntToAnalog_${w.toString} (a, b, b_en);
        |  inout [${w - 1}:0] a;
        |  input [${w - 1}:0] b;
        |  input b_en;
