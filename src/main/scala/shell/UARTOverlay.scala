@@ -13,11 +13,9 @@ import freechips.rocketchip.diplomaticobjectmodel.logicaltree.LogicalTreeNode
 
 import sifive.blocks.devices.uart._
 
-//dont make the controller here
-//move flowcontrol to shell input?? 
 case class UARTShellInput(index: Int = 0)
-case class UARTDesignInput()(implicit val p: Parameters)
-case class UARTOverlayOutput(uart: ModuleValue[UARTPortIO])
+case class UARTDesignInput(node: BundleBridgeSource[UARTPortIO])(implicit val p: Parameters)
+case class UARTOverlayOutput()
 case object UARTOverlayKey extends Field[Seq[DesignPlacer[UARTDesignInput, UARTShellInput, UARTOverlayOutput]]](Nil)
 trait UARTShellPlacer[Shell] extends ShellPlacer[UARTDesignInput, UARTShellInput, UARTOverlayOutput]
 
@@ -30,8 +28,6 @@ class ShellUARTPortIO(val flowControl: Boolean) extends Bundle {
   val ctsn = if (flowControl) Some(Analog(1.W)) else None
 }
 
-//class UARTReplacementBundle extends Bundle with HasUARTTopBundleContents
-
 abstract class UARTPlacedOverlay(
   val name: String, val di: UARTDesignInput, val si: UARTShellInput, val flowControl: Boolean)
     extends IOPlacedOverlay[ShellUARTPortIO, UARTDesignInput, UARTShellInput, UARTOverlayOutput]
@@ -40,15 +36,7 @@ abstract class UARTPlacedOverlay(
 
   def ioFactory = new ShellUARTPortIO(flowControl)
 
-  val tluartSource = BundleBridgeSource(() => new UARTPortIO())
-  val tluartSink = shell { tluartSource.makeSink }
+  val tluartSink = shell { di.node.makeSink }
 
-  def overlayOutput = UARTOverlayOutput(uart =
-    InModuleBody {
-      val uartPort = Wire(new UARTPortIO())
-      uartPort.rxd := RegNext(RegNext(tluartSource.bundle))
-      tluartSource.bundle.txd := uartPort.txd
-      uartPort
-    }
-  )
+  def overlayOutput = UARTOverlayOutput()
 }
