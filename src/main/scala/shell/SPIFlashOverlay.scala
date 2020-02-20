@@ -14,8 +14,8 @@ import sifive.blocks.devices.spi._
 
 //This one does controller also
 case class SPIFlashShellInput(index: Int = 0)
-case class SPIFlashDesignInput(spiFlashParam: SPIFlashParams)(implicit val p: Parameters)
-case class SPIFlashOverlayOutput(spiflash: ModuleValue[SPIPortIO])
+case class SPIFlashDesignInput(node: BundleBridgeSource[SPIPortIO])(implicit val p: Parameters)
+case class SPIFlashOverlayOutput()
 case object SPIFlashOverlayKey extends Field[Seq[DesignPlacer[SPIFlashDesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]]](Nil)
 trait SPIFlashShellPlacer[Shell] extends ShellPlacer[SPIFlashDesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]
 
@@ -34,7 +34,7 @@ abstract class SPIFlashPlacedOverlay(
 
   def ioFactory = new ShellSPIFlashPortIO
 
-  val tlqspiSource = BundleBridgeSource(() => new SPIPortIO(di.spiFlashParam))
-  val tlqspiSink = shell { tlqspiSource.makeSink }
-  def overlayOutput = SPIFlashOverlayOutput(spiflash = InModuleBody{ tlqspiSource.bundle })
+  val tlqspiSink = shell { di.node.makeSink }
+
+  def overlayOutput = SPIFlashOverlayOutput()
 }

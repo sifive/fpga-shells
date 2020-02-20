@@ -11,13 +11,13 @@ import freechips.rocketchip.interrupts.IntInwardNode
 
 //This should not do the controller placement either
 case class SDIOShellInput()
-case class SDIODesignInput(spiParam: SPIParams)(implicit val p: Parameters)
-case class SDIOOverlayOutput(spi: ModuleValue[SPIPortIO])
+case class SDIODesignInput(spiParam: SPIParams, node: BundleBridgeSource[SPIPortIO])(implicit val p: Parameters)
+case class SDIOOverlayOutput()
 case object SDIOOverlayKey extends Field[Seq[DesignPlacer[SDIODesignInput, SDIOShellInput, SDIOOverlayOutput]]](Nil)
 trait SDIOShellPlacer[Shell] extends ShellPlacer[SDIODesignInput, SDIOShellInput, SDIOOverlayOutput]
 
 // SDIO Port. Not sure how generic this is, it might need to move.
-class FPGASDIOPortIO extends Bundle {
+class ShellSDIOPortIO extends Bundle {
   val sdio_clk = Output(Bool())
   val sdio_cmd = Output(Bool())
   val sdio_dat_0 = Input(Bool())
@@ -28,17 +28,16 @@ class FPGASDIOPortIO extends Bundle {
 
 abstract class SDIOPlacedOverlay(
   val name: String, val di: SDIODesignInput, val si: SDIOShellInput)
-    extends IOPlacedOverlay[FPGASDIOPortIO, SDIODesignInput, SDIOShellInput, SDIOOverlayOutput]
+    extends IOPlacedOverlay[ShellSDIOPortIO, SDIODesignInput, SDIOShellInput, SDIOOverlayOutput]
 {
   implicit val p = di.p
 
-  def ioFactory = new FPGASDIOPortIO
-  val tlspiSource = BundleBridgeSource(() => new SPIPortIO(di.spiParam))
-  val tlspiSink = tlspiSource.makeSink
+  def ioFactory = new ShellSDIOPortIO
+  val tlspiSink = di.node.makeSink
 
   val spiSource = BundleBridgeSource(() => new SPIPortIO(di.spiParam))
   val spiSink = shell { spiSource.makeSink }
-  def overlayOutput = SDIOOverlayOutput(spi = InModuleBody{ tlspiSource.bundle })
+  def overlayOutput = SDIOOverlayOutput()
 
   InModuleBody {
     val (io, _) = spiSource.out(0)
