@@ -13,10 +13,9 @@ import freechips.rocketchip.diplomaticobjectmodel.logicaltree.LogicalTreeNode
 
 import sifive.blocks.devices.pwm._
 
-//another one that makes the controller... remove this
 case class PWMShellInput(index: Int = 0)
-case class PWMDesignInput(pwmParams: PWMParams)(implicit val p: Parameters)
-case class PWMOverlayOutput(pwm: ModuleValue[PWMPortIO])
+case class PWMDesignInput(node: BundleBridgeSource[PWMPortIO])(implicit val p: Parameters)
+case class PWMOverlayOutput()
 case object PWMOverlayKey extends Field[Seq[DesignPlacer[PWMDesignInput, PWMShellInput, PWMOverlayOutput]]](Nil)
 trait PWMShellPlacer[Shell] extends ShellPlacer[PWMDesignInput, PWMShellInput, PWMOverlayOutput]
 
@@ -32,8 +31,7 @@ abstract class PWMPlacedOverlay(
 
   def ioFactory = new ShellPWMPortIO
 
-  val tlpwmSource = BundleBridgeSource(() => new PWMPortIO(di.pwmParams))
-  val tlpwmSink = shell { tlpwmSource.makeSink }
+  val tlpwmSink = shell { di.node.makeSink }
 
-  def overlayOutput = PWMOverlayOutput(pwm = InModuleBody{ tlpwmSource.bundle })
+  def overlayOutput = PWMOverlayOutput()
 }
