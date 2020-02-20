@@ -12,11 +12,9 @@ import freechips.rocketchip.diplomaticobjectmodel.logicaltree.LogicalTreeNode
 
 import sifive.blocks.devices.gpio._
 
-//Might delete later...
-//Should GPIO be an overlay? Probably not, PinOverlay might take over this use case
 case class GPIOShellInput()
-case class GPIODesignInput(gpioParams: GPIOParams)(implicit val p: Parameters)
-case class GPIOOverlayOutput(gpio: ModuleValue[GPIOPortIO])
+case class GPIODesignInput(gpioParams: GPIOParams, node: BundleBridgeSource[GPIOPortIO])(implicit val p: Parameters)
+case class GPIOOverlayOutput()
 case object GPIOOverlayKey extends Field[Seq[DesignPlacer[GPIODesignInput, GPIOShellInput, GPIOOverlayOutput]]](Nil)
 trait GPIOShellPlacer[Shell] extends ShellPlacer[GPIODesignInput, GPIOShellInput, GPIOOverlayOutput]
 
@@ -32,7 +30,6 @@ abstract class GPIOPlacedOverlay(
 
   def ioFactory = new ShellGPIOPortIO(di.gpioParams.width)
 
-  val tlgpioSource = BundleBridgeSource(() => new GPIOPortIO(di.gpioParams))
-  val tlgpioSink = shell { tlgpioSource.makeSink }
-  def overlayOutput = GPIOOverlayOutput(gpio = InModuleBody{ tlgpioSource.bundle })
+  val tlgpioSink = shell { di.node.makeSink }
+  def overlayOutput = GPIOOverlayOutput()
 }
