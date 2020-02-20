@@ -13,13 +13,9 @@ import freechips.rocketchip.diplomaticobjectmodel.logicaltree.LogicalTreeNode
 
 import sifive.blocks.devices.i2c._
 
-//This should NOT do the device placement, just return the bundlebridge
 case class I2CShellInput(index: Int = 0)
-case class I2CDesignInput(
-  i2cParams: I2CParams,
-  controlBus: TLBusWrapper,
-  intNode: IntInwardNode)(implicit val p: Parameters)
-case class I2COverlayOutput(i2c: TLI2C)
+case class I2CDesignInput(node: BundleBridgeSource[I2CPort])(implicit val p: Parameters)
+case class I2COverlayOutput()
 trait I2CShellPlacer[Shell] extends ShellPlacer[I2CDesignInput, I2CShellInput, I2COverlayOutput]
 
 case object I2COverlayKey extends Field[Seq[DesignPlacer[I2CDesignInput, I2CShellInput, I2COverlayOutput]]](Nil)
@@ -37,11 +33,7 @@ abstract class I2CPlacedOverlay(
 
   def ioFactory = new ShellI2CPortIO
 
-  val tli2c = I2C.attach(I2CAttachParams(
-    i2c = di.i2cParams,
-    controlBus = di.controlBus,
-    intNode = di.intNode))
-  val tli2cSink = shell { tli2c.ioNode.makeSink }
+  val tli2cSink = shell { di.node.makeSink }
 
-  def overlayOutput = I2COverlayOutput(i2c = tli2c)
+  def overlayOutput = I2COverlayOutput()
 }

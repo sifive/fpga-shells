@@ -14,13 +14,8 @@ import sifive.blocks.devices.spi._
 
 //This one does controller also
 case class SPIFlashShellInput(index: Int = 0)
-case class SPIFlashDesignInput(
-  spiFlashParam: SPIFlashParams,
-  controlBus: TLBusWrapper,
-  memBus: TLBusWrapper,
-  intNode: IntInwardNode,
-  parentLogicalTreeNode: Option[LogicalTreeNode])(implicit val p: Parameters)
-case class SPIFlashOverlayOutput(spiflash: TLSPIFlash)
+case class SPIFlashDesignInput(node: BundleBridgeSource[SPIPortIO])(implicit val p: Parameters)
+case class SPIFlashOverlayOutput()
 case object SPIFlashOverlayKey extends Field[Seq[DesignPlacer[SPIFlashDesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]]](Nil)
 trait SPIFlashShellPlacer[Shell] extends ShellPlacer[SPIFlashDesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]
 
@@ -38,13 +33,8 @@ abstract class SPIFlashPlacedOverlay(
   implicit val p = di.p
 
   def ioFactory = new ShellSPIFlashPortIO
-  val tlqspi = SPI.attachFlash(SPIFlashAttachParams(
-    spi = di.spiFlashParam,
-    controlBus = di.controlBus,
-    memBus = di.memBus,
-    intNode = di.intNode,
-    parentLogicalTreeNode = di.parentLogicalTreeNode))
 
-  val tlqspiSink = shell { tlqspi.ioNode.makeSink }
-  def overlayOutput = SPIFlashOverlayOutput(spiflash = tlqspi)
+  val tlqspiSink = shell { di.node.makeSink }
+
+  def overlayOutput = SPIFlashOverlayOutput()
 }
