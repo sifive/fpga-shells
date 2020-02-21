@@ -80,7 +80,7 @@ class SPIFlashVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: Str
 {
 
   shell { InModuleBody { 
-    val packagePinsWithPackageIOs = Seq(("AF13", IOPin(io.qspi_sck)),
+    /*val packagePinsWithPackageIOs = Seq(("AF13", IOPin(io.qspi_sck)),
       ("AJ11", IOPin(io.qspi_cs)),
       ("AP11", IOPin(io.qspi_dq(0))),
       ("AN11", IOPin(io.qspi_dq(1))),
@@ -89,11 +89,13 @@ class SPIFlashVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: Str
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
-    //  shell.xdc.addIOStandard(io, "LVCMOS18")
+      shell.xdc.addIOStandard(io, "LVCMOS18")
+      shell.xdc.addIOB(io)
     } }
-    //packagePinsWithPackageIOs drop 1 foreach { case (pin, io) => {
-    //  shell.xdc.addPullup(io)
-    //} }
+    packagePinsWithPackageIOs drop 1 foreach { case (pin, io) => {
+      shell.xdc.addPullup(io)
+    } }
+*/
   } }
 }
 class SPIFlashVCU118ShellPlacer(shell: VCU118ShellBasicOverlays, val shellInput: SPIFlashShellInput)(implicit val valName: ValName)
@@ -240,12 +242,14 @@ class JTAGDebugVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: St
     val packagePinsWithPackageIOs = Seq(("P29", IOPin(io.jtag_TCK)),
                                         ("L31", IOPin(io.jtag_TMS)),
                                         ("M31", IOPin(io.jtag_TDI)),
-                                        ("R29", IOPin(io.jtag_TDO)))
+                                        ("R29", IOPin(io.jtag_TDO)),
+                                        ("N28", IOPin(io.srst_n)))
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
       shell.xdc.addIOStandard(io, "LVCMOS18")
       shell.xdc.addPullup(io)
+      shell.xdc.addIOB(io)
     } }
   } }
 }
