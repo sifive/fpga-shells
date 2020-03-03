@@ -23,7 +23,7 @@ abstract class SPIFlashXilinxPlacedOverlay(name: String, di: SPIFlashDesignInput
         design_dq.i := AnalogToUInt(io_dq)
       }
     } else {
-      // If on vcu118, to communicate with Flash, STARTUPE3 primitive needs to be connected and hooked uo tp 
+      // If on vcu118, to communicate with Flash, STARTUPE3 primitive needs to be connected and hooked up to
       // spi, rather than a top level connection
       val se3 = Module(new STARTUPE3())
       se3.io.USRDONEO   := true.B
@@ -40,8 +40,8 @@ abstract class SPIFlashXilinxPlacedOverlay(name: String, di: SPIFlashDesignInput
       tlqspiSink.bundle.dq(3).i            := se3.io.DI(3)
       se3.io.GSR        := false.B
       se3.io.GTS        := false.B
-      se3.io.KEYCLEARB  := false.B
-      se3.io.PACK       := false.B
+      se3.io.KEYCLEARB  := true.B
+      se3.io.PACK       := true.B
     }
   } }
 }
