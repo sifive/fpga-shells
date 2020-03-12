@@ -33,7 +33,7 @@ abstract class SPIFlashXilinxPlacedOverlay(name: String, di: SPIFlashDesignInput
       se3.io.FCSBO      := tlqspiSink.bundle.cs(0)
       se3.io.FCSBTS     := false.B
       se3.io.DO         := Cat(tlqspiSink.bundle.dq.map(_.o))
-      se3.io.DTS        := Cat(tlqspiSink.bundle.dq.map(_.oe))
+      se3.io.DTS        := Cat(tlqspiSink.bundle.dq.map(!_.oe))
       tlqspiSink.bundle.dq(0).i            := se3.io.DI(0)
       tlqspiSink.bundle.dq(1).i            := se3.io.DI(1)
       tlqspiSink.bundle.dq(2).i            := se3.io.DI(2)
