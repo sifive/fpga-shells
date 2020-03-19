@@ -57,4 +57,4 @@ if { [llength $group_ulpi]   > 0 } { lappend groups -group $group_ulpi }
 puts "set_clock_groups -asynchronous $groups"
 set_clock_groups -asynchronous {*}$groups
 
-set_false_path -from [get_clocks JTCK] -to [get_clocks -of_objects [get_pins lazysys/xilinxvc707mig_1/island/blackbox/u_vc707mig4gb_mig/u_iodelay_ctrl/clk_ref_mmcm_gen.mmcm_i/CLKOUT1]]
+#set_false_path -from [get_clocks JTCK] -to [get_clocks -of_objects [get_pins lazysys/xilinxvc707mig_1/island/blackbox/u_vc707mig4gb_mig/u_iodelay_ctrl/clk_ref_mmcm_gen.mmcm_i/CLKOUT1]]

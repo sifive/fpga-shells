@@ -48,16 +48,16 @@ set_property IOB TRUE [get_ports uart_rtsn]
 
 # PCI Express
 #FMC 1 refclk
-set_property PACKAGE_PIN A10 [get_ports {pcie_REFCLK_rxp}]
-set_property PACKAGE_PIN A9 [get_ports {pcie_REFCLK_rxn}]
-create_clock -name pcie_ref_clk -period 10 [get_ports pcie_REFCLK_rxp]
-set_input_jitter [get_clocks -of_objects [get_ports pcie_REFCLK_rxp]] 0.5
+#set_property PACKAGE_PIN A10 [get_ports {pcie_REFCLK_rxp}]
+#set_property PACKAGE_PIN A9 [get_ports {pcie_REFCLK_rxn}]
+#create_clock -name pcie_ref_clk -period 10 [get_ports pcie_REFCLK_rxp]
+#set_input_jitter [get_clocks -of_objects [get_ports pcie_REFCLK_rxp]] 0.5
 
-set_property PACKAGE_PIN H4 [get_ports {pcie_pci_exp_txp}]
-set_property PACKAGE_PIN H3 [get_ports {pcie_pci_exp_txn}]
+#set_property PACKAGE_PIN H4 [get_ports {pcie_pci_exp_txp}]
+#set_property PACKAGE_PIN H3 [get_ports {pcie_pci_exp_txn}]
 
-set_property PACKAGE_PIN G6 [get_ports {pcie_pci_exp_rxp}]
-set_property PACKAGE_PIN G5 [get_ports {pcie_pci_exp_rxn}]
+#set_property PACKAGE_PIN G6 [get_ports {pcie_pci_exp_rxp}]
+#set_property PACKAGE_PIN G5 [get_ports {pcie_pci_exp_rxn}]
 
 # SDIO
 set_property -dict { PACKAGE_PIN AN30  IOSTANDARD LVCMOS18  IOB TRUE } [get_ports {sdio_clk}]
