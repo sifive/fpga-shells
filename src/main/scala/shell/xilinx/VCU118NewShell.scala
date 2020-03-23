@@ -404,9 +404,6 @@ abstract class VCU118ShellBasicOverlays()(implicit p: Parameters) extends UltraS
   val led       = Seq.tabulate(8)(i => Overlay(LEDOverlayKey, new LEDVCU118ShellPlacer(this, LEDShellInput(color = "red", number = i))(valName = ValName(s"led_$i"))))
   val switch    = Seq.tabulate(4)(i => Overlay(SwitchOverlayKey, new SwitchVCU118ShellPlacer(this, SwitchShellInput(number = i))(valName = ValName(s"switch_$i"))))
   val ddr       = Overlay(DDROverlayKey, new DDRVCU118ShellPlacer(this, DDRShellInput()))
-  val uart      = Overlay(UARTOverlayKey, new UARTVCU118ShellPlacer(this, UARTShellInput()))
-  val sdio      = Overlay(SDIOOverlayKey, new SDIOVCU118ShellPlacer(this, SDIOShellInput()))
-  val jtag      = Overlay(JTAGDebugOverlayKey, new JTAGDebugVCU118ShellPlacer(this, JTAGDebugShellInput()))
   val qsfp1     = Overlay(EthernetOverlayKey, new QSFP1VCU118ShellPlacer(this, EthernetShellInput()))
   val qsfp2     = Overlay(EthernetOverlayKey, new QSFP2VCU118ShellPlacer(this, EthernetShellInput()))
   val chiplink  = Overlay(ChipLinkOverlayKey, new ChipLinkVCU118ShellPlacer(this, ChipLinkShellInput()))
@@ -420,6 +417,9 @@ class VCU118Shell()(implicit p: Parameters) extends VCU118ShellBasicOverlays
   val pllReset = InModuleBody { Wire(Bool()) }
 
   // Order matters; ddr depends on sys_clock
+  val uart      = Overlay(UARTOverlayKey, new UARTVCU118ShellPlacer(this, UARTShellInput()))
+  val sdio      = Overlay(SDIOOverlayKey, new SDIOVCU118ShellPlacer(this, SDIOShellInput()))
+  val jtag      = Overlay(JTAGDebugOverlayKey, new JTAGDebugVCU118ShellPlacer(this, JTAGDebugShellInput()))
   val fmc       = Overlay(PCIeOverlayKey, new PCIeVCU118FMCShellPlacer(this, PCIeShellInput()))
   val edge      = Overlay(PCIeOverlayKey, new PCIeVCU118EdgeShellPlacer(this, PCIeShellInput()))
 
