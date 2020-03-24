@@ -13,7 +13,7 @@ import freechips.rocketchip.diplomaticobjectmodel.logicaltree.LogicalTreeNode
 import sifive.blocks.devices.spi._
 
 //This one does controller also
-case class SPIFlashShellInput(index: Int = 0, vcu118SU: Boolean = false)
+case class SPIFlashShellInput(index: Int = 0)
 case class SPIFlashDesignInput(node: BundleBridgeSource[SPIPortIO])(implicit val p: Parameters)
 case class SPIFlashOverlayOutput()
 case object SPIFlashOverlayKey extends Field[Seq[DesignPlacer[SPIFlashDesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]]](Nil)
