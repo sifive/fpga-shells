@@ -399,6 +399,9 @@ class PCIeVCU118EdgeShellPlacer(shell: VCU118ShellBasicOverlays, val shellInput:
 }
 
 abstract class VCU118ShellBasicOverlays()(implicit p: Parameters) extends UltraScaleShell{
+  // PLL reset causes
+  val pllReset = InModuleBody { Wire(Bool()) }
+
   val sys_clock = Overlay(ClockInputOverlayKey, new SysClockVCU118ShellPlacer(this, ClockInputShellInput()))
   val ref_clock = Overlay(ClockInputOverlayKey, new RefClockVCU118ShellPlacer(this, ClockInputShellInput()))
   val led       = Seq.tabulate(8)(i => Overlay(LEDOverlayKey, new LEDVCU118ShellPlacer(this, LEDShellInput(color = "red", number = i))(valName = ValName(s"led_$i"))))
@@ -413,9 +416,6 @@ abstract class VCU118ShellBasicOverlays()(implicit p: Parameters) extends UltraS
 
 class VCU118Shell()(implicit p: Parameters) extends VCU118ShellBasicOverlays
 {
-  // PLL reset causes
-  val pllReset = InModuleBody { Wire(Bool()) }
-
   // Order matters; ddr depends on sys_clock
   val uart      = Overlay(UARTOverlayKey, new UARTVCU118ShellPlacer(this, UARTShellInput()))
   val sdio      = Overlay(SDIOOverlayKey, new SDIOVCU118ShellPlacer(this, SDIOShellInput()))
