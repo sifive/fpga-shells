@@ -80,7 +80,7 @@ class SPIFlashVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: Str
 {
 
   shell { InModuleBody { 
-    val packagePinsWithPackageIOs = Seq(("AF13", IOPin(io.qspi_sck)),
+    /*val packagePinsWithPackageIOs = Seq(("AF13", IOPin(io.qspi_sck)),
       ("AJ11", IOPin(io.qspi_cs)),
       ("AP11", IOPin(io.qspi_dq(0))),
       ("AN11", IOPin(io.qspi_dq(1))),
@@ -89,11 +89,13 @@ class SPIFlashVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: Str
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
-    //  shell.xdc.addIOStandard(io, "LVCMOS18")
+      shell.xdc.addIOStandard(io, "LVCMOS18")
+      shell.xdc.addIOB(io)
     } }
-    //packagePinsWithPackageIOs drop 1 foreach { case (pin, io) => {
-    //  shell.xdc.addPullup(io)
-    //} }
+    packagePinsWithPackageIOs drop 1 foreach { case (pin, io) => {
+      shell.xdc.addPullup(io)
+    } }
+*/
   } }
 }
 class SPIFlashVCU118ShellPlacer(shell: VCU118ShellBasicOverlays, val shellInput: SPIFlashShellInput)(implicit val valName: ValName)
@@ -240,12 +242,14 @@ class JTAGDebugVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: St
     val packagePinsWithPackageIOs = Seq(("P29", IOPin(io.jtag_TCK)),
                                         ("L31", IOPin(io.jtag_TMS)),
                                         ("M31", IOPin(io.jtag_TDI)),
-                                        ("R29", IOPin(io.jtag_TDO)))
+                                        ("R29", IOPin(io.jtag_TDO)),
+                                        ("N28", IOPin(io.srst_n)))
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
       shell.xdc.addIOStandard(io, "LVCMOS18")
       shell.xdc.addPullup(io)
+      shell.xdc.addIOB(io)
     } }
   } }
 }
@@ -395,14 +399,14 @@ class PCIeVCU118EdgeShellPlacer(shell: VCU118ShellBasicOverlays, val shellInput:
 }
 
 abstract class VCU118ShellBasicOverlays()(implicit p: Parameters) extends UltraScaleShell{
+  // PLL reset causes
+  val pllReset = InModuleBody { Wire(Bool()) }
+
   val sys_clock = Overlay(ClockInputOverlayKey, new SysClockVCU118ShellPlacer(this, ClockInputShellInput()))
   val ref_clock = Overlay(ClockInputOverlayKey, new RefClockVCU118ShellPlacer(this, ClockInputShellInput()))
   val led       = Seq.tabulate(8)(i => Overlay(LEDOverlayKey, new LEDVCU118ShellPlacer(this, LEDShellInput(color = "red", number = i))(valName = ValName(s"led_$i"))))
   val switch    = Seq.tabulate(4)(i => Overlay(SwitchOverlayKey, new SwitchVCU118ShellPlacer(this, SwitchShellInput(number = i))(valName = ValName(s"switch_$i"))))
   val ddr       = Overlay(DDROverlayKey, new DDRVCU118ShellPlacer(this, DDRShellInput()))
-  val uart      = Overlay(UARTOverlayKey, new UARTVCU118ShellPlacer(this, UARTShellInput()))
-  val sdio      = Overlay(SDIOOverlayKey, new SDIOVCU118ShellPlacer(this, SDIOShellInput()))
-  val jtag      = Overlay(JTAGDebugOverlayKey, new JTAGDebugVCU118ShellPlacer(this, JTAGDebugShellInput()))
   val qsfp1     = Overlay(EthernetOverlayKey, new QSFP1VCU118ShellPlacer(this, EthernetShellInput()))
   val qsfp2     = Overlay(EthernetOverlayKey, new QSFP2VCU118ShellPlacer(this, EthernetShellInput()))
   val chiplink  = Overlay(ChipLinkOverlayKey, new ChipLinkVCU118ShellPlacer(this, ChipLinkShellInput()))
@@ -412,10 +416,10 @@ abstract class VCU118ShellBasicOverlays()(implicit p: Parameters) extends UltraS
 
 class VCU118Shell()(implicit p: Parameters) extends VCU118ShellBasicOverlays
 {
-  // PLL reset causes
-  val pllReset = InModuleBody { Wire(Bool()) }
-
   // Order matters; ddr depends on sys_clock
+  val uart      = Overlay(UARTOverlayKey, new UARTVCU118ShellPlacer(this, UARTShellInput()))
+  val sdio      = Overlay(SDIOOverlayKey, new SDIOVCU118ShellPlacer(this, SDIOShellInput()))
+  val jtag      = Overlay(JTAGDebugOverlayKey, new JTAGDebugVCU118ShellPlacer(this, JTAGDebugShellInput()))
   val fmc       = Overlay(PCIeOverlayKey, new PCIeVCU118FMCShellPlacer(this, PCIeShellInput()))
   val edge      = Overlay(PCIeOverlayKey, new PCIeVCU118EdgeShellPlacer(this, PCIeShellInput()))
 

@@ -118,6 +118,39 @@ class IBUFDS_GTE4(
     val I     = Clock(INPUT)
     val IB    = Clock(INPUT)
   })
+
+}
+/** STARTUPE3 -- Primitive block to enable application communication with flash device on vcu118. */
+
+class STARTUPE3(
+  PROG_USR : Boolean = false,
+  SIM_CCLK_FREQ : Double = 0
+) 
+extends BlackBox(
+  Map(
+    "PROG_USR" -> booleanToVerilogStringParam(PROG_USR),
+    "SIM_CCLK_FREQ" ->  DoubleParam(SIM_CCLK_FREQ)
+  )
+) {
+  val io = IO(new Bundle {
+    val CFGCLK = Output(Clock())
+    val CFGMCLK = Output(Clock())
+    val DI = Output(UInt(4.W))
+    val EOS = Output(Bool())
+    val PREQ = Output(Bool())
+    val DO = Input(UInt(4.W))
+    val DTS = Input(UInt(4.W))
+    val FCSBO = Input(Bool())
+    val FCSBTS = Input(Bool())
+    val GSR = Input(Bool())
+    val GTS = Input(Bool())
+    val KEYCLEARB = Input(Bool())
+    val PACK = Input(Bool())
+    val USRCCLKO = Input(Clock())
+    val USRCCLKTS = Input(Bool())
+    val USRDONEO = Input(Bool())
+    val USRDONETS = Input(Bool())
+  })
 }
 
 /** IDDR - 7 Series SelectIO DDR flop */
