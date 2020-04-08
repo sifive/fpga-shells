@@ -14,6 +14,8 @@ import freechips.rocketchip.util.DontTouch
 
 case object DesignKey extends Field[Parameters => LazyModule]
 
+case object DesignKeyWithTestHarness extends Field[(Option[LazyScope], Parameters) => LazyModule]
+
 // Overlays are declared by the Shell and placed somewhere by the Design
 // ... they inject diplomatic code both where they were placed and in the shell
 // ... they are instantiated with DesignInput and return DesignOutput
