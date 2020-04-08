@@ -180,6 +180,16 @@ class LEDVCU118ShellPlacer(shell: VCU118ShellBasicOverlays, val shellInput: LEDS
   def place(designInput: LEDDesignInput) = new LEDVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
+object ButtonVCU118PinConstraints {
+  val pins = Seq("BB24", "BE23", "BF22", "BE22", "BD23")
+}
+class ButtonVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: ButtonDesignInput, val shellInput: ButtonShellInput)
+  extends ButtonXilinxPlacedOverlay(name, designInput, shellInput, packagePin = Some(ButtonVCU118PinConstraints.pins(shellInput.number)), ioStandard = "LVCMOS18")
+class ButtonVCU118ShellPlacer(shell: VCU118ShellBasicOverlays, val shellInput: ButtonShellInput)(implicit val valName: ValName)
+  extends ButtonShellPlacer[VCU118ShellBasicOverlays] {
+  def place(designInput: ButtonDesignInput) = new ButtonVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
+}
+
 object SwitchVCU118PinConstraints {
   val pins = Seq("B17", "G16", "J16", "D21")
 }
@@ -239,11 +249,11 @@ class JTAGDebugVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: St
     shell.sdc.addClock("JTCK", IOPin(io.jtag_TCK), 10)
     shell.sdc.addGroup(clocks = Seq("JTCK"))
     shell.xdc.clockDedicatedRouteFalse(IOPin(io.jtag_TCK))
-    val packagePinsWithPackageIOs = Seq(("P29", IOPin(io.jtag_TCK)),
-                                        ("L31", IOPin(io.jtag_TMS)),
-                                        ("M31", IOPin(io.jtag_TDI)),
-                                        ("R29", IOPin(io.jtag_TDO)),
-                                        ("N28", IOPin(io.srst_n)))
+    val packagePinsWithPackageIOs = Seq(("AW15", IOPin(io.jtag_TCK)),
+                                        ("AU16", IOPin(io.jtag_TMS)),
+                                        ("AV16", IOPin(io.jtag_TDI)),
+                                        ("AY14", IOPin(io.jtag_TDO)),
+                                        ("AY15", IOPin(io.srst_n)))
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
@@ -406,6 +416,7 @@ abstract class VCU118ShellBasicOverlays()(implicit p: Parameters) extends UltraS
   val ref_clock = Overlay(ClockInputOverlayKey, new RefClockVCU118ShellPlacer(this, ClockInputShellInput()))
   val led       = Seq.tabulate(8)(i => Overlay(LEDOverlayKey, new LEDVCU118ShellPlacer(this, LEDShellInput(color = "red", number = i))(valName = ValName(s"led_$i"))))
   val switch    = Seq.tabulate(4)(i => Overlay(SwitchOverlayKey, new SwitchVCU118ShellPlacer(this, SwitchShellInput(number = i))(valName = ValName(s"switch_$i"))))
+  val button    = Seq.tabulate(5)(i => Overlay(ButtonOverlayKey, new ButtonVCU118ShellPlacer(this, ButtonShellInput(number = i))(valName = ValName(s"button_$i"))))
   val ddr       = Overlay(DDROverlayKey, new DDRVCU118ShellPlacer(this, DDRShellInput()))
   val qsfp1     = Overlay(EthernetOverlayKey, new QSFP1VCU118ShellPlacer(this, EthernetShellInput()))
   val qsfp2     = Overlay(EthernetOverlayKey, new QSFP2VCU118ShellPlacer(this, EthernetShellInput()))
