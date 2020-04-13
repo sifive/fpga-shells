@@ -10,7 +10,7 @@ class nfmac10g extends BlackBox {
   val io = IO(new Bundle {
     val tx_clk0       = Input(Clock())
     val rx_clk0       = Input(Clock())
-    val reset         = Input(Bool())
+    val reset         = Input(Reset())
     val tx_dcm_locked = Input(Bool())
     val rx_dcm_locked = Input(Bool())
 
@@ -21,7 +21,7 @@ class nfmac10g extends BlackBox {
     val xgmii_rxc = Input (UInt(8.W))
 
     // Tx AXIS
-    val tx_axis_aresetn = Input (Bool())
+    val tx_axis_aresetn = Input (Reset())
     val tx_axis_tready  = Output(Bool())
     val tx_axis_tvalid  = Input (Bool())
     val tx_axis_tlast   = Input (Bool())
@@ -30,7 +30,7 @@ class nfmac10g extends BlackBox {
     val tx_axis_tuser   = Input (UInt(1.W))
 
     // Rx AXIS
-    val rx_axis_aresetn = Input (Bool())
+    val rx_axis_aresetn = Input (Reset())
     val rx_axis_tvalid  = Output(Bool())
     val rx_axis_tlast   = Output(Bool())
     val rx_axis_tdata   = Output(UInt(64.W))
