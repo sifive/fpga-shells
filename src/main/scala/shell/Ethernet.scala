@@ -26,11 +26,11 @@ class EthernetPads extends Bundle {
 
 class EthernetPCS extends Bundle {
   val rx_clock = Output(Clock())
-  val rx_reset = Output(Bool())
+  val rx_reset = Output(Reset())
   val rx_d = Output(UInt(64.W))
   val rx_c = Output(UInt(8.W))
   val tx_clock = Output(Clock())
-  val tx_reset = Output(Bool())
+  val tx_reset = Output(Reset())
   val tx_d = Input(UInt(64.W))
   val tx_c = Input(UInt(8.W))
   val loopback = Input(UInt(3.W))

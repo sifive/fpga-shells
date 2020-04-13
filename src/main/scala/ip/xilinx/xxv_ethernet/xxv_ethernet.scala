@@ -21,11 +21,11 @@ trait HasXXVEthernetClocks {
   val rx_core_clk_0 = Input (Clock()) // >= 156.25MHz ... maybe core clock to avoid another crossing?
   val tx_mii_clk_0  = Output(Clock()) // TX data path
 
-  val sys_reset = Input(Bool())
+  val sys_reset = Input(Reset())
   val dclk      = Input(Clock()) // free-running fsm clock
 
-  val user_rx_reset_0 = Output(Bool())
-  val user_tx_reset_0 = Output(Bool())
+  val user_rx_reset_0 = Output(AsyncReset())
+  val user_tx_reset_0 = Output(AsyncReset())
 }
 
 trait HasXXVEthernetMAC {
@@ -54,10 +54,10 @@ trait HasXXVEthernetJunk {
   val ctl_tx_prbs31_test_pattern_enable_0 = Input(Bool())
 
   // Drive these always to 0
-  val rx_reset_0 = Input(Bool())
-  val tx_reset_0 = Input(Bool())
-  val gtwiz_reset_tx_datapath_0 = Input(Bool())
-  val gtwiz_reset_rx_datapath_0 = Input(Bool())
+  val rx_reset_0 = Input(Reset())
+  val tx_reset_0 = Input(Reset())
+  val gtwiz_reset_tx_datapath_0 = Input(Reset())
+  val gtwiz_reset_rx_datapath_0 = Input(Reset())
 
   val gtpowergood_out_0 = Output(Bool())
   val gt_refclk_out = Output(Clock()) // 156.25MHz from xcvr refclk pads
