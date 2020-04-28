@@ -59,7 +59,7 @@ class PolarFireEvalKitPCIeX4(implicit p: Parameters) extends LazyModule with Has
       := axi_to_pcie.master)
 
   val TLScope = LazyModule(new SimpleLazyModule with LazyScope)
-  val intnode: IntOutwardNode = IntSyncCrossingSink() := TLScope {
+  val intnode: IntOutwardNode = IntSyncAsyncCrossingSink() := TLScope {
     IntSyncCrossingSource(alreadyRegistered = true) := axi_to_pcie.intnode
   }
 
