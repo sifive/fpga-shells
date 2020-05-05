@@ -246,14 +246,17 @@ class JTAGDebugVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: St
   extends JTAGDebugXilinxPlacedOverlay(name, designInput, shellInput)
 {
   shell { InModuleBody {
+    val pinConsts = Map("PMOD_J52" -> Seq("AW15", "AU16", "AV16", "AY14", "AY15"),
+                        "FMC_J2" -> Seq("AL12", "AN15", "AP15", "AM12", "AK12"))
+    val loc = shellInput.location.get //This will error if the shell doesn't give a location
     shell.sdc.addClock("JTCK", IOPin(io.jtag_TCK), 10)
     shell.sdc.addGroup(clocks = Seq("JTCK"))
     shell.xdc.clockDedicatedRouteFalse(IOPin(io.jtag_TCK))
-    val packagePinsWithPackageIOs = Seq(("AW15", IOPin(io.jtag_TCK)),
-                                        ("AU16", IOPin(io.jtag_TMS)),
-                                        ("AV16", IOPin(io.jtag_TDI)),
-                                        ("AY14", IOPin(io.jtag_TDO)),
-                                        ("AY15", IOPin(io.srst_n)))
+    val packagePinsWithPackageIOs = Seq((pinConsts(loc)(0), IOPin(io.jtag_TCK)),
+                                        (pinConsts(loc)(1), IOPin(io.jtag_TMS)),
+                                        (pinConsts(loc)(2), IOPin(io.jtag_TDI)),
+                                        (pinConsts(loc)(3), IOPin(io.jtag_TDO)),
+                                        (pinConsts(loc)(4), IOPin(io.srst_n)))
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
@@ -425,12 +428,22 @@ abstract class VCU118ShellBasicOverlays()(implicit p: Parameters) extends UltraS
   //SPI Flash not functional
 }
 
+case object VCU118ShellPMOD extends Field[String]("JTAG")
+
+class WithVCU118ShellPMOD(device: String) extends Config((site, here, up) => {
+  case VCU118ShellPMOD => device
+})
+
+class WithVCU118PMODJTAG extends WithVCU118ShellPMOD("JTAG")
+class WithVCU118PMODSDIO extends WithVCU118ShellPMOD("SDIO")
+
 class VCU118Shell()(implicit p: Parameters) extends VCU118ShellBasicOverlays
 {
   // Order matters; ddr depends on sys_clock
   val uart      = Overlay(UARTOverlayKey, new UARTVCU118ShellPlacer(this, UARTShellInput()))
-  val sdio      = Overlay(SDIOOverlayKey, new SDIOVCU118ShellPlacer(this, SDIOShellInput()))
-  val jtag      = Overlay(JTAGDebugOverlayKey, new JTAGDebugVCU118ShellPlacer(this, JTAGDebugShellInput()))
+  val sdio      = if (p(VCU118ShellPMOD) == "SDIO") Some(Overlay(SDIOOverlayKey, new SDIOVCU118ShellPlacer(this, SDIOShellInput()))) else None
+  val jtag_loc_input = if (p(VCU118ShellPMOD) == "JTAG") "PMOD_J52" else "FMC_J2"
+  val jtag      = Overlay(JTAGDebugOverlayKey, new JTAGDebugVCU118ShellPlacer(this, JTAGDebugShellInput(location = Some(jtag_loc_input))))
   val fmc       = Overlay(PCIeOverlayKey, new PCIeVCU118FMCShellPlacer(this, PCIeShellInput()))
   val edge      = Overlay(PCIeOverlayKey, new PCIeVCU118EdgeShellPlacer(this, PCIeShellInput()))
 
