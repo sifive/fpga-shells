@@ -11,7 +11,7 @@ import freechips.rocketchip.devices.debug._
 import freechips.rocketchip.subsystem.{BaseSubsystem, PeripheryBus, PeripheryBusKey}
 import sifive.fpgashells.ip.xilinx._
 
-case class JTAGDebugShellInput()
+case class JTAGDebugShellInput(location: Option[String] = None)
 case class JTAGDebugDesignInput()(implicit val p: Parameters)
 case class JTAGDebugOverlayOutput(jtag: ModuleValue[FlippedJTAGIO])
 case object JTAGDebugOverlayKey extends Field[Seq[DesignPlacer[JTAGDebugDesignInput, JTAGDebugShellInput, JTAGDebugOverlayOutput]]](Nil)
