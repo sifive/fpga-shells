@@ -18,7 +18,7 @@ case class cJTAGDebugShellInput(
   number: Int = 0)
 
 case class cJTAGDebugDesignInput()(implicit val p: Parameters)
-case class cJTAGDebugOverlayOutput(cjtag: ModuleValue[FPGAcJTAGSignals])
+case class cJTAGDebugOverlayOutput(cjtag: FPGAcJTAGSignals)
 trait cJTAGDebugShellPlacer[Shell] extends ShellPlacer[cJTAGDebugDesignInput, cJTAGDebugShellInput, cJTAGDebugOverlayOutput]
 
 case object cJTAGDebugOverlayKey extends Field[Seq[DesignPlacer[cJTAGDebugDesignInput, cJTAGDebugShellInput, cJTAGDebugOverlayOutput]]](Nil)
@@ -46,10 +46,10 @@ abstract class cJTAGDebugPlacedOverlay(
   val cjtagDebugSource = BundleBridgeSource(() => new FPGAcJTAGSignals)
   val cjtagDebugSink = shell { cjtagDebugSource.makeSink }
 
-  def overlayOutput = cJTAGDebugOverlayOutput(cjtag = InModuleBody { cjtagDebugSource.bundle} )
+  def overlayOutput = cJTAGDebugOverlayOutput(cjtag = cjtagDebugSource.bundle )
 
   shell { InModuleBody {
-    cjtagDebugSink.bundle.tckc_pin := IOBUF(io.cjtag_TCKC).asClock
+    cjtagDebugSink.bundle.tckc_pin := AnalogToUInt(io.cjtag_TCKC).asBool.asClock
     IOBUF(io.cjtag_TMSC, cjtagDebugSink.bundle.tmsc_pin)
     KEEPER(io.cjtag_TMSC)
     cjtagDebugSink.bundle.srst_n := IOBUF(io.srst_n)
