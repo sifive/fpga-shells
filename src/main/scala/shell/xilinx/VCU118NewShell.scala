@@ -276,9 +276,9 @@ class cJTAGDebugVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: S
     shell.sdc.addClock("JTCKC", IOPin(io.cjtag_TCKC), 10)
     shell.sdc.addGroup(clocks = Seq("JTCKC"))
     shell.xdc.clockDedicatedRouteFalse(IOPin(io.cjtag_TCKC))
-    val packagePinsWithPackageIOs = Seq(("AW15", IOPin(io.cjtag_TCKC)),
-                                        ("AU16", IOPin(io.cjtag_TMSC)),
-                                        ("AY15", IOPin(io.srst_n)))
+    val packagePinsWithPackageIOs = Seq(("AW11", IOPin(io.cjtag_TCKC)),
+                                        ("AP13", IOPin(io.cjtag_TMSC)),
+                                        ("AY10", IOPin(io.srst_n)))
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
