@@ -159,7 +159,8 @@ class JTAGDebugVC707PlacedOverlay(val shell: VC707Shell, name: String, val desig
     val packagePinsWithPackageIOs = Seq(("AT42", IOPin(io.jtag_TCK)),
                                         ("AR38", IOPin(io.jtag_TMS)),
                                         ("AR39", IOPin(io.jtag_TDI)),
-                                        ("AT40", IOPin(io.jtag_TDO)))
+                                        ("AT40", IOPin(io.jtag_TDO)),
+                                        ("AR42", IOPin(io.srst_n)))
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
       shell.xdc.addIOStandard(io, "LVCMOS18")
