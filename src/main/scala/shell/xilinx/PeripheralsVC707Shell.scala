@@ -136,7 +136,7 @@ class GPIOPeripheralVC707ShellPlacer(val shell: VC707Shell, val shellInput: GPIO
   def place(designInput: GPIODesignInput) = new GPIOPeripheralVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-class PeripheralVC707Shell(implicit p: Parameters) extends VC707Shell {
+class PeripheralVC707Shell(testHarness: Option[LazyScope] = None)(implicit p: Parameters) extends VC707Shell {
 
   val gpio           = Overlay(GPIOOverlayKey,       new GPIOPeripheralVC707ShellPlacer(this, GPIOShellInput()))
   val uart  = Seq.tabulate(2) { i => Overlay(UARTOverlayKey, new UARTPeripheralVC707ShellPlacer(this, UARTShellInput(index = i))(valName = ValName(s"uart$i"))) }
@@ -144,7 +144,7 @@ class PeripheralVC707Shell(implicit p: Parameters) extends VC707Shell {
   val pwm       = Seq.tabulate(1) { i => Overlay(PWMOverlayKey, new PWMPeripheralVC707ShellPlacer(this, PWMShellInput(index = i))(valName = ValName(s"pwm$i"))) }
   val i2c       = Seq.tabulate(2) { i => Overlay(I2COverlayKey, new I2CPeripheralVC707ShellPlacer(this, I2CShellInput(index = i))(valName = ValName(s"i2c$i"))) }
 
-  val topDesign = LazyModule(p(DesignKey)(designParameters))
+  val topDesign = LazyModule(p(DesignKeyWithTestHarness)(testHarness, designParameters))
 
   p(ClockInputOverlayKey).foreach(_.place(ClockInputDesignInput()))
 
