@@ -180,7 +180,7 @@ class PMODJTAGVCU118ShellPlacer(shell: VCU118ShellBasicOverlays, val shellInput:
   def place(designInput: JTAGDebugDesignInput) = new PMODJTAGVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-abstract class PeripheralsVCU118Shell(implicit p: Parameters) extends VCU118ShellBasicOverlays{
+abstract class PeripheralsVCU118Shell(testHarness: Option[LazyScope] = None)(implicit p: Parameters) extends VCU118ShellBasicOverlays{
   //val pmod_female      = Overlay(PMODOverlayKey, new PMODVCU118ShellPlacer(this, PMODShellInput(index = 0)))
   val pmodJTAG = Overlay(JTAGDebugOverlayKey, new PMODJTAGVCU118ShellPlacer(this, JTAGDebugShellInput()))
   val gpio           = Overlay(GPIOOverlayKey,       new GPIOPeripheralVCU118ShellPlacer(this, GPIOShellInput()))
@@ -188,7 +188,7 @@ abstract class PeripheralsVCU118Shell(implicit p: Parameters) extends VCU118Shel
   val qspi      = Seq.tabulate(0) { i => Overlay(SPIFlashOverlayKey, new QSPIPeripheralVCU118ShellPlacer(this, SPIFlashShellInput(index = i))(valName = ValName(s"qspi$i"))) }
   val i2c       = Seq.tabulate(2) { i => Overlay(I2COverlayKey, new I2CPeripheralVCU118ShellPlacer(this, I2CShellInput(index = i))(valName = ValName(s"i2c$i"))) }
 
-  val topDesign = LazyModule(p(DesignKey)(designParameters))
+  val topDesign = LazyModule(p(DesignKeyWithTestHarness)(testHarness, designParameters))
   p(ClockInputOverlayKey).foreach(_.place(ClockInputDesignInput()))
 
   override lazy val module = new LazyRawModuleImp(this) {
