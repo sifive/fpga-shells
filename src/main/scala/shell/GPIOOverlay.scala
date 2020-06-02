@@ -18,8 +18,8 @@ case class GPIOOverlayOutput()
 case object GPIOOverlayKey extends Field[Seq[DesignPlacer[GPIODesignInput, GPIOShellInput, GPIOOverlayOutput]]](Nil)
 trait GPIOShellPlacer[Shell] extends ShellPlacer[GPIODesignInput, GPIOShellInput, GPIOOverlayOutput]
 
-class ShellGPIOPortIO(width: Int = 4) extends Bundle {
-  val gpio = Vec(width, Analog(1.W))
+class ShellGPIOPortIO(val numGPIOs: Int = 4) extends Bundle {
+  val gpio = Vec(numGPIOs, Analog(1.W))
 }
 
 abstract class GPIOPlacedOverlay(
