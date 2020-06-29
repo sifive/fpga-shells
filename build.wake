@@ -1,3 +1,5 @@
+global def fpgaShellsRoot = here
+
 def scalacOpts =
   "-deprecation",
   "-feature",
