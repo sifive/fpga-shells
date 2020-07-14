@@ -12,10 +12,11 @@ import freechips.rocketchip.interrupts.IntInwardNode
 import freechips.rocketchip.diplomaticobjectmodel.logicaltree.LogicalTreeNode
 
 import sifive.blocks.devices.pwm._
+import sifive.fpgashells.shell.xilinx._
 
-case class PWMShellInput(index: Int = 0)
-case class PWMDesignInput(node: BundleBridgeSource[PWMPortIO])(implicit val p: Parameters)
-case class PWMOverlayOutput()
+case class PWMShellInput(index: Int = 0) extends ShellInput
+case class PWMDesignInput(node: BundleBridgeSource[PWMPortIO])(implicit val p: Parameters) extends DesignInput
+case class PWMOverlayOutput() extends OverlayOutput
 case object PWMOverlayKey extends Field[Seq[DesignPlacer[PWMDesignInput, PWMShellInput, PWMOverlayOutput]]](Nil)
 trait PWMShellPlacer[Shell] extends ShellPlacer[PWMDesignInput, PWMShellInput, PWMOverlayOutput]
 

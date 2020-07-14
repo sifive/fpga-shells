@@ -11,11 +11,12 @@ import freechips.rocketchip.interrupts.IntInwardNode
 import freechips.rocketchip.diplomaticobjectmodel.logicaltree.LogicalTreeNode
 
 import sifive.blocks.devices.spi._
+import sifive.fpgashells.shell.xilinx._
 
 //This one does controller also
-case class SPIFlashShellInput(index: Int = 0, vcu118SU: Boolean = false)
-case class SPIFlashDesignInput(node: BundleBridgeSource[SPIPortIO])(implicit val p: Parameters)
-case class SPIFlashOverlayOutput()
+case class SPIFlashShellInput(index: Int = 0, vcu118SU: Boolean = false) extends ShellInput
+case class SPIFlashDesignInput(node: BundleBridgeSource[SPIPortIO])(implicit val p: Parameters) extends DesignInput
+case class SPIFlashOverlayOutput() extends OverlayOutput
 case object SPIFlashOverlayKey extends Field[Seq[DesignPlacer[SPIFlashDesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]]](Nil)
 trait SPIFlashShellPlacer[Shell] extends ShellPlacer[SPIFlashDesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]
 

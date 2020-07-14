@@ -235,7 +235,7 @@ class DDRArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, 
   val ddrGroup = shell { ClockGroup() }
   ddrClk1 := di.wrangler := ddrGroup := di.corePLL
   ddrClk2 := di.wrangler := ddrGroup
-  
+
   val migParams = XilinxArty100TMIGParams(address = AddressSet.misaligned(di.baseAddress, size))
   val mig = LazyModule(new XilinxArty100TMIG(migParams))
   val ioNode = BundleBridgeSource(() => mig.module.io.cloneType)
@@ -257,7 +257,7 @@ class DDRArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, 
     val (dclk2, _) = ddrClk2.in(0)
     val (ar, _) = areset.in(0)
     val port = topIONode.bundle.port
-    
+
     io <> port
     ui.clock := port.ui_clk
     ui.reset := !port.mmcm_locked || port.ui_clk_sync_rst
@@ -282,6 +282,10 @@ class CTSResetArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellIn
   def place(designInput: CTSResetDesignInput) = new CTSResetArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
+class DesignInput
+class ShellInput
+class OverlayOutput
+case object DevicesOverlays extends Field[Seq[DesignPlacer[DesignInput, ShellInput, OverlayOutput]]](Nil)
 
 abstract class Arty100TShellBasicOverlays()(implicit p: Parameters) extends Series7Shell {
   // Order matters; ddr depends on sys_clock
@@ -310,7 +314,14 @@ class Arty100TShell()(implicit p: Parameters) extends Arty100TShellBasicOverlays
   // PLL reset causes
   val pllReset = InModuleBody { Wire(Bool()) }
 
-  val topDesign = LazyModule(p(DesignKey)(designParameters))
+  val topDesign = LazyModule(p(DesignKey)(designParameters.alterPartial {
+      case DevicesOverlays =>   designParameters(UARTOverlayKey) ++
+                                designParameters(GPIOOverlayKey) ++
+                                designParameters(PWMOverlayKey) ++
+                                designParameters(I2COverlayKey) ++
+                                designParameters(SPIFlashOverlayKey) ++
+                                designParameters(SDIOOverlayKey)
+  }))
 
   // Place the sys_clock at the Shell if the user didn't ask for it
   p(ClockInputOverlayKey).foreach(_.place(ClockInputDesignInput()))
@@ -341,7 +352,14 @@ class Arty100TShellGPIOPMOD()(implicit p: Parameters) extends Arty100TShellBasic
   val gpio_pmod = Overlay(GPIOPMODOverlayKey, new GPIOPMODArtyShellPlacer(this, GPIOPMODShellInput()))
   val trace_pmod = Overlay(TracePMODOverlayKey, new TracePMODArtyShellPlacer(this, TracePMODShellInput()))
 
-  val topDesign = LazyModule(p(DesignKey)(designParameters))
+  val topDesign = LazyModule(p(DesignKey)(designParameters.alterPartial {
+      case DevicesOverlays =>   designParameters(UARTOverlayKey) ++
+                                designParameters(GPIOOverlayKey) ++
+                                designParameters(PWMOverlayKey) ++
+                                designParameters(I2COverlayKey) ++
+                                designParameters(SPIFlashOverlayKey) ++
+                                designParameters(SDIOOverlayKey)
+  }))
 
   // Place the sys_clock at the Shell if the user didn't ask for it
   p(ClockInputOverlayKey).foreach(_.place(ClockInputDesignInput()))

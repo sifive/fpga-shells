@@ -12,10 +12,11 @@ import freechips.rocketchip.interrupts.IntInwardNode
 import freechips.rocketchip.diplomaticobjectmodel.logicaltree.LogicalTreeNode
 
 import sifive.blocks.devices.i2c._
+import sifive.fpgashells.shell.xilinx._
 
-case class I2CShellInput(index: Int = 0)
-case class I2CDesignInput(node: BundleBridgeSource[I2CPort])(implicit val p: Parameters)
-case class I2COverlayOutput()
+case class I2CShellInput(index: Int = 0) extends ShellInput
+case class I2CDesignInput(node: BundleBridgeSource[I2CPort])(implicit val p: Parameters) extends DesignInput
+case class I2COverlayOutput() extends OverlayOutput
 trait I2CShellPlacer[Shell] extends ShellPlacer[I2CDesignInput, I2CShellInput, I2COverlayOutput]
 
 case object I2COverlayKey extends Field[Seq[DesignPlacer[I2CDesignInput, I2CShellInput, I2COverlayOutput]]](Nil)

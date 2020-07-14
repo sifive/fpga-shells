@@ -11,10 +11,11 @@ import freechips.rocketchip.interrupts.IntInwardNode
 import freechips.rocketchip.diplomaticobjectmodel.logicaltree.LogicalTreeNode
 
 import sifive.blocks.devices.gpio._
+import sifive.fpgashells.shell.xilinx._
 
-case class GPIOShellInput()
-case class GPIODesignInput(gpioParams: GPIOParams, node: BundleBridgeSource[GPIOPortIO])(implicit val p: Parameters)
-case class GPIOOverlayOutput()
+case class GPIOShellInput() extends ShellInput
+case class GPIODesignInput(gpioParams: GPIOParams, node: BundleBridgeSource[GPIOPortIO])(implicit val p: Parameters) extends DesignInput
+case class GPIOOverlayOutput() extends OverlayOutput
 case object GPIOOverlayKey extends Field[Seq[DesignPlacer[GPIODesignInput, GPIOShellInput, GPIOOverlayOutput]]](Nil)
 trait GPIOShellPlacer[Shell] extends ShellPlacer[GPIODesignInput, GPIOShellInput, GPIOOverlayOutput]
 

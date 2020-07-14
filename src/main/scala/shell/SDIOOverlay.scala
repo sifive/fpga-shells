@@ -9,10 +9,12 @@ import sifive.blocks.devices.spi._
 import freechips.rocketchip.tilelink.TLBusWrapper
 import freechips.rocketchip.interrupts.IntInwardNode
 
+import sifive.fpgashells.shell.xilinx._
+
 //This should not do the controller placement either
-case class SDIOShellInput()
-case class SDIODesignInput(spiParam: SPIParams, node: BundleBridgeSource[SPIPortIO])(implicit val p: Parameters)
-case class SDIOOverlayOutput()
+case class SDIOShellInput() extends ShellInput
+case class SDIODesignInput(spiParam: SPIParams, node: BundleBridgeSource[SPIPortIO])(implicit val p: Parameters) extends DesignInput
+case class SDIOOverlayOutput() extends OverlayOutput
 case object SDIOOverlayKey extends Field[Seq[DesignPlacer[SDIODesignInput, SDIOShellInput, SDIOOverlayOutput]]](Nil)
 trait SDIOShellPlacer[Shell] extends ShellPlacer[SDIODesignInput, SDIOShellInput, SDIOOverlayOutput]
 

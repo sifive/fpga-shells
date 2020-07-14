@@ -12,10 +12,11 @@ import freechips.rocketchip.interrupts.IntInwardNode
 import freechips.rocketchip.diplomaticobjectmodel.logicaltree.LogicalTreeNode
 
 import sifive.blocks.devices.uart._
+import sifive.fpgashells.shell.xilinx._
 
-case class UARTShellInput(index: Int = 0)
-case class UARTDesignInput(node: BundleBridgeSource[UARTPortIO])(implicit val p: Parameters)
-case class UARTOverlayOutput()
+case class UARTShellInput(index: Int = 0) extends ShellInput
+case class UARTDesignInput(node: BundleBridgeSource[UARTPortIO])(implicit val p: Parameters) extends DesignInput
+case class UARTOverlayOutput() extends OverlayOutput
 case object UARTOverlayKey extends Field[Seq[DesignPlacer[UARTDesignInput, UARTShellInput, UARTOverlayOutput]]](Nil)
 trait UARTShellPlacer[Shell] extends ShellPlacer[UARTDesignInput, UARTShellInput, UARTOverlayOutput]
 
