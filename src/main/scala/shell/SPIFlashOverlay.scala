@@ -34,7 +34,7 @@ abstract class SPIFlashPlacedOverlay(
 
   def ioFactory = new ShellSPIFlashPortIO
 
-  val tlqspiSink = shell { di.node.makeSink }
+  val tlqspiSink = padPlace { di.node.makeSink }
 
   def overlayOutput = SPIFlashOverlayOutput()
 }

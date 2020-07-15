@@ -144,6 +144,7 @@ trait IOPlacedOverlay[IO <: Data, DesignInput, ShellInput, OverlayOutput] extend
 {
   def ioFactory: IO
   def shell: IOShell
+  def padPlace: LazyScope = shell
 
   val io = shell { InModuleBody {
     val port = IO(ioFactory)
