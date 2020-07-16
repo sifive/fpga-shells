@@ -28,7 +28,7 @@ class IOBUF extends BlackBox {
     val dataout = Output(Bool())
     val oe = Input(Bool())
 
-    val dataio = Analog(1.W)
+    val padio = Analog(1.W)
   })
 
   override def desiredName: String = "iobuf"
@@ -40,7 +40,7 @@ object IOBUF {
     res.io.datain := t.data
     res.io.oe := t.driven
 
-    a <> res.io.dataio
+    a <> res.io.padio
 
     res
   }
