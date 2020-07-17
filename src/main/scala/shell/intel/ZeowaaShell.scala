@@ -6,7 +6,7 @@ import chisel3.core.{Analog, Input, withClockAndReset}
 import chisel3.experimental.RawModule
 import freechips.rocketchip.config.Parameters
 
-trait MemIfSGX {
+trait MemIf {
   val local_init_done   = Output(Bool())
 
   val global_reset_n    = Input(Bool())
@@ -62,9 +62,9 @@ trait MemIfSGX {
   }
 }
 
-class MemIfBundleSGX extends Bundle with MemIfSGX
+class MemIfBundle extends Bundle with MemIf
 
-class sgxShell(implicit val p: Parameters) extends RawModule {
+class ZeowaaShell(implicit val p: Parameters) extends RawModule {
 
   val mem_odt   = IO(Output(UInt(2.W)))
   val mem_cs_n  = IO(Output(UInt(2.W)))
@@ -108,7 +108,7 @@ class sgxShell(implicit val p: Parameters) extends RawModule {
 
   // Internal wiring
 
-  val ddr4_rst = Wire(Bool())
+  val ddr2_rst = Wire(Bool())
 
   val cpu_clock = Wire(Clock())
   val cpu_rst = Wire(Bool())
@@ -117,9 +117,9 @@ class sgxShell(implicit val p: Parameters) extends RawModule {
   withClockAndReset(cpu_clock, false.B) {
     val counter = Reg(UInt(64.W))
     counter := counter + 1.U
-    ddr4_rst := counter < 1000.U
+    ddr2_rst := counter < 1000.U
 
-    // to be overriden if DDR4 present...
+    // to be overriden if DDR2 present...
     cpu_rst := counter < 2000.U
     jtag_rst := counter < 3000.U
   }
@@ -139,7 +139,7 @@ class sgxShell(implicit val p: Parameters) extends RawModule {
     mem_dq <> mem_if.mem_dq
     mem_dqs <> mem_if.mem_dqs
 
-    mem_if.global_reset_n := !ddr4_rst
+    mem_if.global_reset_n := !ddr2_rst
     mem_if.soft_reset_n := true.B
 
     mem_if.pll_ref_clk := clk25
