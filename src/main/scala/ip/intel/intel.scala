@@ -1,5 +1,6 @@
 package sifive.fpgashells.ip.intel
 
+
 import chisel3._
 import chisel3.core.{Analog, BlackBox, IntParam, StringParam}
 import freechips.rocketchip.jtag.Tristate
@@ -8,6 +9,7 @@ class IBUF extends BlackBox {
   val io = IO(new Bundle {
     val datain = Input(Bool())
     val dataout = Output(Bool())
+    //val padio = Analog(1.W)    
   })
 
   override def desiredName: String = "ibuf"
@@ -18,6 +20,27 @@ object IBUF {
     val res = Module(new IBUF)
     res.io.datain := i
     o := res.io.dataout
+    //o := res.io.padio
+    res
+  }
+}
+
+class OBUF extends BlackBox {
+  val io = IO(new Bundle {
+    val datain = Input(Bool())
+    val dataout = Output(Bool())
+    //val padio = Analog(1.W)    
+  })
+
+  override def desiredName: String = "obuf"
+}
+
+object OBUF {
+  def apply(o: Bool, i: Bool): OBUF = {
+    val res = Module(new OBUF)
+    res.io.datain := i
+    o := res.io.dataout
+    //o := res.io.padio
     res
   }
 }
@@ -27,7 +50,6 @@ class IOBUF extends BlackBox {
     val datain = Input(Bool())
     val dataout = Output(Bool())
     val oe = Input(Bool())
-
     val padio = Analog(1.W)
   })
 

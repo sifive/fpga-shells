@@ -1,29 +1,41 @@
+// Joseph Tarango
 module iobuf(
-  input wire [0:0] datain,
-  output wire [0:0] dataout,  
-  input wire oe,
-  input wire padio
+		output wire [0:0] dataout, //   dout.export
+		input  wire [0:0] datain,  //    din.export
+		input  wire [0:0] oe,      //     oe.export
+		inout  wire [0:0] padio    // pad_io.export
 );
 
-IOBUF iobuffElement(
-  .datain(datain),
-  .dataout(dataout),
-  .oe(oe),
-  .padio(padio)
+IOBUF iobufElement(
+		.dataout (dataout), //  output,  width = 1,   dout.export
+		.datain  (datain),  //   input,  width = 1,    din.export
+		.oe      (oe),      //   input,  width = 1,     oe.export
+		.padio   (padio)    //   inout,  width = 1, pad_io.export
 );
 
 endmodule
 
+
 module ibuf(
   input wire [0:0] datain,
-  output wire [0:0] dataout,  
-  input wire oe
+  output wire [0:0] dataout
 );
 
-IOBUF iobuffElement(
+IBUF ibufElement(
   .datain(datain),
-  .dataout(dataout),
-  .oe(oe)
+  .dataout(dataout)
+);
+
+endmodule
+
+module obuf(
+  input wire [0:0] datain,
+  output wire [0:0] dataout
+);
+
+OBUF obufElement(
+  .datain(datain),
+  .dataout(dataout)
 );
 
 endmodule

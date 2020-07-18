@@ -25,24 +25,24 @@ module sdio_spi_bridge (
   assign sd_sck = spi_sck;
 
   IOBUF buf_cmd (
-    .IO(sd_cmd),
-    .I(mosi),
-    .O(),
-    .T(1'b0)
+    .padio(sd_cmd),
+    .datain(mosi),
+    .dataout(),
+    .oe(1'b0)
   );
 
   IOBUF buf_dat0 (
-    .IO(sd_dat[0]),
-    .I(),
-    .O(miso),
-    .T(1'b1)
+    .padio(sd_dat[0]),
+    .datain(),
+    .dataout(miso),
+    .oe(1'b1)
   );
 
   IOBUF buf_dat3 (
-    .IO(sd_dat[3]),
-    .I(spi_cs),
-    .O(),
-    .T(1'b0)
+    .padio(sd_dat[3]),
+    .datain(spi_cs),
+    .dataout(),
+    .oe(1'b0)
   );
 
   always @(posedge clk) begin

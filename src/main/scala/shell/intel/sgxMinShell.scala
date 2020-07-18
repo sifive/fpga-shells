@@ -9,8 +9,6 @@ import freechips.rocketchip.config.Parameters
 class sgxMinShell(implicit val p: Parameters) extends RawModule {
 
   val clk25 = IO(Input(Clock()))
-  val clk27 = IO(Input(Clock()))
-  val clk48 = IO(Input(Clock()))
 
   val key1 = IO(Input(Bool()))
   val key2 = IO(Input(Bool()))
