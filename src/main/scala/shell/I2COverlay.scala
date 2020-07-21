@@ -33,7 +33,7 @@ abstract class I2CPlacedOverlay(
 
   def ioFactory = new ShellI2CPortIO
 
-  val tli2cSink = shell { di.node.makeSink }
+  val tli2cSink = sinkScope { di.node.makeSink }
 
   def overlayOutput = I2COverlayOutput()
 }

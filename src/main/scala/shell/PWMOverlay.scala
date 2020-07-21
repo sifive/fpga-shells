@@ -31,7 +31,7 @@ abstract class PWMPlacedOverlay(
 
   def ioFactory = new ShellPWMPortIO
 
-  val tlpwmSink = shell { di.node.makeSink }
+  val tlpwmSink = sinkScope { di.node.makeSink }
 
   def overlayOutput = PWMOverlayOutput()
 }

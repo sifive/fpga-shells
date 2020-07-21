@@ -36,7 +36,7 @@ abstract class UARTPlacedOverlay(
 
   def ioFactory = new ShellUARTPortIO(flowControl)
 
-  val tluartSink = shell { di.node.makeSink }
+  val tluartSink = sinkScope { di.node.makeSink }
 
   def overlayOutput = UARTOverlayOutput()
 }
