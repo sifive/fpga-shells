@@ -180,6 +180,7 @@ case class XDMAParams(
   name:     String,
   location: String,
   bars:     Seq[AddressSet],
+  bases:    Seq[BigInt],
   control:  BigInt,
   lanes:    Int    = 1,
   gen:      Int    = 3,
@@ -194,6 +195,8 @@ case class XDMAParams(
   require (mIDBits >= 1 && mIDBits <= 8)
   require (sIDBits >= 1 && sIDBits <= 8)
   bars.foreach { a => require (a.max >> addrBits == 0) }
+
+  val basesFull = bases.take(bars.size) ++ bars.map(_.base).drop(bases.size)
 
   private val bandwidth = lanes * 250 << (gen-1) // MB/s
   private val busBytesAt250MHz = bandwidth / 250
@@ -226,10 +229,10 @@ class XDMABlackBox(c: XDMAParams) extends BlackBox
   val formatter = new java.text.DecimalFormat("0.###")
   val axiMHzStr = formatter.format(c.axiMHz)
 
-  val bars = c.bars.zipWithIndex.map { case (a, i) =>
+  val bars = c.bars.zip(c.basesFull).zipWithIndex.map { case ((a, b), i) =>
     f"""  CONFIG.axibar_${i}			{0x${a.base}%X}				\\
        |  CONFIG.axibar_highaddr_${i}		{0x${a.max}%X}				\\
-       |  CONFIG.axibar2pciebar_${i}		{0x${a.base}%X}				\\
+       |  CONFIG.axibar2pciebar_${i}		{0x${b}%X}				\\
        |""".stripMargin
   }
 
@@ -263,6 +266,11 @@ class DiplomaticXDMA(c: XDMAParams)(implicit p:Parameters) extends LazyModule
       val intc = s"${c.name}_intc"
       def ofInt(x: Int) = Seq(ResourceInt(BigInt(x)))
       def ofMap(x: Int) = Seq(0, 0, 0, x).flatMap(ofInt) ++ Seq(ResourceReference(intc)) ++ ofInt(x)
+      def addr2range(x: (Binding, BigInt)) = x._1 match {
+        case Binding(_, ResourceAddress(Seq(address), perms)) =>
+          ResourceMapping(Seq(address), (BigInt(0x02000000) << 64) + x._2 - address.base, perms)
+        case _ => Unreachable()
+      }
       val extra = Map(
         "#address-cells"     -> ofInt(3),
         "#size-cells"        -> ofInt(2),
@@ -271,9 +279,7 @@ class DiplomaticXDMA(c: XDMAParams)(implicit p:Parameters) extends LazyModule
         "interrupt-names"    -> Seq("misc", "msi0", "msi1").map(ResourceString.apply _),
         "interrupt-map-mask" -> Seq(0, 0, 0, 7).flatMap(ofInt),
         "interrupt-map"      -> Seq(1, 2, 3, 4).flatMap(ofMap),
-        "ranges"             -> resources("ranges").map(x =>
-                                  (x: @unchecked) match { case Binding(_, ResourceAddress(address, perms)) =>
-                                                               ResourceMapping(address, BigInt(0x02000000) << 64, perms) }),
+        "ranges"             -> resources("ranges").zip(c.bases).map(addr2range(_)),
         "interrupt-controller" -> Seq(ResourceMap(labels = Seq(intc), value = Map(
           "interrupt-controller" -> Nil,
           "#address-cells"       -> ofInt(0),

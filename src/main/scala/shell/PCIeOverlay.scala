@@ -13,6 +13,7 @@ case class PCIeDesignInput(
   wrangler: ClockAdapterNode,
   bars: Seq[AddressSet] = Seq(AddressSet(0x40000000L, 0x1FFFFFFFL)),
   ecam: BigInt = 0x2000000000L,
+  bases: Seq[BigInt] = Nil, // remap bars to these PCIe base addresses
   corePLL: PLLNode)(
   implicit val p: Parameters)
 

@@ -354,6 +354,7 @@ class PCIeVCU118FMCPlacedOverlay(val shell: VCU118ShellBasicOverlays, name: Stri
     location = "X0Y3",
     bars     = designInput.bars,
     control  = designInput.ecam,
+    bases    = designInput.bases,
     lanes    = 4))
 {
   shell { InModuleBody {
@@ -394,6 +395,7 @@ class PCIeVCU118EdgePlacedOverlay(val shell: VCU118ShellBasicOverlays, name: Str
     location = "X1Y2",
     bars     = designInput.bars,
     control  = designInput.ecam,
+    bases    = designInput.bases,
     lanes    = 8))
 {
   shell { InModuleBody {
