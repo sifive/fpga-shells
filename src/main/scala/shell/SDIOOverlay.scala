@@ -5,6 +5,7 @@ import chisel3._
 import chisel3.experimental.Analog
 import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
+import freechips.rocketchip.util._
 import sifive.blocks.devices.spi._
 import freechips.rocketchip.tilelink.TLBusWrapper
 import freechips.rocketchip.interrupts.IntInwardNode
@@ -42,7 +43,7 @@ abstract class SDIOPlacedOverlay(
   InModuleBody {
     val (io, _) = spiSource.out(0)
     val tlspiport = tlspiSink.bundle
-    io <> tlspiport
+    io :<> tlspiport
     (0 to 3).foreach { case q =>
       tlspiport.dq(q).i := RegNext(RegNext(io.dq(q).i))
     }
