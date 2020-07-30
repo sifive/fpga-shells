@@ -1,7 +1,0 @@
-# Joseph Tarango
-QUARTUS_VERSION = "15.1"
-DATE = "12:58:01  Feb 7, 2020"
-
-# Revisions
-
-PROJECT_REVISION = "s10_fpga_golden_top"
