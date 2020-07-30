@@ -6,12 +6,14 @@ module iobuf(
 		inout  wire [0:0] padio    // pad_io.export
 );
 
-IOBUF iobufElement(
-		.dataout (dataout), //  output,  width = 1,   dout.export
-		.datain  (datain),  //   input,  width = 1,    din.export
-		.oe      (oe),      //   input,  width = 1,     oe.export
-		.padio   (padio)    //   inout,  width = 1, pad_io.export
-);
+assign dataout = datain;
+
+//IOBUF iobufElement(
+//		.dataout (dataout), //  output,  width = 1,   dout.export
+//		.datain  (datain),  //   input,  width = 1,    din.export
+//		.oe      (oe),      //   input,  width = 1,     oe.export
+//		.padio   (padio)    //   inout,  width = 1, pad_io.export
+//);
 
 endmodule
 
@@ -21,10 +23,12 @@ module ibuf(
   output wire [0:0] dataout
 );
 
-IBUF ibufElement(
-  .datain(datain),
-  .dataout(dataout)
-);
+assign dataout = datain;
+
+//IOBUF ibufElement(
+//  .datain(datain),
+//  .dataout(dataout)
+//);
 
 endmodule
 
@@ -33,9 +37,10 @@ module obuf(
   output wire [0:0] dataout
 );
 
-OBUF obufElement(
-  .datain(datain),
-  .dataout(dataout)
-);
+assign dataout = datain;
+//IOBUF obufElement(
+//  .datain(datain),
+//  .dataout(dataout)
+//);
 
 endmodule

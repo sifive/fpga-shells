@@ -1,0 +1,101 @@
+Fitter Finalize Stage Report for top
+Wed Jul 29 19:55:27 2020
+Quartus Prime Version 20.2.0 Build 50 06/11/2020 SC Pro Edition
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. Legal Notice
+  2. Routing Usage Summary
+  3. Finalize Messages
+
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 2020  Intel Corporation. All rights reserved.
+Your use of Intel Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Intel Program License 
+Subscription Agreement, the Intel Quartus Prime License Agreement,
+the Intel FPGA IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Intel and sold by Intel or its authorized distributors.  Please
+refer to the applicable agreement for further details, at
+https://fpgasoftware.intel.com/eula.
+
+
+
++---------------------------------------------------------------+
+; Routing Usage Summary                                         ;
++--------------------------------+------------------------------+
+; Routing Resource Type          ; Usage                        ;
++--------------------------------+------------------------------+
+; Block Input Muxes              ; 10 / 675,444 ( < 1 % )       ;
+; Block interconnects            ; 38,293 / 9,132,912 ( < 1 % ) ;
+; C16 interconnects              ; 352 / 226,512 ( < 1 % )      ;
+; C2 interconnects               ; 5,815 / 1,359,072 ( < 1 % )  ;
+; C3 interconnects               ; 6,496 / 2,758,032 ( < 1 % )  ;
+; C4 interconnects               ; 8,086 / 1,772,208 ( < 1 % )  ;
+; CLOCK_INVERTs                  ; 20 / 7,616 ( < 1 % )         ;
+; DCM_muxes                      ; 1 / 1,632 ( < 1 % )          ;
+; Direct links                   ; 9,380 / 9,132,912 ( < 1 % )  ;
+; GAP Interconnects              ; 12 / 267,192 ( < 1 % )       ;
+; GAPs                           ; 0 / 29,304 ( 0 % )           ;
+; HIO Buffers                    ; 4 / 209,664 ( < 1 % )        ;
+; Horizontal Buffers             ; 7 / 176,364 ( < 1 % )        ;
+; Horizontal_clock_segment_muxes ; 42 / 7,488 ( < 1 % )         ;
+; Programmable Inverts           ; 28 / 318,960 ( < 1 % )       ;
+; R10 interconnects              ; 7,340 / 2,456,208 ( < 1 % )  ;
+; R2 interconnects               ; 6,300 / 2,265,120 ( < 1 % )  ;
+; R24 interconnects              ; 347 / 293,040 ( < 1 % )      ;
+; R24/C16 interconnect drivers   ; 603 / 453,024 ( < 1 % )      ;
+; R4 interconnects               ; 9,793 / 3,248,028 ( < 1 % )  ;
+; Row Clock Tap-Offs             ; 1,053 / 725,544 ( < 1 % )    ;
+; Switchbox_clock_muxes          ; 193 / 41,600 ( < 1 % )       ;
+; Vertical_seam_tap_muxes        ; 168 / 22,848 ( < 1 % )       ;
++--------------------------------+------------------------------+
+
+
++-------------------+
+; Finalize Messages ;
++-------------------+
+Info (20032): Parallel compilation is enabled and will use up to 16 processors
+Info: *******************************************************************
+Info: Running Quartus Prime Fitter
+    Info: Version 20.2.0 Build 50 06/11/2020 SC Pro Edition
+    Info: Processing started: Wed Jul 29 19:40:34 2020
+    Info: System process ID: 1948241
+Info: Command: quartus_fit --read_settings_files=on --write_settings_files=off top -c top
+Info: qfit2_default_script.tcl version: #1
+Info: Project  = top
+Info: Revision = top
+Info (21077): Low junction temperature is 0 degrees C
+Info (21077): High junction temperature is 100 degrees C
+Info (19262): Fitter post-routing fixup operations beginning
+Info (19265): Percentage of connections rerouted to fix hold is 0.04 percent.
+Info (20215): Router estimated peak short interconnect demand : 42% of down directional wire in region X184_Y184 to X191_Y191
+    Info (20265): Estimated peak short right directional wire demand : 23% in region X160_Y184 to X167_Y191
+    Info (20265): Estimated peak short left directional wire demand : 20% in region X144_Y184 to X151_Y191
+    Info (20265): Estimated peak short up directional wire demand : 35% in region X160_Y184 to X167_Y191
+    Info (20265): Estimated peak short down directional wire demand : 42% in region X184_Y184 to X191_Y191
+Info (20215): Router estimated peak long high speed interconnect demand : 39% of right directional wire in region X160_Y176 to X167_Y183
+    Info (20265): Estimated peak long high speed right directional wire demand : 39% in region X160_Y176 to X167_Y183
+    Info (20265): Estimated peak long high speed left directional wire demand : 23% in region X176_Y176 to X183_Y183
+    Info (20265): Estimated peak long high speed up directional wire demand : 29% in region X152_Y176 to X159_Y183
+    Info (20265): Estimated peak long high speed down directional wire demand : 25% in region X184_Y184 to X191_Y191
+    Info (20315): Note that the router may use short wires to implement long connections at higher delay
+Info (11888): Total time spent on timing analysis during Routing is 0.97 seconds.
+Info (18822): Fitter post-routing fixup operations ending: elapsed time is 00:03:23
+Critical Warning (19527): There are 96 unused RX channels and 96 unused TX channels in the design.
+    Info (19528): Add the QSF assignment 'set_instance_assignment -name PRESERVE_UNUSED_XCVR_CHANNEL ON -to <pin_name>' for each unused channel that will be used in future.
+    Info (19529): The above QSF assignment will preserve the performance of specified channels over time.
+Info (16557): Fitter post-fit operations ending: elapsed time is 00:04:08
+
+

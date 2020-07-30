@@ -1,0 +1,93 @@
+EDA Netlist Writer report for top
+Wed Jul 29 20:12:58 2020
+Quartus Prime Version 20.2.0 Build 50 06/11/2020 SC Pro Edition
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. Legal Notice
+  2. EDA Netlist Writer Summary
+  3. EDA Netlist Writer Messages
+  4. Simulation Settings
+  5. Simulation Generated Files
+
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 2020  Intel Corporation. All rights reserved.
+Your use of Intel Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Intel Program License 
+Subscription Agreement, the Intel Quartus Prime License Agreement,
+the Intel FPGA IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Intel and sold by Intel or its authorized distributors.  Please
+refer to the applicable agreement for further details, at
+https://fpgasoftware.intel.com/eula.
+
+
+
++-------------------------------------------------------------------+
+; EDA Netlist Writer Summary                                        ;
++---------------------------+---------------------------------------+
+; EDA Netlist Writer Status ; Successful - Wed Jul 29 20:12:58 2020 ;
+; Revision Name             ; top                                   ;
+; Top-level Entity Name     ; top                                   ;
+; Family                    ; Stratix 10                            ;
+; Simulation Files Creation ; Successful                            ;
++---------------------------+---------------------------------------+
+
+
++-----------------------------+
+; EDA Netlist Writer Messages ;
++-----------------------------+
+Info: *******************************************************************
+Info: Running Quartus Prime EDA Netlist Writer
+    Info: Version 20.2.0 Build 50 06/11/2020 SC Pro Edition
+    Info: Processing started: Wed Jul 29 20:12:40 2020
+    Info: System process ID: 2063600
+Info: Command: quartus_eda --read_settings_files=on --write_settings_files=off top -c top
+Info (16677): Loading final database.
+Info (16734): Loading "final" snapshot for partition "root_partition".
+Info (16734): Loading "final" snapshot for partition "auto_fab_0".
+Info (16678): Successfully loaded final database: elapsed time is 00:00:14.
+Info (204019): Generated file top.vo in folder "/home/jdtarang/RISC-V/git/freedom-jdtarang/fpga-shells/intel/sgx-dev/projects/FPGAChip/simulation/modelsim/" for EDA simulation tool
+Info: Quartus Prime EDA Netlist Writer was successful. 0 errors, 0 warnings
+    Info: Peak virtual memory: 4550 megabytes
+    Info: Processing ended: Wed Jul 29 20:12:59 2020
+    Info: Elapsed time: 00:00:19
+    Info: System process ID: 2063600
+
+
++------------------------------------------------------------------------------+
+; Simulation Settings                                                          ;
++--------------------------------------------------+---------------------------+
+; Option                                           ; Setting                   ;
++--------------------------------------------------+---------------------------+
+; Tool Name                                        ; ModelSim-Altera (Verilog) ;
+; Truncate long hierarchy paths                    ; Off                       ;
+; Map illegal HDL characters                       ; Off                       ;
+; Flatten buses into individual nodes              ; Off                       ;
+; Bring out device-wide set/reset signals as ports ; Off                       ;
+; Do not write top level VHDL entity               ; Off                       ;
+; Architecture name in VHDL output netlist         ; structure                 ;
++--------------------------------------------------+---------------------------+
+
+
++-----------------------------------------------------------------------------------------------------------------------------+
+; Simulation Generated Files                                                                                                  ;
++-----------------------------------------------------------------------------------------------------------------------------+
+; Generated Files                                                                                                             ;
++-----------------------------------------------------------------------------------------------------------------------------+
+; /home/jdtarang/RISC-V/git/freedom-jdtarang/fpga-shells/intel/sgx-dev/projects/FPGAChip/simulation/modelsim/top_modelsim.xrf ;
+; /home/jdtarang/RISC-V/git/freedom-jdtarang/fpga-shells/intel/sgx-dev/projects/FPGAChip/simulation/modelsim/top.vo           ;
++-----------------------------------------------------------------------------------------------------------------------------+
+
+

@@ -1,0 +1,158 @@
+Design Assistant report for top
+Wed Jul 29 19:40:33 2020
+Quartus Prime Version 20.2.0 Build 50 06/11/2020 SC Pro Edition
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. Legal Notice
+  2. Design Assistant (Elaborated) Results - 2 of 7 Rules Failed
+  3. HRR-10204 - Reset Release Instance Count Check
+  4. TMC-20050 - RAM Control Signals Driven by LUTs or ALMs instead of DFFs
+  5. HRR-10203 - Register Power-Up Settings Conflict with Device Settings
+  6. HRR-10115 - Nets with fanout exceeding threshold
+  7. HRR-10201 - Power-Up Don't Care synthesis setting may prevent retiming
+  8. RES-50005 - RAM Control Signals Driven by Flops with Asynchronous Clears
+  9. TMC-20051 - RAM Control Signals Driven by High Fan-Out Net
+
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 2020  Intel Corporation. All rights reserved.
+Your use of Intel Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Intel Program License 
+Subscription Agreement, the Intel Quartus Prime License Agreement,
+the Intel FPGA IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Intel and sold by Intel or its authorized distributors.  Please
+refer to the applicable agreement for further details, at
+https://fpgasoftware.intel.com/eula.
+
+
+
++--------------------------------------------------------------------------------------------------+
+; Design Assistant (Elaborated) Results - 2 of 7 Rules Failed                                      ;
++--------------------------------------------------------------------------+----------+------------+
+; Rule                                                                     ; Severity ; Violations ;
++--------------------------------------------------------------------------+----------+------------+
+; HRR-10204 - Reset Release Instance Count Check                           ; High     ; 1          ;
+; TMC-20050 - RAM Control Signals Driven by LUTs or ALMs instead of DFFs   ; Low      ; 32         ;
+; HRR-10203 - Register Power-Up Settings Conflict with Device Settings     ; High     ; 0          ;
+; HRR-10115 - Nets with fanout exceeding threshold                         ; Low      ; 0          ;
+; HRR-10201 - Power-Up Don't Care synthesis setting may prevent retiming   ; Low      ; 0          ;
+; RES-50005 - RAM Control Signals Driven by Flops with Asynchronous Clears ; Low      ; 0          ;
+; TMC-20051 - RAM Control Signals Driven by High Fan-Out Net               ; Low      ; 0          ;
++--------------------------------------------------------------------------+----------+------------+
+
+
+Status:		FAIL
+Severity:		High
+Number of violations: 	1
+Rule Parameters:      	
++----------------------------------------------------------------------+
+; HRR-10204 - Reset Release Instance Count Check                       ;
++-------+--------------------------------------------------------------+
+; Count ; Path                                                         ;
++-------+--------------------------------------------------------------+
+; 0     ; No reset release IP detected in project, exactly 1 required. ;
++-------+--------------------------------------------------------------+
+
+
+Status:		FAIL
+Severity:		Low
+Number of violations: 	32
+Rule Parameters:      	
++------------------------------------------------------------------------------------------------------------------------------------------------------+
+; TMC-20050 - RAM Control Signals Driven by LUTs or ALMs instead of DFFs                                                                               ;
++-----------------------------------------------------------------------+------------------------------------------------------------------------------+
+; Pin                                                                   ; Signal                                                                       ;
++-----------------------------------------------------------------------+------------------------------------------------------------------------------+
+; uFPGACHIP|Platform|sys|pbus|buffer_1|Queue_1|_T_35_data|WE            ; uFPGACHIP|Platform|sys|pbus|buffer_1|Queue_1|_T_35_opcode__T_50_en           ;
+; uFPGACHIP|Platform|sys|pbus|buffer_1|Queue|_T_35_address|WE           ; uFPGACHIP|Platform|sys|pbus|buffer_1|Queue|_T_35_opcode__T_50_en             ;
+; uFPGACHIP|Platform|sys|pbus|buffer_1|Queue|_T_35_data|WE              ; uFPGACHIP|Platform|sys|pbus|buffer_1|Queue|_T_35_opcode__T_50_en             ;
+; uFPGACHIP|Platform|sys|pbus|buffer|Queue_1|_T_35_data|WE              ; uFPGACHIP|Platform|sys|pbus|buffer|Queue_1|_T_35_opcode__T_50_en             ;
+; uFPGACHIP|Platform|sys|pbus|buffer|Queue|_T_35_address|WE             ; uFPGACHIP|Platform|sys|pbus|buffer|Queue|_T_35_opcode__T_50_en               ;
+; uFPGACHIP|Platform|sys|pbus|buffer|Queue|_T_35_data|WE                ; uFPGACHIP|Platform|sys|pbus|buffer|Queue|_T_35_opcode__T_50_en               ;
+; uFPGACHIP|Platform|sys|sbus|control_bus|buffer|Queue_1|_T_35_data|WE  ; uFPGACHIP|Platform|sys|sbus|control_bus|buffer|Queue_1|_T_35_opcode__T_50_en ;
+; uFPGACHIP|Platform|sys|sbus|control_bus|buffer|Queue|_T_35_address|WE ; uFPGACHIP|Platform|sys|sbus|control_bus|buffer|Queue|_T_35_opcode__T_50_en   ;
+; uFPGACHIP|Platform|sys|sbus|control_bus|buffer|Queue|_T_35_data|WE    ; uFPGACHIP|Platform|sys|sbus|control_bus|buffer|Queue|_T_35_opcode__T_50_en   ;
+; uFPGACHIP|Platform|sys|tile|buffer_1|Queue_1|_T_35_data|WE            ; uFPGACHIP|Platform|sys|tile|buffer_1|Queue_1|_T_35_opcode__T_50_en           ;
+; uFPGACHIP|Platform|sys|tile|buffer_1|Queue|_T_35_address|WE           ; uFPGACHIP|Platform|sys|tile|buffer_1|Queue|_T_35_opcode__T_50_en             ;
+; uFPGACHIP|Platform|sys|tile|buffer_1|Queue|_T_35_data|WE              ; uFPGACHIP|Platform|sys|tile|buffer_1|Queue|_T_35_opcode__T_50_en             ;
+; uFPGACHIP|Platform|sys|tile|buffer|Queue_1|_T_35_data|WE              ; uFPGACHIP|Platform|sys|tile|buffer|Queue_1|_T_35_opcode__T_50_en             ;
+; uFPGACHIP|Platform|sys|tile|buffer|Queue|_T_35_address|WE             ; uFPGACHIP|Platform|sys|tile|buffer|Queue|_T_35_opcode__T_50_en               ;
+; uFPGACHIP|Platform|sys|tile|buffer|Queue|_T_35_data|WE                ; uFPGACHIP|Platform|sys|tile|buffer|Queue|_T_35_opcode__T_50_en               ;
+; uFPGACHIP|Platform|sys|tile|core|_T_575|PORTBRADDR                    ; uFPGACHIP|Platform|sys|tile|core|ibuf|RVCExpander|io_out_rs2[0]              ;
+; uFPGACHIP|Platform|sys|tile|core|_T_575|RADDR                         ; uFPGACHIP|Platform|sys|tile|core|ibuf|RVCExpander|io_out_rs1[0]              ;
+; uFPGACHIP|Platform|sys|tile|core|_T_575|WADDR                         ; uFPGACHIP|Platform|sys|tile|core|rf_waddr[0]                                 ;
+; uFPGACHIP|Platform|sys|tile|core|_T_575|WE                            ; uFPGACHIP|Platform|sys|tile|core|_T_575__T_1299_en                           ;
+; uFPGACHIP|Platform|sys|tile|dcache|data|data_arrays_0_0|WADDR         ; uFPGACHIP|Platform|sys|tile|dcache|dataArb|io_out_bits_addr[2]               ;
+; uFPGACHIP|Platform|sys|tile|dcache|data|data_arrays_0_0|WE            ; uFPGACHIP|Platform|sys|tile|dcache|data|i220                                 ;
+; uFPGACHIP|Platform|sys|tile|dcache|data|data_arrays_0_1|WADDR         ; uFPGACHIP|Platform|sys|tile|dcache|dataArb|io_out_bits_addr[2]               ;
+; uFPGACHIP|Platform|sys|tile|dcache|data|data_arrays_0_1|WE            ; uFPGACHIP|Platform|sys|tile|dcache|data|i221                                 ;
+; uFPGACHIP|Platform|sys|tile|dcache|data|data_arrays_0_2|WADDR         ; uFPGACHIP|Platform|sys|tile|dcache|dataArb|io_out_bits_addr[2]               ;
+; uFPGACHIP|Platform|sys|tile|dcache|data|data_arrays_0_2|WE            ; uFPGACHIP|Platform|sys|tile|dcache|data|i222                                 ;
+; uFPGACHIP|Platform|sys|tile|dcache|data|data_arrays_0_3|WADDR         ; uFPGACHIP|Platform|sys|tile|dcache|dataArb|io_out_bits_addr[2]               ;
+; uFPGACHIP|Platform|sys|tile|dcache|data|data_arrays_0_3|WE            ; uFPGACHIP|Platform|sys|tile|dcache|data|i223                                 ;
+; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0|WADDR     ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0__T_318_addr[0]   ;
+; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0|WE        ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0__T_318_en        ;
+; uFPGACHIP|Platform|sys|tile|frontend|icache|tag_array_0|WE            ; uFPGACHIP|Platform|sys|tile|frontend|icache|refill_done                      ;
+; uFPGACHIP|Platform|sys|uart_0_1|rxq|_T_35|WE                          ; uFPGACHIP|Platform|sys|uart_0_1|rxq|_T_44                                    ;
+; uFPGACHIP|Platform|sys|uart_0_1|txq|_T_35|WE                          ; uFPGACHIP|Platform|sys|uart_0_1|txq|_T_44                                    ;
++-----------------------------------------------------------------------+------------------------------------------------------------------------------+
+
+
+Status:		PASS
+Severity:		High
+Number of violations: 	0
+Rule Parameters:      	
++----------------------------------------------------------------------+
+; HRR-10203 - Register Power-Up Settings Conflict with Device Settings ;
++----------------------------------------------------------------------+
+
+
+Status:		PASS
+Severity:		Low
+Number of violations: 	0
+Rule Parameters:      	fanout = 50000
+		driver_name_filter = ""
++--------------------------------------------------+
+; HRR-10115 - Nets with fanout exceeding threshold ;
++--------------------------------------------------+
+
+
+Status:		PASS
+Severity:		Low
+Number of violations: 	0
+Rule Parameters:      	
++------------------------------------------------------------------------+
+; HRR-10201 - Power-Up Don't Care synthesis setting may prevent retiming ;
++------------------------------------------------------------------------+
+
+
+Status:		PASS
+Severity:		Low
+Number of violations: 	0
+Rule Parameters:      	
++--------------------------------------------------------------------------+
+; RES-50005 - RAM Control Signals Driven by Flops with Asynchronous Clears ;
++--------------------------------------------------------------------------+
+
+
+Status:		PASS
+Severity:		Low
+Number of violations: 	0
+Rule Parameters:      	RAM_Inference_HFN_Threshold = 2000
++------------------------------------------------------------+
+; TMC-20051 - RAM Control Signals Driven by High Fan-Out Net ;
++------------------------------------------------------------+
+
+

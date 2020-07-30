@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file
+   path="altera_gpio_core14_191/sim/altera_gpio.sv"
+   type="SYSTEM_VERILOG"
+   library="altera_gpio_core14_191" />
+ <file
+   path="altera_gpio_1930/sim/IOBUF_altera_gpio_1930_alkbnhy.v"
+   type="VERILOG"
+   library="altera_gpio_1930"
+   hasInlineConfiguration="true" />
+ <file
+   path="sim/IOBUF.v"
+   type="VERILOG"
+   library="IOBUF"
+   hasInlineConfiguration="true" />
+ <topLevel name="IOBUF.IOBUF" />
+ <deviceFamily name="stratix10" />
+</simPackage>

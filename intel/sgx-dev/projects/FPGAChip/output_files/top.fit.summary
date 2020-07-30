@@ -1,0 +1,20 @@
+Fitter Status : Successful - Wed Jul 29 19:55:31 2020
+Quartus Prime Version : 20.2.0 Build 50 06/11/2020 SC Pro Edition
+Revision Name : top
+Top-level Entity Name : top
+Family : Stratix 10
+Device : 1SG280LU2F50E2VG
+Timing Models : Final
+Power Models : Final
+Device Status : Final
+Logic utilization (in ALMs) : 8,901 / 933,120 ( < 1 % )
+Total dedicated logic registers : 9551
+Total pins : 9 / 1,152 ( < 1 % )
+Total block memory bits : 230,784 / 240,046,080 ( < 1 % )
+Total RAM Blocks : 16 / 11,721 ( < 1 % )
+Total DSP Blocks : 2 / 5,760 ( < 1 % )
+Total DIB Channels : 0 / 75 ( 0 % )
+Total HSSI RX channels : 0 / 96 ( 0 % )
+Total HSSI TX channels : 0 / 96 ( 0 % )
+Total HSSI PCIEs : 0 / 4 ( 0 % )
+Total PLLs : 0 / 184 ( 0 % )

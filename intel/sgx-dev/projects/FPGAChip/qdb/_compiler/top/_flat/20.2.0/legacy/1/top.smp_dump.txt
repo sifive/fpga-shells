@@ -1,0 +1,49 @@
+
+State Machine - uFPGACHIP|Platform|sys|sbus|control_bus|atomics|_T_258_0_state
+Name _T_258_0_state.01 _T_258_0_state.11 _T_258_0_state.10 _T_258_0_state.00 
+_T_258_0_state.00 0 0 0 0 
+_T_258_0_state.10 0 0 1 1 
+_T_258_0_state.11 0 1 0 1 
+_T_258_0_state.01 1 0 0 1 
+
+State Machine - uFPGACHIP|Platform|sys|pbus|atomics|_T_258_0_state
+Name _T_258_0_state.01 _T_258_0_state.11 _T_258_0_state.10 _T_258_0_state.00 
+_T_258_0_state.00 0 0 0 0 
+_T_258_0_state.10 0 0 1 1 
+_T_258_0_state.11 0 1 0 1 
+_T_258_0_state.01 1 0 0 1 
+
+State Machine - uFPGACHIP|Platform|sys|tile|dcache|release_state
+Name release_state.111 release_state.110 release_state.010 release_state.001 release_state.000 
+release_state.000 0 0 0 0 0 
+release_state.001 0 0 0 1 1 
+release_state.010 0 0 1 0 1 
+release_state.110 0 1 0 0 1 
+release_state.111 1 0 0 0 1 
+
+State Machine - uFPGACHIP|Platform|sys|tile|dtim_adapter|state
+Name state.011 state.010 state.001 state.000 state.100 
+state.000 0 0 0 0 0 
+state.100 0 0 0 1 1 
+state.001 0 0 1 1 0 
+state.010 0 1 0 1 0 
+state.011 1 0 0 1 0 
+
+State Machine - uFPGACHIP|Platform|sys|tile|core|div|state
+Name state.001 state.111 state.110 state.011 state.010 state.101 state.000 
+state.000 0 0 0 0 0 0 0 
+state.101 0 0 0 0 0 1 1 
+state.010 0 0 0 0 1 0 1 
+state.011 0 0 0 1 0 0 1 
+state.110 0 0 1 0 0 0 1 
+state.111 0 1 0 0 0 0 1 
+state.001 1 0 0 0 0 0 1 
+
+State Machine - uFPGACHIP|Platform|sys|debug_1|dmInner|dmInner|ctrlStateReg
+Name ctrlStateReg.11 ctrlStateReg.10 ctrlStateReg.01 ctrlStateReg.00 
+ctrlStateReg.00 0 0 0 0 
+ctrlStateReg.01 0 0 1 1 
+ctrlStateReg.10 0 1 0 1 
+ctrlStateReg.11 1 0 0 1 
+
+State Machine - Summary

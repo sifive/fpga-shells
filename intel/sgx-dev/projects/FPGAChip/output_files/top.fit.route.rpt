@@ -1,0 +1,507 @@
+Fitter Route Stage Report for top
+Wed Jul 29 19:50:40 2020
+Quartus Prime Version 20.2.0 Build 50 06/11/2020 SC Pro Edition
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. Legal Notice
+  2. Delay Chain Summary
+  3. Routing Usage Summary
+  4. Route Messages
+  5. Estimated Delay Added for Hold Timing Summary
+  6. Estimated Delay Added for Hold Timing Details
+  7. Global Router Wire Utilization Map
+  8. Peak Wire Demand Summary
+  9. Peak Wire Demand Details
+ 10. Peak Total Grid Crossings
+
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 2020  Intel Corporation. All rights reserved.
+Your use of Intel Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Intel Program License 
+Subscription Agreement, the Intel Quartus Prime License Agreement,
+the Intel FPGA IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Intel and sold by Intel or its authorized distributors.  Please
+refer to the applicable agreement for further details, at
+https://fpgasoftware.intel.com/eula.
+
+
+
++--------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Delay Chain Summary                                                                                                                                          ;
++-------------+----------+---------------------+--------------------+----------------+-----------------------------------+-------------------------------------+
+; Name        ; Pin Type ; Input Delay Chain 0 ; Output Delay Chain ; OE Delay Chain ; IO_12_LANE Input Data Delay Chain ; IO_12_LANE Input Strobe Delay Chain ;
++-------------+----------+---------------------+--------------------+----------------+-----------------------------------+-------------------------------------+
+; led_0       ; Output   ; --                  ; 0                  ; --             ; --                                ; --                                  ;
+; led_1       ; Output   ; --                  ; 0                  ; --             ; --                                ; --                                  ;
+; led_2       ; Output   ; --                  ; 0                  ; --             ; --                                ; --                                  ;
+; led_3       ; Output   ; --                  ; 0                  ; --             ; --                                ; --                                  ;
+; key3        ; Input    ; --                  ; --                 ; --             ; --                                ; --                                  ;
+; led_4       ; Output   ; --                  ; 0                  ; --             ; --                                ; --                                  ;
+; REF_CLK_PLL ; Input    ; 0                   ; --                 ; --             ; --                                ; --                                  ;
+; key1        ; Input    ; 0                   ; --                 ; --             ; --                                ; --                                  ;
+; key2        ; Input    ; 0                   ; --                 ; --             ; --                                ; --                                  ;
++-------------+----------+---------------------+--------------------+----------------+-----------------------------------+-------------------------------------+
+
+
++---------------------------------------------------------------+
+; Routing Usage Summary                                         ;
++--------------------------------+------------------------------+
+; Routing Resource Type          ; Usage                        ;
++--------------------------------+------------------------------+
+; Block Input Muxes              ; 10 / 675,444 ( < 1 % )       ;
+; Block interconnects            ; 38,280 / 9,132,912 ( < 1 % ) ;
+; C16 interconnects              ; 351 / 226,512 ( < 1 % )      ;
+; C2 interconnects               ; 5,785 / 1,359,072 ( < 1 % )  ;
+; C3 interconnects               ; 6,489 / 2,758,032 ( < 1 % )  ;
+; C4 interconnects               ; 8,080 / 1,772,208 ( < 1 % )  ;
+; CLOCK_INVERTs                  ; 20 / 7,616 ( < 1 % )         ;
+; DCM_muxes                      ; 1 / 1,632 ( < 1 % )          ;
+; Direct links                   ; 9,382 / 9,132,912 ( < 1 % )  ;
+; GAP Interconnects              ; 12 / 267,192 ( < 1 % )       ;
+; GAPs                           ; 0 / 29,304 ( 0 % )           ;
+; HIO Buffers                    ; 4 / 209,664 ( < 1 % )        ;
+; Horizontal Buffers             ; 7 / 176,364 ( < 1 % )        ;
+; Horizontal_clock_segment_muxes ; 42 / 7,488 ( < 1 % )         ;
+; Programmable Inverts           ; 28 / 318,960 ( < 1 % )       ;
+; R10 interconnects              ; 7,335 / 2,456,208 ( < 1 % )  ;
+; R2 interconnects               ; 6,276 / 2,265,120 ( < 1 % )  ;
+; R24 interconnects              ; 344 / 293,040 ( < 1 % )      ;
+; R24/C16 interconnect drivers   ; 599 / 453,024 ( < 1 % )      ;
+; R4 interconnects               ; 9,756 / 3,248,028 ( < 1 % )  ;
+; Row Clock Tap-Offs             ; 1,000 / 725,544 ( < 1 % )    ;
+; Switchbox_clock_muxes          ; 193 / 41,600 ( < 1 % )       ;
+; Vertical_seam_tap_muxes        ; 168 / 22,848 ( < 1 % )       ;
++--------------------------------+------------------------------+
+
+
++----------------+
+; Route Messages ;
++----------------+
+Info (20032): Parallel compilation is enabled and will use up to 16 processors
+Info: *******************************************************************
+Info: Running Quartus Prime Fitter
+    Info: Version 20.2.0 Build 50 06/11/2020 SC Pro Edition
+    Info: Processing started: Wed Jul 29 19:40:34 2020
+    Info: System process ID: 1948241
+Info: Command: quartus_fit --read_settings_files=on --write_settings_files=off top -c top
+Info: qfit2_default_script.tcl version: #1
+Info: Project  = top
+Info: Revision = top
+Info (170193): Fitter routing operations beginning
+Info (20215): Router estimated peak short interconnect demand : 20% of up directional wire in region X152_Y176 to X159_Y183
+    Info (20265): Estimated peak short right directional wire demand : 17% in region X152_Y184 to X159_Y191
+    Info (20265): Estimated peak short left directional wire demand : 17% in region X144_Y184 to X151_Y191
+    Info (20265): Estimated peak short up directional wire demand : 20% in region X152_Y176 to X159_Y183
+    Info (20265): Estimated peak short down directional wire demand : 15% in region X152_Y184 to X159_Y191
+Info (20215): Router estimated peak long high speed interconnect demand : 228% of down directional wire in region X184_Y184 to X191_Y191
+    Info (20265): Estimated peak long high speed right directional wire demand : 93% in region X152_Y176 to X159_Y183
+    Info (20265): Estimated peak long high speed left directional wire demand : 109% in region X168_Y184 to X175_Y191
+    Info (20265): Estimated peak long high speed up directional wire demand : 164% in region X152_Y176 to X159_Y183
+    Info (20265): Estimated peak long high speed down directional wire demand : 228% in region X184_Y184 to X191_Y191
+    Info (20315): Note that the router may use short wires to implement long connections at higher delay
+Info (170239): Router is attempting to preserve 0.01 percent of routes from an earlier compilation, a user specified Routing Constraints File, or internal routing requirements.
+Info (11888): Total time spent on timing analysis during Routing is 4.77 seconds.
+Info (16607): Fitter routing operations ending: elapsed time is 00:04:19
+
+
++-------------------------------------------------------------------------------+
+; Estimated Delay Added for Hold Timing Summary                                 ;
++-------------------------+---------------------------------+-------------------+
+; Source Clock(s)         ; Destination Clock(s)            ; Delay Added in ns ;
++-------------------------+---------------------------------+-------------------+
+; REF_CLK_PLL             ; altera_reserved_tck             ; 231.3             ;
+; REF_CLK_PLL             ; REF_CLK_PLL                     ; 80.4              ;
+; REF_CLK_PLL             ; REF_CLK_PLL,altera_reserved_tck ; 66.3              ;
+; altera_reserved_tck,I/O ; altera_reserved_tck             ; 28.5              ;
+; altera_reserved_tck     ; altera_reserved_tck             ; 16.2              ;
++-------------------------+---------------------------------+-------------------+
+Note: For more information on problematic transfers, consider running the Fitter again with the Optimize hold timing option (Settings Menu) turned off.
+This will disable optimization of problematic paths and expose them for further analysis using the Timing Analyzer.
+
+
++----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Estimated Delay Added for Hold Timing Details                                                                                                                                                                                                ;
++------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------+-------------------+
+; Source Register                                                                                            ; Destination Register                                                                                        ; Delay Added in ns ;
++------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------+-------------------+
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|AsyncValidSync|source_valid|sync_0|reg_0|q ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|AsyncValidSync_1|sink_extend|sync_0|reg_0|q   ; 5.659             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|AsyncQueueSink|AsyncValidSync|source_valid|sync_0|reg_0|q           ; uFPGACHIP|Platform|sys|debug_1|dmOuter|AsyncQueueSource|AsyncValidSync_1|sink_extend|sync_0|reg_0|q         ; 5.654             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSink|AsyncValidSync|source_valid|sync_0|reg_0|q   ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSource|AsyncValidSync_1|sink_extend|sync_0|reg_0|q ; 5.598             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[14]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[15]                       ; 5.535             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[10]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[11]                       ; 5.530             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[8]                              ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[9]                        ; 5.513             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[9]                              ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[10]                       ; 5.511             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[22]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[23]                       ; 5.510             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[31]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[32]                       ; 5.505             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[7]                              ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[8]                        ; 5.503             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[4]                              ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[5]                        ; 5.500             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[21]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[22]                       ; 5.498             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[13]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[14]                       ; 5.486             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[5]                              ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[6]                        ; 5.476             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[12]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[13]                       ; 5.474             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[3]                              ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[4]                        ; 5.456             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSink|ridx_gray|reg_0|q                            ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSource|ridx_gray|sync_2|reg_0|q                    ; 5.447             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[23]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[24]                       ; 5.433             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[15]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[16]                       ; 5.427             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[11]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[12]                       ; 5.403             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[6]                              ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[7]                        ; 5.397             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[19]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[20]                       ; 5.383             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[26]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[27]                       ; 5.383             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|widx_gray|reg_0|q                          ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|widx_gray|sync_2|reg_0|q                      ; 5.379             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[18]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[19]                       ; 5.374             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[17]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[18]                       ; 5.369             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[2]                              ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[3]                        ; 5.327             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[30]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[31]                       ; 5.323             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[24]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[25]                       ; 5.318             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[20]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[21]                       ; 5.315             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[25]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[26]                       ; 5.314             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[28]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[29]                       ; 5.309             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[27]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[28]                       ; 5.303             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[29]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[30]                       ; 5.291             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[0]                              ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[1]                        ; 5.271             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[1]                              ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[2]                        ; 5.261             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSource|mem_0_data[16]                             ; uFPGACHIP|Platform|sys|debug_1|dmOuter|asource|AsyncQueueSink|deq_bits_reg|sync_0[17]                       ; 5.195             ;
+; uFPGACHIP|Platform|sys|debug_1|dmInner|AsyncQueueSink|ridx_gray|reg_0|q                                    ; uFPGACHIP|Platform|sys|debug_1|dmOuter|AsyncQueueSource|ridx_gray|sync_2|reg_0|q                            ; 5.183             ;
+; uFPGACHIP|_T_31[49]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 5.072             ;
+; uFPGACHIP|_T_31[50]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 5.072             ;
+; uFPGACHIP|_T_31[48]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 5.069             ;
+; uFPGACHIP|_T_31[61]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 5.000             ;
+; uFPGACHIP|_T_31[62]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.998             ;
+; uFPGACHIP|_T_31[60]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.990             ;
+; uFPGACHIP|_T_31[51]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.985             ;
+; uFPGACHIP|_T_31[52]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.984             ;
+; uFPGACHIP|_T_31[56]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.978             ;
+; uFPGACHIP|_T_31[63]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.977             ;
+; uFPGACHIP|_T_31[58]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.976             ;
+; uFPGACHIP|_T_31[54]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.972             ;
+; uFPGACHIP|_T_31[55]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.972             ;
+; uFPGACHIP|_T_31[57]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.969             ;
+; uFPGACHIP|_T_31[59]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.820             ;
+; uFPGACHIP|_T_31[53]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.805             ;
+; uFPGACHIP|_T_31[32]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.765             ;
+; uFPGACHIP|_T_31[34]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.764             ;
+; uFPGACHIP|_T_31[35]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.764             ;
+; uFPGACHIP|_T_31[33]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.761             ;
+; uFPGACHIP|_T_31[47]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.761             ;
+; uFPGACHIP|_T_31[46]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.748             ;
+; uFPGACHIP|_T_31[41]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.747             ;
+; uFPGACHIP|_T_31[40]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.739             ;
+; uFPGACHIP|_T_31[45]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.734             ;
+; uFPGACHIP|_T_31[42]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.729             ;
+; uFPGACHIP|_T_31[43]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.724             ;
+; uFPGACHIP|_T_31[44]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.720             ;
+; uFPGACHIP|_T_31[36]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.718             ;
+; uFPGACHIP|_T_31[39]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.717             ;
+; uFPGACHIP|_T_31[37]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.715             ;
+; uFPGACHIP|_T_31[22]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.704             ;
+; uFPGACHIP|_T_31[20]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.703             ;
+; uFPGACHIP|_T_31[21]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.703             ;
+; uFPGACHIP|_T_31[38]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.703             ;
+; uFPGACHIP|_T_31[19]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.701             ;
+; uFPGACHIP|_T_31[18]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.700             ;
+; uFPGACHIP|_T_31[31]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.609             ;
+; uFPGACHIP|_T_31[27]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.584             ;
+; uFPGACHIP|_T_31[26]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.584             ;
+; uFPGACHIP|_T_31[29]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.584             ;
+; uFPGACHIP|_T_31[12]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.580             ;
+; uFPGACHIP|_T_31[14]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.579             ;
+; uFPGACHIP|_T_31[16]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.578             ;
+; uFPGACHIP|_T_31[15]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.578             ;
+; uFPGACHIP|_T_31[25]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.577             ;
+; uFPGACHIP|_T_31[13]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.575             ;
+; uFPGACHIP|_T_31[28]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.575             ;
+; uFPGACHIP|_T_31[24]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.570             ;
+; uFPGACHIP|_T_31[30]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.539             ;
+; uFPGACHIP|_T_31[10]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.446             ;
+; uFPGACHIP|_T_31[7]                                                                                         ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.393             ;
+; uFPGACHIP|_T_31[8]                                                                                         ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.378             ;
+; uFPGACHIP|_T_31[11]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.372             ;
+; uFPGACHIP|_T_31[17]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.361             ;
+; uFPGACHIP|_T_31[9]                                                                                         ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.359             ;
+; uFPGACHIP|_T_31[23]                                                                                        ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.324             ;
+; uFPGACHIP|_T_31[4]                                                                                         ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.299             ;
+; uFPGACHIP|_T_31[5]                                                                                         ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.297             ;
+; uFPGACHIP|_T_31[6]                                                                                         ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.296             ;
+; uFPGACHIP|_T_31[3]                                                                                         ; uFPGACHIP|Platform|sys|dmiResetCatch|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_2|reg_0|q                 ; 4.274             ;
+; uFPGACHIP|Platform|sys|uart_0_1|txm|out                                                                    ; auto_fab_0|alt_sld_fab_0|alt_sld_fab_0|sldfabric|jtag_hub_gen.real_sld_jtag_hub|irsr_reg[0]                 ; 3.894             ;
++------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------+-------------------+
+Note: This table only shows the top 100 path(s) that have the largest delay added for hold.
+
+
+--------------------------------------
+; Global Router Wire Utilization Map ;
+--------------------------------------
+This report is unavailable in plain text report export.
+
+
++-------------------------------------------------------------------------------+
+; Peak Wire Demand Summary                                                      ;
++-----------------+-----------+-----------------------------------+-------------+
+; Wire            ; Direction ; Grid [(Xmin, Ymin), (Xmax, Ymax)] ; Peak Demand ;
++-----------------+-----------+-----------------------------------+-------------+
+; short           ; right     ; [(152, 184), (159, 191)]          ; 17.258 %    ;
+; short           ; left      ; [(144, 184), (151, 191)]          ; 17.708 %    ;
+; short           ; up        ; [(152, 176), (159, 183)]          ; 20.186 %    ;
+; short           ; down      ; [(152, 184), (159, 191)]          ; 15.777 %    ;
+; long high speed ; right     ; [(152, 176), (159, 183)]          ; 93.750 %    ;
+; long high speed ; left      ; [(168, 184), (175, 191)]          ; 100.000 %   ;
+; long high speed ; up        ; [(128, 184), (135, 191)]          ; 100.000 %   ;
+; long high speed ; down      ; [(128, 192), (135, 199)]          ; 100.000 %   ;
++-----------------+-----------+-----------------------------------+-------------+
+
+
++-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Peak Wire Demand Details                                                                                                                                                                            ;
++-----------------+-----------+-----------------------------------+-------------+---------------------------------------------------------------------------------------------------------------------+
+; Wire            ; Direction ; Grid [(Xmin, Ymin), (Xmax, Ymax)] ; Peak Demand ; Net Names                                                                                                           ;
++-----------------+-----------+-----------------------------------+-------------+---------------------------------------------------------------------------------------------------------------------+
+; short           ; right     ; [(152, 184), (159, 191)]          ; 17.258 %    ;    High Routing Fan-Out                                                                                             ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dtim_adapter|state.011                                                                  ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[31]                                                                  ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[26]                                                                  ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[30]                                                                  ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[16]                                                                  ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[25]                                                                  ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[29]                                                                  ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[23]                                                                  ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[7]                                                                   ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[6]                                                                   ;
+; short           ; right     ; [(152, 184), (159, 191)]          ; 17.258 %    ;    Long Distance                                                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0_rtl_0_bypass[22]                                        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0_rtl_0_bypass[24]                                        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0_rtl_0_bypass[42]                                        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0_rtl_0_bypass[39]                                        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0_rtl_0|auto_generated|altera_syncram_impl1|q_b[21]       ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0_rtl_0_bypass[41]                                        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0_rtl_0_bypass[29]                                        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0_rtl_0|auto_generated|altera_syncram_impl1|q_b[1]        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0_rtl_0|auto_generated|altera_syncram_impl1|q_b[19]       ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0_rtl_0|auto_generated|altera_syncram_impl1|q_b[3]        ;
+; short           ; left      ; [(144, 184), (151, 191)]          ; 17.708 %    ;    High Routing Fan-Out                                                                                             ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|atomics|_T_863_1~0                                                          ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|buffer|Queue|_T_35_opcode__T_50_en~0xsyn_2                                  ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|atomics|_T_863_0~0                                                          ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|atomics|_T_269_0_bits_param[1]                                              ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|atomics|_T_269_0_lut[3]                                                     ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|buffer|Queue_1|_T_35_data~0                                                 ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|atomics|_T_906[1]~3                                                         ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|atomics|_T_906[1]~0                                                         ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|atomics|_T_269_0_lut[2]                                                     ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|atomics|i1563                                                               ;
+; short           ; left      ; [(144, 184), (151, 191)]          ; 17.708 %    ;    Long Distance                                                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|buffer|Queue|_T_35_address_rtl_0_bypass[13]                                 ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|buffer|Queue|_T_35_source__T_58_data~0                                      ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|buffer|Queue|_T_35_data~1                                                   ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|buffer_1|Queue_1|_T_35_data_rtl_0|auto_generated|altera_syncram_impl1|q_b[12]           ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|atomics|_T_269_0_bits_address[4]                                            ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|atomics|_T_906[70]~15                                                       ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|atomics|_T_906[70]~13                                                       ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|buffer|Queue|_T_35_address_rtl_0_bypass[33]                                 ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|buffer|Queue|_T_35_address_rtl_0_bypass[14]                                 ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dtim_adapter|auto_in_d_bits_data[0]~22                                                  ;
+; short           ; up        ; [(152, 176), (159, 183)]          ; 20.186 %    ;    High Routing Fan-Out                                                                                             ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|io_dmem_req_valid~0                                                                ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|tlMasterXbar|_GEN_5[0]~0                                                                ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|tlMasterXbar|_T_1122_1~0                                                                ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|refill_addr[11]                                                         ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|ex_ctrl_mem_type[1]                                                                ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s2_req_typ[1]                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s2_req_addr[1]                                                                   ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s2_req_typ[0]                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcacheArb|io_mem_req_valid~0                                                            ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|ex_ctrl_mem_type[0]                                                                ;
+; short           ; up        ; [(152, 176), (159, 183)]          ; 20.186 %    ;    Long Distance                                                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0_rtl_0_bypass[22]                                        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0_rtl_0_bypass[39]                                        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0_rtl_0_bypass[42]                                        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0_rtl_0_bypass[24]                                        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s2_req_typ[0]                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s2_req_typ[1]                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|io_dmem_req_valid~0                                                                ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|alu|add_0~66                                                                       ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|alu|add_0~36                                                                       ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|alu|add_0~26                                                                       ;
+; short           ; down      ; [(152, 184), (159, 191)]          ; 15.777 %    ;    High Routing Fan-Out                                                                                             ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|buffer|Queue_1|_T_35_data~0                                                             ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|s1_pc[16]                                                                      ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[10]                                                                  ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[3]                                                                   ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[6]                                                                   ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[5]                                                                   ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[17]                                                                  ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[15]                                                                  ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[14]                                                                  ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|fragmenter_1|Repeater|io_deq_bits_address[13]~1                                         ;
+; short           ; down      ; [(152, 184), (159, 191)]          ; 15.777 %    ;    Long Distance                                                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|buffer|Queue_1|_T_35_data~32                                                            ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|mem_reg_rs2[28]                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|buffer|Queue_1|_T_35_data~26                                                            ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|buffer|Queue_1|_T_35_data~19                                                            ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|mem_reg_rs2[12]                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|mem_reg_rs2[23]                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|mem_reg_rs2[15]                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|csr|reg_pmp_1_cfg_l                                                                ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[10]                                                                  ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|buffer|Queue_1|_T_35_corrupt__T_58_data~0                                               ;
+; long high speed ; right     ; [(152, 176), (159, 183)]          ; 93.750 %    ;    High Routing Fan-Out                                                                                             ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|io_dmem_req_valid~0                                                                ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|io_cpu_replay_next                                                               ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s2_req_typ[1]                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s2_req_addr[1]                                                                   ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s2_req_typ[0]                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcacheArb|io_mem_req_valid~0                                                            ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|i4314~0                                                                          ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s2_req_addr[0]                                                                   ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s2_data[31]                                                                      ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|io_cpu_req_ready~1xsyn_3                                                         ;
+; long high speed ; right     ; [(152, 176), (159, 183)]          ; 93.750 %    ;    Long Distance                                                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0_rtl_0_bypass[52]                                        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0_rtl_0_bypass[49]                                        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s2_req_typ[1]                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s2_req_typ[0]                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|buffer|Queue_1|_T_35_data~28                                                            ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s2_data[31]                                                                      ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s2_data[18]                                                                      ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s2_data[12]                                                                      ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s2_data[17]                                                                      ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dcache|s2_data[13]                                                                      ;
+; long high speed ; left      ; [(168, 184), (175, 191)]          ; 100.000 %   ;    High Routing Fan-Out                                                                                             ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|wb_reg_inst[21]                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0__T_318_addr[0]~5                                        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0__T_318_addr[0]~6                                        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0__T_318_addr[0]~7                                        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0__T_318_addr[0]~8                                        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0__T_318_addr[0]~10                                       ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|icache|data_arrays_0_0__T_318_addr[0]~9                                        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|csr|csr_wen~0                                                                      ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|s1_pc[8]                                                                       ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|s1_pc[7]                                                                       ;
+; long high speed ; left      ; [(168, 184), (175, 191)]          ; 100.000 %   ;    Long Distance                                                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|csr|wdata[1]~25                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|mem_reg_rs2[15]                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|mem_reg_rs2[28]                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|mem_reg_rs2[12]                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|mem_reg_rs2[23]                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|s1_pc[10]                                                                      ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|csr|wdata[1]~17                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|frontend|s1_pc[11]                                                                      ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|csr|wdata[1]~21                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|core|csr|wdata[1]~7                                                                     ;
+; long high speed ; up        ; [(128, 184), (135, 191)]          ; 100.000 %   ;    High Routing Fan-Out                                                                                             ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSink|deq_bits_reg|sync_0[39]                               ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSink|deq_bits_reg|sync_0[40]                               ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSink|deq_bits_reg|sync_0[41]                               ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSink|deq_bits_reg|sync_0[42]                               ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|debug_1|dmInner|dmactiveSync|AsyncResetSynchronizerShiftReg_w1_d3_i0|sync_0|reg_0|q          ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|buffer_1|Queue_1|_T_35_opcode__T_50_en~0                                                ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|debug_1|dmInner|dmInner|_T_65791~2xsyn                                                       ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|debug_1|dmInner|dmInner|_T_65743~0                                                           ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|debug_1|dmInner|dmInner|_T_65737~0                                                           ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|debug_1|dmInner|dmInner|_T_65785~0                                                           ;
+; long high speed ; up        ; [(128, 184), (135, 191)]          ; 100.000 %   ;    Long Distance                                                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|buffer|Queue|Mux_2~1                                                        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSink|deq_bits_reg|sync_0[40]                               ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|buffer|Queue|_T_35_opcode_0_0~RTMUX                                         ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|buffer|Queue|_T_35_opcode_1_1~RTMUX                                         ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|buffer|Queue|_T_35_opcode_0_1~RTMUX                                         ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|buffer_1|Queue_1|_T_35_data_rtl_0_bypass[0]                                             ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|buffer|Queue|_T_35_opcode_1_0~RTMUX                                         ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|debug_1|dmInner|dmInner|ctrlStateReg.10                                                      ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|buffer|Queue|_T_35_data~15                                                  ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|debug_1|dmInner|dmiXing|AsyncQueueSink|deq_bits_reg|sync_0[1]                                ;
+; long high speed ; down      ; [(128, 192), (135, 199)]          ; 100.000 %   ;    High Routing Fan-Out                                                                                             ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|coupler_to_slave_named_debug|fragmenter|auto_out_a_bits_address[2]~8xsyn    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|coupler_to_slave_named_debug|fragmenter|auto_out_a_bits_address[2]~6        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|debug_1|dmInner|dmInner|reduce_nor_1362~0                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|coupler_to_slave_named_debug|fragmenter|auto_out_a_bits_address[2]~5        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|coupler_to_slave_named_debug|fragmenter|Repeater|io_deq_bits_address[10]~0  ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|coupler_to_slave_named_debug|fragmenter|auto_out_a_bits_mask[0]~0           ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|coupler_to_slave_named_MaskROM|fragmenter|Repeater|io_deq_bits_address[9]~3 ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|coupler_to_slave_named_MaskROM|fragmenter|Repeater|io_deq_bits_address[8]~2 ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|debug_1|dmInner|dmInner|programBufferMem_45[6]~RTM_11                                        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|debug_1|dmInner|dmInner|programBufferMem_46[2]~RTM_10                                        ;
+; long high speed ; down      ; [(128, 192), (135, 199)]          ; 100.000 %   ;    Long Distance                                                                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|coupler_to_slave_named_debug|fragmenter|auto_out_a_bits_address[2]~6        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|debug_1|dmInner|dmInner|reduce_nor_1362~0                                                    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|coupler_to_slave_named_debug|fragmenter|auto_out_a_bits_address[2]~5        ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|sbus|control_bus|coupler_to_slave_named_debug|fragmenter|auto_out_a_bits_address[2]~8xsyn    ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|debug_1|dmInner|dmInner|_T_65761~0                                                           ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|tile|dtim_adapter|auto_in_d_bits_data[0]~13                                                  ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|debug_1|dmInner|dmInner|i59651~1                                                             ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|debug_1|dmInner|dmInner|auto_dmi_in_d_bits_data[0]~117                                       ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|debug_1|dmInner|dmInner|programBufferMem_26[1]~RTM_2                                         ;
+;     --          ;           ;                                   ;             ; uFPGACHIP|Platform|sys|debug_1|dmInner|dmInner|programBufferMem_58[2]~RTM_2                                         ;
++-----------------+-----------+-----------------------------------+-------------+---------------------------------------------------------------------------------------------------------------------+
+
+
++---------------------------------------------------------------------------------------------------------------+
+; Peak Total Grid Crossings                                                                                     ;
++----------------------------------------------------------------------------------------+----------------------+
+; Net Name                                                                               ; Total Grid Crossings ;
++----------------------------------------------------------------------------------------+----------------------+
+; uFPGACHIP|_T_36~0                                                                      ; 40                   ;
+; uFPGACHIP|_T_42~0                                                                      ; 38                   ;
+; uFPGACHIP|_T_38~0                                                                      ; 38                   ;
+; uFPGACHIP|_T_40~0                                                                      ; 37                   ;
+; uFPGACHIP|LessThan_0~13                                                                ; 36                   ;
+; uFPGACHIP|Platform|_T_66                                                               ; 20                   ;
+; uFPGACHIP|Platform|sys|gpio_0_1|inSyncReg|sync_0[4]                                    ; 20                   ;
+; uFPGACHIP|Platform|sys|uart_0_1|txm|out                                                ; 18                   ;
+; uFPGACHIP|Platform|sys|gpio_0_1|inSyncReg|sync_1[5]                                    ; 17                   ;
+; key2~input                                                                             ; 16                   ;
+; key1~input                                                                             ; 16                   ;
+; uFPGACHIP|Platform|sys|tile|core|csr|wdata[1]~31                                       ; 12                   ;
+; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[6]                                      ; 12                   ;
+; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[7]                                      ; 12                   ;
+; uFPGACHIP|Platform|sys|tile|frontend|s1_pc[8]                                          ; 11                   ;
+; uFPGACHIP|Platform|sys|tile|frontend|s1_pc[11]                                         ; 11                   ;
+; uFPGACHIP|Platform|sys|tile|frontend|s1_pc[9]                                          ; 11                   ;
+; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[27]                                     ; 11                   ;
+; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[18]                                     ; 11                   ;
+; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[15]                                     ; 11                   ;
+; uFPGACHIP|Platform|sys|tile|core|csr|wdata[1]~13                                       ; 11                   ;
+; uFPGACHIP|Platform|sys|tile|frontend|s1_pc[3]                                          ; 11                   ;
+; uFPGACHIP|Platform|sys|tile|frontend|s1_pc[4]                                          ; 11                   ;
+; uFPGACHIP|Platform|sys|tile|frontend|s1_pc[5]                                          ; 10                   ;
+; uFPGACHIP|Platform|sys|tile|frontend|s1_pc[10]                                         ; 10                   ;
+; uFPGACHIP|Platform|sys|tile|core|csr|wdata[1]~20                                       ; 10                   ;
+; uFPGACHIP|Platform|sys|tile|core|csr|wdata[1]~19                                       ; 10                   ;
+; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[17]                                     ; 10                   ;
+; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[16]                                     ; 10                   ;
+; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[4]                                      ; 10                   ;
+; uFPGACHIP|Platform|sys|tile|core|csr|wdata[1]~10                                       ; 10                   ;
+; uFPGACHIP|Platform|sys|tile|core|csr|wdata[1]~22                                       ; 10                   ;
+; uFPGACHIP|Platform|sys|tile|core|csr|wdata[1]~12                                       ; 10                   ;
+; uFPGACHIP|Platform|sys|tile|core|csr|wdata[0]~3                                        ; 10                   ;
+; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[28]                                     ; 10                   ;
+; uFPGACHIP|Platform|sys|tile|dcache|i4314~0                                             ; 10                   ;
+; uFPGACHIP|Platform|sys|sbus|control_bus|buffer|Queue|_T_35_address_rtl_0_bypass[0]~RTM ; 10                   ;
+; uFPGACHIP|Platform|sys|tile|core|_T_575~1674                                           ; 9                    ;
+; uFPGACHIP|Platform|sys|tile|core|_T_575~1666                                           ; 9                    ;
+; uFPGACHIP|Platform|sys|tile|core|_T_575~1671                                           ; 9                    ;
+; uFPGACHIP|Platform|sys|tile|core|_T_575~1656                                           ; 9                    ;
+; uFPGACHIP|Platform|sys|tile|core|_T_575~1670                                           ; 9                    ;
+; uFPGACHIP|Platform|sys|tile|frontend|fq|_T_117~0                                       ; 9                    ;
+; uFPGACHIP|Platform|sys|tile|frontend|s1_pc[19]                                         ; 9                    ;
+; uFPGACHIP|Platform|sys|tile|frontend|s1_pc[28]                                         ; 9                    ;
+; uFPGACHIP|Platform|sys|tile|frontend|s1_pc[26]                                         ; 9                    ;
+; uFPGACHIP|Platform|sys|tile|frontend|s1_pc[25]                                         ; 9                    ;
+; uFPGACHIP|Platform|sys|tile|frontend|s1_pc[7]                                          ; 9                    ;
+; uFPGACHIP|Platform|sys|tile|frontend|s1_pc[17]                                         ; 9                    ;
+; uFPGACHIP|Platform|sys|tile|dcache|s1_req_addr[20]                                     ; 9                    ;
++----------------------------------------------------------------------------------------+----------------------+
+
+

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deploy
+ date="2020.07.29.19:32:38"
+ outputDirectory="/home/jdtarang/RISC-V/git/freedom-jdtarang/fpga-shells/intel/sgx-dev/projects/FPGAChip/rom/">
+ <perimeter>
+  <parameter
+     name="AUTO_GENERATION_ID"
+     type="Integer"
+     defaultValue="0"
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_UNIQUE_ID"
+     type="String"
+     defaultValue=""
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_DEVICE_FAMILY"
+     type="String"
+     defaultValue="Stratix 10"
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_DEVICE"
+     type="String"
+     defaultValue="1SG280LU2F50E2VG"
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_DEVICE_SPEEDGRADE"
+     type="String"
+     defaultValue="2"
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_CLOCK_CLOCK_RATE"
+     type="Long"
+     defaultValue="-1"
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_CLOCK_CLOCK_DOMAIN"
+     type="Integer"
+     defaultValue="-1"
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_CLOCK_RESET_DOMAIN"
+     type="Integer"
+     defaultValue="-1"
+     onHdl="0"
+     affectsHdl="1" />
+  <interface name="q" kind="conduit" start="0">
+   <property name="associatedClock" value="" />
+   <property name="associatedReset" value="" />
+   <property name="prSafe" value="false" />
+   <port name="q" direction="output" role="dataout" width="32" />
+  </interface>
+  <interface name="address" kind="conduit" start="0">
+   <property name="associatedClock" value="" />
+   <property name="associatedReset" value="" />
+   <property name="prSafe" value="false" />
+   <port name="address" direction="input" role="address" width="11" />
+  </interface>
+  <interface name="clock" kind="clock" start="0">
+   <property name="clockRate" value="0" />
+   <property name="externallyDriven" value="false" />
+   <property name="ptfSchematicName" value="" />
+   <port name="clock" direction="input" role="clk" width="1" />
+  </interface>
+  <interface name="rden" kind="conduit" start="0">
+   <property name="associatedClock" value="" />
+   <property name="associatedReset" value="" />
+   <property name="prSafe" value="false" />
+   <port name="rden" direction="input" role="rden" width="1" />
+  </interface>
+ </perimeter>
+ <entity kind="rom" version="1.0" name="rom">
+  <parameter name="AUTO_CLOCK_CLOCK_RATE" value="-1" />
+  <parameter name="AUTO_CLOCK_CLOCK_DOMAIN" value="-1" />
+  <parameter name="AUTO_CLOCK_RESET_DOMAIN" value="-1" />
+  <parameter name="AUTO_GENERATION_ID" value="0" />
+  <parameter name="AUTO_DEVICE" value="1SG280LU2F50E2VG" />
+  <parameter name="AUTO_DEVICE_FAMILY" value="Stratix 10" />
+  <parameter name="AUTO_UNIQUE_ID" value="" />
+  <parameter name="AUTO_DEVICE_SPEEDGRADE" value="2" />
+  <generatedFiles>
+   <file
+       path="/home/jdtarang/RISC-V/git/freedom-jdtarang/fpga-shells/intel/sgx-dev/projects/FPGAChip/rom/synth/rom.v"
+       attributes="CONTAINS_INLINE_CONFIGURATION" />
+  </generatedFiles>
+  <childGeneratedFiles>
+   <file
+       path="/home/jdtarang/RISC-V/git/freedom-jdtarang/fpga-shells/intel/sgx-dev/projects/FPGAChip/rom/synth/rom.v"
+       attributes="CONTAINS_INLINE_CONFIGURATION" />
+  </childGeneratedFiles>
+  <sourceFiles>
+   <file
+       path="/home/jdtarang/RISC-V/git/freedom-jdtarang/fpga-shells/intel/sgx-dev/projects/FPGAChip/rom.ip" />
+  </sourceFiles>
+  <childSourceFiles>
+   <file
+       path="/opt/intel/FPGA_pro/20.2/ip/altera/megafunctions/rom_1port/rom_1_port_hw.tcl" />
+  </childSourceFiles>
+  <messages>
+   <message level="Info" culprit="rom">"Generating: rom"</message>
+   <message level="Info" culprit="rom">"Generating: rom_rom_1port_2010_eadblwq"</message>
+  </messages>
+ </entity>
+ <entity kind="rom_1port" version="20.1.0" name="rom_rom_1port_2010_eadblwq">
+  <parameter name="GUI_CLOCK_ENABLE_INPUT_A" value="false" />
+  <parameter name="GUI_NUMWORDS_A" value="2048" />
+  <parameter name="DEVICE_FAMILY" value="Stratix 10" />
+  <parameter name="GUI_RAM_BLOCK_TYPE" value="Auto" />
+  <parameter name="GUI_SingleClock" value="0" />
+  <parameter name="GUI_AclrAddr" value="false" />
+  <parameter name="GUI_INIT_FILE_LAYOUT" value="PORT_A" />
+  <parameter name="GUI_MAXIMUM_DEPTH" value="2048" />
+  <parameter name="GUI_RegOutput" value="true" />
+  <parameter name="GUI_CLOCK_ENABLE_OUTPUT_A" value="false" />
+  <parameter name="GUI_RESOURCE_USAGE" value="4 M20K" />
+  <parameter name="GUI_rden" value="true" />
+  <parameter name="GUI_JTAG_ID" value="NONE" />
+  <parameter name="GUI_WIDTH_A" value="32" />
+  <parameter name="GUI_FORCE_TO_ZERO" value="false" />
+  <parameter
+     name="GUI_MIFfilename"
+     value="/home/jdtarang/RISC-V/git/freedom-jdtarang/fpga-shells/intel/sgx-dev/projects/FPGAChip/sdboot.hex" />
+  <parameter name="GUI_OPTIMIZATION_OPTION" value="0" />
+  <parameter name="GUI_RegAddr" value="true" />
+  <parameter name="GUI_JTAG_ENABLED" value="false" />
+  <parameter name="GUI_INIT_TO_SIM_X" value="false" />
+  <parameter name="GUI_AclrOutput" value="false" />
+  <parameter name="GUI_WIDTHAD_A" value="11" />
+  <parameter name="GUI_ADDRESSSTALL_A" value="false" />
+  <parameter name="GUI_FILE_REFERENCE" value="0" />
+  <parameter name="GUI_TBENCH" value="false" />
+  <parameter name="GUI_SclrOutput" value="false" />
+  <parameter name="GUI_MODULE_NAME" value="altera_syncram" />
+  <parameter name="GUI_BlankMemory" value="1" />
+  <generatedFiles>
+   <file
+       path="/home/jdtarang/RISC-V/git/freedom-jdtarang/fpga-shells/intel/sgx-dev/projects/FPGAChip/rom/rom_1port_2010/synth/rom_rom_1port_2010_eadblwq.v"
+       attributes="" />
+  </generatedFiles>
+  <childGeneratedFiles>
+   <file
+       path="/home/jdtarang/RISC-V/git/freedom-jdtarang/fpga-shells/intel/sgx-dev/projects/FPGAChip/rom/rom_1port_2010/synth/rom_rom_1port_2010_eadblwq.v"
+       attributes="" />
+  </childGeneratedFiles>
+  <sourceFiles>
+   <file
+       path="/opt/intel/FPGA_pro/20.2/ip/altera/megafunctions/rom_1port/rom_1_port_hw.tcl" />
+  </sourceFiles>
+  <childSourceFiles/>
+  <instantiator instantiator="rom" as="rom_1port_0" />
+  <messages>
+   <message level="Info" culprit="rom">"Generating: rom_rom_1port_2010_eadblwq"</message>
+  </messages>
+ </entity>
+</deploy>
