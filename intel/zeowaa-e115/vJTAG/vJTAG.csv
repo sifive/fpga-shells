@@ -1,0 +1,18 @@
+# system info vJTAG on 2020.07.29.19:32:36
+system_info:
+name,value
+DEVICE,1SG280LU2F50E2VG
+DEVICE_FAMILY,Stratix 10
+GENERATION_ID,0
+#
+#
+# Files generated for vJTAG on 2020.07.29.19:32:36
+files:
+filepath,kind,attributes,module,is_top
+sim/vJTAG.v,VERILOG,CONTAINS_INLINE_CONFIGURATION,vJTAG,true
+altera_virtual_jtag_1920/sim/sld_virtual_jtag.v,VERILOG,,sld_virtual_jtag,false
+#
+# Map from instance-path to kind of module
+instances:
+instancePath,module
+vJTAG.virtual_jtag_0,sld_virtual_jtag

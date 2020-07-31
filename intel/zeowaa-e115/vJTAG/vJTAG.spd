@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file
+   path="altera_virtual_jtag_1920/sim/sld_virtual_jtag.v"
+   type="VERILOG"
+   library="altera_virtual_jtag_1920" />
+ <file
+   path="sim/vJTAG.v"
+   type="VERILOG"
+   library="vJTAG"
+   hasInlineConfiguration="true" />
+ <topLevel name="vJTAG.vJTAG" />
+ <deviceFamily name="stratix10" />
+</simPackage>

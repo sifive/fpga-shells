@@ -1,0 +1,102 @@
+# -------------------------------------------------------------------------- #
+#
+# Copyright (C) 1991-2020 Altera Corporation
+# Your use of Altera Corporation's design tools, logic functions 
+# and other software and tools, and its AMPP partner logic 
+# functions, and any output files from any of the foregoing 
+# (including device programming or simulation files), and any 
+# associated documentation or information are expressly subject 
+# to the terms and conditions of the Altera Program License 
+# Subscription Agreement, Altera MegaCore Function License 
+# Agreement, or other applicable license agreement, including, 
+# without limitation, that your use is for the sole purpose of 
+# programming logic devices manufactured by Altera and sold by 
+# Altera or its authorized distributors.  Please refer to the 
+# applicable agreement for further details.
+#
+# -------------------------------------------------------------------------- #
+#
+# Quartus II 64-Bit
+# Version 15.0 Build 162 10730/2020 SJ Full Version
+# Date created = 09:43:24  July 30, 2020
+#
+# -------------------------------------------------------------------------- #
+#
+# Notes:
+#
+# 1) The default values for assignments are stored in the file:
+#		KEY_TEST_assignment_defaults.qdf
+#    If this file doesn't exist, see file:
+#		assignment_defaults.qdf
+#
+# 2) Altera recommends that you do not modify this file. This
+#    file is updated automatically by the Quartus II software
+#    and any changes you make may be lost or overwritten.
+#
+# -------------------------------------------------------------------------- #
+set_global_assignment -name FAMILY "Cyclone IV E"
+set_global_assignment -name DEVICE EP4CE115F23I7
+set_global_assignment -name TOP_LEVEL_ENTITY top
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION 15.0
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "12:00:00  JULY 04, 2020"
+set_global_assignment -name LAST_QUARTUS_VERSION 15.0
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP "-40"
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 100
+set_global_assignment -name DEVICE_FILTER_PACKAGE FBGA
+set_global_assignment -name DEVICE_FILTER_PIN_COUNT 484
+set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 7
+set_global_assignment -name NOMINAL_CORE_SUPPLY_VOLTAGE 1.2V
+set_global_assignment -name VERILOG_FILE top.v
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "2.5 V"
+######################################################################################
+# Fitter Assignments
+######################################################################################
+set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
+######################################################################################
+# Assembler Assignments
+######################################################################################
+set_global_assignment -name AUTO_RESTART_CONFIGURATION OFF
+set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
+set_global_assignment -name USE_CHECKSUM_AS_USERCODE ON
+set_global_assignment -name DEVICE_FILTER_PIN_COUNT 484
+######################################################################################
+# RISC-V
+######################################################################################
+# 27 MHz
+set_location_assignment PIN_A11 -to REF_CLK_PLL
+# 25 MHz
+#set_location_assignment PIN_AB11 -to REF_CLK_PLL
+# 48 MHz
+#set_location_assignment PIN_A12 -to REF_CLK_PLL
+# UART
+set_location_assignment PIN_N1 -to uart_tx
+set_location_assignment PIN_H5 -to uart_rx
+# SWITCHES
+set_location_assignment PIN_N21 -to key1
+set_location_assignment PIN_N22 -to key2
+set_location_assignment PIN_T1 -to key3
+######################################################################################
+# LEDS
+set_location_assignment PIN_C3 -to led_0
+set_location_assignment PIN_C4 -to led_1
+set_location_assignment PIN_B5 -to led_2
+set_location_assignment PIN_A5 -to led_3
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+######################################################################################
+# Additional Files
+set_global_assignment -name VERILOG_MACRO "SYNTHESIS=1"
+set_global_assignment -name VERILOG_FILE "top.v"
+set_global_assignment -name VERILOG_FILE "iobuf_full.v"
+set_global_assignment -name VERILOG_FILE "bootrom.v"
+set_global_assignment -name VERILOG_FILE "plusarg_reader.v"
+set_global_assignment -name VERILOG_FILE "AsyncResetReg.v"
+set_global_assignment -name VERILOG_FILE "sifive.freedom.zeowaa.e115.DefaultZeowaaConfig.v"
+set_global_assignment -name IP_FILE rom.ip
+set_global_assignment -name IP_FILE vJTAG.ip
+set_global_assignment -name OPTIMIZATION_MODE "OPTIMIZE NETLIST FOR ROUTABILITY"
+set_global_assignment -name FAST_PRESERVE OFF -entity top
+######################################################################################

@@ -1,0 +1,14 @@
+
+WORK > DEFAULT
+DEFAULT:                ./libraries/work/                  
+work:                   ./libraries/work/                  
+altera_gpio_core14_191: ./libraries/altera_gpio_core14_191/
+altera_gpio_1930:       ./libraries/altera_gpio_1930/      
+IOBUF:                  ./libraries/IOBUF/                 
+altera_ver:             ./libraries/altera_ver/            
+lpm_ver:                ./libraries/lpm_ver/               
+sgate_ver:              ./libraries/sgate_ver/             
+altera_mf_ver:          ./libraries/altera_mf_ver/         
+altera_lnsim_ver:       ./libraries/altera_lnsim_ver/      
+fourteennm_ver:         ./libraries/fourteennm_ver/        
+fourteennm_ct1_ver:     ./libraries/fourteennm_ct1_ver/    

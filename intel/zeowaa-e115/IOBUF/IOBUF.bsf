@@ -1,0 +1,82 @@
+/*
+WARNING: Do NOT edit the input and output ports in this file in a text
+editor if you plan to continue editing the block that represents it in
+the Block Editor! File corruption is VERY likely to occur.
+*/
+/*
+Copyright (C) 2020  Intel Corporation. All rights reserved.
+Your use of Intel Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Intel Program License 
+Subscription Agreement, the Intel Quartus Prime License Agreement,
+the Intel FPGA IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Intel and sold by Intel or its authorized distributors.  Please
+refer to the applicable agreement for further details, at
+https://fpgasoftware.intel.com/eula.
+*/
+(header "symbol" (version "1.1"))
+(symbol
+	(rect 0 0 176 184)
+	(text "IOBUF" (rect 69 -1 97 11)(font "Arial" (font_size 10)))
+	(text "inst" (rect 8 168 20 180)(font "Arial" ))
+	(port
+		(pt 0 72)
+		(input)
+		(text "datain" (rect 0 0 22 12)(font "Arial" (font_size 8)))
+		(text "datain" (rect 4 61 40 72)(font "Arial" (font_size 8)))
+		(line (pt 0 72)(pt 48 72)(line_width 1))
+	)
+	(port
+		(pt 0 112)
+		(input)
+		(text "oe" (rect 0 0 9 12)(font "Arial" (font_size 8)))
+		(text "oe" (rect 4 101 16 112)(font "Arial" (font_size 8)))
+		(line (pt 0 112)(pt 48 112)(line_width 1))
+	)
+	(port
+		(pt 176 72)
+		(output)
+		(text "dataout" (rect 0 0 28 12)(font "Arial" (font_size 8)))
+		(text "dataout" (rect 138 61 180 72)(font "Arial" (font_size 8)))
+		(line (pt 176 72)(pt 128 72)(line_width 1))
+	)
+	(port
+		(pt 0 152)
+		(bidir)
+		(text "padio" (rect 0 0 20 12)(font "Arial" (font_size 8)))
+		(text "padio" (rect 4 141 34 152)(font "Arial" (font_size 8)))
+		(line (pt 0 152)(pt 48 152)(line_width 1))
+	)
+	(drawing
+		(text "dout" (rect 129 43 282 99)(font "Arial" (color 128 0 0)(font_size 9)))
+		(text "export" (rect 98 67 232 144)(font "Arial" (color 0 0 0)))
+		(text "din" (rect 32 43 82 99)(font "Arial" (color 128 0 0)(font_size 9)))
+		(text "export" (rect 53 67 142 144)(font "Arial" (color 0 0 0)))
+		(text "oe" (rect 35 83 82 179)(font "Arial" (color 128 0 0)(font_size 9)))
+		(text "export" (rect 53 107 142 224)(font "Arial" (color 0 0 0)))
+		(text "pad_io" (rect 10 123 56 259)(font "Arial" (color 128 0 0)(font_size 9)))
+		(text "export" (rect 53 147 142 304)(font "Arial" (color 0 0 0)))
+		(text " IOBUF " (rect 144 168 330 346)(font "Arial" ))
+		(line (pt 48 32)(pt 128 32)(line_width 1))
+		(line (pt 128 32)(pt 128 168)(line_width 1))
+		(line (pt 48 168)(pt 128 168)(line_width 1))
+		(line (pt 48 32)(pt 48 168)(line_width 1))
+		(line (pt 127 52)(pt 127 76)(line_width 1))
+		(line (pt 126 52)(pt 126 76)(line_width 1))
+		(line (pt 49 52)(pt 49 76)(line_width 1))
+		(line (pt 50 52)(pt 50 76)(line_width 1))
+		(line (pt 49 92)(pt 49 116)(line_width 1))
+		(line (pt 50 92)(pt 50 116)(line_width 1))
+		(line (pt 49 132)(pt 49 156)(line_width 1))
+		(line (pt 50 132)(pt 50 156)(line_width 1))
+		(line (pt 0 0)(pt 176 0)(line_width 1))
+		(line (pt 176 0)(pt 176 184)(line_width 1))
+		(line (pt 0 184)(pt 176 184)(line_width 1))
+		(line (pt 0 0)(pt 0 184)(line_width 1))
+	)
+)
