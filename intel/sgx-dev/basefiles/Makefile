@@ -74,7 +74,7 @@ ifndef ALTERAPATH
 	$(info export PATH=${PATH}:${QSYS_ROOTDIR})
 	$(info Altera GUI Command: ${ALTERAPATH}/qpro --64bit)
     $(info Optional - Intel Compiler Setup)
-	$(info INTEL_LICENSE_FILE=/opt/intel/licenses)
+	$(info INTEL_LICENSE_FILE=1@DarkHelmet.PlanetSpaceball.com)
 	$(info ISS_ROOT=/opt/intel/system_studio_2020)
 	$(info INTEL_LIB_PATH=${ISS_ROOT}/lib/intel64_lin)
 	$(info CPATH=${ISS_ROOT}/compilers_and_libraries/linux/include)
@@ -151,13 +151,13 @@ VRC_FILES=../../rocket-chip/src/main/resources/vsrc/plusarg_reader.v \
 ###############################################################################
 all: clean copybase copyfiles
 	$(info DEBUG INFO)
-	quartus_sh  --flow compile $(PRJ_TOP_NAME).qpf
-	quartus_sh  -t $(QTCL_FILE) --flow compile $(PRJ_TOP_NAME)
-	quartus_syn -t $(QTCL_FILE) $(PRJ_TOP_NAME)
-	quartus_fit -t $(QTCL_FILE) $(PRJ_TOP_NAME)
-	quartus_asm -t $(QTCL_FILE) $(PRJ_TOP_NAME)	
-	quartus_sta -t $(QTCL_FILE) $(PRJ_TOP_NAME)
-	quartus_eda -t $(QTCL_FILE) $(PRJ_TOP_NAME) --simulation --tool=modelsim --format=verilog
+	quartus_sh  --flow compile $(PRJ_TOP_NAME).qpf  2>&1 | tee log.txt
+	quartus_sh  -t $(QTCL_FILE) --flow compile $(PRJ_TOP_NAME)  2>>&1 | tee log.txt
+	quartus_syn -t $(QTCL_FILE) $(PRJ_TOP_NAME) 2>>&1 | tee log.txt
+	quartus_fit -t $(QTCL_FILE) $(PRJ_TOP_NAME) 2>>&1 | tee log.txt
+	quartus_asm -t $(QTCL_FILE) $(PRJ_TOP_NAME)	2>>&1 | tee log.txt
+	quartus_sta -t $(QTCL_FILE) $(PRJ_TOP_NAME) 2>>&1 | tee log.txt
+	quartus_eda -t $(QTCL_FILE) $(PRJ_TOP_NAME) --simulation --tool=modelsim --format=verilog 2>>&1 | tee log.txt
 .PHONY: all
 
 # Copy base files
