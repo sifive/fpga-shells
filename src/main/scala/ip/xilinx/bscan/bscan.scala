@@ -7,7 +7,7 @@ import chisel3.experimental.{ExtModule, Analog, attach}
 object JTAGTUNNEL {
   def apply (DUT_TCK: Bool, DUT_TMS: Bool, DUT_TDI: Bool, DUT_TDO:Bool, DUT_TDO_en: Bool): Unit = {
     val inst_jtag_tunnel = Module(new JTAGTUNNEL())
-    DUT_TCK := inst_jtag_tunnel.jtag_tck
+    DUT_TCK := inst_jtag_tunnel.jtag_tck.asBool()
     DUT_TMS := inst_jtag_tunnel.jtag_tms
     DUT_TDI := inst_jtag_tunnel.jtag_tdi
     inst_jtag_tunnel.jtag_tdo := DUT_TDO

@@ -293,6 +293,13 @@ class cJTAGDebugVCU118ShellPlacer(shell: VCU118ShellBasicOverlays, val shellInpu
   def place(designInput: cJTAGDebugDesignInput) = new cJTAGDebugVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
+class JTAGDebugBScanVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: JTAGDebugBScanDesignInput, val shellInput: JTAGDebugBScanShellInput)
+  extends JTAGDebugBScanXilinxPlacedOverlay(name, designInput, shellInput)
+class JTAGDebugBScanVCU118ShellPlacer(val shell: VCU118ShellBasicOverlays, val shellInput: JTAGDebugBScanShellInput)(implicit val valName: ValName)
+  extends JTAGDebugBScanShellPlacer[VCU118ShellBasicOverlays] {
+  def place(designInput: JTAGDebugBScanDesignInput) = new JTAGDebugBScanVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
+}
+
 case object VCU118DDRSize extends Field[BigInt](0x40000000L * 2) // 2GB
 class DDRVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: DDRDesignInput, val shellInput: DDRShellInput)
   extends DDRPlacedOverlay[XilinxVCU118MIGPads](name, designInput, shellInput)
@@ -471,6 +478,7 @@ class VCU118Shell()(implicit p: Parameters) extends VCU118ShellBasicOverlays
   val sdio      = if (pmod_is_sdio) Some(Overlay(SDIOOverlayKey, new SDIOVCU118ShellPlacer(this, SDIOShellInput()))) else None
   val jtag      = Overlay(JTAGDebugOverlayKey, new JTAGDebugVCU118ShellPlacer(this, JTAGDebugShellInput(location = jtag_location)))
   val cjtag     = Overlay(cJTAGDebugOverlayKey, new cJTAGDebugVCU118ShellPlacer(this, cJTAGDebugShellInput()))
+  val jtagBScan = Overlay(JTAGDebugBScanOverlayKey, new JTAGDebugBScanVCU118ShellPlacer(this, JTAGDebugBScanShellInput()))
   val fmc       = Overlay(PCIeOverlayKey, new PCIeVCU118FMCShellPlacer(this, PCIeShellInput()))
   val edge      = Overlay(PCIeOverlayKey, new PCIeVCU118EdgeShellPlacer(this, PCIeShellInput()))
 
