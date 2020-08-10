@@ -10,7 +10,7 @@
         "source": "git@github.com:sifive/sifive-blocks.git"
     },
     {
-        "commit": "e44e22beccdd5e1e43fd8a35f7c9c5687c821326",
+        "commit": "203d59b05677663ce69c68b6a0685604f1588f76",
         "name": "rocket-chip",
         "source": "git@github.com:chipsalliance/rocket-chip.git"
     },
