@@ -100,7 +100,9 @@ proc load_vsrc_manifest {obj vsrc_manifest} {
     }
   }
   # Read environment variable vsrcs and append to relative_files
-  if {[info exists env_var_srcs)]} {
+  upvar #0 env_var_srcs env_var_srcs
+  set additions [info exists env_var_srcs]
+  if {$additions} {
     if {[info exists ::env($env_var_srcs)]} {
       set resources [split $::env($env_var_srcs) :]
       set relative_files [list {*}$relative_files {*}$resources]
