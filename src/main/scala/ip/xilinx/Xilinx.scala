@@ -4,9 +4,9 @@ package sifive.fpgashells.ip.xilinx
 import Chisel._
 import chisel3.{Input, Output}
 import chisel3.experimental.{Analog, attach}
-import freechips.rocketchip.util.{ElaborationArtefacts}
-
-import sifive.blocks.devices.pinctrl.{BasePin}
+import chisel3.util.HasBlackBoxInline
+import freechips.rocketchip.util.ElaborationArtefacts
+import sifive.blocks.devices.pinctrl.BasePin
 import sifive.fpgashells.clocks._
 import freechips.rocketchip.diplomacy.LazyModule
 
@@ -80,11 +80,27 @@ class reset_mig extends BlackBox {
 
 // This is a FPGA-Only construct, which uses
 // 'initial' constructions
-class PowerOnResetFPGAOnly extends BlackBox {
+class PowerOnResetFPGAOnly extends BlackBox with HasBlackBoxInline {
   val io = new Bundle {
     val clock = Input(Clock())
     val power_on_reset = Output(Bool())
   }
+  setInline("PowerOnResetFPGAOnly.v",
+    s"""(* keep_hierarchy = "yes" *) module PowerOnResetFPGAOnly(
+       |  input clock,
+       |  (* dont_touch = "true" *) output power_on_reset
+       |);
+       |  reg reset;
+       |  assign power_on_reset = reset;
+       |
+       |  initial begin
+       |     reset <= 1'b1;
+       |  end
+       |
+       |  always @(posedge clock) begin
+       |     reset <= 1'b0;
+       |  end
+       |endmodule""".stripMargin)
 }
 
 object PowerOnResetFPGAOnly {
