@@ -100,8 +100,8 @@ class SDC(val name: String)
     addRawClock(s"set_input_jitter ${name} ${jitterNs}")
   }
 
-  def addDerivedClock(name: => String, source: => IOPin, sink: => IOPin) {
-    addRawClock(s"create_generated_clock -name ${name} -divide_by 1 -source ${source.sdcPin} ${sink.sdcPin}")
+  def addDerivedClock(name: => String, source: => IOPin, sink: => IOPin, div: => Int = 1) {
+    addRawClock(s"create_generated_clock -name ${name} -divide_by ${div} -source ${source.sdcPin} ${sink.sdcPin}")
   }
 
   def addGroup(clocks: => Seq[String] = Nil, pins: => Seq[IOPin] = Nil) {
