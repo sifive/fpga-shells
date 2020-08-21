@@ -15,10 +15,10 @@ import sifive.blocks.devices.uart._
 import sifive.fpgashells.shell.xilinx._
 
 case class UARTShellInput(index: Int = 0) extends ShellInput
-case class UARTDesignInput(node: BundleBridgeSource[UARTPortIO])(implicit val p: Parameters) extends DesignInput
+case class UARTDesignInput(node: BundleBridgeSource[UARTPortIO])(implicit val p: Parameters)
 case class UARTOverlayOutput() extends OverlayOutput
-case object UARTOverlayKey extends Field[Seq[DesignPlacer[UARTDesignInput, UARTShellInput, UARTOverlayOutput]]](Nil)
-trait UARTShellPlacer[Shell] extends ShellPlacer[UARTDesignInput, UARTShellInput, UARTOverlayOutput]
+case object UARTOverlayKey extends Field[Seq[TestDesignPlacer[DesignInput, UARTShellInput, UARTOverlayOutput]]](Nil)
+trait UARTShellPlacer[Shell] extends ShellPlacer[DesignInput, UARTShellInput, UARTOverlayOutput]
 
 // Tack on cts, rts signals available on some FPGAs. They are currently unused
 // by our designs.
@@ -30,14 +30,14 @@ class ShellUARTPortIO(val flowControl: Boolean) extends Bundle {
 }
 
 abstract class UARTPlacedOverlay(
-  val name: String, val di: UARTDesignInput, val si: UARTShellInput, val flowControl: Boolean)
-    extends IOPlacedOverlay[ShellUARTPortIO, UARTDesignInput, UARTShellInput, UARTOverlayOutput]
+  val name: String, val di: DesignInput, val si: UARTShellInput, val flowControl: Boolean)
+    extends IOPlacedOverlay[ShellUARTPortIO, DesignInput, UARTShellInput, UARTOverlayOutput]
 {
   implicit val p = di.p
 
   def ioFactory = new ShellUARTPortIO(flowControl)
 
-  val tluartSink = shell { di.node.makeSink }
+  val tluartSink = shell { di.node.asInstanceOf[BundleBridgeSource[UARTPortIO]].makeSink }
 
   def overlayOutput = UARTOverlayOutput()
 }

@@ -40,6 +40,15 @@ trait DesignPlacer[DesignInput, ShellInput, OverlayOutput] {
   def place(di: DesignInput): PlacedOverlay[DesignInput, ShellInput, OverlayOutput]
 }
 
+trait TestDesignPlacer[DesignInput, ShellInput, OverlayOutput] {
+  def isPlaced: Boolean
+  def name: String
+  def shellInput: ShellInput
+  def deviceType: Option[Class[_]] // Not required. If removed, the use in TestOverlay() needs to be removed as well.
+  def deviceAttachParamsType: Option[Class[_]]
+  def place(di: DesignInput): PlacedOverlay[DesignInput, ShellInput, OverlayOutput]
+}
+
 trait ShellOverlayAccessor[DesignInput, ShellInput, OverlayOutput] {
   def get(): Option[PlacedOverlay[DesignInput, ShellInput, OverlayOutput]]
 }
@@ -51,7 +60,7 @@ abstract class Shell()(implicit p: Parameters) extends LazyModule with LazyScope
 
   def Overlay[DesignInput, ShellInput, OverlayOutput](
       key: Field[Seq[DesignPlacer[DesignInput, ShellInput, OverlayOutput]]],
-      placer: ShellPlacer[DesignInput, ShellInput, OverlayOutput]): 
+      placer: ShellPlacer[DesignInput, ShellInput, OverlayOutput]):
     ShellOverlayAccessor[DesignInput, ShellInput, OverlayOutput] = {
     val thunk = new Object
         with ShellOverlayAccessor[DesignInput, ShellInput, OverlayOutput]
@@ -72,6 +81,40 @@ abstract class Shell()(implicit p: Parameters) extends LazyModule with LazyScope
       case x: Field[_] if x eq key => {
         val tail = up(key)
         if (thunk.isPlaced) { tail } else { thunk +: tail }
+      }
+    })
+    thunk
+  }
+
+  def TestOverlay[DesignInput, ShellInput, OverlayOutput](
+      key: Field[Seq[TestDesignPlacer[DesignInput, ShellInput, OverlayOutput]]],
+      placer: ShellPlacer[DesignInput, ShellInput, OverlayOutput],
+      c: Option[Class[_]], // Not required
+      attachParamsType: Option[Class[_]]):
+    ShellOverlayAccessor[DesignInput, ShellInput, OverlayOutput] = {
+    val thunk = new Object
+        with ShellOverlayAccessor[DesignInput, ShellInput, OverlayOutput]
+        with TestDesignPlacer[DesignInput, ShellInput, OverlayOutput] {
+      var placedOverlay: Option[PlacedOverlay[DesignInput, ShellInput, OverlayOutput]] = None
+      def get() = placedOverlay
+      def isPlaced = !placedOverlay.isEmpty
+      def name = placer.valName.name
+      def shellInput = placer.shellInput
+      def deviceType = c // Not required.
+      def deviceAttachParamsType = attachParamsType
+      def place(input: DesignInput): PlacedOverlay[DesignInput, ShellInput, OverlayOutput] = {
+        require (!isPlaced, s"Overlay ${name} has already been placed by the design; cannot place again")
+        val it = placer.place(input)
+        placedOverlay = Some(it)
+        it
+      }
+    }
+    overlays = overlays ++ Parameters((site, here, up) => {
+      case x: Field[_] if x eq key => {
+        val tail = up(key)
+        // This removes the design placers from the overlay key once the overlay is placed.
+        if (thunk.isPlaced) { tail } else { thunk +: tail }
+        thunk +: tail
       }
     })
     thunk

@@ -10,6 +10,9 @@ import sifive.fpgashells.clocks._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 import sifive.fpgashells.devices.xilinx.xilinxarty100tmig._
+import sifive.blocks.devices.uart._
+import sifive.blocks.devices.spi._
+import sifive.blocks.util._
 
 class SysClockArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: ClockInputDesignInput, val shellInput: ClockInputShellInput)
   extends SingleEndedClockInputXilinxPlacedOverlay(name, designInput, shellInput)
@@ -28,7 +31,7 @@ class SysClockArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellIn
 }
 
 //PMOD JA used for SDIO
-class SDIOArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: SDIODesignInput, val shellInput: SDIOShellInput)
+class SDIOArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: DesignInput, val shellInput: SDIOShellInput)
   extends SDIOXilinxPlacedOverlay(name, designInput, shellInput)
 {
   shell { InModuleBody {
@@ -51,10 +54,10 @@ class SDIOArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String,
 }
 class SDIOArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: SDIOShellInput)(implicit val valName: ValName)
   extends SDIOShellPlacer[Arty100TShellBasicOverlays] {
-  def place(designInput: SDIODesignInput) = new SDIOArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
+  def place(designInput: DesignInput) = new SDIOArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-class SPIFlashArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: SPIFlashDesignInput, val shellInput: SPIFlashShellInput)
+class SPIFlashArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: DesignInput, val shellInput: SPIFlashShellInput)
   extends SPIFlashXilinxPlacedOverlay(name, designInput, shellInput)
 {
 
@@ -77,7 +80,7 @@ class SPIFlashArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: Str
 }
 class SPIFlashArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: SPIFlashShellInput)(implicit val valName: ValName)
   extends SPIFlashShellPlacer[Arty100TShellBasicOverlays] {
-  def place(designInput: SPIFlashDesignInput) = new SPIFlashArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
+  def place(designInput: DesignInput) = new SPIFlashArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
 class TracePMODArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: TracePMODDesignInput, val shellInput: TracePMODShellInput)
@@ -114,7 +117,7 @@ class GPIOPMODArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellIn
   def place(designInput: GPIOPMODDesignInput) = new GPIOPMODArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-class UARTArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: UARTDesignInput, val shellInput: UARTShellInput)
+class UARTArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: DesignInput, val shellInput: UARTShellInput)
   extends UARTXilinxPlacedOverlay(name, designInput, shellInput, false)
 {
   shell { InModuleBody {
@@ -130,7 +133,7 @@ class UARTArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String,
 }
 class UARTArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: UARTShellInput)(implicit val valName: ValName)
   extends UARTShellPlacer[Arty100TShellBasicOverlays] {
-  def place(designInput: UARTDesignInput) = new UARTArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
+  def place(designInput: DesignInput) = new UARTArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
 //LEDS - 4 normal leds, r0, g0, b0, r1, g1, b1 ...
@@ -282,10 +285,11 @@ class CTSResetArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellIn
   def place(designInput: CTSResetDesignInput) = new CTSResetArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-class DesignInput
+// This is for use with the new Overlay API
+class DesignInput(val node: BundleBridgeSource[_], val deviceAttachParams: DeviceAttachParams)(implicit val p: Parameters)
 class ShellInput
 class OverlayOutput
-case object DevicesOverlays extends Field[Seq[DesignPlacer[DesignInput, ShellInput, OverlayOutput]]](Nil)
+case object DevicesOverlays extends Field[Seq[TestDesignPlacer[DesignInput, ShellInput, OverlayOutput]]](Nil)
 
 abstract class Arty100TShellBasicOverlays()(implicit p: Parameters) extends Series7Shell {
   // Order matters; ddr depends on sys_clock
@@ -294,11 +298,11 @@ abstract class Arty100TShellBasicOverlays()(implicit p: Parameters) extends Seri
   val switch    = Seq.tabulate(4)(i => Overlay(SwitchOverlayKey, new SwitchArtyShellPlacer(this, SwitchShellInput(number = i))(valName = ValName(s"switch_$i"))))
   val button    = Seq.tabulate(4)(i => Overlay(ButtonOverlayKey, new ButtonArtyShellPlacer(this, ButtonShellInput(number = i))(valName = ValName(s"button_$i"))))
   val ddr       = Overlay(DDROverlayKey, new DDRArtyShellPlacer(this, DDRShellInput()))
-  val uart      = Overlay(UARTOverlayKey, new UARTArtyShellPlacer(this, UARTShellInput()))
-  val sdio      = Overlay(SDIOOverlayKey, new SDIOArtyShellPlacer(this, SDIOShellInput()))
+  val uart      = TestOverlay(UARTOverlayKey, new UARTArtyShellPlacer(this, UARTShellInput()), Some(classOf[TLUART]), Some(classOf[UARTAttachParams]))
+  val sdio      = TestOverlay(SDIOOverlayKey, new SDIOArtyShellPlacer(this, SDIOShellInput()), Some(classOf[TLSPI]), Some(classOf[SPIAttachParams]))
   val jtag      = Overlay(JTAGDebugOverlayKey, new JTAGDebugArtyShellPlacer(this, JTAGDebugShellInput()))
   val cjtag     = Overlay(cJTAGDebugOverlayKey, new cJTAGDebugArtyShellPlacer(this, cJTAGDebugShellInput()))
-  val spi_flash = Overlay(SPIFlashOverlayKey, new SPIFlashArtyShellPlacer(this, SPIFlashShellInput()))
+  val spi_flash = TestOverlay(SPIFlashOverlayKey, new SPIFlashArtyShellPlacer(this, SPIFlashShellInput()), Some(classOf[TLSPIFlash]), Some(classOf[SPIFlashAttachParams]))
   val cts_reset = Overlay(CTSResetOverlayKey, new CTSResetArtyShellPlacer(this, CTSResetShellInput()))
   val jtagBScan = Overlay(JTAGDebugBScanOverlayKey, new JTAGDebugBScanArtyShellPlacer(this, JTAGDebugBScanShellInput()))
 

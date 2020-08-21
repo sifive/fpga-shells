@@ -15,24 +15,24 @@ import sifive.blocks.devices.pwm._
 import sifive.fpgashells.shell.xilinx._
 
 case class PWMShellInput(index: Int = 0) extends ShellInput
-case class PWMDesignInput(node: BundleBridgeSource[PWMPortIO])(implicit val p: Parameters) extends DesignInput
+case class PWMDesignInput(node: BundleBridgeSource[PWMPortIO])(implicit val p: Parameters)
 case class PWMOverlayOutput() extends OverlayOutput
-case object PWMOverlayKey extends Field[Seq[DesignPlacer[PWMDesignInput, PWMShellInput, PWMOverlayOutput]]](Nil)
-trait PWMShellPlacer[Shell] extends ShellPlacer[PWMDesignInput, PWMShellInput, PWMOverlayOutput]
+case object PWMOverlayKey extends Field[Seq[TestDesignPlacer[DesignInput, PWMShellInput, PWMOverlayOutput]]](Nil)
+trait PWMShellPlacer[Shell] extends ShellPlacer[DesignInput, PWMShellInput, PWMOverlayOutput]
 
 class ShellPWMPortIO extends Bundle {
   val pwm_gpio = Vec(4, Analog(1.W))
 }
 
 abstract class PWMPlacedOverlay(
-  val name: String, val di: PWMDesignInput, val si: PWMShellInput)
-    extends IOPlacedOverlay[ShellPWMPortIO, PWMDesignInput, PWMShellInput, PWMOverlayOutput]
+  val name: String, val di: DesignInput, val si: PWMShellInput)
+    extends IOPlacedOverlay[ShellPWMPortIO, DesignInput, PWMShellInput, PWMOverlayOutput]
 {
   implicit val p = di.p
 
   def ioFactory = new ShellPWMPortIO
 
-  val tlpwmSink = shell { di.node.makeSink }
+  val tlpwmSink = shell { di.node.asInstanceOf[BundleBridgeSource[PWMPortIO]].makeSink }
 
   def overlayOutput = PWMOverlayOutput()
 }

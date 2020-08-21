@@ -13,10 +13,10 @@ import sifive.fpgashells.shell.xilinx._
 
 //This should not do the controller placement either
 case class SDIOShellInput() extends ShellInput
-case class SDIODesignInput(spiParam: SPIParams, node: BundleBridgeSource[SPIPortIO])(implicit val p: Parameters) extends DesignInput
+case class SDIODesignInput(spiParam: SPIParams, node: BundleBridgeSource[SPIPortIO])(implicit val p: Parameters)
 case class SDIOOverlayOutput() extends OverlayOutput
-case object SDIOOverlayKey extends Field[Seq[DesignPlacer[SDIODesignInput, SDIOShellInput, SDIOOverlayOutput]]](Nil)
-trait SDIOShellPlacer[Shell] extends ShellPlacer[SDIODesignInput, SDIOShellInput, SDIOOverlayOutput]
+case object SDIOOverlayKey extends Field[Seq[TestDesignPlacer[DesignInput, SDIOShellInput, SDIOOverlayOutput]]](Nil)
+trait SDIOShellPlacer[Shell] extends ShellPlacer[DesignInput, SDIOShellInput, SDIOOverlayOutput]
 
 // SDIO Port. Not sure how generic this is, it might need to move.
 class ShellSDIOPortIO extends Bundle {
@@ -29,15 +29,15 @@ class ShellSDIOPortIO extends Bundle {
 }
 
 abstract class SDIOPlacedOverlay(
-  val name: String, val di: SDIODesignInput, val si: SDIOShellInput)
-    extends IOPlacedOverlay[ShellSDIOPortIO, SDIODesignInput, SDIOShellInput, SDIOOverlayOutput]
+  val name: String, val di: DesignInput, val si: SDIOShellInput)
+    extends IOPlacedOverlay[ShellSDIOPortIO, DesignInput, SDIOShellInput, SDIOOverlayOutput]
 {
   implicit val p = di.p
 
   def ioFactory = new ShellSDIOPortIO
-  val tlspiSink = di.node.makeSink
+  val tlspiSink = di.node.asInstanceOf[BundleBridgeSource[SPIPortIO]].makeSink
 
-  val spiSource = BundleBridgeSource(() => new SPIPortIO(di.spiParam))
+  val spiSource = BundleBridgeSource(() => new SPIPortIO(di.deviceAttachParams.device.asInstanceOf[SPIParams]))
   val spiSink = shell { spiSource.makeSink }
   def overlayOutput = SDIOOverlayOutput()
 

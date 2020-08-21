@@ -11,6 +11,10 @@ import sifive.fpgashells.clocks._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 import sifive.blocks.devices.chiplink._
+import sifive.blocks.devices.i2c._
+import sifive.blocks.devices.gpio._
+import sifive.blocks.devices.spi._
+import sifive.blocks.devices.uart._
 import sifive.fpgashells.devices.xilinx.xilinxvcu118mig._
 import sifive.fpgashells.devices.xilinx.xdma._
 import sifive.fpgashells.ip.xilinx.xxv_ethernet._
@@ -20,7 +24,7 @@ class SPIFlashVCUV18PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: Str
   extends SPIFlashXilinxPlacedOverlay(name, designInput, shellInput)
 {
 
-  shell { InModuleBody { 
+  shell { InModuleBody {
     /*val packagePinsWithPackageIOs = Seq(("AF13", IOPin(io.qspi_sck)),
       ("AJ11", IOPin(io.qspi_cs)),
       ("AP11", IOPin(io.qspi_dq(0))),
@@ -45,7 +49,7 @@ class SPIFlashVCU118ShellPlacer(shell: VCU118ShellBasicOverlays, val shellInput:
 }
 */
 
-class UARTPeripheralVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: UARTDesignInput, val shellInput: UARTShellInput)
+class UARTPeripheralVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: DesignInput, val shellInput: UARTShellInput)
   extends UARTXilinxPlacedOverlay(name, designInput, shellInput, true)
 {
     shell { InModuleBody {
@@ -66,10 +70,10 @@ class UARTPeripheralVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, nam
 class UARTPeripheralVCU118ShellPlacer(val shell: VCU118ShellBasicOverlays, val shellInput: UARTShellInput)(implicit val valName: ValName)
   extends UARTShellPlacer[VCU118ShellBasicOverlays]
 {
-  def place(designInput: UARTDesignInput) = new UARTPeripheralVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
+  def place(designInput: DesignInput) = new UARTPeripheralVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-class I2CPeripheralVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: I2CDesignInput, val shellInput: I2CShellInput)
+class I2CPeripheralVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: DesignInput, val shellInput: I2CShellInput)
   extends I2CXilinxPlacedOverlay(name, designInput, shellInput)
 {
     shell { InModuleBody {
@@ -88,14 +92,14 @@ class I2CPeripheralVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name
 class I2CPeripheralVCU118ShellPlacer(val shell: VCU118ShellBasicOverlays, val shellInput: I2CShellInput)(implicit val valName: ValName)
   extends I2CShellPlacer[VCU118ShellBasicOverlays]
 {
-  def place(designInput: I2CDesignInput) = new I2CPeripheralVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
+  def place(designInput: DesignInput) = new I2CPeripheralVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-class QSPIPeripheralVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: SPIFlashDesignInput, val shellInput: SPIFlashShellInput)
+class QSPIPeripheralVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: DesignInput, val shellInput: SPIFlashShellInput)
   extends SPIFlashXilinxPlacedOverlay(name, designInput, shellInput)
 {
     shell { InModuleBody {
-    val qspiLocations = List(List("AY9", "BB13", "BA9", "BB12", "BF10", "BA16")) //J1 pins 1-6 and 7-12 (sck, cs, dq0-3) 
+    val qspiLocations = List(List("AY9", "BB13", "BA9", "BB12", "BF10", "BA16")) //J1 pins 1-6 and 7-12 (sck, cs, dq0-3)
 //FIX when built in spi flash is integrated
     val packagePinsWithPackageIOs = Seq((qspiLocations(shellInput.index)(0), IOPin(io.qspi_sck)),
                                         (qspiLocations(shellInput.index)(1), IOPin(io.qspi_cs)),
@@ -118,10 +122,10 @@ class QSPIPeripheralVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, nam
 class QSPIPeripheralVCU118ShellPlacer(val shell: VCU118ShellBasicOverlays, val shellInput: SPIFlashShellInput)(implicit val valName: ValName)
   extends SPIFlashShellPlacer[VCU118ShellBasicOverlays]
 {
-  def place(designInput: SPIFlashDesignInput) = new QSPIPeripheralVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
+  def place(designInput: DesignInput) = new QSPIPeripheralVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-class GPIOPeripheralVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: GPIODesignInput, val shellInput: GPIOShellInput)
+class GPIOPeripheralVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: DesignInput, val shellInput: GPIOShellInput)
   extends GPIOXilinxPlacedOverlay(name, designInput, shellInput)
 {
     shell { InModuleBody {
@@ -141,7 +145,7 @@ class GPIOPeripheralVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, nam
 class GPIOPeripheralVCU118ShellPlacer(val shell: VCU118ShellBasicOverlays, val shellInput: GPIOShellInput)(implicit val valName: ValName)
   extends GPIOShellPlacer[VCU118ShellBasicOverlays] {
 
-  def place(designInput: GPIODesignInput) = new GPIOPeripheralVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
+  def place(designInput: DesignInput) = new GPIOPeripheralVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
 object PMODVCU118PinConstraints {
@@ -166,7 +170,7 @@ class PMODJTAGVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: Str
                                         ("AU16", IOPin(io.jtag_TMS)),
                                         ("AV16", IOPin(io.jtag_TDI)),
                                         ("AY14", IOPin(io.jtag_TDO)),
-                                        ("AY15", IOPin(io.srst_n))) 
+                                        ("AY15", IOPin(io.srst_n)))
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
       shell.xdc.addIOStandard(io, "LVCMOS18")
@@ -183,10 +187,10 @@ class PMODJTAGVCU118ShellPlacer(shell: VCU118ShellBasicOverlays, val shellInput:
 abstract class PeripheralsVCU118Shell(implicit p: Parameters) extends VCU118ShellBasicOverlays{
   //val pmod_female      = Overlay(PMODOverlayKey, new PMODVCU118ShellPlacer(this, PMODShellInput(index = 0)))
   val pmodJTAG = Overlay(JTAGDebugOverlayKey, new PMODJTAGVCU118ShellPlacer(this, JTAGDebugShellInput()))
-  val gpio           = Overlay(GPIOOverlayKey,       new GPIOPeripheralVCU118ShellPlacer(this, GPIOShellInput()))
-  val uart  = Seq.tabulate(2) { i => Overlay(UARTOverlayKey, new UARTPeripheralVCU118ShellPlacer(this, UARTShellInput(index = i))(valName = ValName(s"uart$i"))) }
-  val qspi      = Seq.tabulate(0) { i => Overlay(SPIFlashOverlayKey, new QSPIPeripheralVCU118ShellPlacer(this, SPIFlashShellInput(index = i))(valName = ValName(s"qspi$i"))) }
-  val i2c       = Seq.tabulate(2) { i => Overlay(I2COverlayKey, new I2CPeripheralVCU118ShellPlacer(this, I2CShellInput(index = i))(valName = ValName(s"i2c$i"))) }
+  val gpio  = TestOverlay(GPIOOverlayKey, new GPIOPeripheralVCU118ShellPlacer(this, GPIOShellInput()), Some(classOf[TLGPIO]), Some(classOf[GPIOAttachParams]))
+  val uart  = Seq.tabulate(2) { i => TestOverlay(UARTOverlayKey, new UARTPeripheralVCU118ShellPlacer(this, UARTShellInput(index = i))(valName = ValName(s"uart$i")), Some(classOf[TLUART]), Some(classOf[UARTAttachParams])) }
+  val qspi  = Seq.tabulate(0) { i => TestOverlay(SPIFlashOverlayKey, new QSPIPeripheralVCU118ShellPlacer(this, SPIFlashShellInput(index = i))(valName = ValName(s"qspi$i")), Some(classOf[TLSPIFlash]), Some(classOf[SPIFlashAttachParams])) }
+  val i2c   = Seq.tabulate(2) { i => TestOverlay(I2COverlayKey, new I2CPeripheralVCU118ShellPlacer(this, I2CShellInput(index = i))(valName = ValName(s"i2c$i")), Some(classOf[TLI2C]), Some(classOf[I2CAttachParams])) }
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
   p(ClockInputOverlayKey).foreach(_.place(ClockInputDesignInput()))

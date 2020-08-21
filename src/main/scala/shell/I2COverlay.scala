@@ -15,11 +15,10 @@ import sifive.blocks.devices.i2c._
 import sifive.fpgashells.shell.xilinx._
 
 case class I2CShellInput(index: Int = 0) extends ShellInput
-case class I2CDesignInput(node: BundleBridgeSource[I2CPort])(implicit val p: Parameters) extends DesignInput
+case class I2CDesignInput(node: BundleBridgeSource[I2CPort])(implicit val p: Parameters)
 case class I2COverlayOutput() extends OverlayOutput
-trait I2CShellPlacer[Shell] extends ShellPlacer[I2CDesignInput, I2CShellInput, I2COverlayOutput]
-
-case object I2COverlayKey extends Field[Seq[DesignPlacer[I2CDesignInput, I2CShellInput, I2COverlayOutput]]](Nil)
+trait I2CShellPlacer[Shell] extends ShellPlacer[DesignInput, I2CShellInput, I2COverlayOutput]
+case object I2COverlayKey extends Field[Seq[TestDesignPlacer[DesignInput, I2CShellInput, I2COverlayOutput]]](Nil)
 
 class ShellI2CPortIO extends Bundle {
   val scl = Analog(1.W)
@@ -27,14 +26,14 @@ class ShellI2CPortIO extends Bundle {
 }
 
 abstract class I2CPlacedOverlay(
-  val name: String, val di: I2CDesignInput, val si: I2CShellInput)
-    extends IOPlacedOverlay[ShellI2CPortIO, I2CDesignInput, I2CShellInput, I2COverlayOutput]
+  val name: String, val di: DesignInput, val si: I2CShellInput)
+    extends IOPlacedOverlay[ShellI2CPortIO, DesignInput, I2CShellInput, I2COverlayOutput]
 {
   implicit val p = di.p
 
   def ioFactory = new ShellI2CPortIO
 
-  val tli2cSink = shell { di.node.makeSink }
+  val tli2cSink = shell { di.node.asInstanceOf[BundleBridgeSource[I2CPort]].makeSink }
 
   def overlayOutput = I2COverlayOutput()
 }

@@ -15,10 +15,10 @@ import sifive.fpgashells.shell.xilinx._
 
 //This one does controller also
 case class SPIFlashShellInput(index: Int = 0, vcu118SU: Boolean = false) extends ShellInput
-case class SPIFlashDesignInput(node: BundleBridgeSource[SPIPortIO])(implicit val p: Parameters) extends DesignInput
+case class SPIFlashDesignInput(node: BundleBridgeSource[SPIPortIO])(implicit val p: Parameters)
 case class SPIFlashOverlayOutput() extends OverlayOutput
-case object SPIFlashOverlayKey extends Field[Seq[DesignPlacer[SPIFlashDesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]]](Nil)
-trait SPIFlashShellPlacer[Shell] extends ShellPlacer[SPIFlashDesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]
+case object SPIFlashOverlayKey extends Field[Seq[TestDesignPlacer[DesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]]](Nil)
+trait SPIFlashShellPlacer[Shell] extends ShellPlacer[DesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]
 
 
 class ShellSPIFlashPortIO extends Bundle {
@@ -28,14 +28,14 @@ class ShellSPIFlashPortIO extends Bundle {
 }
 
 abstract class SPIFlashPlacedOverlay(
-  val name: String, val di: SPIFlashDesignInput, val si: SPIFlashShellInput)
-    extends IOPlacedOverlay[ShellSPIFlashPortIO, SPIFlashDesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]
+  val name: String, val di: DesignInput, val si: SPIFlashShellInput)
+    extends IOPlacedOverlay[ShellSPIFlashPortIO, DesignInput, SPIFlashShellInput, SPIFlashOverlayOutput]
 {
   implicit val p = di.p
 
   def ioFactory = new ShellSPIFlashPortIO
 
-  val tlqspiSink = shell { di.node.makeSink }
+  val tlqspiSink = shell { di.node.asInstanceOf[BundleBridgeSource[SPIPortIO]].makeSink }
 
   def overlayOutput = SPIFlashOverlayOutput()
 }

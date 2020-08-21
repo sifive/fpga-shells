@@ -11,12 +11,14 @@ import sifive.fpgashells.clocks._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 import sifive.blocks.devices.chiplink._
+import sifive.blocks.devices.spi._
+import sifive.blocks.devices.uart._
 import sifive.fpgashells.devices.xilinx.xilinxvcu118mig._
 import sifive.fpgashells.devices.xilinx.xdma._
 import sifive.fpgashells.ip.xilinx.xxv_ethernet._
 
 class SysClockVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: ClockInputDesignInput, val shellInput: ClockInputShellInput)
-  extends LVDSClockInputXilinxPlacedOverlay(name, designInput, shellInput) 
+  extends LVDSClockInputXilinxPlacedOverlay(name, designInput, shellInput)
 {
   val node = shell { ClockSourceNode(freqMHz = 250, jitterPS = 50)(ValName(name)) }
 
@@ -49,7 +51,7 @@ class RefClockVCU118ShellPlacer(shell: VCU118ShellBasicOverlays, val shellInput:
   def place(designInput: ClockInputDesignInput) = new RefClockVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-class SDIOVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: SDIODesignInput, val shellInput: SDIOShellInput)
+class SDIOVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: DesignInput, val shellInput: SDIOShellInput)
   extends SDIOXilinxPlacedOverlay(name, designInput, shellInput)
 {
   shell { InModuleBody {
@@ -72,14 +74,14 @@ class SDIOVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String,
 }
 class SDIOVCU118ShellPlacer(shell: VCU118ShellBasicOverlays, val shellInput: SDIOShellInput)(implicit val valName: ValName)
   extends SDIOShellPlacer[VCU118ShellBasicOverlays] {
-  def place(designInput: SDIODesignInput) = new SDIOVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
+  def place(designInput: DesignInput) = new SDIOVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-class SPIFlashVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: SPIFlashDesignInput, val shellInput: SPIFlashShellInput)
+class SPIFlashVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: DesignInput, val shellInput: SPIFlashShellInput)
   extends SPIFlashXilinxPlacedOverlay(name, designInput, shellInput)
 {
 
-  shell { InModuleBody { 
+  shell { InModuleBody {
     /*val packagePinsWithPackageIOs = Seq(("AF13", IOPin(io.qspi_sck)),
       ("AJ11", IOPin(io.qspi_cs)),
       ("AP11", IOPin(io.qspi_dq(0))),
@@ -100,10 +102,10 @@ class SPIFlashVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: Str
 }
 class SPIFlashVCU118ShellPlacer(shell: VCU118ShellBasicOverlays, val shellInput: SPIFlashShellInput)(implicit val valName: ValName)
   extends SPIFlashShellPlacer[VCU118ShellBasicOverlays] {
-  def place(designInput: SPIFlashDesignInput) = new SPIFlashVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
+  def place(designInput: DesignInput) = new SPIFlashVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-class UARTVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: UARTDesignInput, val shellInput: UARTShellInput)
+class UARTVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: DesignInput, val shellInput: UARTShellInput)
   extends UARTXilinxPlacedOverlay(name, designInput, shellInput, true)
 {
   shell { InModuleBody {
@@ -121,7 +123,7 @@ class UARTVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String,
 }
 class UARTVCU118ShellPlacer(shell: VCU118ShellBasicOverlays, val shellInput: UARTShellInput)(implicit val valName: ValName)
   extends UARTShellPlacer[VCU118ShellBasicOverlays] {
-  def place(designInput: UARTDesignInput) = new UARTVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
+  def place(designInput: DesignInput) = new UARTVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
 class QSFP1VCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: EthernetDesignInput, val shellInput: EthernetShellInput)
@@ -465,8 +467,8 @@ class VCU118Shell()(implicit p: Parameters) extends VCU118ShellBasicOverlays
   val jtag_location = Some(if (pmod_is_sdio) "FMC_J2" else "PMOD_J52")
 
   // Order matters; ddr depends on sys_clock
-  val uart      = Overlay(UARTOverlayKey, new UARTVCU118ShellPlacer(this, UARTShellInput()))
-  val sdio      = if (pmod_is_sdio) Some(Overlay(SDIOOverlayKey, new SDIOVCU118ShellPlacer(this, SDIOShellInput()))) else None
+  val uart      = TestOverlay(UARTOverlayKey, new UARTVCU118ShellPlacer(this, UARTShellInput()), Some(classOf[TLUART]), Some(classOf[UARTAttachParams]))
+  val sdio      = if (pmod_is_sdio) Some(TestOverlay(SDIOOverlayKey, new SDIOVCU118ShellPlacer(this, SDIOShellInput()), Some(classOf[TLSPI]), Some(classOf[SPIAttachParams]))) else None
   val jtag      = Overlay(JTAGDebugOverlayKey, new JTAGDebugVCU118ShellPlacer(this, JTAGDebugShellInput(location = jtag_location)))
   val cjtag     = Overlay(cJTAGDebugOverlayKey, new cJTAGDebugVCU118ShellPlacer(this, cJTAGDebugShellInput()))
   val fmc       = Overlay(PCIeOverlayKey, new PCIeVCU118FMCShellPlacer(this, PCIeShellInput()))

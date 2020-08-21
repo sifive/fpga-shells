@@ -6,7 +6,7 @@ import freechips.rocketchip.diplomacy._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 
-abstract class PWMXilinxPlacedOverlay(name: String, di: PWMDesignInput, si: PWMShellInput)
+abstract class PWMXilinxPlacedOverlay(name: String, di: DesignInput, si: PWMShellInput)
   extends PWMPlacedOverlay(name, di, si)
 {
   def shell: XilinxShell

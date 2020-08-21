@@ -11,6 +11,8 @@ import sifive.fpgashells.clocks._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 import sifive.blocks.devices.chiplink._
+import sifive.blocks.devices.spi._
+import sifive.blocks.devices.uart._
 import sifive.fpgashells.devices.xilinx.xilinxvc707mig._
 import sifive.fpgashells.devices.xilinx.xilinxvc707pciex1._
 
@@ -29,7 +31,7 @@ class SysClockVC707ShellPlacer(val shell: VC707Shell, val shellInput: ClockInput
   def place(designInput: ClockInputDesignInput) = new SysClockVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-class SDIOVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: SDIODesignInput, val shellInput: SDIOShellInput)
+class SDIOVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: DesignInput, val shellInput: SDIOShellInput)
   extends SDIOXilinxPlacedOverlay(name, designInput, shellInput)
 {
   shell { InModuleBody {
@@ -52,10 +54,10 @@ class SDIOVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInpu
 }
 class SDIOVC707ShellPlacer(val shell: VC707Shell, val shellInput: SDIOShellInput)(implicit val valName: ValName)
   extends SDIOShellPlacer[VC707Shell] {
-  def place(designInput: SDIODesignInput) = new SDIOVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
+  def place(designInput: DesignInput) = new SDIOVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-class UARTVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: UARTDesignInput, val shellInput: UARTShellInput)
+class UARTVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: DesignInput, val shellInput: UARTShellInput)
   extends UARTXilinxPlacedOverlay(name, designInput, shellInput, true)
 {
   shell { InModuleBody {
@@ -73,7 +75,7 @@ class UARTVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInpu
 }
 class UARTVC707ShellPlacer(val shell: VC707Shell, val shellInput: UARTShellInput)(implicit val valName: ValName)
   extends UARTShellPlacer[VC707Shell] {
-  def place(designInput: UARTDesignInput) = new UARTVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
+  def place(designInput: DesignInput) = new UARTVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
 class LEDVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: LEDDesignInput, val shellInput: LEDShellInput)
@@ -273,13 +275,13 @@ abstract class VC707Shell()(implicit p: Parameters) extends Series7Shell
   val button    = Seq.tabulate(5)(i => Overlay(ButtonOverlayKey, new ButtonVC707ShellPlacer(this, ButtonShellInput(number = i))(valName = ValName(s"button_$i"))))
   val chiplink  = Overlay(ChipLinkOverlayKey, new ChipLinkVC707ShellPlacer(this, ChipLinkShellInput()))
   val ddr       = Overlay(DDROverlayKey, new DDRVC707ShellPlacer(this, DDRShellInput()))
-  val sdio      = Overlay(SDIOOverlayKey, new SDIOVC707ShellPlacer(this, SDIOShellInput()))
+  val sdio      = TestOverlay(SDIOOverlayKey, new SDIOVC707ShellPlacer(this, SDIOShellInput()), classOf[TLSPI], classOf[SPIAttachParams])
   val jtag      = Overlay(JTAGDebugOverlayKey, new JTAGDebugVC707ShellPlacer(this, JTAGDebugShellInput()))
 }
 
 class VC707BaseShell()(implicit p: Parameters) extends VC707Shell
 {
-  val uart      = Seq.tabulate(1)(i => Overlay(UARTOverlayKey, new UARTVC707ShellPlacer(this, UARTShellInput(index = 0))))
+  val uart      = Seq.tabulate(1)(i => TestOverlay(UARTOverlayKey, new UARTVC707ShellPlacer(this, UARTShellInput(index = 0)), classOf[TLUART], classOf[UARTAttachParams]))
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
   // Place the sys_clock at the Shell if the user didn't ask for it
@@ -309,7 +311,7 @@ class VC707BaseShell()(implicit p: Parameters) extends VC707Shell
 
 class VC707PCIeShell()(implicit p: Parameters) extends VC707Shell
 {
-  val uart      = Seq.tabulate(1)(i => Overlay(UARTOverlayKey, new UARTVC707ShellPlacer(this, UARTShellInput(index = 0))))
+  val uart      = Seq.tabulate(1)(i => TestOverlay(UARTOverlayKey, new UARTVC707ShellPlacer(this, UARTShellInput(index = 0)), Some(classOf[TLUART]), Some(classOf[UARTAttachParams])))
   val pcie      = Overlay(PCIeOverlayKey, new PCIeVC707ShellPlacer(this, PCIeShellInput()))
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 

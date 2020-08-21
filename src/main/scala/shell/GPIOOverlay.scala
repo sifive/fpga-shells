@@ -14,23 +14,23 @@ import sifive.blocks.devices.gpio._
 import sifive.fpgashells.shell.xilinx._
 
 case class GPIOShellInput() extends ShellInput
-case class GPIODesignInput(gpioParams: GPIOParams, node: BundleBridgeSource[GPIOPortIO])(implicit val p: Parameters) extends DesignInput
+case class GPIODesignInput(gpioParams: GPIOParams, node: BundleBridgeSource[GPIOPortIO])(implicit val p: Parameters)
 case class GPIOOverlayOutput() extends OverlayOutput
-case object GPIOOverlayKey extends Field[Seq[DesignPlacer[GPIODesignInput, GPIOShellInput, GPIOOverlayOutput]]](Nil)
-trait GPIOShellPlacer[Shell] extends ShellPlacer[GPIODesignInput, GPIOShellInput, GPIOOverlayOutput]
+case object GPIOOverlayKey extends Field[Seq[TestDesignPlacer[DesignInput, GPIOShellInput, GPIOOverlayOutput]]](Seq.empty)
+trait GPIOShellPlacer[Shell] extends ShellPlacer[DesignInput, GPIOShellInput, GPIOOverlayOutput]
 
 class ShellGPIOPortIO(width: Int = 4) extends Bundle {
   val gpio = Vec(width, Analog(1.W))
 }
 
 abstract class GPIOPlacedOverlay(
-  val name: String, val di: GPIODesignInput, si: GPIOShellInput)
-    extends IOPlacedOverlay[ShellGPIOPortIO, GPIODesignInput, GPIOShellInput, GPIOOverlayOutput]
+  val name: String, val di: DesignInput, si: GPIOShellInput)
+    extends IOPlacedOverlay[ShellGPIOPortIO, DesignInput, GPIOShellInput, GPIOOverlayOutput]
 {
   implicit val p = di.p
 
-  def ioFactory = new ShellGPIOPortIO(di.gpioParams.width)
+  def ioFactory = new ShellGPIOPortIO(di.deviceAttachParams.device.asInstanceOf[GPIOParams].width)
 
-  val tlgpioSink = shell { di.node.makeSink }
+  val tlgpioSink = shell { di.node.asInstanceOf[BundleBridgeSource[GPIOPortIO]].makeSink }
   def overlayOutput = GPIOOverlayOutput()
 }

@@ -14,9 +14,13 @@ import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 
 import sifive.blocks.devices.gpio._
+import sifive.blocks.devices.i2c._
 import sifive.blocks.devices.pinctrl._
+import sifive.blocks.devices.pwm._
+import sifive.blocks.devices.spi._
+import sifive.blocks.devices.uart._
 
-class UARTPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: UARTDesignInput, val shellInput: UARTShellInput)
+class UARTPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: DesignInput, val shellInput: UARTShellInput)
   extends UARTXilinxPlacedOverlay(name, designInput, shellInput, true)
 {
     shell { InModuleBody {
@@ -37,10 +41,10 @@ class UARTPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val 
 class UARTPeripheralVC707ShellPlacer(val shell: VC707Shell, val shellInput: UARTShellInput)(implicit val valName: ValName)
   extends UARTShellPlacer[VC707Shell]
 {
-  def place(designInput: UARTDesignInput) = new UARTPeripheralVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
+  def place(designInput: DesignInput) = new UARTPeripheralVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-class I2CPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: I2CDesignInput, val shellInput: I2CShellInput)
+class I2CPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: DesignInput, val shellInput: I2CShellInput)
   extends I2CXilinxPlacedOverlay(name, designInput, shellInput)
 {
     shell { InModuleBody {
@@ -59,10 +63,10 @@ class I2CPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val d
 class I2CPeripheralVC707ShellPlacer(val shell: VC707Shell, val shellInput: I2CShellInput)(implicit val valName: ValName)
   extends I2CShellPlacer[VC707Shell]
 {
-  def place(designInput: I2CDesignInput) = new I2CPeripheralVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
+  def place(designInput: DesignInput) = new I2CPeripheralVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-class QSPIPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: SPIFlashDesignInput, val shellInput: SPIFlashShellInput)
+class QSPIPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: DesignInput, val shellInput: SPIFlashShellInput)
   extends SPIFlashXilinxPlacedOverlay(name, designInput, shellInput)
 {
     shell { InModuleBody {
@@ -88,10 +92,10 @@ class QSPIPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val 
 class QSPIPeripheralVC707ShellPlacer(val shell: VC707Shell, val shellInput: SPIFlashShellInput)(implicit val valName: ValName)
   extends SPIFlashShellPlacer[VC707Shell]
 {
-  def place(designInput: SPIFlashDesignInput) = new QSPIPeripheralVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
+  def place(designInput: DesignInput) = new QSPIPeripheralVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-class PWMPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: PWMDesignInput, val shellInput: PWMShellInput)
+class PWMPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: DesignInput, val shellInput: PWMShellInput)
   extends PWMXilinxPlacedOverlay(name, designInput, shellInput)
 {
     shell { InModuleBody {
@@ -110,10 +114,10 @@ class PWMPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val d
 
 class PWMPeripheralVC707ShellPlacer(val shell: VC707Shell, val shellInput: PWMShellInput)(implicit val valName: ValName)
   extends PWMShellPlacer[VC707Shell] {
-  def place(designInput: PWMDesignInput) = new PWMPeripheralVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
+  def place(designInput: DesignInput) = new PWMPeripheralVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-class GPIOPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: GPIODesignInput, val shellInput: GPIOShellInput)
+class GPIOPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: DesignInput, val shellInput: GPIOShellInput)
   extends GPIOXilinxPlacedOverlay(name, designInput, shellInput)
 {
     shell { InModuleBody {
@@ -133,16 +137,16 @@ class GPIOPeripheralVC707PlacedOverlay(val shell: VC707Shell, name: String, val 
 class GPIOPeripheralVC707ShellPlacer(val shell: VC707Shell, val shellInput: GPIOShellInput)(implicit val valName: ValName)
   extends GPIOShellPlacer[VC707Shell] {
 
-  def place(designInput: GPIODesignInput) = new GPIOPeripheralVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
+  def place(designInput: DesignInput) = new GPIOPeripheralVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
 class PeripheralVC707Shell(implicit p: Parameters) extends VC707Shell {
 
-  val gpio           = Overlay(GPIOOverlayKey,       new GPIOPeripheralVC707ShellPlacer(this, GPIOShellInput()))
-  val uart  = Seq.tabulate(2) { i => Overlay(UARTOverlayKey, new UARTPeripheralVC707ShellPlacer(this, UARTShellInput(index = i))(valName = ValName(s"uart$i"))) }
-  val qspi      = Seq.tabulate(2) { i => Overlay(SPIFlashOverlayKey, new QSPIPeripheralVC707ShellPlacer(this, SPIFlashShellInput(index = i))(valName = ValName(s"qspi$i"))) }
-  val pwm       = Seq.tabulate(1) { i => Overlay(PWMOverlayKey, new PWMPeripheralVC707ShellPlacer(this, PWMShellInput(index = i))(valName = ValName(s"pwm$i"))) }
-  val i2c       = Seq.tabulate(2) { i => Overlay(I2COverlayKey, new I2CPeripheralVC707ShellPlacer(this, I2CShellInput(index = i))(valName = ValName(s"i2c$i"))) }
+  val gpio  = TestOverlay(GPIOOverlayKey, new GPIOPeripheralVC707ShellPlacer(this, GPIOShellInput()), Some(classOf[TLGPIO]), Some(classOf[GPIOAttachParams]))
+  val uart  = Seq.tabulate(2) { i => TestOverlay(UARTOverlayKey, new UARTPeripheralVC707ShellPlacer(this, UARTShellInput(index = i))(valName = ValName(s"uart$i")), Some(classOf[TLUART]), Some(classOf[UARTAttachParams])) }
+  val qspi  = Seq.tabulate(2) { i => TestOverlay(SPIFlashOverlayKey, new QSPIPeripheralVC707ShellPlacer(this, SPIFlashShellInput(index = i))(valName = ValName(s"qspi$i")), Some(classOf[TLSPIFlash]), Some(classOf[SPIFlashAttachParams])) }
+  val pwm   = Seq.tabulate(1) { i => TestOverlay(PWMOverlayKey, new PWMPeripheralVC707ShellPlacer(this, PWMShellInput(index = i))(valName = ValName(s"pwm$i")), Some(classOf[TLPWM]), Some(classOf[PWMAttachParams])) }
+  val i2c   = Seq.tabulate(2) { i => TestOverlay(I2COverlayKey, new I2CPeripheralVC707ShellPlacer(this, I2CShellInput(index = i))(valName = ValName(s"i2c$i")), Some(classOf[TLI2C]), Some(classOf[I2CAttachParams])) }
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
