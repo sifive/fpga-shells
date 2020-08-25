@@ -12,12 +12,14 @@ abstract class SDIOXilinxPlacedOverlay(name: String, di: SPIDesignInput, si: SPI
   def shell: XilinxShell
 
   InModuleBody {
-    val (io, _) = spiSource.out(0)
     val tlspiport = tlspiSink.bundle
-    io <> tlspiport
-    (0 to 3).foreach { case q =>
-      tlspiport.dq(q).i := RegNext(RegNext(io.dq(q).i))
+    spiSource.bundle.sck := tlspiport.sck
+    spiSource.bundle.dq.zip(tlspiport.dq).foreach { case(outerBundle, innerBundle) =>
+      outerBundle.o := innerBundle.o
+      outerBundle.oe := innerBundle.oe
+      innerBundle.i := RegNext(RegNext(outerBundle.i))
     }
+    spiSource.bundle.cs := tlspiport.cs
   }
 
   shell { InModuleBody {
