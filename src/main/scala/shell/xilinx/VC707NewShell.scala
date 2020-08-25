@@ -29,16 +29,16 @@ class SysClockVC707ShellPlacer(val shell: VC707Shell, val shellInput: ClockInput
   def place(designInput: ClockInputDesignInput) = new SysClockVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-class SDIOVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: SDIODesignInput, val shellInput: SDIOShellInput)
+class SDIOVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: SPIDesignInput, val shellInput: SPIShellInput)
   extends SDIOXilinxPlacedOverlay(name, designInput, shellInput)
 {
   shell { InModuleBody {
-    val packagePinsWithPackageIOs = Seq(("AN30", IOPin(io.sdio_clk)),
-                                        ("AP30", IOPin(io.sdio_cmd)),
-                                        ("AR30", IOPin(io.sdio_dat_0)),
-                                        ("AU31", IOPin(io.sdio_dat_1)),
-                                        ("AV31", IOPin(io.sdio_dat_2)),
-                                        ("AT30", IOPin(io.sdio_dat_3)))
+    val packagePinsWithPackageIOs = Seq(("AN30", IOPin(io.spi_clk)),
+                                        ("AP30", IOPin(io.spi_cs)),
+                                        ("AR30", IOPin(io.spi_dat(0))),
+                                        ("AU31", IOPin(io.spi_dat(1))),
+                                        ("AV31", IOPin(io.spi_dat(2))),
+                                        ("AT30", IOPin(io.spi_dat(3))))
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
@@ -50,9 +50,9 @@ class SDIOVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInpu
     } }
   } }
 }
-class SDIOVC707ShellPlacer(val shell: VC707Shell, val shellInput: SDIOShellInput)(implicit val valName: ValName)
-  extends SDIOShellPlacer[VC707Shell] {
-  def place(designInput: SDIODesignInput) = new SDIOVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
+class SDIOVC707ShellPlacer(val shell: VC707Shell, val shellInput: SPIShellInput)(implicit val valName: ValName)
+  extends SPIShellPlacer[VC707Shell] {
+  def place(designInput: SPIDesignInput) = new SDIOVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
 class UARTVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: UARTDesignInput, val shellInput: UARTShellInput)
@@ -274,7 +274,7 @@ abstract class VC707Shell()(implicit p: Parameters) extends Series7Shell
   val button    = Seq.tabulate(5)(i => Overlay(ButtonOverlayKey, new ButtonVC707ShellPlacer(this, ButtonShellInput(number = i))(valName = ValName(s"button_$i"))))
   val chiplink  = Overlay(ChipLinkOverlayKey, new ChipLinkVC707ShellPlacer(this, ChipLinkShellInput()))
   val ddr       = Overlay(DDROverlayKey, new DDRVC707ShellPlacer(this, DDRShellInput()))
-  val sdio      = Overlay(SDIOOverlayKey, new SDIOVC707ShellPlacer(this, SDIOShellInput()))
+  val sdio      = Overlay(SPIOverlayKey, new SDIOVC707ShellPlacer(this, SPIShellInput()))
   val jtag      = Overlay(JTAGDebugOverlayKey, new JTAGDebugVC707ShellPlacer(this, JTAGDebugShellInput()))
 }
 

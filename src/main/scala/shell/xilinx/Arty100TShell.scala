@@ -28,16 +28,16 @@ class SysClockArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellIn
 }
 
 //PMOD JA used for SDIO
-class SDIOArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: SDIODesignInput, val shellInput: SDIOShellInput)
+class SDIOArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: SPIDesignInput, val shellInput: SPIShellInput)
   extends SDIOXilinxPlacedOverlay(name, designInput, shellInput)
 {
   shell { InModuleBody {
-    val packagePinsWithPackageIOs = Seq(("D12", IOPin(io.sdio_clk)),
-      ("B11", IOPin(io.sdio_cmd)),
-      ("A11", IOPin(io.sdio_dat_0)),
-      ("D13", IOPin(io.sdio_dat_1)),
-      ("B18", IOPin(io.sdio_dat_2)),
-      ("G13", IOPin(io.sdio_dat_3)))
+    val packagePinsWithPackageIOs = Seq(("D12", IOPin(io.spi_clk)),
+      ("B11", IOPin(io.spi_cs)),
+      ("A11", IOPin(io.spi_dat(0))),
+      ("D13", IOPin(io.spi_dat(1))),
+      ("B18", IOPin(io.spi_dat(2))),
+      ("G13", IOPin(io.spi_dat(3))))
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
@@ -49,9 +49,9 @@ class SDIOArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String,
     } }
   } }
 }
-class SDIOArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: SDIOShellInput)(implicit val valName: ValName)
-  extends SDIOShellPlacer[Arty100TShellBasicOverlays] {
-  def place(designInput: SDIODesignInput) = new SDIOArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
+class SDIOArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput: SPIShellInput)(implicit val valName: ValName)
+  extends SPIShellPlacer[Arty100TShellBasicOverlays] {
+  def place(designInput: SPIDesignInput) = new SDIOArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
 class SPIFlashArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: SPIFlashDesignInput, val shellInput: SPIFlashShellInput)
@@ -291,7 +291,7 @@ abstract class Arty100TShellBasicOverlays()(implicit p: Parameters) extends Seri
   val button    = Seq.tabulate(4)(i => Overlay(ButtonOverlayKey, new ButtonArtyShellPlacer(this, ButtonShellInput(number = i))(valName = ValName(s"button_$i"))))
   val ddr       = Overlay(DDROverlayKey, new DDRArtyShellPlacer(this, DDRShellInput()))
   val uart      = Overlay(UARTOverlayKey, new UARTArtyShellPlacer(this, UARTShellInput()))
-  val sdio      = Overlay(SDIOOverlayKey, new SDIOArtyShellPlacer(this, SDIOShellInput()))
+  val sdio      = Overlay(SPIOverlayKey, new SDIOArtyShellPlacer(this, SPIShellInput()))
   val jtag      = Overlay(JTAGDebugOverlayKey, new JTAGDebugArtyShellPlacer(this, JTAGDebugShellInput()))
   val cjtag     = Overlay(cJTAGDebugOverlayKey, new cJTAGDebugArtyShellPlacer(this, cJTAGDebugShellInput()))
   val spi_flash = Overlay(SPIFlashOverlayKey, new SPIFlashArtyShellPlacer(this, SPIFlashShellInput()))
