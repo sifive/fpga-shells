@@ -34,7 +34,7 @@ abstract class SPIPlacedOverlay(
   val tlspiSink = di.node.makeSink
 
   val spiSource = BundleBridgeSource(() => new SPIPortIO(di.spiParam))
-  val spiSink = shell { spiSource.makeSink }
+  val spiSink = sinkScope { spiSource.makeSink }
   def overlayOutput = SPIOverlayOutput()
 
 }
