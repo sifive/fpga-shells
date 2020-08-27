@@ -133,9 +133,9 @@ class UARTArtyShellPlacer(val shell: Arty100TShellBasicOverlays, val shellInput:
   def place(designInput: UARTDesignInput) = new UARTArtyPlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
-//LEDS - 4 normal leds, r0, g0, b0, r1, g1, b1 ...
+//LEDS - r0, g0, b0, r1, g1, b1 ..., 4 normal leds_
 object LEDArtyPinConstraints{
-  val pins = Seq("H5", "J5", "T9", "T10", "G6", "F6", "E1", "G3", "J4", "G4", "J3", "J2", "H4", "K1", "H6", "K2")
+  val pins = Seq("G6", "F6", "E1", "G3", "J4", "G4", "J3", "J2", "H4", "K1", "H6", "K2", "H5", "J5", "T9", "T10")
 }
 class LEDArtyPlacedOverlay(val shell: Arty100TShellBasicOverlays, name: String, val designInput: LEDDesignInput, val shellInput: LEDShellInput)
   extends LEDXilinxPlacedOverlay(name, designInput, shellInput, packagePin = Some(LEDArtyPinConstraints.pins(shellInput.number)))
