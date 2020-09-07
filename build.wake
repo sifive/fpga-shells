@@ -14,3 +14,16 @@ global def fpgaShellsScalaModule =
   | setScalaModuleDeps (sifiveBlocksScalaModule, rocketchipScalaModule, Nil)
   | setScalaModuleScalacOptions scalacOpts
   | addMacrosParadiseCompilerPlugin
+
+######################## Publishing the JSON file ###########################
+
+def jsonFile = source "{here}/json/build.json"
+
+def jsonObject = jsonFile.parseJSONFile | getPass | getOrElse JNull
+
+publish ipJsonObject = jsonObject, Nil 
+
+##############################################################################
+
+
+

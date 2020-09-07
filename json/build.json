@@ -1,0 +1,8 @@
+{
+"ip" : "fpga-shells",
+"vendor" : "sifive",
+"repositoryName" : "fpga-shells",
+"sourceFiles":{ "parentDirectoryPath":"fpga-shells/",
+                "subDirectories":["."]
+              }
+}
