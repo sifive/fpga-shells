@@ -13,5 +13,10 @@
         "commit": "203d59b05677663ce69c68b6a0685604f1588f76",
         "name": "rocket-chip",
         "source": "git@github.com:chipsalliance/rocket-chip.git"
+    },
+     {
+        "commit": "a85ff6560aa762f495d549e7280ba8566c33aa02",
+        "name": "api-onboardingsim-sifive",
+        "source": "git@github.com:sifive/api-onboardingsim-sifive.git"
     }
 ]
