@@ -248,7 +248,7 @@ class JTAGDebugVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: St
   shell { InModuleBody {
     val pin_locations = Map(
       "PMOD_J52" -> Seq("AW15",      "AU16",      "AV16",      "AY14",      "AY15"),
-      "PMOD_J53" -> Seq( "N30",       "P29",       "P30",       "N28",       "M30"),
+      "PMOD_J53" -> Seq( "N30",       "L31",       "P29",       "N28",       "M30"),
       "FMC_J2"   -> Seq("AL12",      "AN15",      "AP15",      "AM12",      "AK12"))
     val pins      = Seq(io.jtag_TCK, io.jtag_TMS, io.jtag_TDI, io.jtag_TDO, io.srst_n)
 
