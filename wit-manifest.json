@@ -13,5 +13,10 @@
         "commit": "203d59b05677663ce69c68b6a0685604f1588f76",
         "name": "rocket-chip",
         "source": "git@github.com:chipsalliance/rocket-chip.git"
+    },
+    {
+        "commit": "e71b126697df89abfcfd8cd81cc75a49e33c7d0a",
+        "name": "block-clkgen-sifive",
+        "source": "git@github.com:sifive/block-clkgen-sifive.git"
     }
 ]
