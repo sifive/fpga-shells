@@ -469,6 +469,8 @@ class WithVCU118ShellPMOD(device: String) extends Config((site, here, up) => {
   case VCU118ShellPMOD => device
 })
 
+// Change JTAG pinouts to VCU118 J53
+// Due to the level shifter is from 1.2V to 3.3V, the frequency of JTAG should be slow down to 1Mhz
 class WithVCU118ShellPMOD2(device: String) extends Config((site, here, up) => {
   case VCU118ShellPMOD2 => device
 })
