@@ -11,7 +11,7 @@ import freechips.rocketchip.tilelink.TLBusWrapper
 import freechips.rocketchip.interrupts.IntInwardNode
 import freechips.rocketchip.diplomaticobjectmodel.logicaltree.LogicalTreeNode
 
-import sifive.blocks.clkgen._
+import sifive.blocks.devices.porgen._
 
 case class PorGenShellInput(index: Int = 0)
 case class PorGenDesignInput(node: BundleBridgeSource[PorGenPortIO])(implicit val p: Parameters)
@@ -19,8 +19,6 @@ case class PorGenOverlayOutput()
 case object PorGenOverlayKey extends Field[Seq[DesignPlacer[PorGenDesignInput, PorGenShellInput, PorGenOverlayOutput]]](Nil)
 trait PorGenShellPlacer[Shell] extends ShellPlacer[PorGenDesignInput, PorGenShellInput, PorGenOverlayOutput]
 
-// Tack on cts, rts signals available on some FPGAs. They are currently unused
-// by our designs.
 class ShellPorGenPortIO extends Bundle {
   val poreset_n = Analog(1.W)
   val ereset_n = Analog(1.W)
@@ -34,7 +32,7 @@ abstract class PorGenPlacedOverlay(
 
   def ioFactory = new ShellPorGenPortIO
 
-  val tlPorGenSink = sinkScope { di.node.makeSink }
+  val tlporgenSink = sinkScope { di.node.makeSink }
 
   def overlayOutput = PorGenOverlayOutput()
 }
