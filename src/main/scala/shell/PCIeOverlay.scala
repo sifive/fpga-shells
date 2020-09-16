@@ -23,8 +23,6 @@ case class PCIeOverlayOutput(
 trait PCIeShellPlacer[Shell] extends ShellPlacer[PCIeDesignInput, PCIeShellInput, PCIeOverlayOutput]
 
 case object PCIeOverlayKey extends Field[Seq[DesignPlacer[PCIeDesignInput, PCIeShellInput, PCIeOverlayOutput]]](Nil)
-case object PCIeEdgeOverlayKey extends Field[Seq[DesignPlacer[PCIeDesignInput, PCIeShellInput, PCIeOverlayOutput]]](Nil)
-case object PCIeFMCOverlayKey extends Field[Seq[DesignPlacer[PCIeDesignInput, PCIeShellInput, PCIeOverlayOutput]]](Nil)
 
 abstract class PCIePlacedOverlay[IO <: Data](
   val name: String, val di: PCIeDesignInput, val si: PCIeShellInput)

@@ -493,8 +493,8 @@ class VCU118Shell()(implicit p: Parameters) extends VCU118ShellBasicOverlays
   val jtag      = Overlay(JTAGDebugOverlayKey, new JTAGDebugVCU118ShellPlacer(this, JTAGDebugShellInput(location = jtag_location)))
   val cjtag     = Overlay(cJTAGDebugOverlayKey, new cJTAGDebugVCU118ShellPlacer(this, cJTAGDebugShellInput()))
   val jtagBScan = Overlay(JTAGDebugBScanOverlayKey, new JTAGDebugBScanVCU118ShellPlacer(this, JTAGDebugBScanShellInput()))
-  val fmc       = Overlay(PCIeFMCOverlayKey, new PCIeVCU118FMCShellPlacer(this, PCIeShellInput()))
-  val edge      = Overlay(PCIeEdgeOverlayKey, new PCIeVCU118EdgeShellPlacer(this, PCIeShellInput()))
+  val fmc       = Overlay(PCIeOverlayKey, new PCIeVCU118FMCShellPlacer(this, PCIeShellInput()))
+  val edge      = Overlay(PCIeOverlayKey, new PCIeVCU118EdgeShellPlacer(this, PCIeShellInput()))
 
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
