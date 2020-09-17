@@ -16,7 +16,7 @@ import sifive.fpgashells.devices.xilinx.xdma._
 import sifive.fpgashells.ip.xilinx.xxv_ethernet._
 
 class SysClockVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: ClockInputDesignInput, val shellInput: ClockInputShellInput)
-  extends LVDSClockInputXilinxPlacedOverlay(name, designInput, shellInput) 
+  extends LVDSClockInputXilinxPlacedOverlay(name, designInput, shellInput)
 {
   val node = shell { ClockSourceNode(freqMHz = 250, jitterPS = 50)(ValName(name)) }
 
@@ -79,7 +79,7 @@ class SPIFlashVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: Str
   extends SPIFlashXilinxPlacedOverlay(name, designInput, shellInput)
 {
 
-  shell { InModuleBody { 
+  shell { InModuleBody {
     /*val packagePinsWithPackageIOs = Seq(("AF13", IOPin(io.qspi_sck)),
       ("AJ11", IOPin(io.qspi_cs)),
       ("AP11", IOPin(io.qspi_dq(0))),
@@ -248,6 +248,7 @@ class JTAGDebugVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: St
   shell { InModuleBody {
     val pin_locations = Map(
       "PMOD_J52" -> Seq("AW15",      "AU16",      "AV16",      "AY14",      "AY15"),
+      "PMOD_J53" -> Seq( "N30",       "L31",       "P29",       "N28",       "M30"),
       "FMC_J2"   -> Seq("AL12",      "AN15",      "AP15",      "AM12",      "AK12"))
     val pins      = Seq(io.jtag_TCK, io.jtag_TMS, io.jtag_TDI, io.jtag_TDO, io.srst_n)
 
@@ -255,10 +256,12 @@ class JTAGDebugVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: St
     shell.sdc.addGroup(clocks = Seq("JTCK"))
     shell.xdc.clockDedicatedRouteFalse(IOPin(io.jtag_TCK))
 
+    val pin_voltage:String = if(shellInput.location.get == "PMOD_J53") "LVCMOS12" else "LVCMOS18"
+
     (pin_locations(shellInput.location.get) zip pins) foreach { case (pin_location, ioport) =>
       val io = IOPin(ioport)
       shell.xdc.addPackagePin(io, pin_location)
-      shell.xdc.addIOStandard(io, "LVCMOS18")
+      shell.xdc.addIOStandard(io, pin_voltage)
       shell.xdc.addPullup(io)
       shell.xdc.addIOB(io)
     }
@@ -460,18 +463,29 @@ abstract class VCU118ShellBasicOverlays()(implicit p: Parameters) extends UltraS
 }
 
 case object VCU118ShellPMOD extends Field[String]("JTAG")
+case object VCU118ShellPMOD2 extends Field[String]("JTAG")
 
 class WithVCU118ShellPMOD(device: String) extends Config((site, here, up) => {
   case VCU118ShellPMOD => device
 })
 
+// Change JTAG pinouts to VCU118 J53
+// Due to the level shifter is from 1.2V to 3.3V, the frequency of JTAG should be slow down to 1Mhz
+class WithVCU118ShellPMOD2(device: String) extends Config((site, here, up) => {
+  case VCU118ShellPMOD2 => device
+})
+
 class WithVCU118ShellPMODJTAG extends WithVCU118ShellPMOD("JTAG")
 class WithVCU118ShellPMODSDIO extends WithVCU118ShellPMOD("SDIO")
+
+// Reassign JTAG pinouts location to PMOD J53
+class WithVCU118ShellPMOD2JTAG extends WithVCU118ShellPMOD2("PMODJ53_JTAG")
 
 class VCU118Shell()(implicit p: Parameters) extends VCU118ShellBasicOverlays
 {
   val pmod_is_sdio  = p(VCU118ShellPMOD) == "SDIO"
-  val jtag_location = Some(if (pmod_is_sdio) "FMC_J2" else "PMOD_J52")
+  val pmod_j53_is_jtag = p(VCU118ShellPMOD2) == "PMODJ53_JTAG"
+  val jtag_location = Some(if (pmod_is_sdio) (if (pmod_j53_is_jtag) "PMOD_J53" else "FMC_J2") else "PMOD_J52")
 
   // Order matters; ddr depends on sys_clock
   val uart      = Overlay(UARTOverlayKey, new UARTVCU118ShellPlacer(this, UARTShellInput()))
