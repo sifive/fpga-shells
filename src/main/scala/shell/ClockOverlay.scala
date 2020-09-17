@@ -2,6 +2,7 @@
 package sifive.fpgashells.shell
 
 import chisel3._
+import chisel3.experimental.Analog
 import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
 import sifive.fpgashells.clocks._
@@ -12,6 +13,12 @@ case class ClockInputDesignInput()(implicit val p: Parameters)
 case class ClockOutputDesignInput()(implicit val p: Parameters)
 case class ClockInputOverlayOutput(node: ClockSourceNode)
 case class ClockOutputOverlayOutput(clock: ClockSinkNode)
+
+case class ClkRstShellInput()
+case class ClkRstDesignInput()(implicit val p: Parameters)
+case class ClkRstOverlayOutput(clkRstOut: ModuleValue[ClkRstBundle])
+case object ClkRstOverlayKey  extends Field[Seq[DesignPlacer[ClkRstDesignInput, ClkRstShellInput, ClkRstOverlayOutput]]](Nil)
+trait ClkRstShellPlacer[Shell] extends ShellPlacer[ClkRstDesignInput, ClkRstShellInput, ClkRstOverlayOutput]
 
 trait ClockInputShellPlacer[Shell] extends ShellPlacer[ClockInputDesignInput, ClockInputShellInput, ClockInputOverlayOutput]
 trait ClockOutputShellPlacer[Shell] extends ShellPlacer[ClockOutputDesignInput, ClockOutputShellInput, ClockOutputOverlayOutput]
@@ -79,3 +86,29 @@ abstract class SingleEndedClockBundleInputPlacedOverlay(
   } }
   def overlayOutput = ClockInputOverlayOutput(node)
 }
+
+class ShellClkRstIO extends Bundle {
+  val XCLKIN = Analog(1.W)
+  val RESET  = Analog(1.W)
+}
+
+class ClkRstBundle extends Bundle {
+  val clock = Input(Clock())
+  val reset = Input(Bool())
+}
+
+abstract class ClkRstPlacedOverlay(
+  val name: String, val di: ClkRstDesignInput, val si: ClkRstShellInput)
+    extends IOPlacedOverlay[ShellClkRstIO, ClkRstDesignInput, ClkRstShellInput, ClkRstOverlayOutput]
+{
+  implicit val p = di.p
+
+  def ioFactory = new ShellClkRstIO
+
+  val clkRstSource = BundleBridgeSource(() => new ClkRstBundle())
+  val clkRstSink = sinkScope { clkRstSource.makeSink }
+  val clkRstOut = InModuleBody { clkRstSource.bundle }
+
+  def overlayOutput = ClkRstOverlayOutput(clkRstOut)
+}
+
