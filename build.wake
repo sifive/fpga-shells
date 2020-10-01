@@ -11,6 +11,6 @@ def scalacOpts =
 global def fpgaShellsScalaModule =
   def scalaVersion = rocketchipScalaModule.getScalaModuleScalaVersion
   makeScalaModule "fpga-shells" here scalaVersion
-  | setScalaModuleDeps (sifiveBlocksScalaModule, rocketchipScalaModule, Nil)
+  | setScalaModuleDeps (sifiveBlocksScalaModule, rocketchipScalaModule, hcaBlocksScalaModule,  Nil)
   | setScalaModuleScalacOptions scalacOpts
   | addMacrosParadiseCompilerPlugin
