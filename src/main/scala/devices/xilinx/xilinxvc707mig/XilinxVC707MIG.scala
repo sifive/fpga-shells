@@ -151,7 +151,7 @@ class XilinxVC707MIG(c : XilinxVC707MIGParams, crossing: ClockCrossingType = Asy
   val depth = ranges.head.size
 
   val buffer  = LazyModule(new TLBuffer)
-  val toaxi4  = LazyModule(new TLToAXI4(adapterName = Some("mem"), stripBits = 1))
+  val toaxi4  = LazyModule(new TLToAXI4(adapterName = Some("mem")))
   val indexer = LazyModule(new AXI4IdIndexer(idBits = 4))
   val deint   = LazyModule(new AXI4Deinterleaver(p(CacheBlockBytes)))
   val yank    = LazyModule(new AXI4UserYanker)
