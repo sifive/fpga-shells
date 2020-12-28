@@ -1,0 +1,20 @@
+# system info IOBUF on 2020.07.29.10:13:24
+system_info:
+name,value
+DEVICE,1SG280LU2F50E2VG
+DEVICE_FAMILY,Stratix 10
+GENERATION_ID,0
+#
+#
+# Files generated for IOBUF on 2020.07.29.10:13:24
+files:
+filepath,kind,attributes,module,is_top
+sim/IOBUF.v,VERILOG,CONTAINS_INLINE_CONFIGURATION,IOBUF,true
+altera_gpio_1930/sim/IOBUF_altera_gpio_1930_alkbnhy.v,VERILOG,CONTAINS_INLINE_CONFIGURATION,IOBUF_altera_gpio_1930_alkbnhy,false
+altera_gpio_core14_191/sim/altera_gpio.sv,SYSTEM_VERILOG,,altera_gpio,false
+#
+# Map from instance-path to kind of module
+instances:
+instancePath,module
+IOBUF.gpio_0,IOBUF_altera_gpio_1930_alkbnhy
+IOBUF.gpio_0.core,altera_gpio

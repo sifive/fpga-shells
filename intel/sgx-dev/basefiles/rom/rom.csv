@@ -1,0 +1,18 @@
+# system info rom on 2020.07.29.19:32:36
+system_info:
+name,value
+DEVICE,1SG280LU2F50E2VG
+DEVICE_FAMILY,Stratix 10
+GENERATION_ID,0
+#
+#
+# Files generated for rom on 2020.07.29.19:32:36
+files:
+filepath,kind,attributes,module,is_top
+sim/rom.v,VERILOG,CONTAINS_INLINE_CONFIGURATION,rom,true
+rom_1port_2010/sim/rom_rom_1port_2010_eadblwq.v,VERILOG,,rom_rom_1port_2010_eadblwq,false
+#
+# Map from instance-path to kind of module
+instances:
+instancePath,module
+rom.rom_1port_0,rom_rom_1port_2010_eadblwq

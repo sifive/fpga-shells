@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file
+   path="rom_1port_2010/sim/rom_rom_1port_2010_eadblwq.v"
+   type="VERILOG"
+   library="rom_1port_2010" />
+ <file
+   path="sim/rom.v"
+   type="VERILOG"
+   library="rom"
+   hasInlineConfiguration="true" />
+ <topLevel name="rom.rom" />
+ <deviceFamily name="stratix10" />
+</simPackage>

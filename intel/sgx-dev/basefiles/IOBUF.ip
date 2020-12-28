@@ -1,0 +1,582 @@
+<?xml version="1.0" ?>
+<ipxact:component xmlns:altera="http://www.altera.com/XMLSchema/IPXact2014/extensions" xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014">
+  <ipxact:vendor>Intel Corporation</ipxact:vendor>
+  <ipxact:library>IOBUF</ipxact:library>
+  <ipxact:name>gpio_0</ipxact:name>
+  <ipxact:version>19.3.0</ipxact:version>
+  <ipxact:busInterfaces>
+    <ipxact:busInterface>
+      <ipxact:name>dout</ipxact:name>
+      <ipxact:busType vendor="altera" library="altera" name="conduit" version="20.2"></ipxact:busType>
+      <ipxact:abstractionTypes>
+        <ipxact:abstractionType>
+          <ipxact:abstractionRef vendor="altera" library="altera" name="conduit" version="20.2"></ipxact:abstractionRef>
+          <ipxact:portMaps>
+            <ipxact:portMap>
+              <ipxact:logicalPort>
+                <ipxact:name>export</ipxact:name>
+              </ipxact:logicalPort>
+              <ipxact:physicalPort>
+                <ipxact:name>dataout</ipxact:name>
+              </ipxact:physicalPort>
+            </ipxact:portMap>
+          </ipxact:portMaps>
+        </ipxact:abstractionType>
+      </ipxact:abstractionTypes>
+      <ipxact:slave></ipxact:slave>
+      <ipxact:parameters>
+        <ipxact:parameter parameterId="associatedClock" type="string">
+          <ipxact:name>associatedClock</ipxact:name>
+          <ipxact:displayName>associatedClock</ipxact:displayName>
+          <ipxact:value></ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="associatedReset" type="string">
+          <ipxact:name>associatedReset</ipxact:name>
+          <ipxact:displayName>associatedReset</ipxact:displayName>
+          <ipxact:value></ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="prSafe" type="bit">
+          <ipxact:name>prSafe</ipxact:name>
+          <ipxact:displayName>Partial Reconfiguration Safe</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+      </ipxact:parameters>
+      <ipxact:vendorExtensions>
+        <altera:altera_assignments>
+          <ipxact:parameters>
+            <ipxact:parameter parameterId="ui.blockdiagram.direction" type="string">
+              <ipxact:name>ui.blockdiagram.direction</ipxact:name>
+              <ipxact:value>output</ipxact:value>
+            </ipxact:parameter>
+          </ipxact:parameters>
+        </altera:altera_assignments>
+      </ipxact:vendorExtensions>
+    </ipxact:busInterface>
+    <ipxact:busInterface>
+      <ipxact:name>din</ipxact:name>
+      <ipxact:busType vendor="altera" library="altera" name="conduit" version="20.2"></ipxact:busType>
+      <ipxact:abstractionTypes>
+        <ipxact:abstractionType>
+          <ipxact:abstractionRef vendor="altera" library="altera" name="conduit" version="20.2"></ipxact:abstractionRef>
+          <ipxact:portMaps>
+            <ipxact:portMap>
+              <ipxact:logicalPort>
+                <ipxact:name>export</ipxact:name>
+              </ipxact:logicalPort>
+              <ipxact:physicalPort>
+                <ipxact:name>datain</ipxact:name>
+              </ipxact:physicalPort>
+            </ipxact:portMap>
+          </ipxact:portMaps>
+        </ipxact:abstractionType>
+      </ipxact:abstractionTypes>
+      <ipxact:slave></ipxact:slave>
+      <ipxact:parameters>
+        <ipxact:parameter parameterId="associatedClock" type="string">
+          <ipxact:name>associatedClock</ipxact:name>
+          <ipxact:displayName>associatedClock</ipxact:displayName>
+          <ipxact:value></ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="associatedReset" type="string">
+          <ipxact:name>associatedReset</ipxact:name>
+          <ipxact:displayName>associatedReset</ipxact:displayName>
+          <ipxact:value></ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="prSafe" type="bit">
+          <ipxact:name>prSafe</ipxact:name>
+          <ipxact:displayName>Partial Reconfiguration Safe</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+      </ipxact:parameters>
+      <ipxact:vendorExtensions>
+        <altera:altera_assignments>
+          <ipxact:parameters>
+            <ipxact:parameter parameterId="ui.blockdiagram.direction" type="string">
+              <ipxact:name>ui.blockdiagram.direction</ipxact:name>
+              <ipxact:value>input</ipxact:value>
+            </ipxact:parameter>
+          </ipxact:parameters>
+        </altera:altera_assignments>
+      </ipxact:vendorExtensions>
+    </ipxact:busInterface>
+    <ipxact:busInterface>
+      <ipxact:name>oe</ipxact:name>
+      <ipxact:busType vendor="altera" library="altera" name="conduit" version="20.2"></ipxact:busType>
+      <ipxact:abstractionTypes>
+        <ipxact:abstractionType>
+          <ipxact:abstractionRef vendor="altera" library="altera" name="conduit" version="20.2"></ipxact:abstractionRef>
+          <ipxact:portMaps>
+            <ipxact:portMap>
+              <ipxact:logicalPort>
+                <ipxact:name>export</ipxact:name>
+              </ipxact:logicalPort>
+              <ipxact:physicalPort>
+                <ipxact:name>oe</ipxact:name>
+              </ipxact:physicalPort>
+            </ipxact:portMap>
+          </ipxact:portMaps>
+        </ipxact:abstractionType>
+      </ipxact:abstractionTypes>
+      <ipxact:slave></ipxact:slave>
+      <ipxact:parameters>
+        <ipxact:parameter parameterId="associatedClock" type="string">
+          <ipxact:name>associatedClock</ipxact:name>
+          <ipxact:displayName>associatedClock</ipxact:displayName>
+          <ipxact:value></ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="associatedReset" type="string">
+          <ipxact:name>associatedReset</ipxact:name>
+          <ipxact:displayName>associatedReset</ipxact:displayName>
+          <ipxact:value></ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="prSafe" type="bit">
+          <ipxact:name>prSafe</ipxact:name>
+          <ipxact:displayName>Partial Reconfiguration Safe</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+      </ipxact:parameters>
+      <ipxact:vendorExtensions>
+        <altera:altera_assignments>
+          <ipxact:parameters>
+            <ipxact:parameter parameterId="ui.blockdiagram.direction" type="string">
+              <ipxact:name>ui.blockdiagram.direction</ipxact:name>
+              <ipxact:value>input</ipxact:value>
+            </ipxact:parameter>
+          </ipxact:parameters>
+        </altera:altera_assignments>
+      </ipxact:vendorExtensions>
+    </ipxact:busInterface>
+    <ipxact:busInterface>
+      <ipxact:name>pad_io</ipxact:name>
+      <ipxact:busType vendor="altera" library="altera" name="conduit" version="20.2"></ipxact:busType>
+      <ipxact:abstractionTypes>
+        <ipxact:abstractionType>
+          <ipxact:abstractionRef vendor="altera" library="altera" name="conduit" version="20.2"></ipxact:abstractionRef>
+          <ipxact:portMaps>
+            <ipxact:portMap>
+              <ipxact:logicalPort>
+                <ipxact:name>export</ipxact:name>
+              </ipxact:logicalPort>
+              <ipxact:physicalPort>
+                <ipxact:name>padio</ipxact:name>
+              </ipxact:physicalPort>
+            </ipxact:portMap>
+          </ipxact:portMaps>
+        </ipxact:abstractionType>
+      </ipxact:abstractionTypes>
+      <ipxact:slave></ipxact:slave>
+      <ipxact:parameters>
+        <ipxact:parameter parameterId="associatedClock" type="string">
+          <ipxact:name>associatedClock</ipxact:name>
+          <ipxact:displayName>associatedClock</ipxact:displayName>
+          <ipxact:value></ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="associatedReset" type="string">
+          <ipxact:name>associatedReset</ipxact:name>
+          <ipxact:displayName>associatedReset</ipxact:displayName>
+          <ipxact:value></ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="prSafe" type="bit">
+          <ipxact:name>prSafe</ipxact:name>
+          <ipxact:displayName>Partial Reconfiguration Safe</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+      </ipxact:parameters>
+      <ipxact:vendorExtensions>
+        <altera:altera_assignments>
+          <ipxact:parameters>
+            <ipxact:parameter parameterId="ui.blockdiagram.direction" type="string">
+              <ipxact:name>ui.blockdiagram.direction</ipxact:name>
+              <ipxact:value>bidir</ipxact:value>
+            </ipxact:parameter>
+          </ipxact:parameters>
+        </altera:altera_assignments>
+      </ipxact:vendorExtensions>
+    </ipxact:busInterface>
+  </ipxact:busInterfaces>
+  <ipxact:model>
+    <ipxact:views>
+      <ipxact:view>
+        <ipxact:name>QUARTUS_SYNTH</ipxact:name>
+        <ipxact:envIdentifier>:quartus.altera.com:</ipxact:envIdentifier>
+        <ipxact:componentInstantiationRef>QUARTUS_SYNTH</ipxact:componentInstantiationRef>
+      </ipxact:view>
+    </ipxact:views>
+    <ipxact:instantiations>
+      <ipxact:componentInstantiation>
+        <ipxact:name>QUARTUS_SYNTH</ipxact:name>
+        <ipxact:moduleName>altera_gpio</ipxact:moduleName>
+        <ipxact:fileSetRef>
+          <ipxact:localName>QUARTUS_SYNTH</ipxact:localName>
+        </ipxact:fileSetRef>
+      </ipxact:componentInstantiation>
+    </ipxact:instantiations>
+    <ipxact:ports>
+      <ipxact:port>
+        <ipxact:name>dataout</ipxact:name>
+        <ipxact:wire>
+          <ipxact:direction>out</ipxact:direction>
+          <ipxact:wireTypeDefs>
+            <ipxact:wireTypeDef>
+              <ipxact:typeName>STD_LOGIC_VECTOR</ipxact:typeName>
+              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
+            </ipxact:wireTypeDef>
+          </ipxact:wireTypeDefs>
+        </ipxact:wire>
+      </ipxact:port>
+      <ipxact:port>
+        <ipxact:name>datain</ipxact:name>
+        <ipxact:wire>
+          <ipxact:direction>in</ipxact:direction>
+          <ipxact:wireTypeDefs>
+            <ipxact:wireTypeDef>
+              <ipxact:typeName>STD_LOGIC_VECTOR</ipxact:typeName>
+              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
+            </ipxact:wireTypeDef>
+          </ipxact:wireTypeDefs>
+        </ipxact:wire>
+      </ipxact:port>
+      <ipxact:port>
+        <ipxact:name>oe</ipxact:name>
+        <ipxact:wire>
+          <ipxact:direction>in</ipxact:direction>
+          <ipxact:wireTypeDefs>
+            <ipxact:wireTypeDef>
+              <ipxact:typeName>STD_LOGIC_VECTOR</ipxact:typeName>
+              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
+            </ipxact:wireTypeDef>
+          </ipxact:wireTypeDefs>
+        </ipxact:wire>
+      </ipxact:port>
+      <ipxact:port>
+        <ipxact:name>padio</ipxact:name>
+        <ipxact:wire>
+          <ipxact:direction>inout</ipxact:direction>
+          <ipxact:wireTypeDefs>
+            <ipxact:wireTypeDef>
+              <ipxact:typeName>STD_LOGIC_VECTOR</ipxact:typeName>
+              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
+            </ipxact:wireTypeDef>
+          </ipxact:wireTypeDefs>
+        </ipxact:wire>
+      </ipxact:port>
+    </ipxact:ports>
+  </ipxact:model>
+  <ipxact:vendorExtensions>
+    <altera:entity_info>
+      <ipxact:vendor>Intel Corporation</ipxact:vendor>
+      <ipxact:library>IOBUF</ipxact:library>
+      <ipxact:name>altera_gpio</ipxact:name>
+      <ipxact:version>19.3.0</ipxact:version>
+    </altera:entity_info>
+    <altera:altera_module_parameters>
+      <ipxact:parameters>
+        <ipxact:parameter parameterId="device_family" type="string">
+          <ipxact:name>device_family</ipxact:name>
+          <ipxact:displayName>device_family</ipxact:displayName>
+          <ipxact:value>Stratix 10</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="PIN_TYPE_GUI" type="string">
+          <ipxact:name>PIN_TYPE_GUI</ipxact:name>
+          <ipxact:displayName>Data Direction</ipxact:displayName>
+          <ipxact:value>Bidir</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="SIZE" type="int">
+          <ipxact:name>SIZE</ipxact:name>
+          <ipxact:displayName>Data width</ipxact:displayName>
+          <ipxact:value>1</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_enable_migratable_port_names" type="bit">
+          <ipxact:name>gui_enable_migratable_port_names</ipxact:name>
+          <ipxact:displayName>Use legacy top-level port names</ipxact:displayName>
+          <ipxact:value>true</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_diff_buff" type="bit">
+          <ipxact:name>gui_diff_buff</ipxact:name>
+          <ipxact:displayName>Use differential buffer</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_pseudo_diff" type="bit">
+          <ipxact:name>gui_pseudo_diff</ipxact:name>
+          <ipxact:displayName>Use pseudo-differential buffer</ipxact:displayName>
+          <ipxact:value>true</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_pseudo_diff_off_shadow" type="bit">
+          <ipxact:name>gui_pseudo_diff_off_shadow</ipxact:name>
+          <ipxact:displayName>Use pseudo-differential buffer</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_pseudo_diff_on_shadow" type="bit">
+          <ipxact:name>gui_pseudo_diff_on_shadow</ipxact:name>
+          <ipxact:displayName>Use pseudo-differential buffer</ipxact:displayName>
+          <ipxact:value>true</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_bus_hold" type="bit">
+          <ipxact:name>gui_bus_hold</ipxact:name>
+          <ipxact:displayName>Use bus-hold circuitry</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_bus_hold_shadow" type="bit">
+          <ipxact:name>gui_bus_hold_shadow</ipxact:name>
+          <ipxact:displayName>Use bus-hold circuitry</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_open_drain" type="bit">
+          <ipxact:name>gui_open_drain</ipxact:name>
+          <ipxact:displayName>Use open-drain output</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_open_drain_shadow" type="bit">
+          <ipxact:name>gui_open_drain_shadow</ipxact:name>
+          <ipxact:displayName>Use open-drain output</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_use_oe" type="bit">
+          <ipxact:name>gui_use_oe</ipxact:name>
+          <ipxact:displayName>Enable output enable port</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_use_oe_off_shadow" type="bit">
+          <ipxact:name>gui_use_oe_off_shadow</ipxact:name>
+          <ipxact:displayName>Enable output enable port</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_use_oe_on_shadow" type="bit">
+          <ipxact:name>gui_use_oe_on_shadow</ipxact:name>
+          <ipxact:displayName>Enable output enable port</ipxact:displayName>
+          <ipxact:value>true</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_enable_termination_ports" type="bit">
+          <ipxact:name>gui_enable_termination_ports</ipxact:name>
+          <ipxact:displayName>Enable seriestermination/paralleltermination ports</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_enable_termination_ports_shadow" type="bit">
+          <ipxact:name>gui_enable_termination_ports_shadow</ipxact:name>
+          <ipxact:displayName>Enable seriestermination/paralleltermination ports</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_io_reg_mode" type="string">
+          <ipxact:name>gui_io_reg_mode</ipxact:name>
+          <ipxact:displayName>Register mode</ipxact:displayName>
+          <ipxact:value>none</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_sreset_mode" type="string">
+          <ipxact:name>gui_sreset_mode</ipxact:name>
+          <ipxact:displayName>Enable synchronous clear / preset port</ipxact:displayName>
+          <ipxact:value>None</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_sreset_mode_off_shadow" type="string">
+          <ipxact:name>gui_sreset_mode_off_shadow</ipxact:name>
+          <ipxact:displayName>Enable synchronous clear / preset port</ipxact:displayName>
+          <ipxact:value>None</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_areset_mode" type="string">
+          <ipxact:name>gui_areset_mode</ipxact:name>
+          <ipxact:displayName>Enable asynchronous clear / preset port</ipxact:displayName>
+          <ipxact:value>None</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_areset_mode_off_shadow" type="string">
+          <ipxact:name>gui_areset_mode_off_shadow</ipxact:name>
+          <ipxact:displayName>Enable asynchronous clear / preset port</ipxact:displayName>
+          <ipxact:value>None</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_enable_cke" type="bit">
+          <ipxact:name>gui_enable_cke</ipxact:name>
+          <ipxact:displayName>Enable clock enable port</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_enable_cke_off_shadow" type="bit">
+          <ipxact:name>gui_enable_cke_off_shadow</ipxact:name>
+          <ipxact:displayName>Enable clock enable port</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_hr_logic" type="bit">
+          <ipxact:name>gui_hr_logic</ipxact:name>
+          <ipxact:displayName>Half Rate Logic</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_separate_io_clks" type="bit">
+          <ipxact:name>gui_separate_io_clks</ipxact:name>
+          <ipxact:displayName>Separate input/output Clocks</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="gui_separate_io_clks_off_shadow" type="bit">
+          <ipxact:name>gui_separate_io_clks_off_shadow</ipxact:name>
+          <ipxact:displayName>Separate input/output Clocks</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="PIN_TYPE" type="string">
+          <ipxact:name>PIN_TYPE</ipxact:name>
+          <ipxact:displayName>PIN_TYPE</ipxact:displayName>
+          <ipxact:value>bidir</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="REGISTER_MODE" type="string">
+          <ipxact:name>REGISTER_MODE</ipxact:name>
+          <ipxact:displayName>REGISTER_MODE</ipxact:displayName>
+          <ipxact:value>none</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="HALF_RATE" type="string">
+          <ipxact:name>HALF_RATE</ipxact:name>
+          <ipxact:displayName>HALF_RATE</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="SEPARATE_I_O_CLOCKS" type="string">
+          <ipxact:name>SEPARATE_I_O_CLOCKS</ipxact:name>
+          <ipxact:displayName>SEPARATE_I_O_CLOCKS</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="BUFFER_TYPE" type="string">
+          <ipxact:name>BUFFER_TYPE</ipxact:name>
+          <ipxact:displayName>BUFFER_TYPE</ipxact:displayName>
+          <ipxact:value>single-ended</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="PSEUDO_DIFF" type="string">
+          <ipxact:name>PSEUDO_DIFF</ipxact:name>
+          <ipxact:displayName>PSEUDO_DIFF</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="ARESET_MODE" type="string">
+          <ipxact:name>ARESET_MODE</ipxact:name>
+          <ipxact:displayName>ARESET_MODE</ipxact:displayName>
+          <ipxact:value>none</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="SRESET_MODE" type="string">
+          <ipxact:name>SRESET_MODE</ipxact:name>
+          <ipxact:displayName>SRESET_MODE</ipxact:displayName>
+          <ipxact:value>none</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="OPEN_DRAIN" type="string">
+          <ipxact:name>OPEN_DRAIN</ipxact:name>
+          <ipxact:displayName>OPEN_DRAIN</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="BUS_HOLD" type="string">
+          <ipxact:name>BUS_HOLD</ipxact:name>
+          <ipxact:displayName>BUS_HOLD</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="ENABLE_OE" type="string">
+          <ipxact:name>ENABLE_OE</ipxact:name>
+          <ipxact:displayName>ENABLE_OE</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="ENABLE_CKE" type="string">
+          <ipxact:name>ENABLE_CKE</ipxact:name>
+          <ipxact:displayName>ENABLE_CKE</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="ENABLE_TERM" type="string">
+          <ipxact:name>ENABLE_TERM</ipxact:name>
+          <ipxact:displayName>ENABLE_TERM</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="SYS_INFO_DEVICE" type="string">
+          <ipxact:name>SYS_INFO_DEVICE</ipxact:name>
+          <ipxact:displayName>SYS_INFO_DEVICE</ipxact:displayName>
+          <ipxact:value>1SG280LU2F50E2VG</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="EXT_DRIVER_PARAM" type="bit">
+          <ipxact:name>EXT_DRIVER_PARAM</ipxact:name>
+          <ipxact:displayName>EXT_DRIVER_PARAM</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="GENERATE_SDC_FILE" type="bit">
+          <ipxact:name>GENERATE_SDC_FILE</ipxact:name>
+          <ipxact:displayName>GENERATE_SDC_FILE</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="IP_MIGRATE_PORT_MAP_FILE" type="string">
+          <ipxact:name>IP_MIGRATE_PORT_MAP_FILE</ipxact:name>
+          <ipxact:displayName>IP_MIGRATE_PORT_MAP_FILE</ipxact:displayName>
+          <ipxact:value>altddio_bidir_port_map.csv</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="AUTO_DEVICE_SPEEDGRADE" type="string">
+          <ipxact:name>AUTO_DEVICE_SPEEDGRADE</ipxact:name>
+          <ipxact:displayName>Auto DEVICE_SPEEDGRADE</ipxact:displayName>
+          <ipxact:value>2</ipxact:value>
+        </ipxact:parameter>
+      </ipxact:parameters>
+    </altera:altera_module_parameters>
+    <altera:altera_system_parameters>
+      <ipxact:parameters>
+        <ipxact:parameter parameterId="device" type="string">
+          <ipxact:name>device</ipxact:name>
+          <ipxact:displayName>Device</ipxact:displayName>
+          <ipxact:value>1SG280LU2F50E2VG</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="deviceFamily" type="string">
+          <ipxact:name>deviceFamily</ipxact:name>
+          <ipxact:displayName>Device family</ipxact:displayName>
+          <ipxact:value>Stratix 10</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="deviceSpeedGrade" type="string">
+          <ipxact:name>deviceSpeedGrade</ipxact:name>
+          <ipxact:displayName>Device Speed Grade</ipxact:displayName>
+          <ipxact:value>2</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="generationId" type="int">
+          <ipxact:name>generationId</ipxact:name>
+          <ipxact:displayName>Generation Id</ipxact:displayName>
+          <ipxact:value>0</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="bonusData" type="string">
+          <ipxact:name>bonusData</ipxact:name>
+          <ipxact:displayName>bonusData</ipxact:displayName>
+          <ipxact:value>bonusData 
+{
+   element gpio_0
+   {
+      datum _sortIndex
+      {
+         value = "0";
+         type = "int";
+      }
+   }
+}
+</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="hideFromIPCatalog" type="bit">
+          <ipxact:name>hideFromIPCatalog</ipxact:name>
+          <ipxact:displayName>Hide from IP Catalog</ipxact:displayName>
+          <ipxact:value>true</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="lockedInterfaceDefinition" type="string">
+          <ipxact:name>lockedInterfaceDefinition</ipxact:name>
+          <ipxact:displayName>lockedInterfaceDefinition</ipxact:displayName>
+          <ipxact:value></ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="systemInfos" type="string">
+          <ipxact:name>systemInfos</ipxact:name>
+          <ipxact:displayName>systemInfos</ipxact:displayName>
+          <ipxact:value>&lt;systemInfosDefinition&gt;
+    &lt;connPtSystemInfos/&gt;
+&lt;/systemInfosDefinition&gt;</ipxact:value>
+        </ipxact:parameter>
+      </ipxact:parameters>
+    </altera:altera_system_parameters>
+    <altera:altera_interface_boundary>
+      <altera:interface_mapping altera:name="ck" altera:internal="gpio_0.ck"></altera:interface_mapping>
+      <altera:interface_mapping altera:name="datain_h" altera:internal="gpio_0.datain_h"></altera:interface_mapping>
+      <altera:interface_mapping altera:name="datain_l" altera:internal="gpio_0.datain_l"></altera:interface_mapping>
+      <altera:interface_mapping altera:name="dataout_h" altera:internal="gpio_0.dataout_h"></altera:interface_mapping>
+      <altera:interface_mapping altera:name="dataout_l" altera:internal="gpio_0.dataout_l"></altera:interface_mapping>
+      <altera:interface_mapping altera:name="din" altera:internal="gpio_0.din" altera:type="conduit" altera:dir="end">
+        <altera:port_mapping altera:name="datain" altera:internal="datain"></altera:port_mapping>
+      </altera:interface_mapping>
+      <altera:interface_mapping altera:name="dout" altera:internal="gpio_0.dout" altera:type="conduit" altera:dir="end">
+        <altera:port_mapping altera:name="dataout" altera:internal="dataout"></altera:port_mapping>
+      </altera:interface_mapping>
+      <altera:interface_mapping altera:name="oe" altera:internal="gpio_0.oe" altera:type="conduit" altera:dir="end">
+        <altera:port_mapping altera:name="oe" altera:internal="oe"></altera:port_mapping>
+      </altera:interface_mapping>
+      <altera:interface_mapping altera:name="pad_io" altera:internal="gpio_0.pad_io" altera:type="conduit" altera:dir="end">
+        <altera:port_mapping altera:name="padio" altera:internal="padio"></altera:port_mapping>
+      </altera:interface_mapping>
+      <altera:interface_mapping altera:name="pad_io_b" altera:internal="gpio_0.pad_io_b"></altera:interface_mapping>
+      <altera:interface_mapping altera:name="pad_out" altera:internal="gpio_0.pad_out"></altera:interface_mapping>
+    </altera:altera_interface_boundary>
+    <altera:altera_has_warnings>false</altera:altera_has_warnings>
+    <altera:altera_has_errors>false</altera:altera_has_errors>
+  </ipxact:vendorExtensions>
+</ipxact:component>

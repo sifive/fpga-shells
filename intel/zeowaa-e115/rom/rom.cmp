@@ -1,0 +1,9 @@
+	component rom is
+		port (
+			q       : out std_logic_vector(31 downto 0);                    -- dataout
+			address : in  std_logic_vector(10 downto 0) := (others => 'X'); -- address
+			clock   : in  std_logic                     := 'X';             -- clk
+			rden    : in  std_logic                     := 'X'              -- rden
+		);
+	end component rom;
+
