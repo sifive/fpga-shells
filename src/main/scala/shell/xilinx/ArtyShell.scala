@@ -106,7 +106,8 @@ abstract class ArtyShell(implicit val p: Parameters) extends RawModule {
 
   // Note: these frequencies are approximate.
   val clock_8MHz     = Wire(Clock())
-  val clock_32MHz    = Wire(Clock())
+  val clock_16MHz25    = Wire(Clock())
+  val clock_32MHz5    = Wire(Clock())
   val clock_65MHz    = Wire(Clock())
 
   val mmcm_locked    = Wire(Bool())
@@ -135,8 +136,9 @@ abstract class ArtyShell(implicit val p: Parameters) extends RawModule {
 
   ip_mmcm.io.clk_in1 := CLK100MHZ
   clock_8MHz         := ip_mmcm.io.clk_out1  // 8.388 MHz = 32.768 kHz * 256
-  clock_65MHz        := ip_mmcm.io.clk_out2  // 65 Mhz
-  clock_32MHz        := ip_mmcm.io.clk_out3  // 65/2 Mhz
+  clock_65MHz        := ip_mmcm.io.clk_out2  // 65 MHz
+  clock_32MHz5       := ip_mmcm.io.clk_out3  // 65/2 MHz
+  clock_16MHz25      := ip_mmcm.io.clk_out4  // 65/2/2 MHz
   ip_mmcm.io.resetn  := ck_rst
   mmcm_locked        := ip_mmcm.io.locked
 
@@ -189,7 +191,7 @@ abstract class ArtyShell(implicit val p: Parameters) extends RawModule {
     // JTAG Reset
     //-------------------------------------------------------------------
 
-    val jtag_power_on_reset = PowerOnResetFPGAOnly(clock_32MHz)
+    val jtag_power_on_reset = PowerOnResetFPGAOnly(clock_32MHz5)
 
     dut_jtag_reset := jtag_power_on_reset
 

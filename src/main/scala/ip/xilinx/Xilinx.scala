@@ -26,6 +26,7 @@ class mmcm extends BlackBox {
     val clk_out1 = Output(Clock())
     val clk_out2 = Output(Clock())
     val clk_out3 = Output(Clock())
+    val clk_out4 = Output(Clock())
     val resetn   = Input(Bool())
     val locked   = Output(Bool())
   }
