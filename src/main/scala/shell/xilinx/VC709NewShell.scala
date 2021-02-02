@@ -298,7 +298,7 @@ abstract class VC709Shell()(implicit p: Parameters) extends Series7Shell
   val switch    = Seq.tabulate(8)(i => Overlay(SwitchOverlayKey, new SwitchVC709ShellPlacer(this, SwitchShellInput(number = i))(valName = ValName(s"switch_$i"))))
   val button    = Seq.tabulate(5)(i => Overlay(ButtonOverlayKey, new ButtonVC709ShellPlacer(this, ButtonShellInput(number = i))(valName = ValName(s"button_$i"))))
   val chiplink  = Overlay(ChipLinkOverlayKey, new ChipLinkVC709ShellPlacer(this, ChipLinkShellInput())) 
-  val ddr0       = Overlay(DDROverlayKey, new DDR3VC709ShellPlacer(this, DDRShellInput()))
+  val ddr0      = Overlay(DDROverlayKey, new DDR3VC709ShellPlacer(this, DDRShellInput()))
 }
 
 class VC709BaseShell()(implicit p: Parameters) extends VC709Shell
@@ -326,7 +326,7 @@ class VC709BaseShell()(implicit p: Parameters) extends VC709Shell
       case _ => false.B
     }
     pllReset :=
-      reset_ibuf.io.O || powerOnReset || false.B
+      reset_ibuf.io.O || powerOnReset || ereset
   }
 }
 
@@ -354,6 +354,6 @@ class VC709PCIeShell()(implicit p: Parameters) extends VC709Shell
       case _ => false.B
     }
     pllReset :=
-      reset_ibuf.io.O || powerOnReset || false.B
+      reset_ibuf.io.O || powerOnReset || ereset
   }
 }
