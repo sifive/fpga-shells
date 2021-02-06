@@ -11,7 +11,7 @@ import freechips.rocketchip.config._
 // Black Box
 
 class VC709MIGIODDR(depth : BigInt) extends GenericParameterizedBundle(depth) {
-  require((depth<=0x200000000L),"VC709MIGIODDR supports upto 8GB depth configuraton")
+  require((depth==0x200000000L),"VC709MIGIODDR supports upto 8GB depth configuraton")
   // DDR3 SODIMM 0
     val c0_ddr3_addr             = Bits(OUTPUT,16)
     val c0_ddr3_ba               = Bits(OUTPUT,3)
@@ -29,7 +29,6 @@ class VC709MIGIODDR(depth : BigInt) extends GenericParameterizedBundle(depth) {
     val c0_ddr3_dq               = Analog(64.W)
     val c0_ddr3_dqs_n            = Analog(8.W)
     val c0_ddr3_dqs_p            = Analog(8.W)
-
   // DDR3 SODIMM 1
     val c1_ddr3_addr             = Bits(OUTPUT,16)
     val c1_ddr3_ba               = Bits(OUTPUT,3)
@@ -62,7 +61,6 @@ trait VC709MIGIOClocksReset extends Bundle {
     val c0_aresetn               = Bool(INPUT)
     //misc
     val c0_init_calib_complete   = Bool(OUTPUT)
-
   // DDR3 SODIMM 1
     //inputs
     //"NO_BUFFER" clock source (must be connected to IBUF outside of IP)
@@ -142,15 +140,16 @@ class vc709mig(depth : BigInt)(implicit val p:Parameters) extends BlackBox
         //misc
         val c0_device_temp           = Bits(OUTPUT,12)
 
+
         //axi_s [DDR3 SODIMM 1]
-        // User interface signals
+        // User interface signals (DDR3 SODIMM 0)
         val c1_app_sr_req            = Bool(INPUT)
         val c1_app_ref_req           = Bool(INPUT)
         val c1_app_zq_req            = Bool(INPUT)
         val c1_app_sr_active         = Bool(OUTPUT)
         val c1_app_ref_ack           = Bool(OUTPUT)
         val c1_app_zq_ack            = Bool(OUTPUT)
-        
+
         //slave interface write address ports
         val c1_s_axi_awid            = Bits(INPUT,4)
         val c1_s_axi_awaddr          = Bits(INPUT,32)
@@ -390,11 +389,11 @@ class vc709mig(depth : BigInt)(implicit val p:Parameters) extends BlackBox
         <mr2RTTWR name="RTT_WR - Dynamic On Die Termination (ODT)" >Dynamic ODT off</mr2RTTWR>
         <PortInterface>AXI</PortInterface>
         <AXIParameters>
-            <C0_C_RD_WR_ARB_ALGORITHM>RD_PRI_REG</C0_C_RD_WR_ARB_ALGORITHM>
-            <C0_S_AXI_ADDR_WIDTH>32</C0_S_AXI_ADDR_WIDTH>
-            <C0_S_AXI_DATA_WIDTH>64</C0_S_AXI_DATA_WIDTH>
-            <C0_S_AXI_ID_WIDTH>4</C0_S_AXI_ID_WIDTH>
-            <C0_S_AXI_SUPPORTS_NARROW_BURST>0</C0_S_AXI_SUPPORTS_NARROW_BURST>
+            <C_RD_WR_ARB_ALGORITHM>RD_PRI_REG</C_RD_WR_ARB_ALGORITHM>
+            <S_AXI_ADDR_WIDTH>32</S_AXI_ADDR_WIDTH>
+            <S_AXI_DATA_WIDTH>64</S_AXI_DATA_WIDTH>
+            <S_AXI_ID_WIDTH>4</S_AXI_ID_WIDTH>
+            <S_AXI_SUPPORTS_NARROW_BURST>0</S_AXI_SUPPORTS_NARROW_BURST>
         </AXIParameters>
     </Controller>
 
@@ -580,19 +579,17 @@ class vc709mig(depth : BigInt)(implicit val p:Parameters) extends BlackBox
 }"""
 
   val migprj = vc709mig8gbprj
-  val migprjname = """{/vc709mig8gb.prj}"""
-  val modulename = """vc709mig8gb"""
 
   ElaborationArtefacts.add(
-  modulename++".vivado.tcl",
+   "vc709mig8gb.vivado.tcl",
    """set migprj """++migprj++"""
-   set migprjfile """++migprjname++"""
+   set migprjfile {/vc709mig8gb.prj}
    set migprjfilepath $ipdir$migprjfile
    set fp [open $migprjfilepath w+]
    puts $fp $migprj
    close $fp
-   create_ip -vendor xilinx.com -library ip -name mig_7series -module_name """ ++ modulename ++ """ -dir $ipdir -force
-   set_property CONFIG.XML_INPUT_FILE $migprjfilepath [get_ips """ ++ modulename ++ """] """
+   create_ip -vendor xilinx.com -library ip -name mig_7series -module_name vc709mig8gb -dir $ipdir -force
+   set_property CONFIG.XML_INPUT_FILE $migprjfilepath [get_ips vc709mig8gb] """
   )
 }
 //scalastyle:on
