@@ -179,11 +179,11 @@ class VC709AXIToPCIeX1(implicit p:Parameters) extends LazyModule
         "#size-cells"        -> ofInt(2),
         "#interrupt-cells"   -> ofInt(1),
         "device_type"        -> Seq(ResourceString("pci")),
+        "interrupt-map-mask" -> Seq(0, 0, 0, 7).flatMap(ofInt),
+        "interrupt-map"      -> Seq(1, 2, 3, 4).flatMap(ofMap),
         "ranges"             -> resources("ranges").map(x =>
                                   (x: @unchecked) match { case Binding(_, ResourceAddress(address, perms)) =>
                                                                ResourceMapping(address, BigInt(0x02000000) << 64, perms) }),
-        "interrupt-map-mask" -> Seq(0, 0, 0, 7).flatMap(ofInt),
-        "interrupt-map"      -> Seq(1, 2, 3, 4).flatMap(ofMap),
         "interrupt-controller" -> Seq(ResourceMap(labels = Seq(intc), value = Map(
           "interrupt-controller" -> Nil,
           "#address-cells"       -> ofInt(0),

@@ -28,7 +28,7 @@ class XilinxVC709MIGIsland(c : XilinxVC709MIGParams, val crossing: ClockCrossing
   require (ranges.size == 1, "DDR range must be contiguous")
   val offset = ranges.head.base
   val depth = ranges.head.size
-  require((depth<=0x200000000L),"vc709mig supports upto 8GB depth configuraton")
+  require((depth<=0x100000000L),"vc709mig supports upto 4GB depth configuraton")
   
   val device = new MemoryDevice
   val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
@@ -148,6 +148,7 @@ class XilinxVC709MIGIsland(c : XilinxVC709MIGParams, val crossing: ClockCrossing
     io.port.init_calib_complete := blackbox.io.init_calib_complete
 
     blackbox.io.sys_rst       :=io.port.sys_rst
+    //mig.device_temp_i       :- unconnected
     //mig.device_temp         :- unconnceted
   }
 }
@@ -157,7 +158,7 @@ class XilinxVC709MIG(c : XilinxVC709MIGParams, crossing: ClockCrossingType = Asy
   val depth = ranges.head.size
 
   val buffer  = LazyModule(new TLBuffer)
-  val toaxi4  = LazyModule(new TLToAXI4(adapterName = Some("mem"), stripBits = 1))
+  val toaxi4  = LazyModule(new TLToAXI4(adapterName = Some("mem")))
   val indexer = LazyModule(new AXI4IdIndexer(idBits = 4))
   val deint   = LazyModule(new AXI4Deinterleaver(p(CacheBlockBytes)))
   val yank    = LazyModule(new AXI4UserYanker)
