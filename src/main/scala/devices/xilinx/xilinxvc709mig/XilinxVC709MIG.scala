@@ -157,6 +157,7 @@ class XilinxVC709MIG(c : XilinxVC709MIGParams, crossing: ClockCrossingType = Asy
   val ranges = AddressRange.fromSets(c.address)
   val depth = ranges.head.size
 
+  // The data follows from top to down
   val buffer  = LazyModule(new TLBuffer)
   val toaxi4  = LazyModule(new TLToAXI4(adapterName = Some("mem")))
   val indexer = LazyModule(new AXI4IdIndexer(idBits = 4))
