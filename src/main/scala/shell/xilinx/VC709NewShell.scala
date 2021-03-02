@@ -20,7 +20,8 @@ class SysClockVC709PlacedOverlay(val shell: VC709ShellBasicOverlays, name: Strin
   val node = shell { ClockSourceNode(freqMHz = 200, jitterPS = 50)(ValName(name)) }
 
   shell { InModuleBody {
-    // sysclk_p, sysclk_n
+    shell.xdc.addBoardPin(io.p, "clk_p")
+    shell.xdc.addBoardPin(io.n, "clk_n")
 //    val packagePinsWithPackageIOs = Seq(("H19", IOPin(io.p)),
 //                                        ("G18", IOPin(io.n)))
 
@@ -29,9 +30,6 @@ class SysClockVC709PlacedOverlay(val shell: VC709ShellBasicOverlays, name: Strin
 //      shell.xdc.addIOStandard(io, "DIFF_SSTL15")
 //      shell.xdc.addIOB(io)
 //    } }
-
-    shell.xdc.addBoardPin(io.p, "clk_p")
-    shell.xdc.addBoardPin(io.n, "clk_n")
   } }
 }
 
@@ -200,13 +198,14 @@ class PCIeVC709PlacedOverlay(val shell: VC709ShellBasicOverlays, name: String, v
   val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
   areset := designInput.wrangler := axiClk
 
+  // 9.1.4 Indentity Node
   val slaveSide = TLIdentityNode()
   pcie.crossTLIn(pcie.slave)   := slaveSide
   pcie.crossTLIn(pcie.control) := slaveSide
-  val node = NodeHandle(slaveSide, pcie.crossTLOut(pcie.master))
-  val intNode = pcie.crossIntOut(pcie.intnode)
-
-  def overlayOutput = PCIeOverlayOutput(node, intNode)
+  val masterSide = pcie.crossTLOut(pcie.master)
+  // NodeHandle(inward, outward) defined in: rocketchip/diplomacy/Nodes.scala
+  def overlayOutput = PCIeOverlayOutput(pcieNode=NodeHandle(slaveSide, masterSide), intNode=pcie.crossIntOut(pcie.intnode))
+  
   def ioFactory = new XilinxVC709PCIeX1Pads
 
   InModuleBody { bridge.bundle <> pcie.module.io }
@@ -255,9 +254,9 @@ abstract class VC709ShellBasicOverlays()(implicit p: Parameters) extends Series7
 
   // Order matters; ddr depends on sys_clock
   val sys_clock = Overlay(ClockInputOverlayKey, new SysClockVC709ShellPlacer(this, ClockInputShellInput()))
-  val led       = Seq.tabulate(8)(i => Overlay(LEDOverlayKey, new LEDVC709ShellPlacer(this, LEDShellInput(color = "red", number = i))(valName = ValName(s"led_$i"))))
-  val switch    = Seq.tabulate(8)(i => Overlay(SwitchOverlayKey, new SwitchVC709ShellPlacer(this, SwitchShellInput(number = i))(valName = ValName(s"switch_$i"))))
-  val button    = Seq.tabulate(5)(i => Overlay(ButtonOverlayKey, new ButtonVC709ShellPlacer(this, ButtonShellInput(number = i))(valName = ValName(s"button_$i"))))
+  // val led       = Seq.tabulate(8)(i => Overlay(LEDOverlayKey, new LEDVC709ShellPlacer(this, LEDShellInput(color = "red", number = i))(valName = ValName(s"led_$i"))))
+  // val switch    = Seq.tabulate(8)(i => Overlay(SwitchOverlayKey, new SwitchVC709ShellPlacer(this, SwitchShellInput(number = i))(valName = ValName(s"switch_$i"))))
+  // val button    = Seq.tabulate(5)(i => Overlay(ButtonOverlayKey, new ButtonVC709ShellPlacer(this, ButtonShellInput(number = i))(valName = ValName(s"button_$i"))))
   val uart      = Seq.tabulate(1)(i => Overlay(UARTOverlayKey, new UARTVC709ShellPlacer(this, UARTShellInput(index = 0))))
   val jtag      = Overlay(JTAGDebugOverlayKey, new JTAGDebugVC709ShellPlacer(this, JTAGDebugShellInput()))
   val chiplink  = Overlay(ChipLinkOverlayKey, new ChipLinkVC709ShellPlacer(this, ChipLinkShellInput())) 

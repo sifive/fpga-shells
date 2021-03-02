@@ -164,7 +164,7 @@ class vc709axi_to_pcie_x1() extends BlackBox
 //scalastyle:off
 
 //wrap vc709_axi_to_pcie_x1 black box in Nasti Bundles
-
+// see Chipyard doc: 9.1.2 Manager Node
 class VC709AXIToPCIeX1(implicit p:Parameters) extends LazyModule
 {
   // device-tree node
