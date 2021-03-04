@@ -63,7 +63,7 @@ class vc709axi_to_pcie_x1() extends BlackBox
     val s_axi_awvalid         = Bool(INPUT)
     val s_axi_awready         = Bool(OUTPUT)
     //slave interface write data
-    val s_axi_wdata           = Bits(INPUT,128)    // 64
+    val s_axi_wdata           = Bits(INPUT,128)     // 64
     val s_axi_wstrb           = Bits(INPUT,16)      // 8
     val s_axi_wlast           = Bool(INPUT)
     val s_axi_wvalid          = Bool(INPUT)
@@ -110,7 +110,7 @@ class vc709axi_to_pcie_x1() extends BlackBox
     val m_axi_awvalid         = Bool(OUTPUT)
     val m_axi_awready         = Bool(INPUT)
     //slave interface write data ports
-    val m_axi_wdata           = Bits(OUTPUT,128)   // 64
+    val m_axi_wdata           = Bits(OUTPUT,128)    // 64
     val m_axi_wstrb           = Bits(OUTPUT,16)     // 8
     val m_axi_wlast           = Bool(OUTPUT)
     val m_axi_wvalid          = Bool(OUTPUT)

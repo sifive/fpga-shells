@@ -162,17 +162,13 @@ class DDR3VC709PlacedOverlay(val shell: VC709ShellBasicOverlays, name: String, v
 {
   shell { InModuleBody {
     require (shell.sys_clock.get.isDefined, "Use of DDR3VC709PlacedOverlay depends on SysClockVC709PlacedOverlay")
-
     val (sys, _) = shell.sys_clock.get.get.overlayOutput.node.out(0)
     val (ui, _) = ddrUI.out(0)
     val (ar, _) = areset.in(0)
-
-    // connect the async fifo sync to sys_clock
-    topMigClkRstIONode.bundle.clock := sys.clock
-    topMigClkRstIONode.bundle.reset := sys.reset
-
     val port = topIONode.bundle.port
+
     io <> port
+
     // This is modified for vc709
     ui.clock := port.ui_clk
     ui.reset := !port.mmcm_locked || port.ui_clk_sync_rst
@@ -181,6 +177,7 @@ class DDR3VC709PlacedOverlay(val shell: VC709ShellBasicOverlays, name: String, v
     port.aresetn := !ar.reset
   } }
 
+  // shell.sdc.addGroup(clocks = Seq("clk_pll_i"))
   shell.sdc.addGroup(pins = Seq(mig.island.module.blackbox.io.ui_clk))
 }
 class DDR3VC709ShellPlacer(shell: VC709ShellBasicOverlays, val shellInput: DDRShellInput)(implicit val valName: ValName)
