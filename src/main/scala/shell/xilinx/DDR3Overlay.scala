@@ -26,7 +26,6 @@ abstract class DDR3XilinxPlacedOverlay(shell: VC709ShellBasicOverlays, name: Str
   val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
   areset := designInput.wrangler := ddrUI
 
-
   def overlayOutput = DDROverlayOutput(ddr = mig.node)
   def ioFactory = new XilinxVC709MIGPads(size)
 

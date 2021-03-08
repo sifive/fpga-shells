@@ -212,7 +212,7 @@ class PCIeVC709PlacedOverlay(val shell: VC709ShellBasicOverlays, name: String, v
     val (ar, _) = areset.in(0)
     val port = topBridge.bundle.port
     io <> port
-    axi.clock := port.axi_aclk             // port.axi_aclk_out is changed to port.axi_aclk in 3.0
+    axi.clock := port.axi_aclk
     // axi.reset := !port.mmcm_lock        // mmcm_lock is removed in 3.0
     port.axi_aresetn := !ar.reset
     port.axi_ctl_aresetn := !ar.reset
@@ -263,6 +263,7 @@ abstract class VC709ShellBasicOverlays()(implicit p: Parameters) extends Series7
 
 class VC709BaseShell()(implicit p: Parameters) extends VC709ShellBasicOverlays
 {
+  // val topDesign = LazyModule(p(BuildTop)(dp)).suggestName("chiptop")
   val topDesign = LazyModule(p(DesignKey)(designParameters))
 
   // Place the sys_clock at the Shell if the user didn't ask for it
