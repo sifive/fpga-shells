@@ -423,8 +423,8 @@ class VC709AXIToPCIeX1(implicit p:Parameters) extends LazyModule
       CONFIG.PF0_BAR0_64BIT               {true} \
       CONFIG.PF0_BAR0_ENABLED             {true} \
       CONFIG.PF0_BAR0_PREFETCHABLE        {false} \
-      CONFIG.PF0_BAR0_SCALE               {Megabytes} \
-      CONFIG.PF0_BAR0_SIZE                {1} \
+      CONFIG.PF0_BAR0_SCALE               {Gigabytes} \
+      CONFIG.PF0_BAR0_SIZE                {4} \
       CONFIG.PF0_BAR0_TYPE                {Memory} \
       CONFIG.PF0_SUB_CLASS_interface_menu {Host_bridge} \
       CONFIG.REF_CLK_FREQ                 {100_MHz} \

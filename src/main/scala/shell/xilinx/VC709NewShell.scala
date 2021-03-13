@@ -177,8 +177,8 @@ class DDR3VC709PlacedOverlay(val shell: VC709ShellBasicOverlays, name: String, v
     port.aresetn := !ar.reset
   } }
 
-  // shell.sdc.addGroup(clocks = Seq("clk_pll_i"))
-  shell.sdc.addGroup(pins = Seq(mig.island.module.blackbox.io.ui_clk))
+  shell.sdc.addGroup(clocks = Seq("clk_pll_i"))
+  // shell.sdc.addGroup(pins = Seq(mig.island.module.blackbox.io.ui_clk))
 }
 class DDR3VC709ShellPlacer(shell: VC709ShellBasicOverlays, val shellInput: DDRShellInput)(implicit val valName: ValName)
   extends DDRShellPlacer[VC709ShellBasicOverlays] {
@@ -195,14 +195,12 @@ class PCIeVC709PlacedOverlay(val shell: VC709ShellBasicOverlays, name: String, v
   val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
   areset := designInput.wrangler := axiClk
 
-  // 9.1.4 Indentity Node
   val slaveSide = TLIdentityNode()
   pcie.crossTLIn(pcie.slave)   := slaveSide
   pcie.crossTLIn(pcie.control) := slaveSide
   val masterSide = pcie.crossTLOut(pcie.master)
-  // NodeHandle(inward, outward) defined in: rocketchip/diplomacy/Nodes.scala
+
   def overlayOutput = PCIeOverlayOutput(pcieNode=NodeHandle(slaveSide, masterSide), intNode=pcie.crossIntOut(pcie.intnode))
-  
   def ioFactory = new XilinxVC709PCIeX1Pads
 
   InModuleBody { bridge.bundle <> pcie.module.io }
