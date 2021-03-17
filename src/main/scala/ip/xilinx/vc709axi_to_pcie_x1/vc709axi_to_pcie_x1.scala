@@ -30,6 +30,8 @@ trait VC709AXIToPCIeX1IOClocksReset extends Bundle {
 //turn off linter: blackbox name must match verilog module
 class vc709axi_to_pcie_x1() extends BlackBox
 {
+  def AXI_ADDR_WIDTH = 64
+  def AXI_DATA_WIDTH = 256
   val io = new Bundle with VC709AXIToPCIeX1IOSerial
                       with VC709AXIToPCIeX1IOClocksReset {
     // Global Signals
@@ -46,7 +48,7 @@ class vc709axi_to_pcie_x1() extends BlackBox
     // AXI Slave Interface
     // write address
     val s_axi_awid            = Bits(INPUT,4)
-    val s_axi_awaddr          = Bits(INPUT,32)
+    val s_axi_awaddr          = Bits(INPUT,AXI_ADDR_WIDTH)
     val s_axi_awregion        = Bits(INPUT,4)
     val s_axi_awlen           = Bits(INPUT,8)
     val s_axi_awsize          = Bits(INPUT,3)
@@ -54,8 +56,8 @@ class vc709axi_to_pcie_x1() extends BlackBox
     val s_axi_awvalid         = Bool(INPUT)
     val s_axi_awready         = Bool(OUTPUT)
     // write data
-    val s_axi_wdata           = Bits(INPUT,128)     // 64
-    val s_axi_wstrb           = Bits(INPUT,16)      // 8
+    val s_axi_wdata           = Bits(INPUT,AXI_DATA_WIDTH)
+    val s_axi_wstrb           = Bits(INPUT,16)
     val s_axi_wlast           = Bool(INPUT)
     val s_axi_wvalid          = Bool(INPUT)
     val s_axi_wready          = Bool(OUTPUT)
@@ -66,7 +68,7 @@ class vc709axi_to_pcie_x1() extends BlackBox
     val s_axi_bvalid          = Bool(OUTPUT)
     // read address
     val s_axi_arid            = Bits(INPUT,4)
-    val s_axi_araddr          = Bits(INPUT,32) 
+    val s_axi_araddr          = Bits(INPUT,AXI_ADDR_WIDTH) 
     val s_axi_arregion        = Bits(INPUT,4)
     val s_axi_arlen           = Bits(INPUT,8)
     val s_axi_arsize          = Bits(INPUT,3)
@@ -76,14 +78,14 @@ class vc709axi_to_pcie_x1() extends BlackBox
     //slave interface read data
     val s_axi_rready          = Bool(INPUT)
     val s_axi_rid             = Bits(OUTPUT,4)
-    val s_axi_rdata           = Bits(OUTPUT,128)   // 64
+    val s_axi_rdata           = Bits(OUTPUT,AXI_DATA_WIDTH)
     val s_axi_rresp           = Bits(OUTPUT,2)
     val s_axi_rlast           = Bool(OUTPUT)
     val s_axi_rvalid          = Bool(OUTPUT)
 
     // AXI Master Interface
     // write address
-    val m_axi_awaddr          = Bits(OUTPUT,32)
+    val m_axi_awaddr          = Bits(OUTPUT,AXI_ADDR_WIDTH)
     val m_axi_awlen           = Bits(OUTPUT,8)
     val m_axi_awsize          = Bits(OUTPUT,3)
     val m_axi_awburst         = Bits(OUTPUT,2)
@@ -91,8 +93,8 @@ class vc709axi_to_pcie_x1() extends BlackBox
     val m_axi_awvalid         = Bool(OUTPUT)
     val m_axi_awready         = Bool(INPUT)
     // write data
-    val m_axi_wdata           = Bits(OUTPUT,128)    // 64
-    val m_axi_wstrb           = Bits(OUTPUT,16)     // 8
+    val m_axi_wdata           = Bits(OUTPUT,AXI_DATA_WIDTH)
+    val m_axi_wstrb           = Bits(OUTPUT,16)
     val m_axi_wlast           = Bool(OUTPUT)
     val m_axi_wvalid          = Bool(OUTPUT)
     val m_axi_wready          = Bool(INPUT)
@@ -101,7 +103,7 @@ class vc709axi_to_pcie_x1() extends BlackBox
     val m_axi_bresp           = Bits(INPUT,2)
     val m_axi_bvalid          = Bool(INPUT)
     // read address
-    val m_axi_araddr          = Bits(OUTPUT,32)
+    val m_axi_araddr          = Bits(OUTPUT,AXI_ADDR_WIDTH)
     val m_axi_arlen           = Bits(OUTPUT,8)
     val m_axi_arsize          = Bits(OUTPUT,3)
     val m_axi_arburst         = Bits(OUTPUT,2)
@@ -110,13 +112,13 @@ class vc709axi_to_pcie_x1() extends BlackBox
     val m_axi_arready         = Bool(INPUT)
     // read data
     val m_axi_rready          = Bool(OUTPUT)
-    val m_axi_rdata           = Bits(INPUT,128)    // 64
+    val m_axi_rdata           = Bits(INPUT,AXI_DATA_WIDTH)
     val m_axi_rresp           = Bits(INPUT,2)
     val m_axi_rlast           = Bool(INPUT)
     val m_axi_rvalid          = Bool(INPUT)
 
     // AXI4-Lite Control Interface
-    val s_axi_ctl_awaddr      = Bits(INPUT,28) // 32
+    val s_axi_ctl_awaddr      = Bits(INPUT,28)
     val s_axi_ctl_awvalid     = Bool(INPUT)
     val s_axi_ctl_awready     = Bool(OUTPUT)
     val s_axi_ctl_wdata       = Bits(INPUT,32)
@@ -126,7 +128,7 @@ class vc709axi_to_pcie_x1() extends BlackBox
     val s_axi_ctl_bresp       = Bits(OUTPUT,2)
     val s_axi_ctl_bvalid      = Bool(OUTPUT)
     val s_axi_ctl_bready      = Bool(INPUT)
-    val s_axi_ctl_araddr      = Bits(INPUT,28) // 32
+    val s_axi_ctl_araddr      = Bits(INPUT,28)
     val s_axi_ctl_arvalid     = Bool(INPUT)
     val s_axi_ctl_arready     = Bool(OUTPUT)
     val s_axi_ctl_rdata       = Bits(OUTPUT,32)
@@ -171,8 +173,8 @@ class VC709AXIToPCIeX1(implicit p:Parameters) extends LazyModule
       address       = List(AddressSet(0x40000000L, 0x1fffffffL)),
       resources     = Seq(Resource(device, "ranges")),
       executable    = true,
-      supportsWrite = TransferSizes(1, 128),
-      supportsRead  = TransferSizes(1, 128))),
+      supportsWrite = TransferSizes(1, 256),
+      supportsRead  = TransferSizes(1, 256))),
     beatBytes = 8)))
 
   val control = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
@@ -295,8 +297,6 @@ class VC709AXIToPCIeX1(implicit p:Parameters) extends LazyModule
     m.aw.bits.len                := blackbox.io.m_axi_awlen
     m.aw.bits.size               := blackbox.io.m_axi_awsize
     m.aw.bits.burst              := blackbox.io.m_axi_awburst
-    m.aw.bits.lock               := blackbox.io.m_axi_awlock
-    m.aw.bits.cache              := blackbox.io.m_axi_awcache
     m.aw.bits.prot               := blackbox.io.m_axi_awprot
     m.aw.bits.qos                := UInt(0)
     m.aw.valid                   := blackbox.io.m_axi_awvalid
@@ -317,8 +317,6 @@ class VC709AXIToPCIeX1(implicit p:Parameters) extends LazyModule
     m.ar.bits.len                := blackbox.io.m_axi_arlen
     m.ar.bits.size               := blackbox.io.m_axi_arsize
     m.ar.bits.burst              := blackbox.io.m_axi_arburst
-    m.ar.bits.lock               := blackbox.io.m_axi_arlock
-    m.ar.bits.cache              := blackbox.io.m_axi_arcache
     m.ar.bits.prot               := blackbox.io.m_axi_arprot
     m.ar.bits.qos                := UInt(0)
     m.ar.valid                   := blackbox.io.m_axi_arvalid
@@ -348,7 +346,7 @@ class VC709AXIToPCIeX1(implicit p:Parameters) extends LazyModule
       CONFIG.PCIEBAR2AXIBAR_0             {0x00000000} \
       CONFIG.PCIE_BLK_LOCN                {X0Y0} \
       CONFIG.PL_LINK_CAP_MAX_LINK_WIDTH   {X8} \
-      CONFIG.PL_LINK_CAP_MAX_LINK_SPEED   {2.5_GT/s} \
+      CONFIG.PL_LINK_CAP_MAX_LINK_SPEED   {8.0_GT/s} \
       CONFIG.PF0_DEVICE_ID                {8018} \
       CONFIG.PF0_REVISION_ID              {0} \
       CONFIG.PF0_SUBSYSTEM_VENDOR_ID      {10EE} \
@@ -361,9 +359,8 @@ class VC709AXIToPCIeX1(implicit p:Parameters) extends LazyModule
       CONFIG.PF0_BAR0_TYPE                {Memory} \
       CONFIG.PF0_SUB_CLASS_interface_menu {Other_memory_controller} \
       CONFIG.REF_CLK_FREQ                 {100_MHz} \
-      CONFIG.CORECLK_FREQ                 {500} \
-      CONFIG.AXI_ADDR_WIDTH               {32} \
-      CONFIG.AXI_DATA_WIDTH               {128_bit} \
+      CONFIG.AXI_ADDR_WIDTH               {64} \
+      CONFIG.AXI_DATA_WIDTH               {256_bit} \
       CONFIG.VENDOR_ID                    {10EE} \
       CONFIG.XLNX_REF_BOARD               {VC709} \
       CONFIG.axi_aclk_loopback            {false} \
