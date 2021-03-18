@@ -13,11 +13,12 @@ import freechips.rocketchip.util.{ElaborationArtefacts}
 // IP VLNV: xilinx.com:customize_ip:vc709pcietoaxi:3.0
 // Black Box Signals named _exactly_ as per Vivado generated verilog
 trait VC709AXIToPCIeX1IOSerial extends Bundle {
+  def NUM_LANES = 8
   // PCIe Interface
-  val pci_exp_txp           = Bits(OUTPUT, 8)
-  val pci_exp_txn           = Bits(OUTPUT, 8)
-  val pci_exp_rxp           = Bits(INPUT, 8)
-  val pci_exp_rxn           = Bits(INPUT, 8)
+  val pci_exp_txp           = Bits(OUTPUT,NUM_LANES)
+  val pci_exp_txn           = Bits(OUTPUT,NUM_LANES)
+  val pci_exp_rxp           = Bits(INPUT,NUM_LANES)
+  val pci_exp_rxn           = Bits(INPUT,NUM_LANES)
 }
 
 trait VC709AXIToPCIeX1IOClocksReset extends Bundle {
@@ -31,7 +32,7 @@ trait VC709AXIToPCIeX1IOClocksReset extends Bundle {
 class vc709axi_to_pcie_x1() extends BlackBox
 {
   def AXI_ADDR_WIDTH = 64
-  def AXI_DATA_WIDTH = 256
+  def AXI_DATA_WIDTH = 128
   val io = new Bundle with VC709AXIToPCIeX1IOSerial
                       with VC709AXIToPCIeX1IOClocksReset {
     // Global Signals
@@ -42,8 +43,8 @@ class vc709axi_to_pcie_x1() extends BlackBox
     val intx_msi_request      = Bool(INPUT)
     val intx_msi_grant        = Bool(OUTPUT)
     val msi_enable            = Bool(OUTPUT)
-    val msi_vector_num        = Bits(INPUT, 5)
     val msi_vector_width      = Bits(OUTPUT,3)
+    val msi_vector_num        = Bits(INPUT,5)
 
     // AXI Slave Interface
     // write address
@@ -173,8 +174,8 @@ class VC709AXIToPCIeX1(implicit p:Parameters) extends LazyModule
       address       = List(AddressSet(0x40000000L, 0x1fffffffL)),
       resources     = Seq(Resource(device, "ranges")),
       executable    = true,
-      supportsWrite = TransferSizes(1, 256),
-      supportsRead  = TransferSizes(1, 256))),
+      supportsWrite = TransferSizes(1, 128),
+      supportsRead  = TransferSizes(1, 128))),
     beatBytes = 8)))
 
   val control = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
@@ -205,7 +206,7 @@ class VC709AXIToPCIeX1(implicit p:Parameters) extends LazyModule
 
     val io = IO(new Bundle {
       val port = new VC709AXIToPCIeX1IOBundle
-      val refclk = Bool(INPUT)     // REFCLK is changed to refclk in 3.0
+      val refclk = Bool(INPUT)
     })
 
     val blackbox = Module(new vc709axi_to_pcie_x1)
@@ -346,7 +347,7 @@ class VC709AXIToPCIeX1(implicit p:Parameters) extends LazyModule
       CONFIG.PCIEBAR2AXIBAR_0             {0x00000000} \
       CONFIG.PCIE_BLK_LOCN                {X0Y0} \
       CONFIG.PL_LINK_CAP_MAX_LINK_WIDTH   {X8} \
-      CONFIG.PL_LINK_CAP_MAX_LINK_SPEED   {8.0_GT/s} \
+      CONFIG.PL_LINK_CAP_MAX_LINK_SPEED   {2.5_GT/s} \
       CONFIG.PF0_DEVICE_ID                {8018} \
       CONFIG.PF0_REVISION_ID              {0} \
       CONFIG.PF0_SUBSYSTEM_VENDOR_ID      {10EE} \
@@ -357,14 +358,12 @@ class VC709AXIToPCIeX1(implicit p:Parameters) extends LazyModule
       CONFIG.PF0_BAR0_SCALE               {Gigabytes} \
       CONFIG.PF0_BAR0_SIZE                {4} \
       CONFIG.PF0_BAR0_TYPE                {Memory} \
+      CONFIG.PF0_BASE_CLASS_MENU          {Memory Controller} \
       CONFIG.PF0_SUB_CLASS_interface_menu {Other_memory_controller} \
       CONFIG.REF_CLK_FREQ                 {100_MHz} \
       CONFIG.AXI_ADDR_WIDTH               {64} \
-      CONFIG.AXI_DATA_WIDTH               {256_bit} \
+      CONFIG.AXI_DATA_WIDTH               {128_bit} \
       CONFIG.VENDOR_ID                    {10EE} \
-      CONFIG.XLNX_REF_BOARD               {VC709} \
-      CONFIG.axi_aclk_loopback            {false} \
-      CONFIG.en_ext_ch_gt_drp             {false} \
-      CONFIG.en_transceiver_status_ports  {false} ] [get_ips vc709axi_to_pcie_x1]"""
+      CONFIG.XLNX_REF_BOARD               {VC709}] [get_ips vc709axi_to_pcie_x1]"""
   )
 }

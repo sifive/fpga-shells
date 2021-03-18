@@ -22,14 +22,6 @@ class SysClockVC709PlacedOverlay(val shell: VC709ShellBasicOverlays, name: Strin
   shell { InModuleBody {
     shell.xdc.addBoardPin(io.p, "clk_p")
     shell.xdc.addBoardPin(io.n, "clk_n")
-//    val packagePinsWithPackageIOs = Seq(("H19", IOPin(io.p)),
-//                                        ("G18", IOPin(io.n)))
-
-//    packagePinsWithPackageIOs foreach { case (pin, io) => {
-//      shell.xdc.addPackagePin(io, pin)
-//      shell.xdc.addIOStandard(io, "DIFF_SSTL15")
-//      shell.xdc.addIOB(io)
-//    } }
   } }
 }
 
@@ -37,6 +29,25 @@ class SysClockVC709ShellPlacer(shell: VC709ShellBasicOverlays, val shellInput: C
   extends ClockInputShellPlacer[VC709ShellBasicOverlays]
 {
     def place(designInput: ClockInputDesignInput) = new SysClockVC709PlacedOverlay(shell, valName.name, designInput, shellInput)
+}
+
+class I2CVC709PlacedOverlay(val shell: VC709ShellBasicOverlays, name: String, val designInput: I2CDesignInput, val shellInput: I2CShellInput)
+  extends I2CXilinxPlacedOverlay(name, designInput, shellInput)
+{
+  shell { InModuleBody {
+    val packagePinsWithPackageIOs = Seq(("AU32", IOPin(io.sda)),
+                                        ("AT35", IOPin(io.scl)))
+
+    packagePinsWithPackageIOs foreach { case (pin, io) => {
+      shell.xdc.addPackagePin(io, pin)
+      shell.xdc.addIOStandard(io, "LVCMOS18")
+      shell.xdc.addIOB(io)
+    } }
+  } }
+}
+class I2CVC709ShellPlacer(val shell: VC709ShellBasicOverlays, val shellInput: I2CShellInput)(implicit val valName: ValName)
+  extends I2CShellPlacer[VC709ShellBasicOverlays] {
+  def place(designInput: I2CDesignInput) = new I2CVC709PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
 
 class UARTVC709PlacedOverlay(val shell: VC709ShellBasicOverlays, name: String, val designInput: UARTDesignInput, val shellInput: UARTShellInput)
@@ -178,7 +189,6 @@ class DDR3VC709PlacedOverlay(val shell: VC709ShellBasicOverlays, name: String, v
   } }
 
   shell.sdc.addGroup(clocks = Seq("clk_pll_i"))
-  // shell.sdc.addGroup(pins = Seq(mig.island.module.blackbox.io.ui_clk))
 }
 class DDR3VC709ShellPlacer(shell: VC709ShellBasicOverlays, val shellInput: DDRShellInput)(implicit val valName: ValName)
   extends DDRShellPlacer[VC709ShellBasicOverlays] {
@@ -252,7 +262,8 @@ abstract class VC709ShellBasicOverlays()(implicit p: Parameters) extends Series7
   // val led       = Seq.tabulate(8)(i => Overlay(LEDOverlayKey, new LEDVC709ShellPlacer(this, LEDShellInput(color = "red", number = i))(valName = ValName(s"led_$i"))))
   // val switch    = Seq.tabulate(8)(i => Overlay(SwitchOverlayKey, new SwitchVC709ShellPlacer(this, SwitchShellInput(number = i))(valName = ValName(s"switch_$i"))))
   // val button    = Seq.tabulate(5)(i => Overlay(ButtonOverlayKey, new ButtonVC709ShellPlacer(this, ButtonShellInput(number = i))(valName = ValName(s"button_$i"))))
-  val uart      = Seq.tabulate(1)(i => Overlay(UARTOverlayKey, new UARTVC709ShellPlacer(this, UARTShellInput(index = 0))))
+  val i2c       = Seq.tabulate(1)(i => Overlay(I2COverlayKey, new I2CVC709ShellPlacer(this, I2CShellInput(index = i))))
+  val uart      = Seq.tabulate(1)(i => Overlay(UARTOverlayKey, new UARTVC709ShellPlacer(this, UARTShellInput(index = i))))
   val jtag      = Overlay(JTAGDebugOverlayKey, new JTAGDebugVC709ShellPlacer(this, JTAGDebugShellInput()))
   val chiplink  = Overlay(ChipLinkOverlayKey, new ChipLinkVC709ShellPlacer(this, ChipLinkShellInput())) 
   val ddr0      = Overlay(DDROverlayKey, new DDR3VC709ShellPlacer(this, DDRShellInput()))
