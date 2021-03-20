@@ -92,6 +92,8 @@ class vc709axi_to_pcie_x1() extends BlackBox
     val m_axi_awburst         = Bits(OUTPUT,2)
     val m_axi_awprot          = Bits(OUTPUT,3)
     val m_axi_awvalid         = Bool(OUTPUT)
+    val m_axi_awlock          = Bits(OUTPUT,1)
+    val m_axi_awcache         = Bits(OUTPUT,4)
     val m_axi_awready         = Bool(INPUT)
     // write data
     val m_axi_wdata           = Bits(OUTPUT,AXI_DATA_WIDTH)
@@ -110,6 +112,8 @@ class vc709axi_to_pcie_x1() extends BlackBox
     val m_axi_arburst         = Bits(OUTPUT,2)
     val m_axi_arprot          = Bits(OUTPUT,3)
     val m_axi_arvalid         = Bool(OUTPUT)
+    val m_axi_arlock          = Bits(OUTPUT,1)
+    val m_axi_arcache         = Bits(OUTPUT,4)
     val m_axi_arready         = Bool(INPUT)
     // read data
     val m_axi_rready          = Bool(OUTPUT)
@@ -206,7 +210,7 @@ class VC709AXIToPCIeX1(implicit p:Parameters) extends LazyModule
 
     val io = IO(new Bundle {
       val port = new VC709AXIToPCIeX1IOBundle
-      val refclk = Bool(INPUT)
+      val refclk = Bool(INPUT)     // REFCLK is changed to refclk in 3.0
     })
 
     val blackbox = Module(new vc709axi_to_pcie_x1)
@@ -299,6 +303,8 @@ class VC709AXIToPCIeX1(implicit p:Parameters) extends LazyModule
     m.aw.bits.size               := blackbox.io.m_axi_awsize
     m.aw.bits.burst              := blackbox.io.m_axi_awburst
     m.aw.bits.prot               := blackbox.io.m_axi_awprot
+    m.aw.bits.lock               := blackbox.io.m_axi_awlock
+    m.aw.bits.cache              := blackbox.io.m_axi_awcache
     m.aw.bits.qos                := UInt(0)
     m.aw.valid                   := blackbox.io.m_axi_awvalid
     blackbox.io.m_axi_awready    := m.aw.ready
@@ -318,6 +324,8 @@ class VC709AXIToPCIeX1(implicit p:Parameters) extends LazyModule
     m.ar.bits.len                := blackbox.io.m_axi_arlen
     m.ar.bits.size               := blackbox.io.m_axi_arsize
     m.ar.bits.burst              := blackbox.io.m_axi_arburst
+    m.ar.bits.lock               := blackbox.io.m_axi_arlock
+    m.ar.bits.cache              := blackbox.io.m_axi_arcache
     m.ar.bits.prot               := blackbox.io.m_axi_arprot
     m.ar.bits.qos                := UInt(0)
     m.ar.valid                   := blackbox.io.m_axi_arvalid
@@ -341,14 +349,13 @@ class VC709AXIToPCIeX1(implicit p:Parameters) extends LazyModule
       CONFIG.AXIBAR_NUM                   {1} \
       CONFIG.BASEADDR                     {0x00000000} \
       CONFIG.HIGHADDR                     {0x03FFFFFF} \
-      CONFIG.COMP_TIMEOUT                 {50ms} \
-      CONFIG.DEVICE_PORT_TYPE             {PCI_Express_Endpoint_Device} \
+      CONFIG.DEVICE_PORT_TYPE             {Root_Port_of_PCI_Express_Root_Complex} \
       CONFIG.INCLUDE_BAROFFSET_REG        {true} \
       CONFIG.PCIEBAR2AXIBAR_0             {0x00000000} \
       CONFIG.PCIE_BLK_LOCN                {X0Y0} \
       CONFIG.PL_LINK_CAP_MAX_LINK_WIDTH   {X8} \
       CONFIG.PL_LINK_CAP_MAX_LINK_SPEED   {2.5_GT/s} \
-      CONFIG.PF0_DEVICE_ID                {8018} \
+      CONFIG.PF0_DEVICE_ID                {7118} \
       CONFIG.PF0_REVISION_ID              {0} \
       CONFIG.PF0_SUBSYSTEM_VENDOR_ID      {10EE} \
       CONFIG.PF0_SUBSYSTEM_ID             {0007} \
@@ -358,12 +365,14 @@ class VC709AXIToPCIeX1(implicit p:Parameters) extends LazyModule
       CONFIG.PF0_BAR0_SCALE               {Gigabytes} \
       CONFIG.PF0_BAR0_SIZE                {4} \
       CONFIG.PF0_BAR0_TYPE                {Memory} \
-      CONFIG.PF0_BASE_CLASS_MENU          {Memory Controller} \
-      CONFIG.PF0_SUB_CLASS_interface_menu {Other_memory_controller} \
+      CONFIG.PF0_BASE_CLASS_MENU          {Bridge_device} \
+      CONFIG.PF0_SUB_CLASS_interface_menu {Host_bridge} \
+      CONFIG.PF0_CLASS_CODE               {0x060000} \
+      CONFIG.COMP_TIMEOUT                 {50ms} \
       CONFIG.REF_CLK_FREQ                 {100_MHz} \
       CONFIG.AXI_ADDR_WIDTH               {64} \
       CONFIG.AXI_DATA_WIDTH               {128_bit} \
-      CONFIG.VENDOR_ID                    {10EE} \
-      CONFIG.XLNX_REF_BOARD               {VC709}] [get_ips vc709axi_to_pcie_x1]"""
+      CONFIG.C_S_AXI_SUPPORTS_NARROW_BURST  {false} \
+      CONFIG.XLNX_REF_BOARD               {VC709} ] [get_ips vc709axi_to_pcie_x1]"""
   )
 }
