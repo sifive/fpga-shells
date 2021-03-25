@@ -25,6 +25,7 @@ set_property BOARD_PIN {push_buttons_5bits_tri_i_0}  [get_ports btn_0]
 set_property BOARD_PIN {push_buttons_5bits_tri_i_1}  [get_ports btn_1]
 set_property BOARD_PIN {push_buttons_5bits_tri_i_2}  [get_ports btn_2]
 set_property BOARD_PIN {push_buttons_5bits_tri_i_3}  [get_ports btn_3]
+set_property BOARD_PIN {push_buttons_5bits_tri_i_4}  [get_ports btn_4]
 
 ## SWITCH
 set_property BOARD_PIN {dip_switches_tri_i_0} [get_ports sw_0]
