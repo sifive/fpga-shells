@@ -23,11 +23,12 @@ class XilinxVC709MIGPads(depth : BigInt) extends VC709MIGIODDR(depth) {
 
 class XilinxVC709MIGIO(depth : BigInt) extends VC709MIGIODDR(depth) with VC709MIGIOClocksReset
 
-class XilinxVC709MIGIsland(c : XilinxVC709MIGParams, val crossing: ClockCrossingType = AsynchronousCrossing(8))(implicit p: Parameters) extends LazyModule with CrossesToOnlyOneClockDomain {
+class XilinxVC709MIGIsland(c : XilinxVC709MIGParams)(implicit p: Parameters) extends LazyModule with CrossesToOnlyOneClockDomain {
   val ranges = AddressRange.fromSets(c.address)
   require (ranges.size == 1, "DDR range must be contiguous")
   val offset = ranges.head.base
   val depth = ranges.head.size
+  val crossing = AsynchronousCrossing(8)
   require((depth<=0x100000000L),"vc709mig supports upto 4GB depth configuraton")
   
   val device = new MemoryDevice
@@ -153,7 +154,7 @@ class XilinxVC709MIGIsland(c : XilinxVC709MIGParams, val crossing: ClockCrossing
   }
 }
 
-class XilinxVC709MIG(c : XilinxVC709MIGParams, crossing: ClockCrossingType = AsynchronousCrossing(8))(implicit p: Parameters) extends LazyModule {
+class XilinxVC709MIG(c : XilinxVC709MIGParams)(implicit p: Parameters) extends LazyModule {
   val ranges = AddressRange.fromSets(c.address)
   val depth = ranges.head.size
 
@@ -163,7 +164,7 @@ class XilinxVC709MIG(c : XilinxVC709MIGParams, crossing: ClockCrossingType = Asy
   val indexer = LazyModule(new AXI4IdIndexer(idBits = 4))
   val deint   = LazyModule(new AXI4Deinterleaver(p(CacheBlockBytes)))
   val yank    = LazyModule(new AXI4UserYanker)
-  val island  = LazyModule(new XilinxVC709MIGIsland(c, crossing))
+  val island  = LazyModule(new XilinxVC709MIGIsland(c))
 
   val node: TLInwardNode =
     island.crossAXI4In(island.node) := yank.node := deint.node := indexer.node := toaxi4.node := buffer.node
