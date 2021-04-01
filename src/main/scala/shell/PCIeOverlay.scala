@@ -8,9 +8,6 @@ import freechips.rocketchip.tilelink._
 import freechips.rocketchip.interrupts._
 import sifive.fpgashells.clocks._
 
-import sifive.fpgashells.devices.xilinx.xilinxvc709pciex1.{XilinxVC709PCIeX1Pads, XilinxVC709PCIeX1}
-import sifive.fpgashells.shell.xilinx.{Series7Shell}
-
 case class PCIeShellInput()
 case class PCIeDesignInput(
   wrangler: ClockAdapterNode,

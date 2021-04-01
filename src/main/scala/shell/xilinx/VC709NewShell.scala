@@ -12,7 +12,7 @@ import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 import sifive.blocks.devices.chiplink._
 import sifive.fpgashells.devices.xilinx.xilinxvc709mig._
-import sifive.fpgashells.devices.xilinx.xilinxvc709pciex1._
+import sifive.fpgashells.devices.xilinx.xilinxvc709pcie._
 
 class SysClockVC709PlacedOverlay(val shell: VC709ShellBasicOverlays, name: String, val designInput: ClockInputDesignInput, val shellInput: ClockInputShellInput)
   extends LVDSClockInputXilinxPlacedOverlay(name, designInput, shellInput)
@@ -196,9 +196,9 @@ class DDR3VC709ShellPlacer(shell: VC709ShellBasicOverlays, val shellInput: DDRSh
 }
 
 class PCIeVC709PlacedOverlay(val shell: VC709ShellBasicOverlays, name: String, val designInput: PCIeDesignInput, val shellInput: PCIeShellInput)
-  extends PCIePlacedOverlay[XilinxVC709PCIeX1Pads](name, designInput, shellInput)
+  extends PCIePlacedOverlay[XilinxVC709PCIePads](name, designInput, shellInput)
 {
-  val pcie      = LazyModule(new XilinxVC709PCIeX1)
+  val pcie      = LazyModule(new XilinxVC709PCIe)
   val bridge    = BundleBridgeSource(() => pcie.module.io.cloneType)
   val topBridge = shell { bridge.makeSink() }
   val axiClk    = shell { ClockSourceNode(freqMHz = 125) }
@@ -214,7 +214,7 @@ class PCIeVC709PlacedOverlay(val shell: VC709ShellBasicOverlays, name: String, v
   val intNode = pcie.crossIntOut(pcie.intnode)
 
   def overlayOutput = PCIeOverlayOutput(pcieNode, intNode)
-  def ioFactory = new XilinxVC709PCIeX1Pads
+  def ioFactory = new XilinxVC709PCIePads
 
   InModuleBody { bridge.bundle <> pcie.module.io }
 
