@@ -1,4 +1,5 @@
 # See LICENSE for license details.
+set_param general.maxThreads 8
 
 # Set the variable for the directory that includes all scripts
 set scriptdir [file dirname [info script]]
