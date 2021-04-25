@@ -29,9 +29,9 @@ class XDC(val name: String)
   }
   def addIOB(io: IOPin) {
     if (io.isOutput) {
-      addConstraint(s"set_property IOB {TRUE} [ get_cells -of_objects [ all_fanin -flat -startpoints_only ${io.sdcPin}]]")
+      addConstraint(s"set_property IOB {TRUE} ${io.sdcPin}")
     } else {
-      addConstraint(s"set_property IOB {TRUE} [ get_cells -of_objects [ all_fanout -flat -endpoints_only ${io.sdcPin}]]")
+      addConstraint(s"set_property IOB {TRUE} ${io.sdcPin}")
     }
   }
   def addSlew(io: IOPin, speed: String) {
