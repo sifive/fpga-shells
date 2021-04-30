@@ -263,7 +263,6 @@ class JTAGDebugVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: St
       shell.xdc.addPackagePin(io, pin_location)
       shell.xdc.addIOStandard(io, pin_voltage)
       shell.xdc.addPullup(io)
-      shell.xdc.addIOB(io)
     }
   } }
 }
