@@ -177,8 +177,8 @@ class DDR3VC709PlacedOverlay(val shell: VC709ShellBasicOverlays, name: String, v
     port.aresetn := !ar.reset
   } }
 
-  // shell.sdc.addGroup(clocks = Seq("clk_pll_i"))
-  shell.sdc.addGroup(pins = Seq(mig.island.module.blackbox.io.ui_clk))
+  shell.sdc.addGroup(clocks = Seq("clk_pll_i"))
+  // shell.sdc.addGroup(pins = Seq(mig.island.module.blackbox.io.ui_clk))
 }
 class DDR3VC709ShellPlacer(shell: VC709ShellBasicOverlays, val shellInput: DDRShellInput)(implicit val valName: ValName)
   extends DDRShellPlacer[VC709ShellBasicOverlays] {
