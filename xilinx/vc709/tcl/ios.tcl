@@ -25,6 +25,7 @@ set_property BOARD_PIN {push_buttons_5bits_tri_i_0}  [get_ports btn_0]
 set_property BOARD_PIN {push_buttons_5bits_tri_i_1}  [get_ports btn_1]
 set_property BOARD_PIN {push_buttons_5bits_tri_i_2}  [get_ports btn_2]
 set_property BOARD_PIN {push_buttons_5bits_tri_i_3}  [get_ports btn_3]
+set_property BOARD_PIN {push_buttons_5bits_tri_i_4}  [get_ports btn_4]
 
 ## SWITCH
 set_property BOARD_PIN {dip_switches_tri_i_0} [get_ports sw_0]
@@ -54,23 +55,11 @@ set_property PACKAGE_PIN AR34 [get_ports uart_rtsn]
 set_property IOSTANDARD LVCMOS18 [get_ports uart_rtsn]
 set_property IOB TRUE [get_ports uart_rtsn]
 
-## PCI Express
-#FMC 1 refclk
-set_property PACKAGE_PIN A10 [get_ports {pcie_REFCLK_rxp}]
-set_property PACKAGE_PIN A9 [get_ports {pcie_REFCLK_rxn}]
-create_clock -name pcie_ref_clk -period 10 [get_ports pcie_REFCLK_rxp]
-set_input_jitter [get_clocks -of_objects [get_ports pcie_REFCLK_rxp]] 0.5
-#TX
-set_property PACKAGE_PIN H4 [get_ports {pcie_pci_exp_txp}]
-set_property PACKAGE_PIN H3 [get_ports {pcie_pci_exp_txn}]
-#RX
-set_property PACKAGE_PIN G6 [get_ports {pcie_pci_exp_rxp}]
-set_property PACKAGE_PIN G5 [get_ports {pcie_pci_exp_rxn}]
+## I2C
+set_property PACKAGE_PIN AU32 [get_ports i2c_sda]
+set_property IOSTANDARD LVCMOS18 [get_ports i2c_sda]
+set_property IOB TRUE [get_cells -of_objects [all_fanout -flat -endpoints_only [get_ports i2c_sda]]]
 
-## SDIO
-# set_property -dict { PACKAGE_PIN AN30  IOSTANDARD LVCMOS18  IOB TRUE } [get_ports {sdio_clk}]
-# set_property -dict { PACKAGE_PIN AP30  IOSTANDARD LVCMOS18  IOB TRUE  PULLUP TRUE } [get_ports {sdio_cmd}]
-# set_property -dict { PACKAGE_PIN AR30  IOSTANDARD LVCMOS18  IOB TRUE  PULLUP TRUE } [get_ports {sdio_dat[0]}]
-# set_property -dict { PACKAGE_PIN AU31  IOSTANDARD LVCMOS18  IOB TRUE  PULLUP TRUE } [get_ports {sdio_dat[1]}]
-# set_property -dict { PACKAGE_PIN AV31  IOSTANDARD LVCMOS18  IOB TRUE  PULLUP TRUE } [get_ports {sdio_dat[2]}]
-# set_property -dict { PACKAGE_PIN AT30  IOSTANDARD LVCMOS18  IOB TRUE  PULLUP TRUE } [get_ports {sdio_dat[3]}]
+set_property PACKAGE_PIN AT35 [get_ports i2c_scl]
+set_property IOSTANDARD LVCMOS18 [get_ports i2c_scl]
+set_property IOB TRUE [get_cells -of_objects [all_fanout -flat -endpoints_only [get_ports i2c_scl]]]
