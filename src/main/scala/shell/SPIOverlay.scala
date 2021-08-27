@@ -11,7 +11,7 @@ import freechips.rocketchip.tilelink.TLBusWrapper
 import freechips.rocketchip.interrupts.IntInwardNode
 
 //This should not do the controller placement either
-case class SPIShellInput()
+case class SPIShellInput(index: Int = 0)
 case class SPIDesignInput(spiParam: SPIParams, node: BundleBridgeSource[SPIPortIO])(implicit val p: Parameters)
 case class SPIOverlayOutput()
 case object SPIOverlayKey extends Field[Seq[DesignPlacer[SPIDesignInput, SPIShellInput, SPIOverlayOutput]]](Nil)
