@@ -7,12 +7,14 @@ import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
 import freechips.rocketchip.util.SyncResetSynchronizerShiftReg
+import sifive._
 import sifive.fpgashells.clocks._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx._
 import sifive.blocks.devices.chiplink._
 import sifive.fpgashells.devices.xilinx.xilinxvc707mig._
 import sifive.fpgashells.devices.xilinx.xilinxvc707pciex1._
+
 
 class SysClockVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: ClockInputDesignInput, val shellInput: ClockInputShellInput)
   extends LVDSClockInputXilinxPlacedOverlay(name, designInput, shellInput)
@@ -28,7 +30,6 @@ class SysClockVC707ShellPlacer(val shell: VC707Shell, val shellInput: ClockInput
   extends ClockInputShellPlacer[VC707Shell] {
   def place(designInput: ClockInputDesignInput) = new SysClockVC707PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
-
 class SDIOVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: SPIDesignInput, val shellInput: SPIShellInput)
   extends SDIOXilinxPlacedOverlay(name, designInput, shellInput)
 {
