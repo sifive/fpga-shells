@@ -71,7 +71,7 @@ class SDIOVCU108PlacedOverlay(val shell: VCU108ShellBasicOverlays, name: String,
     } }
   } }
 }
-//TODO ： 2021.08.31 night
+
 class SDIOVCU108ShellPlacer(shell: VCU108ShellBasicOverlays, val shellInput: SPIShellInput)(implicit val valName: ValName)
   extends SPIShellPlacer[VCU108ShellBasicOverlays] {
   def place(designInput: SPIDesignInput) = new SDIOVCU108PlacedOverlay(shell, valName.name, designInput, shellInput)
@@ -125,7 +125,7 @@ class UARTVCU108ShellPlacer(shell: VCU108ShellBasicOverlays, val shellInput: UAR
   extends UARTShellPlacer[VCU108ShellBasicOverlays] {
   def place(designInput: UARTDesignInput) = new UARTVCU108PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
-// TODO : change IO pin of QSFP
+// Bank 127 QSFP,and VCU108 only have one QSFP quad
 class QSFP1VCU108PlacedOverlay(val shell: VCU108ShellBasicOverlays, name: String, val designInput: EthernetDesignInput, val shellInput: EthernetShellInput)
   extends EthernetUltraScalePlacedOverlay(name, designInput, shellInput, XXVEthernetParams(name = name, speed   = 10, dclkMHz = 125))
 {
@@ -135,20 +135,20 @@ class QSFP1VCU108PlacedOverlay(val shell: VCU108ShellBasicOverlays, name: String
     dclk := dclkSink.bundle
   }
   shell { InModuleBody {
-//    dclkSource.bundle := shell.ref_clock.get.get.overlayOutput.node.out(0)._1.clock
-//    shell.xdc.addPackagePin(io.tx_p, "V7")
-//    shell.xdc.addPackagePin(io.tx_n, "V6")
-//    shell.xdc.addPackagePin(io.rx_p, "Y2")
-//    shell.xdc.addPackagePin(io.rx_n, "Y1")
-//    shell.xdc.addPackagePin(io.refclk_p, "W9")
-//    shell.xdc.addPackagePin(io.refclk_n, "W8")
+    dclkSource.bundle := shell.ref_clock.get.get.overlayOutput.node.out(0)._1.clock
+    shell.xdc.addPackagePin(io.tx_p, "AK42")
+    shell.xdc.addPackagePin(io.tx_n, "AK43")
+    shell.xdc.addPackagePin(io.rx_p, "AG45")
+    shell.xdc.addPackagePin(io.rx_n, "AG46")
+    shell.xdc.addPackagePin(io.refclk_p, "AG34")
+    shell.xdc.addPackagePin(io.refclk_n, "AH35")
   } }
 }
 class QSFP1VCU108ShellPlacer(shell: VCU108ShellBasicOverlays, val shellInput: EthernetShellInput)(implicit val valName: ValName)
   extends EthernetShellPlacer[VCU108ShellBasicOverlays] {
   def place(designInput: EthernetDesignInput) = new QSFP1VCU108PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
-
+//VCU 108 do not have QSFP2
 class QSFP2VCU108PlacedOverlay(val shell: VCU108ShellBasicOverlays, name: String, val designInput: EthernetDesignInput, val shellInput: EthernetShellInput)
   extends EthernetUltraScalePlacedOverlay(name, designInput, shellInput, XXVEthernetParams(name = name, speed   = 10, dclkMHz = 125))
 {
@@ -249,7 +249,7 @@ class ChipLinkVCU108ShellPlacer(shell: VCU108ShellBasicOverlays, val shellInput:
 class JTAGDebugVCU108PlacedOverlay(val shell: VCU108ShellBasicOverlays, name: String, val designInput: JTAGDebugDesignInput, val shellInput: JTAGDebugShellInput)
   extends JTAGDebugXilinxPlacedOverlay(name, designInput, shellInput)
 {
-  shell { InModuleBody {//TODO: JTAG pin
+  shell { InModuleBody {
     val pin_locations = Map(
       "PMOD_J52" -> Seq("AW16",      "BF7",      "BC13",      "BC14",      "BA10"),
       "PMOD_J53" -> Seq( "J20",       "T23",       "J24",       "P22",       "N22"),
@@ -362,7 +362,7 @@ class DDRVCU108ShellPlacer(shell: VCU108ShellBasicOverlays, val shellInput: DDRS
   extends DDRShellPlacer[VCU108ShellBasicOverlays] {
   def place(designInput: DDRDesignInput) = new DDRVCU108PlacedOverlay(shell, valName.name, designInput, shellInput)
 }
-// There is no this kind of pcie
+// There is no this kind of pcie in VCU108
 //class PCIeVCU108FMCPlacedOverlay(val shell: VCU108ShellBasicOverlays, name: String, val designInput: PCIeDesignInput, val shellInput: PCIeShellInput)
 //  extends PCIeUltraScalePlacedOverlay(name, designInput, shellInput, XDMAParams(
 //    name     = "fmc_xdma",
@@ -417,11 +417,6 @@ class PCIeVCU108EdgePlacedOverlay(val shell: VCU108ShellBasicOverlays, name: Str
     // Work-around incorrectly pre-assigned pins
     IOPin.of(io).foreach { shell.xdc.addPackagePin(_, "") }
     // PCIe Edge connector U2
-    //   Lanes 00-03 Bank 227
-    //   Lanes 04-07 Bank 226
-    //   Lanes 08-11 Bank 225
-    //   Lanes 12-15 Bank 224
-
     // FMC+ J22
     val ref227 = Seq("AL9", "AL8")  /* [pn]  Bank 227 PCIE_CLK2_*/
     val ref = ref227
@@ -462,7 +457,7 @@ abstract class VCU108ShellBasicOverlays()(implicit p: Parameters) extends UltraS
   val switch    = Seq.tabulate(4)(i => Overlay(SwitchOverlayKey, new SwitchVCU108ShellPlacer(this, SwitchShellInput(number = i))(valName = ValName(s"switch_$i"))))
   val button    = Seq.tabulate(5)(i => Overlay(ButtonOverlayKey, new ButtonVCU108ShellPlacer(this, ButtonShellInput(number = i))(valName = ValName(s"button_$i"))))
   val ddr       = Overlay(DDROverlayKey, new DDRVCU108ShellPlacer(this, DDRShellInput()))
-//  val qsfp1     = Overlay(EthernetOverlayKey, new QSFP1VCU108ShellPlacer(this, EthernetShellInput()))
+  val qsfp1     = Overlay(EthernetOverlayKey, new QSFP1VCU108ShellPlacer(this, EthernetShellInput()))
 //  val qsfp2     = Overlay(EthernetOverlayKey, new QSFP2VCU108ShellPlacer(this, EthernetShellInput()))
   val chiplink  = Overlay(ChipLinkOverlayKey, new ChipLinkVCU108ShellPlacer(this, ChipLinkShellInput()))
   //val spi_flash = Overlay(SPIFlashOverlayKey, new SPIFlashVCU108ShellPlacer(this, SPIFlashShellInput()))
