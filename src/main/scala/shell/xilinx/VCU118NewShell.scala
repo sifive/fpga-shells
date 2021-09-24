@@ -15,9 +15,9 @@ import sifive.fpgashells.devices.xilinx.xilinxvcu118mig._
 import sifive.fpgashells.devices.xilinx.xdma._
 import sifive.fpgashells.ip.xilinx.xxv_ethernet._
 
-class SysClockVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: ClockInputDesignInput, val shellInput: ClockInputShellInput)
+  class SysClockVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: ClockInputDesignInput, val shellInput: ClockInputShellInput)
   extends LVDSClockInputXilinxPlacedOverlay(name, designInput, shellInput)
-{
+  {
   val node = shell { ClockSourceNode(freqMHz = 250, jitterPS = 50)(ValName(name)) }
 
   shell { InModuleBody {
@@ -26,12 +26,12 @@ class SysClockVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: Str
     shell.xdc.addIOStandard(io.p, "DIFF_SSTL12")
     shell.xdc.addIOStandard(io.n, "DIFF_SSTL12")
   } }
-}
-class SysClockVCU118ShellPlacer(shell: VCU118ShellBasicOverlays, val shellInput: ClockInputShellInput)(implicit val valName: ValName)
+  }
+  class SysClockVCU118ShellPlacer(shell: VCU118ShellBasicOverlays, val shellInput: ClockInputShellInput)(implicit val valName: ValName)
   extends ClockInputShellPlacer[VCU118ShellBasicOverlays]
-{
+  {
     def place(designInput: ClockInputDesignInput) = new SysClockVCU118PlacedOverlay(shell, valName.name, designInput, shellInput)
-}
+  }
 
 class RefClockVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: ClockInputDesignInput, val shellInput: ClockInputShellInput)
   extends LVDSClockInputXilinxPlacedOverlay(name, designInput, shellInput) {
