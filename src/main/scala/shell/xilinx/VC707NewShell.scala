@@ -217,15 +217,15 @@ class DDRVC707ShellPlacer(val shell: VC707Shell, val shellInput: DDRShellInput)(
 class PCIeVC707PlacedOverlay(val shell: VC707Shell, name: String, val designInput: PCIeDesignInput, val shellInput: PCIeShellInput)
   extends PCIePlacedOverlay[XilinxVC707PCIeX1Pads](name, designInput, shellInput)
 {
-  val pcie = LazyModule(new XilinxVC707PCIeX1)
-  val ioNode = BundleBridgeSource(() => pcie.module.io.cloneType)
+  val pcie      = LazyModule(new XilinxVC707PCIeX1)
+  val ioNode    = BundleBridgeSource(() => pcie.module.io.cloneType)
   val topIONode = shell { ioNode.makeSink() }
   val axiClk    = shell { ClockSourceNode(freqMHz = 125) }
   val areset    = shell { ClockSinkNode(Seq(ClockSinkParameters())) }
   areset := designInput.wrangler := axiClk
 
   val slaveSide = TLIdentityNode()
-  pcie.crossTLIn(pcie.slave) := slaveSide
+  pcie.crossTLIn(pcie.slave)   := slaveSide
   pcie.crossTLIn(pcie.control) := slaveSide
   val node = NodeHandle(slaveSide, pcie.crossTLOut(pcie.master))
   val intnode = pcie.crossIntOut(pcie.intnode)
