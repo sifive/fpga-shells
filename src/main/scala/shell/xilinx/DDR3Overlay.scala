@@ -13,6 +13,7 @@ import sifive.blocks.devices.chiplink._
 import sifive.fpgashells.devices.xilinx.xilinxvc709mig._
 
 case object VC709DDR3Size extends Field[BigInt](0x100000000L) // 4GB
+case object DualVC709DDR3Size extends Field[BigInt](0x200000000L) // 8GB
 abstract class DDR3XilinxPlacedOverlay(shell: VC709ShellBasicOverlays, name: String, designInput: DDRDesignInput, shellInput: DDRShellInput)
   extends DDRPlacedOverlay[XilinxVC709MIGPads](name, designInput, shellInput)
 {

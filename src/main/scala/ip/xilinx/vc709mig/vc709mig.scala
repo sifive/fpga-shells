@@ -2,6 +2,7 @@
 package sifive.fpgashells.ip.xilinx.vc709mig
 
 import Chisel._
+import chisel3.util._
 import chisel3.experimental.{Analog,attach}
 import freechips.rocketchip.util.{ElaborationArtefacts}
 import freechips.rocketchip.util.GenericParameterizedBundle
@@ -11,7 +12,7 @@ import freechips.rocketchip.config._
 // Black Box
 
 class VC709MIGIODDR(depth : BigInt) extends GenericParameterizedBundle(depth) {
-  require((depth<=0x100000000L),"VC709MIGIODDR supports upto 4GB depth configuraton")
+  require((depth<=0x200000000L),"VC709MIGIODDR supports upto 4GB depth configuraton")
   val ddr3_addr             = Bits(OUTPUT,16)
   val ddr3_ba               = Bits(OUTPUT,3)
   val ddr3_ras_n            = Bool(OUTPUT)
@@ -45,27 +46,16 @@ trait VC709MIGIOClocksReset extends Bundle {
   val sys_rst               = Bool(INPUT)
 }
 
-object vc709mig
-{
-  var vc709migNo = 0
-  def alloc = {
-    vc709migNo += 1
-    vc709migNo
-  }
-  def last = {
-    vc709mig.vc709migNo - 1
-  }
-}
-
 //scalastyle:off
 //turn off linter: blackbox name must match verilog module
 class vc709mig(depth : BigInt)(implicit val p:Parameters) extends BlackBox
 {
-  require((depth<=0x100000000L), "vc709mig supports upto 4GB depth configuraton")
-  require((vc709mig.alloc <= 2), "vc709mig supports upto two memory controllers")
+  require((depth<=0x200000000L), "vc709mig supports upto 8GB depth configuraton")
 
-  val index = vc709mig.last
-  override def desiredName = Seq("vc709mig_a", "vc709mig_b")(index)
+  override def desiredName = "vc709mig_a"
+
+  def DDR3_ADDR_WIDTH = 32
+  def DDR3_DATA_WIDTH = 64
 
     val io = new VC709MIGIODDR(depth) with VC709MIGIOClocksReset {
         // User interface signals
@@ -78,7 +68,7 @@ class vc709mig(depth : BigInt)(implicit val p:Parameters) extends BlackBox
         //axi_s
         //slave interface write address ports
         val s_axi_awid            = Bits(INPUT,4)
-        val s_axi_awaddr          = Bits(INPUT,32)
+        val s_axi_awaddr          = Bits(INPUT,DDR3_ADDR_WIDTH)
         val s_axi_awlen           = Bits(INPUT,8)
         val s_axi_awsize          = Bits(INPUT,3)
         val s_axi_awburst         = Bits(INPUT,2)
@@ -89,7 +79,7 @@ class vc709mig(depth : BigInt)(implicit val p:Parameters) extends BlackBox
         val s_axi_awvalid         = Bool(INPUT)
         val s_axi_awready         = Bool(OUTPUT)
         //slave interface write data ports
-        val s_axi_wdata           = Bits(INPUT,64)
+        val s_axi_wdata           = Bits(INPUT,DDR3_DATA_WIDTH)
         val s_axi_wstrb           = Bits(INPUT,8)
         val s_axi_wlast           = Bool(INPUT)
         val s_axi_wvalid          = Bool(INPUT)
@@ -101,7 +91,7 @@ class vc709mig(depth : BigInt)(implicit val p:Parameters) extends BlackBox
         val s_axi_bvalid          = Bool(OUTPUT)
         //slave interface read address ports
         val s_axi_arid            = Bits(INPUT,4)
-        val s_axi_araddr          = Bits(INPUT,32)
+        val s_axi_araddr          = Bits(INPUT,DDR3_ADDR_WIDTH)
         val s_axi_arlen           = Bits(INPUT,8)
         val s_axi_arsize          = Bits(INPUT,3)
         val s_axi_arburst         = Bits(INPUT,2)
@@ -114,7 +104,7 @@ class vc709mig(depth : BigInt)(implicit val p:Parameters) extends BlackBox
         //slave interface read data ports
         val s_axi_rready          = Bool(INPUT)
         val s_axi_rid             = Bits(OUTPUT,4)
-        val s_axi_rdata           = Bits(OUTPUT,64)
+        val s_axi_rdata           = Bits(OUTPUT,DDR3_DATA_WIDTH)
         val s_axi_rresp           = Bits(OUTPUT,2)
         val s_axi_rlast           = Bool(OUTPUT)
         val s_axi_rvalid          = Bool(OUTPUT)
@@ -531,20 +521,22 @@ class vc709mig(depth : BigInt)(implicit val p:Parameters) extends BlackBox
 </Project>
 }"""
 
-  val migprj = Seq(vc709mig_a, vc709mig_b)(index)
-  val migprjname =  Seq("{/vc709mig_a.prj}", "{/vc709mig_b.prj}")(index)
-  val modulename =  Seq("vc709mig_a", "vc709mig_b")(index)
+  def add_vc709mig(migprj : String, modulename : String) = 
+    ElaborationArtefacts.add(
+      "%1$s.vivado.tcl".format(modulename),
+      """set migprj %1$s
+      set migprjfile {/%2$s.prj}
+      set migprjfilepath $ipdir$migprjfile
+      set fp [open $migprjfilepath w+]
+      puts $fp $migprj
+      close $fp
+      create_ip -vendor xilinx.com -library ip -name mig_7series -module_name %2$s -dir $ipdir -force
+      set_property CONFIG.XML_INPUT_FILE $migprjfilepath [get_ips %2$s] """.format(migprj, modulename)
+    )
 
-  ElaborationArtefacts.add(
-  modulename++".vivado.tcl",
-   """set migprj """ ++ migprj ++ """
-   set migprjfile """ ++ migprjname ++ """
-   set migprjfilepath $ipdir$migprjfile
-   set fp [open $migprjfilepath w+]
-   puts $fp $migprj
-   close $fp
-   create_ip -vendor xilinx.com -library ip -name mig_7series -module_name """ ++ modulename ++ """ -dir $ipdir -force
-   set_property CONFIG.XML_INPUT_FILE $migprjfilepath [get_ips """ ++ modulename ++ """] """
-  )
+  add_vc709mig(vc709mig_a, "vc709mig_a")
+  add_vc709mig(vc709mig_b, "vc709mig_b")
+
+  // addResource("/vsrc/vc709mig8gb.v")
 }
 //scalastyle:on
