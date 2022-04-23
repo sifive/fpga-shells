@@ -9,7 +9,7 @@ import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.subsystem.{BaseSubsystem, PeripheryBus, PeripheryBusKey}
 import freechips.rocketchip.tilelink.TLBusWrapper
 import freechips.rocketchip.interrupts.IntInwardNode
-import freechips.rocketchip.diplomaticobjectmodel.logicaltree.LogicalTreeNode
+
 
 import sifive.blocks.devices.i2c._
 
