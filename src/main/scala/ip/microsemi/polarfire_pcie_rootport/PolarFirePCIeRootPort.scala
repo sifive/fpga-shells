@@ -331,7 +331,7 @@ class PolarFirePCIeX4(implicit p:Parameters) extends LazyModule
 
     //m
     m.aw.bits.cache := UInt(0)
-    m.aw.bits.prot  := AXI4Parameters.PROT_PRIVILEDGED
+    m.aw.bits.prot  := AXI4Parameters.PROT_PRIVILEGED
     m.aw.bits.qos   := UInt(0)
 
     m.aw.bits.id                        := blackbox.io.PCIESS_AXI_1_M_AWID
@@ -355,7 +355,7 @@ class PolarFirePCIeX4(implicit p:Parameters) extends LazyModule
     m.b.ready                           := blackbox.io.PCIESS_AXI_1_M_BREADY
 
     m.ar.bits.cache := UInt(0)
-    m.ar.bits.prot  := AXI4Parameters.PROT_PRIVILEDGED
+    m.ar.bits.prot  := AXI4Parameters.PROT_PRIVILEGED
     m.ar.bits.qos   := UInt(0)
 
     m.ar.bits.id                        := blackbox.io.PCIESS_AXI_1_M_ARID
